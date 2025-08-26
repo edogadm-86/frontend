@@ -63,5 +63,12 @@
   "sortBy": "Сортирай по",
   "dateAdded": "Дата на добавяне",
   "alphabetical": "Азбучен ред",
-  "lastUpdated": "Последно обновяване"
+  "lastUpdated": "Последно обновяване",
+  "addVaccination": "Добави ваксинация",
+  "addHealthRecord": "Добави здравен запис",
+  "scheduleAppointment": "Насрочи среща",
+  "addTrainingSession": "Добави тренировъчна сесия",
+  "upcomingAppointments": "Предстоящи срещи",
+  "quickActions": "Бързи действия",
+  "recentActivity": "Последна активност"
 }

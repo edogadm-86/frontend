@@ -63,5 +63,12 @@
   "sortBy": "Sort by",
   "dateAdded": "Date Added",
   "alphabetical": "Alphabetical",
-  "lastUpdated": "Last Updated"
+  "lastUpdated": "Last Updated",
+  "addVaccination": "Add Vaccination",
+  "addHealthRecord": "Add Health Record",
+  "scheduleAppointment": "Schedule Appointment",
+  "addTrainingSession": "Add Training Session",
+  "upcomingAppointments": "Upcoming Appointments",
+  "quickActions": "Quick Actions",
+  "recentActivity": "Recent Activity"
 }

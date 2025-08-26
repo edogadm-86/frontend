@@ -5,6 +5,10 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { DogManagement } from './components/DogManagement';
+import { HealthManagement } from './components/HealthManagement';
+import { CalendarManagement } from './components/CalendarManagement';
+import { TrainingView } from './components/TrainingView';
+import { SettingsView } from './components/SettingsView';
 
 const AppContent: React.FC = () => {
   const { 
@@ -48,24 +52,27 @@ const AppContent: React.FC = () => {
         );
       case 'health':
         return (
-          <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Health Management</h2>
-            <p className="text-gray-600">Health management features coming soon...</p>
-          </div>
+          <HealthManagement
+            currentDog={currentDog}
+            dogs={dogs}
+            onNavigate={setCurrentView}
+          />
         );
       case 'calendar':
         return (
-          <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Calendar</h2>
-            <p className="text-gray-600">Calendar features coming soon...</p>
-          </div>
+          <CalendarManagement
+            currentDog={currentDog}
+            dogs={dogs}
+            onNavigate={setCurrentView}
+          />
         );
       case 'training':
         return (
-          <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Training</h2>
-            <p className="text-gray-600">Training features coming soon...</p>
-          </div>
+          <TrainingView
+            currentDog={currentDog}
+            dogs={dogs}
+            onNavigate={setCurrentView}
+          />
         );
       case 'community':
         return (
@@ -76,12 +83,13 @@ const AppContent: React.FC = () => {
         );
       case 'settings':
         return (
-          <DogManagement
+          <SettingsView
+            currentDog={currentDog}
             dogs={dogs}
             onCreateDog={createDog}
             onUpdateDog={updateDog}
             onSelectDog={setCurrentDog}
-            currentDog={currentDog}
+            onNavigate={setCurrentView}
           />
         );
       default:
