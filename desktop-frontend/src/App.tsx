@@ -9,6 +9,7 @@ import { HealthManagement } from './components/HealthManagement';
 import { CalendarManagement } from './components/CalendarManagement';
 import { TrainingView } from './components/TrainingView';
 import { SettingsView } from './components/SettingsView';
+import { CommunityView } from './components/CommunityView';
 
 const AppContent: React.FC = () => {
   const { 
@@ -76,10 +77,7 @@ const AppContent: React.FC = () => {
         );
       case 'community':
         return (
-          <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Community</h2>
-            <p className="text-gray-600">Community features coming soon...</p>
-          </div>
+          <CommunityView onNavigate={setCurrentView} />
         );
       case 'settings':
         return (

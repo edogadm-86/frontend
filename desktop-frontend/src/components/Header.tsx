@@ -15,6 +15,17 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
+  // Close menus when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      setShowUserMenu(false);
+      setShowLanguageMenu(false);
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   const getPageTitle = () => {
     switch (currentView) {
       case 'dashboard': return t('dashboard');
@@ -38,30 +49,34 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-white/20 px-8 py-4 shadow-lg">
+    <header className="bg-white/80 backdrop-blur-md border-b border-white/20 px-8 py-4 shadow-lg relative z-50">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex-1 min-w-0 pr-4">
           <h1 className="text-3xl font-bold gradient-text">{getPageTitle()}</h1>
           <p className="text-sm text-gray-500 mt-1">
             {t('welcome')}, <span className="font-medium text-primary-600">{user?.name}</span>
           </p>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 flex-shrink-0">
           {/* Search */}
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-primary-500 transition-colors" />
             <input
               type="text"
               placeholder={t('searchDogs')}
-              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64 bg-white/80 backdrop-blur-sm transition-all duration-200 focus:w-72 focus:shadow-lg"
+              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-48 lg:w-64 bg-white/80 backdrop-blur-sm transition-all duration-200 focus:w-56 lg:focus:w-72 focus:shadow-lg"
             />
           </div>
 
           {/* Language Selector */}
           <div className="relative">
             <button
-              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowLanguageMenu(!showLanguageMenu);
+                setShowUserMenu(false);
+              }}
               className="language-selector flex items-center space-x-2 hover:shadow-xl transition-all duration-200"
             >
               <Globe size={16} className="text-gray-600" />
@@ -71,16 +86,22 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
             </button>
             
             {showLanguageMenu && (
-              <div className="absolute right-0 mt-2 w-32 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-50">
+              <div className="absolute right-0 mt-2 w-32 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-[60]">
                 <button
-                  onClick={() => changeLanguage('en')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage('en');
+                  }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 transition-colors flex items-center space-x-2"
                 >
                   <span>🇺🇸</span>
                   <span>English</span>
                 </button>
                 <button
-                  onClick={() => changeLanguage('bg')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeLanguage('bg');
+                  }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 transition-colors flex items-center space-x-2"
                 >
                   <span>🇧🇬</span>
@@ -107,7 +128,11 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
           {/* User Menu */}
           <div className="relative">
             <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowUserMenu(!showUserMenu);
+                setShowLanguageMenu(false);
+              }}
               className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/50 transition-all duration-200 group"
             >
               <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
@@ -115,14 +140,14 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                   {user?.name?.charAt(0).toUpperCase()}
                 </span>
               </div>
-              <div className="text-right">
+              <div className="text-right hidden lg:block">
                 <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
               </div>
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-[60]">
                 <button className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 transition-colors flex items-center space-x-2">
                   <User size={16} />
                   <span>{t('profile')}</span>
@@ -133,7 +158,10 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                 </button>
                 <hr className="my-2 border-gray-200" />
                 <button
-                  onClick={onLogout}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLogout();
+                  }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 text-red-600 transition-colors flex items-center space-x-2"
                 >
                   <LogOut size={16} />

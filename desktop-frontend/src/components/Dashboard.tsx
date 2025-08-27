@@ -112,9 +112,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="p-8 space-y-8">
       {/* Dog Profile Header */}
-      <Card variant="gradient" className="relative overflow-hidden">
+      <Card variant="gradient" className="relative overflow-hidden mb-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-200/30 to-blue-200/30 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center space-x-6">
             <div className="relative">
               <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
@@ -155,9 +155,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
           </div>
-          <Button onClick={() => onNavigate('settings')} variant="glass" icon={<Plus size={16} />}>
-            {t('edit')} {t('profile')}
-          </Button>
+          <div className="flex-shrink-0">
+            <Button onClick={() => onNavigate('settings')} variant="glass" icon={<Plus size={16} />}>
+              {t('edit')} {t('profile')}
+            </Button>
+          </div>
         </div>
       </Card>
 

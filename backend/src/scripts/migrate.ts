@@ -114,6 +114,102 @@ const runMigrations = async () => {
       CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(date);
       CREATE INDEX IF NOT EXISTS idx_vaccinations_next_due_date ON vaccinations(next_due_date);
 
+      -- Create documents table for file attachments
+      CREATE TABLE IF NOT EXISTS documents (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID REFERENCES dogs(id) ON DELETE CASCADE,
+        vaccination_id UUID REFERENCES vaccinations(id) ON DELETE CASCADE,
+        health_record_id UUID REFERENCES health_records(id) ON DELETE CASCADE,
+        filename VARCHAR(255) NOT NULL,
+        original_name VARCHAR(255) NOT NULL,
+        file_type VARCHAR(100) NOT NULL,
+        file_size INTEGER NOT NULL,
+        file_path TEXT NOT NULL,
+        document_type VARCHAR(50) NOT NULL CHECK (document_type IN ('profile_image', 'vaccination_document', 'health_document', 'license', 'microchip', 'other')),
+        uploaded_by UUID NOT NULL REFERENCES users(id),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Create posts table for community features
+      CREATE TABLE IF NOT EXISTS posts (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        dog_id UUID REFERENCES dogs(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        post_type VARCHAR(50) NOT NULL CHECK (post_type IN ('story', 'question', 'tip', 'event', 'photo', 'video')),
+        image_url TEXT,
+        video_url TEXT,
+        tags TEXT[],
+        likes_count INTEGER DEFAULT 0,
+        comments_count INTEGER DEFAULT 0,
+        is_public BOOLEAN DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Create events table
+      CREATE TABLE IF NOT EXISTS events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        event_type VARCHAR(50) NOT NULL CHECK (event_type IN ('meetup', 'training', 'competition', 'adoption', 'fundraiser', 'other')),
+        location VARCHAR(255),
+        latitude DECIMAL(10, 8),
+        longitude DECIMAL(11, 8),
+        start_date TIMESTAMP WITH TIME ZONE NOT NULL,
+        end_date TIMESTAMP WITH TIME ZONE,
+        max_participants INTEGER,
+        current_participants INTEGER DEFAULT 0,
+        image_url TEXT,
+        is_public BOOLEAN DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Create post_likes table
+      CREATE TABLE IF NOT EXISTS post_likes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(post_id, user_id)
+      );
+
+      -- Create post_comments table
+      CREATE TABLE IF NOT EXISTS post_comments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Create event_participants table
+      CREATE TABLE IF NOT EXISTS event_participants (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        dog_id UUID REFERENCES dogs(id) ON DELETE CASCADE,
+        status VARCHAR(20) DEFAULT 'attending' CHECK (status IN ('attending', 'maybe', 'not_attending')),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(event_id, user_id)
+      );
+
+      -- Create indexes for new tables
+      CREATE INDEX IF NOT EXISTS idx_documents_dog_id ON documents(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_documents_vaccination_id ON documents(vaccination_id);
+      CREATE INDEX IF NOT EXISTS idx_documents_health_record_id ON documents(health_record_id);
+      CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);
+      CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);
+      CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date);
+      CREATE INDEX IF NOT EXISTS idx_events_location ON events(location);
+      CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON post_likes(post_id);
+      CREATE INDEX IF NOT EXISTS idx_post_comments_post_id ON post_comments(post_id);
+      CREATE INDEX IF NOT EXISTS idx_event_participants_event_id ON event_participants(event_id);
+
       -- Create trigger function for updating updated_at timestamp
       CREATE OR REPLACE FUNCTION update_updated_at_column()
       RETURNS TRIGGER AS $$
@@ -129,6 +225,15 @@ const runMigrations = async () => {
 
       DROP TRIGGER IF EXISTS update_dogs_updated_at ON dogs;
       CREATE TRIGGER update_dogs_updated_at BEFORE UPDATE ON dogs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      DROP TRIGGER IF EXISTS update_posts_updated_at ON posts;
+      CREATE TRIGGER update_posts_updated_at BEFORE UPDATE ON posts FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      DROP TRIGGER IF EXISTS update_events_updated_at ON events;
+      CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON events FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      DROP TRIGGER IF EXISTS update_post_comments_updated_at ON post_comments;
+      CREATE TRIGGER update_post_comments_updated_at BEFORE UPDATE ON post_comments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `;
 
     await pool.query(migrationSQL);

@@ -229,6 +229,73 @@ class ApiClient {
   async deleteEmergencyContact(contactId: string) {
     return this.request(`/emergency/${contactId}`, { method: 'DELETE' });
   }
+
+  // Posts endpoints
+  async getPosts(params?: { page?: number; limit?: number; type?: string; userId?: string }) {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.type) queryParams.append('type', params.type);
+    if (params?.userId) queryParams.append('userId', params.userId);
+    
+    return this.request<{ posts: any[] }>(`/posts?${queryParams.toString()}`);
+  }
+
+  async createPost(postData: any) {
+    return this.request<{ post: any }>('/posts', {
+      method: 'POST',
+      body: JSON.stringify(postData),
+    });
+  }
+
+  async likePost(postId: string) {
+    return this.request(`/posts/${postId}/like`, { method: 'POST' });
+  }
+
+  // Events endpoints
+  async getEvents(params?: { page?: number; limit?: number; type?: string; location?: string }) {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.type) queryParams.append('type', params.type);
+    if (params?.location) queryParams.append('location', params.location);
+    
+    return this.request<{ events: any[] }>(`/events?${queryParams.toString()}`);
+  }
+
+  async createEvent(eventData: any) {
+    return this.request<{ event: any }>('/events', {
+      method: 'POST',
+      body: JSON.stringify(eventData),
+    });
+  }
+
+  // File upload endpoints
+  async uploadFile(file: File, metadata: { dogId?: string; vaccinationId?: string; healthRecordId?: string; documentType?: string }) {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (metadata.dogId) formData.append('dogId', metadata.dogId);
+    if (metadata.vaccinationId) formData.append('vaccinationId', metadata.vaccinationId);
+    if (metadata.healthRecordId) formData.append('healthRecordId', metadata.healthRecordId);
+    if (metadata.documentType) formData.append('documentType', metadata.documentType);
+
+    return this.request<{ document: any }>('/uploads/upload', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        // Don't set Content-Type for FormData, let browser set it with boundary
+      },
+    });
+  }
+
+  async getDocuments(dogId: string) {
+    return this.request<{ documents: any[] }>(`/uploads/dog/${dogId}`);
+  }
+
+  async deleteDocument(documentId: string) {
+    return this.request(`/uploads/${documentId}`, { method: 'DELETE' });
+  }
 }
 
 export const apiClient = new ApiClient();
