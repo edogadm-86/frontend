@@ -84,7 +84,7 @@ router.get('/my-events', authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // Create event
-router.post('/', authenticateToken, validateEvent, validateRequest, async (req: AuthRequest, res) => {
+router.post('/', authenticateToken, validateEvent, validateRequest, async (req: AuthRequest, res: express.Response) => {
   try {
     const { 
       title, description, event_type, location, latitude, longitude, 
@@ -112,7 +112,7 @@ router.post('/', authenticateToken, validateEvent, validateRequest, async (req: 
 });
 
 // Update event
-router.put('/:id', authenticateToken, validateEvent, validateRequest, async (req: AuthRequest, res) => {
+router.put('/:id', authenticateToken, validateEvent, validateRequest, async (req: AuthRequest, res: express.Response) => {
   try {
     const { id } = req.params;
     const { 

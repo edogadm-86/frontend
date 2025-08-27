@@ -26,6 +26,8 @@ import { DogManagement } from './DogManagement';
 import { EmergencyContactManagement } from './EmergencyContactManagement';
 import { Dog } from '../types';
 
+const cn = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(' ');
 interface SettingsViewProps {
   currentDog: Dog | null;
   dogs: Dog[];

@@ -4,6 +4,8 @@ import { Award, ArrowLeft } from 'lucide-react';
 import { Button } from './ui/Button';
 import { TrainingManagement } from './TrainingManagement';
 import { Dog } from '../types';
+import { Card } from './ui/Card';
+
 
 interface TrainingViewProps {
   currentDog: Dog | null;
@@ -17,6 +19,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   onNavigate,
 }) => {
   const { t } = useTranslation();
+  const [openVideoId, setOpenVideoId] = React.useState<string | null>(null);
 
   if (!currentDog) {
     return (
@@ -72,43 +75,43 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             {
               title: "Basic Obedience Training",
               description: "Learn the fundamentals of dog training",
-              videoId: "4dbzPoB7AKE",
-              duration: "15:30",
+              videoId: "jFMA5ggFsXU",
+              duration: "5:56",
               level: "Beginner"
             },
             {
               title: "House Training Your Puppy",
               description: "Complete guide to potty training",
-              videoId: "NKIlzy7YQJ8",
-              duration: "12:45",
+              videoId: "Pptoq7avEKM",
+              duration: "4:50",
               level: "Beginner"
             },
             {
               title: "Advanced Tricks Training",
               description: "Teach your dog amazing tricks",
-              videoId: "Gs0g2lK1kRI",
-              duration: "18:20",
+              videoId: "K1co_bZfs6w",
+              duration: "8:36",
               level: "Advanced"
             },
             {
               title: "Leash Training Techniques",
               description: "Stop pulling and walk nicely",
-              videoId: "sFgtqgiAKoQ",
-              duration: "10:15",
+              videoId: "tSvfVs4LKyg",
+              duration: "9:14",
               level: "Intermediate"
             },
             {
               title: "Socialization Training",
               description: "Help your dog interact with others",
-              videoId: "3dWw9GLcOeA",
-              duration: "14:30",
+              videoId: "ysxjfhmj4c0",
+              duration: "6:18",
               level: "Beginner"
             },
             {
               title: "Agility Training Basics",
               description: "Introduction to dog agility",
-              videoId: "Gs0g2lK1kRI",
-              duration: "20:45",
+              videoId: "vkxggodZzqc",
+              duration: "4:04",
               level: "Advanced"
             }
           ].map((video, index) => (
@@ -133,7 +136,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   </span>
                 </div>
                 <button
-                  onClick={() => window.open(`https://www.youtube.com/watch?v=${video.videoId}`, '_blank')}
+                  onClick={() => setOpenVideoId(video.videoId)}
                   className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 >
                   <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl">
@@ -160,6 +163,28 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             </div>
           ))}
         </div>
+        {openVideoId && (
+  <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+    <div className="relative w-full max-w-4xl">
+      <button
+        onClick={() => setOpenVideoId(null)}
+        className="absolute -top-10 right-0 text-white/90 hover:text-white text-sm"
+        aria-label="Close"
+      >
+        Close ✕
+      </button>
+      <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+        <iframe
+          className="w-full h-full"
+          src={`https://www.youtube-nocookie.com/embed/${openVideoId}?autoplay=1&rel=0&modestbranding=1`}
+          title="YouTube player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
+    </div>
+  </div>
+)}
       </Card>
     </div>
   );

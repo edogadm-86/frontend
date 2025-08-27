@@ -104,7 +104,7 @@ router.get('/my-posts', authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // Create post
-router.post('/', authenticateToken, validatePost, validateRequest, async (req: AuthRequest, res) => {
+router.post('/', authenticateToken, validatePost, validateRequest, async (req: AuthRequest, res: express.Response) => {
   try {
     const { title, content, post_type, dog_id, image_url, video_url, tags, is_public = true } = req.body;
 
@@ -126,7 +126,7 @@ router.post('/', authenticateToken, validatePost, validateRequest, async (req: A
 });
 
 // Update post
-router.put('/:id', authenticateToken, validatePost, validateRequest, async (req: AuthRequest, res) => {
+router.put('/:id', authenticateToken, validatePost, validateRequest, async (req: AuthRequest, res: express.Response) => {
   try {
     const { id } = req.params;
     const { title, content, post_type, dog_id, image_url, video_url, tags, is_public } = req.body;
