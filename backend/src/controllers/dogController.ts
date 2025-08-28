@@ -1,285 +1,400 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, Search, Camera } from 'lucide-react';
+import { 
+  Heart, 
+  Calendar, 
+  Shield, 
+  Award, 
+  Plus,
+  TrendingUp,
+  AlertCircle,
+  Clock,
+  Sparkles,
+  Activity,
+  Target
+} from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Modal } from './ui/Modal';
-import { FileUpload } from './ui/FileUpload';
-import { Dog } from '../types';
+import { formatDate } from '../lib/utils';
+import { apiClient } from '../lib/api';
 
-interface DogManagementProps {
-  dogs: Dog[];
-  onCreateDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
-  onUpdateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
-  onSelectDog: (dog: Dog) => void;
-  currentDog: Dog | null;
+interface DashboardProps {
+  currentDog: any;
+  dogs: any[];
+  vaccinations: any[];
+  healthRecords: any[];
+  appointments: any[];
+  trainingSessions: any[];
+  onNavigate: (view: string) => void;
 }
 
-export const DogManagement: React.FC<DogManagementProps> = ({
-  dogs,
-  onCreateDog,
-  onUpdateDog,
-  onSelectDog,
+export const Dashboard: React.FC<DashboardProps> = ({
   currentDog,
+  dogs,
+  vaccinations,
+  healthRecords,
+  appointments,
+  trainingSessions,
+  onNavigate,
 }) => {
   const { t } = useTranslation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDog, setEditingDog] = useState<Dog | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [formData, setFormData] = useState({
-    name: '',
-    breed: '',
-    age: '',
-    weight: '',
-    profilePicture: '',
-    microchipId: '',
-    licenseNumber: '',
-  });
+  const [healthStatus, setHealthStatus] = React.useState<any>(null);
+  const [loadingHealthStatus, setLoadingHealthStatus] = React.useState(false);
 
-  const filteredDogs = dogs.filter(dog =>
-    dog.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dog.breed.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  React.useEffect(() => {
+    if (currentDog?.id) {
+      loadHealthStatus();
+    }
+  }, [currentDog?.id]);
 
-  const handleCreateDog = () => {
-    setEditingDog(null);
-    setFormData({
-      name: '',
-      breed: '',
-      age: '',
-      weight: '',
-      profilePicture: '',
-      microchipId: '',
-      licenseNumber: '',
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEditDog = (dog: Dog) => {
-    setEditingDog(dog);
-    setFormData({
-      name: dog.name,
-      breed: dog.breed,
-      age: dog.age.toString(),
-      weight: dog.weight.toString(),
-      profilePicture: dog.profilePicture || '',
-      microchipId: dog.microchipId || '',
-      licenseNumber: dog.licenseNumber || '',
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const loadHealthStatus = async () => {
+    if (!currentDog?.id) return;
     
-    const dogData = {
-      name: formData.name,
-      breed: formData.breed,
-      age: parseInt(formData.age),
-      weight: parseFloat(formData.weight),
-      profilePicture: formData.profilePicture || undefined,
-      microchipId: formData.microchipId || undefined,
-      licenseNumber: formData.licenseNumber || undefined,
-    };
-
+    setLoadingHealthStatus(true);
     try {
-      if (editingDog) {
-        const updatedDog = await onUpdateDog(editingDog.id, dogData);
-        if (currentDog?.id === editingDog.id) {
-          onSelectDog(updatedDog);
-        }
-      } else {
-        const newDog = await onCreateDog(dogData);
-        if (!currentDog) {
-          onSelectDog(newDog);
-        }
-      }
-      setIsModalOpen(false);
+      const status = await apiClient.getDogHealthStatus(currentDog.id);
+      setHealthStatus(status);
     } catch (error) {
-      console.error('Error saving dog:', error);
+      console.error('Error loading health status:', error);
     } finally {
-      setLoading(false);
+      setLoadingHealthStatus(false);
     }
   };
 
-  const handleFileUploaded = (fileUrl: string) => {
-    setFormData({ ...formData, profilePicture: fileUrl });
-  };
-  return (
-    <div className="p-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{t('myDogs')}</h2>
-          <p className="text-gray-600">Manage your dog profiles</p>
-        </div>
-        <Button onClick={handleCreateDog}>
-          <Plus size={20} className="mr-2" />
-          {t('addDog')}
-        </Button>
-      </div>
-
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <input
-          type="text"
-          placeholder={t('searchDogs')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full"
-        />
-      </div>
-
-      {/* Dogs Grid */}
-      {filteredDogs.length === 0 ? (
-        <Card className="text-center py-16">
-          <div className="text-gray-500 mb-4">
-            <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <Plus size={32} className="text-gray-400" />
+  if (!currentDog) {
+    return (
+      <div className="p-8 min-h-screen">
+        <div className="text-center py-20">
+          <div className="relative mb-8">
+            <div className="w-32 h-32 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full mx-auto flex items-center justify-center shadow-2xl float-animation">
+              <Heart size={48} className="text-white" />
             </div>
-            <p className="text-lg font-medium">No dogs found</p>
-            <p className="text-sm">Create your first dog profile to get started</p>
+            <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+              <Sparkles size={16} className="text-white" />
+            </div>
           </div>
-          <Button onClick={handleCreateDog}>
+          <h2 className="text-3xl font-bold gradient-text mb-4">
+            {t('welcome')} to eDog Desktop
+          </h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
+            Select a dog from the sidebar or add your first dog to get started
+          </p>
+          <Button onClick={() => onNavigate('settings')} size="lg" icon={<Plus size={20} />}>
             {t('addDog')}
           </Button>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDogs.map((dog) => (
-            <Card
-              key={dog.id}
-              className={`cursor-pointer transition-all ${
-                currentDog?.id === dog.id ? 'ring-2 ring-primary-500 bg-primary-50' : ''
-              }`}
-              onClick={() => onSelectDog(dog)}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                    {dog.profilePicture ? (
-                      <img
-                        src={dog.profilePicture}
-                        alt={dog.name}
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-xl font-semibold text-gray-600">
-                        {dog.name.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{dog.name}</h3>
-                    <p className="text-gray-600">{dog.breed}</p>
-                    <p className="text-sm text-gray-500">
-                      {dog.age} years • {dog.weight} kg
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditDog(dog);
-                  }}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-                >
-                  <Edit size={16} />
-                </button>
-              </div>
-              
-              {dog.microchipId && (
-                <div className="text-xs text-gray-500 mb-2">
-                  Microchip: {dog.microchipId}
-                </div>
-              )}
-              
-              {dog.licenseNumber && (
-                <div className="text-xs text-gray-500">
-                  License: {dog.licenseNumber}
-                </div>
-              )}
-            </Card>
-          ))}
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* Add/Edit Dog Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingDog ? t('editDog') : t('addDog')}
-        className="max-w-lg"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Profile Picture Upload */}
-          <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
-            <FileUpload
-              variant="avatar"
-              acceptedTypes="image/*"
-              maxSize={5}
-              dogId={editingDog?.id}
-              documentType="profile_image"
-              onFileUploaded={handleFileUploaded}
-              currentImage={formData.profilePicture}
-              className="mx-auto"
-            />
+  const dogVaccinations = vaccinations.filter(v => v.dog_id === currentDog.id);
+  const dogHealthRecords = healthRecords.filter(r => r.dog_id === currentDog.id);
+  const dogAppointments = appointments.filter(a => a.dog_id === currentDog.id);
+  const dogTrainingSessions = trainingSessions.filter(s => s.dog_id === currentDog.id);
+
+  const upcomingAppointments = dogAppointments
+    .filter(a => new Date(a.date) >= new Date())
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3);
+
+  const stats = [
+    {
+      icon: Shield,
+      label: t('vaccinations'),
+      value: dogVaccinations.length,
+      color: 'from-blue-500 to-cyan-500',
+      bgColor: 'from-blue-50 to-cyan-50',
+      onClick: () => onNavigate('health'),
+    },
+    {
+      icon: Heart,
+      label: t('healthRecords'),
+      value: dogHealthRecords.length,
+      color: 'from-red-500 to-pink-500',
+      bgColor: 'from-red-50 to-pink-50',
+      onClick: () => onNavigate('health'),
+    },
+    {
+      icon: Calendar,
+      label: t('appointments'),
+      value: upcomingAppointments.length,
+      color: 'from-green-500 to-emerald-500',
+      bgColor: 'from-green-50 to-emerald-50',
+      onClick: () => onNavigate('calendar'),
+    },
+    {
+      icon: Award,
+      label: t('trainingSessions'),
+      value: dogTrainingSessions.length,
+      color: 'from-purple-500 to-violet-500',
+      bgColor: 'from-purple-50 to-violet-50',
+      onClick: () => onNavigate('training'),
+    },
+  ];
+
+  const getStatusColor = (color: string) => {
+    switch (color) {
+  return (
+    <div className="p-8 space-y-8">
+      {/* Dog Profile Header */}
+      <Card variant="gradient" className="relative overflow-hidden mb-6">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-200/30 to-blue-200/30 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="relative flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center space-x-6">
+            <div className="relative">
+              <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
+                {currentDog.profile_picture ? (
+                  <img
+                    src={currentDog.profile_picture}
+                    alt={currentDog.name}
+                    className="w-24 h-24 rounded-3xl object-cover"
+                  />
+                ) : (
+                  <span className="text-3xl font-bold text-white">
+                    {currentDog.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center border-4 border-white">
+                <Activity size={12} className="text-white" />
+              </div>
+            </div>
+            <div>
+              <h2 className="text-4xl font-bold gradient-text">{currentDog.name}</h2>
+              <p className="text-xl text-gray-600 mb-2">{currentDog.breed}</p>
+              <div className="flex items-center space-x-6 text-sm text-gray-500">
+                <div className="flex items-center space-x-1">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span>{currentDog.age} years old</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                  <span>{currentDog.weight} kg</span>
+                </div>
+                {currentDog.microchip_id && (
+                  <div className="flex items-center space-x-1">
+                    <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
+                    <span>Microchip: {currentDog.microchip_id}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex-shrink-0">
+            <Button onClick={() => onNavigate('settings')} variant="glass" icon={<Plus size={16} />}>
+              {t('edit')} {t('profile')}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Health Status Banner */}
+      <Card variant="gradient" className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+              <Target size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-green-800">Health Status: Excellent</h3>
+              <p className="text-green-600">All vaccinations up to date • Next checkup in 2 months</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-green-600">98%</div>
+            <div className="text-sm text-green-500">Health Score</div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <Card key={index} onClick={stat.onClick} variant="stat" className="cursor-pointer group">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`w-14 h-14 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
+                <stat.icon size={24} className="text-white" />
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-500">{stat.label}</div>
+              </div>
+            </div>
+            <div className="progress-bar">
+              <div 
+                className={`progress-fill bg-gradient-to-r ${stat.color}`}
+                style={{ width: `${Math.min(stat.value * 10, 100)}%` }}
+              ></div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Quick Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card variant="glass" className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <TrendingUp size={20} className="text-white" />
+          </div>
+          <div className="text-2xl font-bold text-gray-900">7 days</div>
+          <div className="text-sm text-gray-600">Since last vet visit</div>
+        </Card>
+        
+        <Card variant="glass" className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Activity size={20} className="text-white" />
+          </div>
+          <div className="text-2xl font-bold text-gray-900">2.5 hrs</div>
+          <div className="text-sm text-gray-600">Daily activity average</div>
+        </Card>
+        
+        <Card variant="glass" className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Heart size={20} className="text-white" />
+          </div>
+          <div className="text-2xl font-bold text-gray-900">Excellent</div>
+          <div className="text-sm text-gray-600">Overall health</div>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Upcoming Appointments */}
+        <Card variant="gradient">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900 flex items-center">
+              <Calendar className="mr-2 text-primary-500" />
+              {t('upcomingAppointments')}
+            </h3>
+            <Button variant="ghost" size="sm" onClick={() => onNavigate('calendar')}>
+              {t('viewAll')}
+            </Button>
           </div>
           
-          <Input
-            label={t('dogName')}
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <Input
-            label={t('breed')}
-            value={formData.breed}
-            onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-            required
-          />
+          {upcomingAppointments.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                <Calendar size={32} className="text-gray-400" />
+              </div>
+              <p className="text-gray-500 mb-4">{t('noData')}</p>
+              <Button size="sm" onClick={() => onNavigate('calendar')} variant="outline">
+                {t('scheduleAppointment')}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {upcomingAppointments.map((appointment) => (
+                <div key={appointment.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 hover:bg-white/80 transition-all duration-200">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Calendar size={20} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900">{appointment.title}</h4>
+                    <p className="text-sm text-gray-600">
+                      {formatDate(appointment.date)} at {appointment.time}
+                    </p>
+                    {appointment.location && (
+                      <p className="text-xs text-gray-500">{appointment.location}</p>
+                    )}
+                  </div>
+                  <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-xs rounded-full font-medium">
+                    {appointment.type}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Quick Actions */}
+        <Card variant="gradient">
+          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <Sparkles className="mr-2 text-primary-500" />
+            {t('quickActions')}
+          </h3>
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              label={`${t('age')} (years)`}
-              type="number"
-              value={formData.age}
-              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-              required
-            />
-            <Input
-              label={`${t('weight')} (kg)`}
-              type="number"
-              step="0.1"
-              value={formData.weight}
-              onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-              required
-            />
+            <button
+              onClick={() => onNavigate('health')}
+              className="group p-6 text-left border-2 border-blue-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+            >
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Shield className="text-white" size={20} />
+              </div>
+              <p className="font-semibold text-gray-900">{t('addVaccination')}</p>
+              <p className="text-sm text-gray-500">Track vaccination records</p>
+            </button>
+            
+            <button
+              onClick={() => onNavigate('health')}
+              className="group p-6 text-left border-2 border-red-200 rounded-2xl hover:border-red-300 hover:bg-red-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+            >
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Heart className="text-white" size={20} />
+              </div>
+              <p className="font-semibold text-gray-900">{t('addHealthRecord')}</p>
+              <p className="text-sm text-gray-500">Log health information</p>
+            </button>
+            
+            <button
+              onClick={() => onNavigate('calendar')}
+              className="group p-6 text-left border-2 border-green-200 rounded-2xl hover:border-green-300 hover:bg-green-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+            >
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Calendar className="text-white" size={20} />
+              </div>
+              <p className="font-semibold text-gray-900">{t('scheduleAppointment')}</p>
+              <p className="text-sm text-gray-500">Book vet visits</p>
+            </button>
+            
+            <button
+              onClick={() => onNavigate('training')}
+              className="group p-6 text-left border-2 border-purple-200 rounded-2xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+            >
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Award className="text-white" size={20} />
+              </div>
+              <p className="font-semibold text-gray-900">{t('addTrainingSession')}</p>
+              <p className="text-sm text-gray-500">Track progress</p>
+            </button>
           </div>
-          <Input
-            label="Microchip ID (optional)"
-            value={formData.microchipId}
-            onChange={(e) => setFormData({ ...formData, microchipId: e.target.value })}
-          />
-          <Input
-            label="License Number (optional)"
-            value={formData.licenseNumber}
-            onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
-          />
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-              {t('cancel')}
-            </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? t('loading') : t('save')}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <Card variant="gradient">
+        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+          <Clock className="mr-2 text-primary-500" />
+          {t('recentActivity')}
+        </h3>
+        <div className="space-y-4">
+          {dogHealthRecords
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .slice(0, 5)
+            .map((record) => (
+              <div key={record.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Heart size={16} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{record.title}</p>
+                  <p className="text-sm text-gray-500">{formatDate(record.date)}</p>
+                </div>
+                <span className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 text-xs rounded-full font-medium">
+                  {record.type}
+                </span>
+              </div>
+            ))}
+          
+          {dogHealthRecords.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                <Clock size={32} className="text-gray-400" />
+              </div>
+              <p className="text-gray-500">{t('noData')}</p>
+            </div>
+          )}
+        </div>
+      </Card>
     </div>
   );
 };
