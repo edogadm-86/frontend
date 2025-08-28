@@ -16,12 +16,15 @@ import {
   HelpCircle,
   Lightbulb,
   Camera,
-  ArrowLeft
+  ArrowLeft,
+  Send,
+  UserPlus
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
+import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
 
@@ -44,6 +47,13 @@ interface Post {
   tags?: string[];
 }
 
+interface Comment {
+  id: string;
+  content: string;
+  author_name: string;
+  created_at: string;
+}
+
 interface Event {
   id: string;
   title: string;
@@ -62,6 +72,9 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState<'posts' | 'events'>('posts');
   const [posts, setPosts] = useState<Post[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [comments, setComments] = useState<{ [postId: string]: Comment[] }>({});
+  const [showComments, setShowComments] = useState<{ [postId: string]: boolean }>({});
+  const [newComment, setNewComment] = useState<{ [postId: string]: string }>({});
   const [showPostModal, setShowPostModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -106,6 +119,15 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
       setEvents(response.events);
     } catch (error) {
       console.error('Error loading events:', error);
+    }
+  };
+
+  const loadComments = async (postId: string) => {
+    try {
+      const response = await apiClient.getPostComments(postId);
+      setComments(prev => ({ ...prev, [postId]: response.comments }));
+    } catch (error) {
+      console.error('Error loading comments:', error);
     }
   };
 
@@ -169,6 +191,42 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
     } catch (error) {
       console.error('Error liking post:', error);
     }
+  };
+
+  const handleAddComment = async (postId: string) => {
+    const content = newComment[postId]?.trim();
+    if (!content) return;
+
+    try {
+      await apiClient.addPostComment(postId, content);
+      await loadComments(postId);
+      await loadPosts(); // Refresh to update comment count
+      setNewComment(prev => ({ ...prev, [postId]: '' }));
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
+
+  const handleJoinEvent = async (eventId: string) => {
+    try {
+      await apiClient.joinEvent(eventId);
+      await loadEvents();
+    } catch (error) {
+      console.error('Error joining event:', error);
+    }
+  };
+
+  const toggleComments = async (postId: string) => {
+    const isShowing = showComments[postId];
+    setShowComments(prev => ({ ...prev, [postId]: !isShowing }));
+    
+    if (!isShowing && !comments[postId]) {
+      await loadComments(postId);
+    }
+  };
+
+  const handlePostFileUploaded = (fileUrl: string) => {
+    setPostFormData({ ...postFormData, image_url: fileUrl });
   };
 
   const getPostTypeIcon = (type: string) => {
@@ -288,7 +346,7 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
                       </div>
                     )}
                     
-                    <div className="flex items-center space-x-6">
+                    <div className="flex items-center space-x-6 mb-4">
                       <button
                         onClick={() => handleLikePost(post.id)}
                         className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors"
@@ -296,7 +354,10 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
                         <Heart size={16} />
                         <span>{post.likes_count}</span>
                       </button>
-                      <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors">
+                      <button 
+                        onClick={() => toggleComments(post.id)}
+                        className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors"
+                      >
                         <MessageCircle size={16} />
                         <span>{post.comments_count}</span>
                       </button>
@@ -305,6 +366,56 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
                         <span>Share</span>
                       </button>
                     </div>
+
+                    {/* Comments Section */}
+                    {showComments[post.id] && (
+                      <div className="border-t border-gray-200 pt-4 mt-4">
+                        {/* Add Comment */}
+                        <div className="flex space-x-3 mb-4">
+                          <div className="w-8 h-8 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center">
+                            <User size={12} className="text-white" />
+                          </div>
+                          <div className="flex-1 flex space-x-2">
+                            <input
+                              type="text"
+                              placeholder="Add a comment..."
+                              value={newComment[post.id] || ''}
+                              onChange={(e) => setNewComment(prev => ({ ...prev, [post.id]: e.target.value }))}
+                              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              onKeyPress={(e) => e.key === 'Enter' && handleAddComment(post.id)}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handleAddComment(post.id)}
+                              disabled={!newComment[post.id]?.trim()}
+                              icon={<Send size={14} />}
+                            >
+                              Post
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Comments List */}
+                        {comments[post.id] && comments[post.id].length > 0 && (
+                          <div className="space-y-3">
+                            {comments[post.id].map((comment) => (
+                              <div key={comment.id} className="flex space-x-3">
+                                <div className="w-8 h-8 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center">
+                                  <User size={12} className="text-white" />
+                                </div>
+                                <div className="flex-1 bg-gray-50 rounded-lg p-3">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <span className="font-medium text-sm text-gray-900">{comment.author_name}</span>
+                                    <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                                  </div>
+                                  <p className="text-sm text-gray-700">{comment.content}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -360,7 +471,12 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleJoinEvent(event.id)}
+                    icon={<UserPlus size={16} />}
+                  >
                     Join Event
                   </Button>
                 </div>
@@ -409,11 +525,18 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
               required
             />
           </div>
-          <Input
-            label="Image URL (optional)"
-            value={postFormData.image_url}
-            onChange={(e) => setPostFormData({ ...postFormData, image_url: e.target.value })}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Add Image (optional)</label>
+            <FileUpload
+              acceptedTypes="image/*"
+              maxSize={5}
+              documentType="post_image"
+              onFileUploaded={handlePostFileUploaded}
+            />
+            {postFormData.image_url && (
+              <div className="mt-2 text-sm text-green-600">Image uploaded successfully</div>
+            )}
+          </div>
           <Input
             label="Tags (comma separated)"
             value={postFormData.tags}

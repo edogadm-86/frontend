@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, Shield, Calendar, User } from 'lucide-react';
+import { Plus, Edit, Trash2, Shield, Calendar, User, Paperclip } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
+import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
 
@@ -33,6 +34,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVaccination, setEditingVaccination] = useState<Vaccination | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     vaccine_name: '',
     vaccine_type: '',
@@ -58,6 +60,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
 
   const handleCreate = () => {
     setEditingVaccination(null);
+    setUploadedFiles([]);
     setFormData({
       vaccine_name: '',
       vaccine_type: '',
@@ -72,6 +75,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
 
   const handleEdit = (vaccination: Vaccination) => {
     setEditingVaccination(vaccination);
+    setUploadedFiles([]);
     setFormData({
       vaccine_name: vaccination.vaccine_name,
       vaccine_type: vaccination.vaccine_type,
@@ -96,6 +100,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
       }
       await loadVaccinations();
       setIsModalOpen(false);
+      setUploadedFiles([]);
     } catch (error) {
       console.error('Error saving vaccination:', error);
     } finally {
@@ -114,6 +119,9 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
     }
   };
 
+  const handleFileUploaded = (fileUrl: string, fileName: string) => {
+    setUploadedFiles(prev => [...prev, fileUrl]);
+  };
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -257,6 +265,28 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
               rows={3}
             />
           </div>
+          
+          {/* File Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Attach Documents (optional)
+            </label>
+            <FileUpload
+              acceptedTypes="image/*,.pdf,.doc,.docx"
+              maxSize={10}
+              dogId={dogId}
+              vaccinationId={editingVaccination?.id}
+              documentType="vaccination_document"
+              onFileUploaded={handleFileUploaded}
+              multiple={true}
+            />
+            {uploadedFiles.length > 0 && (
+              <div className="mt-2 text-sm text-green-600">
+                {uploadedFiles.length} file(s) uploaded successfully
+              </div>
+            )}
+          </div>
+          
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               {t('cancel')}

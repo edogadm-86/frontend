@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, File, Image } from 'lucide-react';
+import { Upload, X, File, Image, Camera } from 'lucide-react';
 import { Button } from './Button';
 import { apiClient } from '../../lib/api';
 
@@ -13,6 +13,8 @@ interface FileUploadProps {
   documentType?: string;
   className?: string;
   multiple?: boolean;
+  variant?: 'default' | 'avatar' | 'document';
+  currentImage?: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
@@ -24,10 +26,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   healthRecordId,
   documentType = "other",
   className = "",
-  multiple = false
+  multiple = false,
+  variant = 'default',
+  currentImage
 }) => {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [preview, setPreview] = useState<string | null>(currentImage || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (files: FileList | null) => {
@@ -39,6 +44,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     if (file.size > maxSize * 1024 * 1024) {
       alert(`File size must be less than ${maxSize}MB`);
       return;
+    }
+
+    // Show preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => setPreview(e.target?.result as string);
+      reader.readAsDataURL(file);
     }
 
     setUploading(true);
@@ -77,6 +89,41 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const isImage = acceptedTypes.includes('image');
+
+  if (variant === 'avatar') {
+    return (
+      <div className={`relative ${className}`}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleFileSelect(e.target.files)}
+          className="hidden"
+        />
+        
+        <div className="relative group">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-primary-500 to-blue-500 flex items-center justify-center shadow-lg">
+            {preview ? (
+              <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <Camera size={32} className="text-white" />
+            )}
+          </div>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          >
+            {uploading ? (
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+            ) : (
+              <Camera size={20} className="text-white" />
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative ${className}`}>
@@ -126,6 +173,21 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           </div>
         )}
       </div>
+
+      {preview && variant === 'default' && (
+        <div className="mt-4 relative inline-block">
+          <img src={preview} alt="Preview" className="w-32 h-32 object-cover rounded-lg" />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setPreview(null);
+            }}
+            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

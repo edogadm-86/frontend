@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Camera } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
+import { FileUpload } from './ui/FileUpload';
 import { Dog } from '../types';
 
 interface DogManagementProps {
@@ -32,6 +33,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
     breed: '',
     age: '',
     weight: '',
+    profilePicture: '',
     microchipId: '',
     licenseNumber: '',
   });
@@ -48,6 +50,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
       breed: '',
       age: '',
       weight: '',
+      profilePicture: '',
       microchipId: '',
       licenseNumber: '',
     });
@@ -61,6 +64,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
       breed: dog.breed,
       age: dog.age.toString(),
       weight: dog.weight.toString(),
+      profilePicture: dog.profilePicture || '',
       microchipId: dog.microchipId || '',
       licenseNumber: dog.licenseNumber || '',
     });
@@ -76,7 +80,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
       breed: formData.breed,
       age: parseInt(formData.age),
       weight: parseFloat(formData.weight),
-      profilePicture: undefined,
+      profilePicture: formData.profilePicture || undefined,
       microchipId: formData.microchipId || undefined,
       licenseNumber: formData.licenseNumber || undefined,
     };
@@ -101,6 +105,9 @@ export const DogManagement: React.FC<DogManagementProps> = ({
     }
   };
 
+  const handleFileUploaded = (fileUrl: string) => {
+    setFormData({ ...formData, profilePicture: fileUrl });
+  };
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
@@ -209,6 +216,21 @@ export const DogManagement: React.FC<DogManagementProps> = ({
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Profile Picture Upload */}
+          <div className="text-center">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+            <FileUpload
+              variant="avatar"
+              acceptedTypes="image/*"
+              maxSize={5}
+              dogId={editingDog?.id}
+              documentType="profile_image"
+              onFileUploaded={handleFileUploaded}
+              currentImage={formData.profilePicture}
+              className="mx-auto"
+            />
+          </div>
+          
           <Input
             label={t('dogName')}
             value={formData.name}

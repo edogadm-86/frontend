@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, Heart, Calendar, User, Pill } from 'lucide-react';
+import { Plus, Edit, Trash2, Heart, Calendar, User, Pill, Paperclip } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
+import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
 
@@ -33,6 +34,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<HealthRecord | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     date: '',
     type: 'vet-visit' as HealthRecord['type'],
@@ -58,6 +60,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
 
   const handleCreate = () => {
     setEditingRecord(null);
+    setUploadedFiles([]);
     setFormData({
       date: new Date().toISOString().split('T')[0],
       type: 'vet-visit',
@@ -72,6 +75,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
 
   const handleEdit = (record: HealthRecord) => {
     setEditingRecord(record);
+    setUploadedFiles([]);
     setFormData({
       date: record.date,
       type: record.type,
@@ -96,6 +100,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
       }
       await loadHealthRecords();
       setIsModalOpen(false);
+      setUploadedFiles([]);
     } catch (error) {
       console.error('Error saving health record:', error);
     } finally {
@@ -114,6 +119,9 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
     }
   };
 
+  const handleFileUploaded = (fileUrl: string, fileName: string) => {
+    setUploadedFiles(prev => [...prev, fileUrl]);
+  };
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'vet-visit': return <User size={24} className="text-blue-600" />;
@@ -283,6 +291,28 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
               onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
             />
           </div>
+          
+          {/* File Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Attach Documents (optional)
+            </label>
+            <FileUpload
+              acceptedTypes="image/*,.pdf,.doc,.docx"
+              maxSize={10}
+              dogId={dogId}
+              healthRecordId={editingRecord?.id}
+              documentType="health_document"
+              onFileUploaded={handleFileUploaded}
+              multiple={true}
+            />
+            {uploadedFiles.length > 0 && (
+              <div className="mt-2 text-sm text-green-600">
+                {uploadedFiles.length} file(s) uploaded successfully
+              </div>
+            )}
+          </div>
+          
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               {t('cancel')}

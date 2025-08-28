@@ -10,6 +10,7 @@ import { CalendarManagement } from './components/CalendarManagement';
 import { TrainingView } from './components/TrainingView';
 import { SettingsView } from './components/SettingsView';
 import { CommunityView } from './components/CommunityView';
+import { ShopView } from './components/ShopView';
 
 const AppContent: React.FC = () => {
   const { 
@@ -78,6 +79,10 @@ const AppContent: React.FC = () => {
       case 'community':
         return (
           <CommunityView onNavigate={setCurrentView} />
+        );
+      case 'shop':
+        return (
+          <ShopView onNavigate={setCurrentView} />
         );
       case 'settings':
         return (

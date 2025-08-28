@@ -25,6 +25,7 @@ import { Modal } from './ui/Modal';
 import { DogManagement } from './DogManagement';
 import { EmergencyContactManagement } from './EmergencyContactManagement';
 import { Dog } from '../types';
+import { useApp } from '../context/AppContext';
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
@@ -46,10 +47,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onNavigate,
 }) => {
   const { t, i18n } = useTranslation();
+  const { user } = useApp();
   const [activeTab, setActiveTab] = useState<'dogs' | 'emergency' | 'profile' | 'preferences' | 'security' | 'data' | 'support'>('dogs');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+  });
   const [notifications, setNotifications] = useState({
     appointments: true,
     vaccinations: true,
@@ -69,18 +76,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     { id: 'support', icon: HelpCircle, label: 'Help & Support', color: 'from-gray-500 to-slate-500' },
   ];
 
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Here you would call your API to update profile
+      console.log('Updating profile:', profileData);
+      setShowProfileModal(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
   const renderProfileSettings = () => (
     <div className="space-y-6">
       <Card variant="gradient" className="p-8">
         <div className="flex items-center space-x-6 mb-6">
           <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
             <span className="text-3xl font-bold text-white">
-              {/* user?.name?.charAt(0).toUpperCase() */}U
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-gray-900">John Doe</h3>
-            <p className="text-gray-600">john.doe@example.com</p>
+            <h3 className="text-2xl font-bold text-gray-900">{user?.name || 'User'}</h3>
+            <p className="text-gray-600">{user?.email || 'user@example.com'}</p>
             <p className="text-sm text-gray-500">Member since January 2024</p>
           </div>
           <div className="ml-auto">
@@ -142,6 +159,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <option>24 Hour</option>
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+            <select className="input-field">
+              <option>Europe/Sofia (GMT+2)</option>
+              <option>Europe/London (GMT+0)</option>
+              <option>America/New_York (GMT-5)</option>
+              <option>America/Los_Angeles (GMT-8)</option>
+            </select>
+          </div>
         </div>
       </Card>
 
@@ -171,6 +197,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           ))}
         </div>
+        <div className="mt-6">
+          <Button className="w-full">Save Notification Preferences</Button>
+        </div>
       </Card>
 
       <Card variant="gradient">
@@ -194,6 +223,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded mb-2"></div>
                 <div className="text-xs font-medium">Auto</div>
               </button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
+            <div className="grid grid-cols-6 gap-2">
+              {['blue', 'purple', 'green', 'red', 'orange', 'pink'].map((color) => (
+                <button
+                  key={color}
+                  className={`w-8 h-8 rounded-full bg-${color}-500 border-2 border-white shadow-lg hover:scale-110 transition-transform`}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -224,6 +264,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </Card>
 
+      <Card variant="gradient">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Privacy Settings</h3>
+        <div className="space-y-4">
+          {[
+            { key: 'profile_public', label: 'Public Profile', description: 'Allow others to see your profile' },
+            { key: 'activity_tracking', label: 'Activity Tracking', description: 'Track app usage for improvements' },
+            { key: 'data_sharing', label: 'Data Sharing', description: 'Share anonymized data for research' },
+            { key: 'marketing_emails', label: 'Marketing Emails', description: 'Receive promotional emails' },
+          ].map((setting) => (
+            <div key={setting.key} className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
+              <div>
+                <div className="font-medium text-gray-900">{setting.label}</div>
+                <div className="text-sm text-gray-500">{setting.description}</div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              </label>
+            </div>
+          ))}
+        </div>
+      </Card>
       <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Login Activity</h3>
         <div className="space-y-3">
@@ -288,6 +350,32 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </Card>
 
       <Card variant="gradient">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Storage Usage</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">Photos & Documents</span>
+            <span className="font-medium">2.4 GB / 5 GB</span>
+          </div>
+          <div className="progress-bar">
+            <div className="progress-fill bg-gradient-to-r from-blue-500 to-purple-500" style={{ width: '48%' }}></div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div className="text-center">
+              <div className="font-medium text-gray-900">1.2 GB</div>
+              <div className="text-gray-500">Photos</div>
+            </div>
+            <div className="text-center">
+              <div className="font-medium text-gray-900">0.8 GB</div>
+              <div className="text-gray-500">Documents</div>
+            </div>
+            <div className="text-center">
+              <div className="font-medium text-gray-900">0.4 GB</div>
+              <div className="text-gray-500">Other</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+      <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <Trash2 className="mr-2 text-red-500" />
           Danger Zone
@@ -337,6 +425,32 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </Card>
 
       <Card variant="gradient">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-3">
+            <Mail size={20} className="text-primary-500" />
+            <div>
+              <div className="font-medium text-gray-900">Email Support</div>
+              <div className="text-sm text-gray-600">support@edog.app</div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <Phone size={20} className="text-primary-500" />
+            <div>
+              <div className="font-medium text-gray-900">Phone Support</div>
+              <div className="text-sm text-gray-600">+359 2 123 4567</div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <Clock size={20} className="text-primary-500" />
+            <div>
+              <div className="font-medium text-gray-900">Support Hours</div>
+              <div className="text-sm text-gray-600">Mon-Fri: 9AM-6PM (GMT+2)</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+      <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">App Information</h3>
         <div className="space-y-3">
           <div className="flex justify-between">
@@ -350,6 +464,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="flex justify-between">
             <span className="text-gray-600">Platform</span>
             <span className="font-medium">Desktop</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Build</span>
+            <span className="font-medium">#1234</span>
           </div>
         </div>
       </Card>
@@ -381,7 +499,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       case 'support':
         return renderSupport();
       default:
-        return null;
+        return renderProfileSettings();
     }
   };
 
@@ -439,17 +557,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         title="Edit Profile"
         size="md"
       >
-        <div className="space-y-4">
-          <Input label="Full Name" defaultValue="John Doe" />
-          <Input label="Email" type="email" defaultValue="john.doe@example.com" />
-          <Input label="Phone" type="tel" defaultValue="+359 888 123 456" />
+        <form onSubmit={handleUpdateProfile} className="space-y-4">
+          <Input 
+            label="Full Name" 
+            value={profileData.name}
+            onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+            required
+          />
+          <Input 
+            label="Email" 
+            type="email" 
+            value={profileData.email}
+            onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+            required
+          />
+          <Input 
+            label="Phone" 
+            type="tel" 
+            value={profileData.phone}
+            onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+          />
           <div className="flex space-x-3 pt-4">
-            <Button variant="outline" onClick={() => setShowProfileModal(false)}>
+            <Button type="button" variant="outline" onClick={() => setShowProfileModal(false)}>
               Cancel
             </Button>
-            <Button className="flex-1">Save Changes</Button>
+            <Button type="submit" className="flex-1">Save Changes</Button>
           </div>
-        </div>
+        </form>
       </Modal>
 
       <Modal
@@ -458,17 +592,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         title="Change Password"
         size="md"
       >
-        <div className="space-y-4">
-          <Input label="Current Password" type="password" />
-          <Input label="New Password" type="password" />
-          <Input label="Confirm New Password" type="password" />
+        <form className="space-y-4">
+          <Input label="Current Password" type="password" required />
+          <Input label="New Password" type="password" required />
+          <Input label="Confirm New Password" type="password" required />
+          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
+            <p className="text-sm text-blue-800 font-medium">Password Requirements:</p>
+            <ul className="text-xs text-blue-600 mt-1 space-y-1">
+              <li>• At least 8 characters long</li>
+              <li>• Contains uppercase and lowercase letters</li>
+              <li>• Contains at least one number</li>
+              <li>• Contains at least one special character</li>
+            </ul>
+          </div>
           <div className="flex space-x-3 pt-4">
-            <Button variant="outline" onClick={() => setShowPasswordModal(false)}>
+            <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
               Cancel
             </Button>
-            <Button className="flex-1">Update Password</Button>
+            <Button type="submit" className="flex-1">Update Password</Button>
           </div>
-        </div>
+        </form>
       </Modal>
 
       <Modal
@@ -477,7 +620,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         title="Delete Account"
         size="md"
       >
-        <div className="space-y-4">
+        <form className="space-y-4">
           <div className="p-4 bg-red-50 rounded-xl border border-red-200">
             <p className="text-red-800 font-medium">⚠️ This action cannot be undone!</p>
             <p className="text-red-600 text-sm mt-1">
@@ -487,16 +630,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <Input 
             label="Type 'DELETE' to confirm" 
             placeholder="DELETE"
+            required
           />
           <div className="flex space-x-3 pt-4">
-            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+            <Button type="button" variant="outline" onClick={() => setShowDeleteModal(false)}>
               Cancel
             </Button>
-            <Button variant="danger" className="flex-1">
+            <Button type="submit" variant="danger" className="flex-1">
               Delete My Account
             </Button>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   );

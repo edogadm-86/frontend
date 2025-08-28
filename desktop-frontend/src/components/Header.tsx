@@ -33,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
       case 'calendar': return t('calendar');
       case 'training': return t('training');
       case 'community': return t('community');
+      case 'shop': return 'Shop & Services';
       case 'settings': return t('settings');
       default: return t('dashboard');
     }
@@ -49,18 +50,18 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-white/20 px-8 py-4 shadow-lg relative z-50">
+    <header className="bg-white/80 backdrop-blur-md border-b border-white/20 px-4 lg:px-8 py-4 shadow-lg relative z-50">
       <div className="flex items-center justify-between">
-        <div className="flex-1 min-w-0 pr-4">
-          <h1 className="text-3xl font-bold gradient-text">{getPageTitle()}</h1>
+        <div className="flex-1 min-w-0 pr-4 max-w-xs lg:max-w-none">
+          <h1 className="text-xl lg:text-3xl font-bold gradient-text truncate">{getPageTitle()}</h1>
           <p className="text-sm text-gray-500 mt-1">
             {t('welcome')}, <span className="font-medium text-primary-600">{user?.name}</span>
           </p>
         </div>
 
-        <div className="flex items-center space-x-4 flex-shrink-0">
+        <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
           {/* Search */}
-          <div className="relative group">
+          <div className="relative group hidden lg:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-primary-500 transition-colors" />
             <input
               type="text"
@@ -77,16 +78,16 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                 setShowLanguageMenu(!showLanguageMenu);
                 setShowUserMenu(false);
               }}
-              className="language-selector flex items-center space-x-2 hover:shadow-xl transition-all duration-200"
+              className="language-selector flex items-center space-x-1 lg:space-x-2 hover:shadow-xl transition-all duration-200 px-2 lg:px-3 py-2"
             >
               <Globe size={16} className="text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-gray-700 hidden lg:inline">
                 {i18n.language === 'bg' ? 'БГ' : 'EN'}
               </span>
             </button>
             
             {showLanguageMenu && (
-              <div className="absolute right-0 mt-2 w-32 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-[60]">
+              <div className="absolute right-0 mt-2 w-36 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-[60]">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -112,15 +113,14 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
           </div>
 
           {/* Dark Mode Toggle */}
-          <button
+          <button className="hidden lg:block p-2.5 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-white/50 transition-all duration-200"
             onClick={toggleDarkMode}
-            className="p-2.5 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-white/50 transition-all duration-200"
           >
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 
           {/* Notifications */}
-          <button className="p-2.5 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-white/50 transition-all duration-200 relative">
+          <button className="hidden lg:block p-2.5 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-white/50 transition-all duration-200 relative">
             <Bell size={20} />
             <span className="notification-badge">3</span>
           </button>
@@ -133,7 +133,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                 setShowUserMenu(!showUserMenu);
                 setShowLanguageMenu(false);
               }}
-              className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/50 transition-all duration-200 group"
+              className="flex items-center space-x-2 lg:space-x-3 p-2 rounded-xl hover:bg-white/50 transition-all duration-200 group"
             >
               <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200">
                 <span className="text-sm font-bold text-white">
@@ -147,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-[60]">
+              <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 py-2 z-[70]">
                 <button className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 transition-colors flex items-center space-x-2">
                   <User size={16} />
                   <span>{t('profile')}</span>

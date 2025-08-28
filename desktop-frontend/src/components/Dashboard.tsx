@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   Heart, 
@@ -16,6 +17,7 @@ import {
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
+import { apiClient } from '../lib/api';
 
 interface DashboardProps {
   currentDog: any;
@@ -37,10 +39,32 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onNavigate,
 }) => {
   const { t } = useTranslation();
+  const [healthStatus, setHealthStatus] = useState<any>(null);
+  const [loadingHealth, setLoadingHealth] = useState(false);
+
+  useEffect(() => {
+    if (currentDog?.id) {
+      loadHealthStatus();
+    }
+  }, [currentDog?.id]);
+
+  const loadHealthStatus = async () => {
+    if (!currentDog?.id) return;
+    
+    setLoadingHealth(true);
+    try {
+      const response = await apiClient.getDogHealthStatus(currentDog.id);
+      setHealthStatus(response);
+    } catch (error) {
+      console.error('Error loading health status:', error);
+    } finally {
+      setLoadingHealth(false);
+    }
+  };
 
   if (!currentDog) {
     return (
-      <div className="p-8 min-h-screen">
+      <div className="p-4 lg:p-8 min-h-screen">
         <div className="text-center py-20">
           <div className="relative mb-8">
             <div className="w-32 h-32 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full mx-auto flex items-center justify-center shadow-2xl float-animation">
@@ -109,12 +133,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
     },
   ];
 
+  const getHealthStatusColor = (status: string) => {
+    switch (status) {
+      case 'Excellent': return 'from-green-500 to-emerald-500';
+      case 'Good': return 'from-blue-500 to-cyan-500';
+      case 'Fair': return 'from-yellow-500 to-orange-500';
+      case 'Needs Attention': return 'from-orange-500 to-red-500';
+      case 'Poor': return 'from-red-500 to-pink-500';
+      default: return 'from-gray-500 to-slate-500';
+    }
+  };
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 lg:p-8 space-y-6 lg:space-y-8">
       {/* Dog Profile Header */}
       <Card variant="gradient" className="relative overflow-hidden mb-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-200/30 to-blue-200/30 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="relative flex items-center justify-between flex-wrap gap-4">
+        <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="flex items-center space-x-6">
             <div className="relative">
               <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
@@ -164,23 +198,77 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </Card>
 
       {/* Health Status Banner */}
-      <Card variant="gradient" className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Target size={24} className="text-white" />
+      {healthStatus?.hasEnoughData && (
+        <Card variant="gradient" className={`bg-gradient-to-r ${
+          healthStatus.statusColor === 'green' ? 'from-green-50 to-emerald-50 border-green-200' :
+          healthStatus.statusColor === 'blue' ? 'from-blue-50 to-cyan-50 border-blue-200' :
+          healthStatus.statusColor === 'yellow' ? 'from-yellow-50 to-orange-50 border-yellow-200' :
+          healthStatus.statusColor === 'orange' ? 'from-orange-50 to-red-50 border-orange-200' :
+          healthStatus.statusColor === 'red' ? 'from-red-50 to-pink-50 border-red-200' :
+          'from-gray-50 to-slate-50 border-gray-200'
+        }`}>
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <div className={`w-16 h-16 bg-gradient-to-r ${getHealthStatusColor(healthStatus.status)} rounded-2xl flex items-center justify-center shadow-lg`}>
+                <Target size={24} className="text-white" />
+              </div>
+              <div>
+                <h3 className={`text-xl font-bold ${
+                  healthStatus.statusColor === 'green' ? 'text-green-800' :
+                  healthStatus.statusColor === 'blue' ? 'text-blue-800' :
+                  healthStatus.statusColor === 'yellow' ? 'text-yellow-800' :
+                  healthStatus.statusColor === 'orange' ? 'text-orange-800' :
+                  healthStatus.statusColor === 'red' ? 'text-red-800' :
+                  'text-gray-800'
+                }`}>
+                  Health Status: {healthStatus.status}
+                </h3>
+                <p className={`${
+                  healthStatus.statusColor === 'green' ? 'text-green-600' :
+                  healthStatus.statusColor === 'blue' ? 'text-blue-600' :
+                  healthStatus.statusColor === 'yellow' ? 'text-yellow-600' :
+                  healthStatus.statusColor === 'orange' ? 'text-orange-600' :
+                  healthStatus.statusColor === 'red' ? 'text-red-600' :
+                  'text-gray-600'
+                }`}>
+                  {healthStatus.nextAction}
+                </p>
+                {healthStatus.factors.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {healthStatus.factors.slice(0, 3).map((factor: string, index: number) => (
+                      <span key={index} className="px-2 py-1 bg-white/50 text-xs rounded-full">
+                        {factor}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-green-800">Health Status: Excellent</h3>
-              <p className="text-green-600">All vaccinations up to date • Next checkup in 2 months</p>
+            <div className="text-right">
+              <div className={`text-3xl font-bold ${
+                healthStatus.statusColor === 'green' ? 'text-green-600' :
+                healthStatus.statusColor === 'blue' ? 'text-blue-600' :
+                healthStatus.statusColor === 'yellow' ? 'text-yellow-600' :
+                healthStatus.statusColor === 'orange' ? 'text-orange-600' :
+                healthStatus.statusColor === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`}>
+                {healthStatus.score}%
+              </div>
+              <div className={`text-sm ${
+                healthStatus.statusColor === 'green' ? 'text-green-500' :
+                healthStatus.statusColor === 'blue' ? 'text-blue-500' :
+                healthStatus.statusColor === 'yellow' ? 'text-yellow-500' :
+                healthStatus.statusColor === 'orange' ? 'text-orange-500' :
+                healthStatus.statusColor === 'red' ? 'text-red-500' :
+                'text-gray-500'
+              }`}>
+                Health Score
+              </div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-green-600">98%</div>
-            <div className="text-sm text-green-500">Health Score</div>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

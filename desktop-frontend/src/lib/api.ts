@@ -270,6 +270,24 @@ class ApiClient {
     });
   }
 
+  async joinEvent(eventId: string, dogId?: string) {
+    return this.request(`/events/${eventId}/join`, {
+      method: 'POST',
+      body: JSON.stringify({ dog_id: dogId }),
+    });
+  }
+
+  // Comment endpoints
+  async getPostComments(postId: string) {
+    return this.request<{ comments: any[] }>(`/posts/${postId}/comments`);
+  }
+
+  async addPostComment(postId: string, content: string) {
+    return this.request<{ comment: any }>(`/posts/${postId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    });
+  }
   // File upload endpoints
   async uploadFile(file: File, metadata: { dogId?: string; vaccinationId?: string; healthRecordId?: string; documentType?: string }) {
     const formData = new FormData();
