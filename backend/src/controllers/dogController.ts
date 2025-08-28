@@ -61,6 +61,150 @@ export const updateDog = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const getDogHealthStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { dogId } = req.params;
+
+    // Verify dog belongs to user
+    const dogCheck = await pool.query(
+      'SELECT id FROM dogs WHERE id = $1 AND user_id = $2',
+      [dogId, req.user!.id]
+    );
+
+    if (dogCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Dog not found' });
+    }
+
+    // Get vaccination data
+    const vaccinationsResult = await pool.query(
+      'SELECT * FROM vaccinations WHERE dog_id = $1 ORDER BY date_given DESC',
+      [dogId]
+    );
+
+    // Get health records
+    const healthRecordsResult = await pool.query(
+      'SELECT * FROM health_records WHERE dog_id = $1 ORDER BY date DESC',
+      [dogId]
+    );
+
+    // Get recent appointments
+    const appointmentsResult = await pool.query(
+      'SELECT * FROM appointments WHERE dog_id = $1 AND date >= CURRENT_DATE - INTERVAL \'6 months\' ORDER BY date DESC',
+      [dogId]
+    );
+
+    const vaccinations = vaccinationsResult.rows;
+    const healthRecords = healthRecordsResult.rows;
+    const appointments = appointmentsResult.rows;
+
+    // Calculate health score
+    let score = 0;
+    let factors = [];
+
+    // Vaccination score (40% of total)
+    const recentVaccinations = vaccinations.filter(v => {
+      const vaccinationDate = new Date(v.date_given);
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      return vaccinationDate >= oneYearAgo;
+    });
+
+    if (recentVaccinations.length >= 3) {
+      score += 40;
+      factors.push('Up-to-date vaccinations');
+    } else if (recentVaccinations.length >= 1) {
+      score += 25;
+      factors.push('Some recent vaccinations');
+    }
+
+    // Health records score (30% of total)
+    const recentHealthRecords = healthRecords.filter(r => {
+      const recordDate = new Date(r.date);
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      return recordDate >= sixMonthsAgo;
+    });
+
+    const illnessRecords = recentHealthRecords.filter(r => r.type === 'illness' || r.type === 'injury');
+    const vetVisits = recentHealthRecords.filter(r => r.type === 'vet-visit');
+
+    if (illnessRecords.length === 0 && vetVisits.length >= 1) {
+      score += 30;
+      factors.push('Regular vet checkups');
+    } else if (illnessRecords.length <= 1) {
+      score += 20;
+      factors.push('Good health maintenance');
+    } else {
+      score += 10;
+      factors.push('Some health concerns');
+    }
+
+    // Appointment compliance (20% of total)
+    const upcomingAppointments = appointments.filter(a => new Date(a.date) >= new Date());
+    if (upcomingAppointments.length > 0) {
+      score += 20;
+      factors.push('Scheduled appointments');
+    } else if (appointments.length > 0) {
+      score += 15;
+      factors.push('Recent appointments');
+    }
+
+    // Regular care score (10% of total)
+    if (healthRecords.length >= 5 || vaccinations.length >= 3) {
+      score += 10;
+      factors.push('Comprehensive care history');
+    }
+
+    // Determine status
+    let status = 'Unknown';
+    let statusColor = 'gray';
+    let nextAction = 'Add more health data';
+
+    if (score >= 85) {
+      status = 'Excellent';
+      statusColor = 'green';
+      nextAction = 'Keep up the great work!';
+    } else if (score >= 70) {
+      status = 'Good';
+      statusColor = 'blue';
+      nextAction = 'Consider scheduling a checkup';
+    } else if (score >= 50) {
+      status = 'Fair';
+      statusColor = 'yellow';
+      nextAction = 'Schedule a vet visit soon';
+    } else if (score >= 30) {
+      status = 'Needs Attention';
+      statusColor = 'orange';
+      nextAction = 'Update vaccinations and schedule checkup';
+    } else if (score > 0) {
+      status = 'Poor';
+      statusColor = 'red';
+      nextAction = 'Immediate vet attention recommended';
+    }
+
+    // Check if we have enough data to show status
+    const hasEnoughData = vaccinations.length > 0 || healthRecords.length > 0 || appointments.length > 0;
+
+    res.json({
+      hasEnoughData,
+      score: Math.round(score),
+      status,
+      statusColor,
+      nextAction,
+      factors,
+      summary: {
+        totalVaccinations: vaccinations.length,
+        recentVaccinations: recentVaccinations.length,
+        totalHealthRecords: healthRecords.length,
+        recentHealthRecords: recentHealthRecords.length,
+        upcomingAppointments: upcomingAppointments.length
+      }
+    });
+  } catch (error) {
+    console.error('Get dog health status error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 export const deleteDog = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;

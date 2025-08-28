@@ -1,0 +1,131 @@
+import React, { useState, useRef } from 'react';
+import { Upload, X, File, Image } from 'lucide-react';
+import { Button } from './Button';
+import { apiClient } from '../../lib/api';
+
+interface FileUploadProps {
+  onFileUploaded: (fileUrl: string, fileName: string) => void;
+  acceptedTypes?: string;
+  maxSize?: number; // in MB
+  dogId?: string;
+  vaccinationId?: string;
+  healthRecordId?: string;
+  documentType?: string;
+  className?: string;
+  multiple?: boolean;
+}
+
+export const FileUpload: React.FC<FileUploadProps> = ({
+  onFileUploaded,
+  acceptedTypes = "image/*,.pdf,.doc,.docx",
+  maxSize = 10,
+  dogId,
+  vaccinationId,
+  healthRecordId,
+  documentType = "other",
+  className = "",
+  multiple = false
+}) => {
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    
+    // Validate file size
+    if (file.size > maxSize * 1024 * 1024) {
+      alert(`File size must be less than ${maxSize}MB`);
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const response = await apiClient.uploadFile(file, {
+        dogId,
+        vaccinationId,
+        healthRecordId,
+        documentType
+      });
+
+      const fileUrl = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/uploads/file/${response.document.filename}`;
+      onFileUploaded(fileUrl, file.name);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+
+  const isImage = acceptedTypes.includes('image');
+
+  return (
+    <div className={`relative ${className}`}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={acceptedTypes}
+        multiple={multiple}
+        onChange={(e) => handleFileSelect(e.target.files)}
+        className="hidden"
+      />
+      
+      <div
+        onClick={() => fileInputRef.current?.click()}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        className={`
+          border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200
+          ${dragOver 
+            ? 'border-primary-500 bg-primary-50' 
+            : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+          }
+          ${uploading ? 'pointer-events-none opacity-50' : ''}
+        `}
+      >
+        {uploading ? (
+          <div className="flex flex-col items-center space-y-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+            <p className="text-sm text-gray-600">Uploading...</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center space-y-2">
+            {isImage ? (
+              <Image size={32} className="text-gray-400" />
+            ) : (
+              <File size={32} className="text-gray-400" />
+            )}
+            <div>
+              <p className="text-sm font-medium text-gray-700">
+                Click to upload or drag and drop
+              </p>
+              <p className="text-xs text-gray-500">
+                {isImage ? 'Images' : 'Files'} up to {maxSize}MB
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

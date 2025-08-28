@@ -296,6 +296,19 @@ class ApiClient {
   async deleteDocument(documentId: string) {
     return this.request(`/uploads/${documentId}`, { method: 'DELETE' });
   }
+
+  // Health status endpoint
+  async getDogHealthStatus(dogId: string) {
+    return this.request<{
+      hasEnoughData: boolean;
+      score: number;
+      status: string;
+      statusColor: string;
+      nextAction: string;
+      factors: string[];
+      summary: any;
+    }>(`/dogs/${dogId}/health-status`);
+  }
 }
 
 export const apiClient = new ApiClient();
