@@ -8,32 +8,32 @@ class ApiClient {
     this.token = localStorage.getItem('authToken');
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
-    
-    const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
-      },
-      ...options,
-    };
+private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
 
-    try {
-      const response = await fetch(url, config);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
+  const isFormData =
+    typeof FormData !== 'undefined' && options.body instanceof FormData;
 
-      return await response.json();
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
+  const headers: Record<string, string> = {
+    ...(this.token && { Authorization: `Bearer ${this.token}` }),
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
+    ...(options.headers as Record<string, string> | undefined),
+  };
+
+  const config: RequestInit = { ...options, headers };
+
+  try {
+    const response = await fetch(url, config);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
+    return (await response.json()) as T;
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
   }
+}
 
   setToken(token: string) {
     this.token = token;

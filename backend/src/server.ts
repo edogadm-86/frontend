@@ -44,6 +44,7 @@ app.use(limiter);
 // Put this ABOVE your routes
 const allowedOrigins = [
   'https://edog.catena-x.polygran.io', // web app
+  'https://edog.dogpass.net',         //official edog website
   'http://localhost',                  // Android WebView default
   'https://localhost',                 // some setups / if androidScheme:'https'
   'capacitor://localhost',            // iOS WebView

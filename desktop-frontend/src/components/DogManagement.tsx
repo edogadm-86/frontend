@@ -7,6 +7,8 @@ import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
 import { Dog } from '../types';
+import { normalizeUploadUrl } from '../utils/urlHelpers';
+
 
 interface DogManagementProps {
   dogs: Dog[];
@@ -105,9 +107,18 @@ export const DogManagement: React.FC<DogManagementProps> = ({
     }
   };
 
-  const handleFileUploaded = (fileUrl: string) => {
-    setFormData({ ...formData, profilePicture: fileUrl });
-  };
+const handleFileUploaded = (fileUrl: string) => {
+  const publicUrl = normalizeUploadUrl(fileUrl);
+
+  // If normalizeUploadUrl returned empty (e.g. it was a blob: URL),
+  // you can either skip saving, or store a preview in a separate state
+  if (!publicUrl) {
+    // optional: setPreview(fileUrl); // for showing temporary preview
+    return;
+  }
+
+  setFormData(prev => ({ ...prev, profilePicture: publicUrl }));
+};
   return (
     <div className="p-8 space-y-6">
       {/* Header */}

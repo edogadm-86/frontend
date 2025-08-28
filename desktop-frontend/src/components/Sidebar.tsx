@@ -38,7 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'calendar', icon: Calendar, label: t('calendar'), gradient: 'from-green-500 to-emerald-500' },
     { id: 'training', icon: Award, label: t('training'), gradient: 'from-purple-500 to-violet-500' },
     { id: 'community', icon: Users, label: t('community'), gradient: 'from-orange-500 to-amber-500' },
-    { id: 'shop', icon: ShoppingBag, label: 'Shop & Services', gradient: 'from-pink-500 to-rose-500' },
+    { id: 'shop', icon: ShoppingBag, label: t('Shop & Services'), gradient: 'from-pink-500 to-rose-500' },
     { id: 'settings', icon: Settings, label: t('settings'), gradient: 'from-gray-500 to-slate-500' },
   ];
 
