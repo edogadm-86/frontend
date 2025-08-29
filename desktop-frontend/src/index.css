@@ -8,15 +8,16 @@
   }
   
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 dark:text-white;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-attachment: fixed;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
 @layer components {
   .sidebar-item {
-    @apply flex items-center px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-primary-50 hover:to-blue-50 hover:text-primary-700 rounded-xl transition-all duration-200 cursor-pointer;
+    @apply flex items-center px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-primary-50 hover:to-blue-50 hover:text-primary-700 rounded-xl transition-all duration-200 cursor-pointer dark:text-gray-300 dark:hover:from-primary-900/30 dark:hover:to-blue-900/30 dark:hover:text-primary-300;
   }
   
   .sidebar-item.active {
@@ -28,15 +29,15 @@
   }
   
   .card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300;
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 dark:bg-gray-800/80 dark:border-gray-700/20;
   }
   
   .card:hover {
-    @apply shadow-2xl transform -translate-y-1 bg-white/90;
+    @apply shadow-2xl transform -translate-y-1 bg-white/90 dark:bg-gray-800/90;
   }
   
   .glass-card {
-    @apply bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl;
+    @apply bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl dark:bg-gray-900/10 dark:border-gray-700/20;
   }
   
   .btn-primary {
@@ -48,11 +49,11 @@
   }
   
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200;
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 dark:bg-gray-800/80 dark:border-gray-600 dark:text-white;
   }
   
   .input-field:focus {
-    @apply shadow-lg bg-white;
+    @apply shadow-lg bg-white dark:bg-gray-800;
   }
   
   .stat-card {

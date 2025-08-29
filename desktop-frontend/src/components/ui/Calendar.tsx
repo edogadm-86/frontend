@@ -107,7 +107,7 @@ export const Calendar: React.FC<CalendarProps> = ({
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             {monthNames[month]} {year}
           </h2>
           <div className="flex space-x-1">
@@ -116,7 +116,7 @@ export const Calendar: React.FC<CalendarProps> = ({
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 view === 'month' 
                   ? 'bg-primary-500 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
             >
               Month
@@ -126,7 +126,7 @@ export const Calendar: React.FC<CalendarProps> = ({
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 view === 'week' 
                   ? 'bg-primary-500 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
             >
               Week
@@ -161,7 +161,7 @@ export const Calendar: React.FC<CalendarProps> = ({
       <div className="grid grid-cols-7 gap-1">
         {/* Week day headers */}
         {weekDays.map(day => (
-          <div key={day} className="p-3 text-center text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg">
+          <div key={day} className="p-3 text-center text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg dark:bg-gray-700 dark:text-gray-300">
             {day}
           </div>
         ))}
@@ -180,15 +180,15 @@ export const Calendar: React.FC<CalendarProps> = ({
                 }
               }}
               className={`
-                min-h-[100px] p-2 border border-gray-100 rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:shadow-md
+                min-h-[100px] p-2 border border-gray-100 rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:shadow-md dark:border-gray-600 dark:hover:bg-blue-900/20
                 ${!day.isCurrentMonth ? 'opacity-40' : ''}
-                ${isToday(day.date) ? 'bg-gradient-to-br from-blue-100 to-cyan-100 border-blue-300' : 'bg-white'}
+                ${isToday(day.date) ? 'bg-gradient-to-br from-blue-100 to-cyan-100 border-blue-300 dark:from-blue-900/50 dark:to-cyan-900/50' : 'bg-white dark:bg-gray-800'}
                 ${isSelected(day.date) ? 'ring-2 ring-primary-500' : ''}
               `}
             >
               <div className={`
                 text-sm font-medium mb-1
-                ${isToday(day.date) ? 'text-blue-700' : day.isCurrentMonth ? 'text-gray-900' : 'text-gray-400'}
+                ${isToday(day.date) ? 'text-blue-700 dark:text-blue-300' : day.isCurrentMonth ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}
               `}>
                 {day.date.getDate()}
               </div>
@@ -212,7 +212,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-xs text-gray-500 font-medium">
+                  <div className="text-xs text-gray-500 font-medium dark:text-gray-400">
                     +{dayEvents.length - 3} more
                   </div>
                 )}
@@ -233,19 +233,19 @@ export const Calendar: React.FC<CalendarProps> = ({
       <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-          <span className="text-gray-600">Vet Appointments</span>
+          <span className="text-gray-600 dark:text-gray-300">Vet Appointments</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-          <span className="text-gray-600">Grooming</span>
+          <span className="text-gray-600 dark:text-gray-300">Grooming</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span className="text-gray-600">Training</span>
+          <span className="text-gray-600 dark:text-gray-300">Training</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-          <span className="text-gray-600">Other</span>
+          <span className="text-gray-600 dark:text-gray-300">Other</span>
         </div>
       </div>
     </Card>

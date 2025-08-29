@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
 import { Auth } from './components/Auth';
 import { Sidebar } from './components/Sidebar';
@@ -13,6 +14,7 @@ import { CommunityView } from './components/CommunityView';
 import { ShopView } from './components/ShopView';
 
 const AppContent: React.FC = () => {
+  useTheme(); // Initialize theme
   const { 
     user, 
     dogs, 

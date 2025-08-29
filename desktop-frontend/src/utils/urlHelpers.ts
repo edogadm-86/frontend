@@ -1,8 +1,13 @@
 // src/utils/urlHelpers.ts
-import { API_BASE_URL } from '../config'; // e.g. "http://localhost:3000/api"
+import { API_BASE_URL } from '../config'; // e.g. "http://localhost:3001/api"
 
 export const apiOrigin = (() => {
-  try { return new URL(API_BASE_URL).origin; } catch { return ''; }
+  try { 
+    const url = new URL(API_BASE_URL);
+    return url.origin; 
+  } catch { 
+    return 'http://localhost:3001'; 
+  }
 })();
 
 /** Ensure an absolute http(s) URL pointing to the API origin. */
@@ -19,13 +24,13 @@ export const normalizeUploadUrl = (u: string) => {
 
   // 1) Never persist blob: URLs — those are only for local previews
   if (u.startsWith('blob:')) {
-    return ''; // signal "don’t persist"; your caller can keep a local preview if needed
+    return ''; // signal "don't persist"; your caller can keep a local preview if needed
   }
 
   // 2) If backend/DB gave you '/uploads/<filename>', convert to your real route:
   if (u.startsWith('/uploads/')) {
     const filename = u.split('/').pop();
-    return toAbsoluteApiUrl(`/api/uploads/file/${filename}`);
+    return toAbsoluteApiUrl(`/uploads/${filename}`);
   }
 
   // 3) If it's already your real route, just make it absolute:
@@ -35,7 +40,7 @@ export const normalizeUploadUrl = (u: string) => {
 
   // 4) If it's a bare filename, also map to your route:
   if (!u.includes('/')) {
-    return toAbsoluteApiUrl(`/api/uploads/file/${u}`);
+    return toAbsoluteApiUrl(`/uploads/${u}`);
   }
 
   // 5) If it's already absolute http(s), keep it:

@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import path from 'path';
 
 // Import email service
 import { startEmailScheduler, triggerAppointmentReminders, triggerVaccinationReminders } from './services/emailService';
@@ -66,6 +67,9 @@ const corsOptions: cors.CorsOptions = {
 //app.use(cors(corsOptions));
 // IMPORTANT: tie preflight to the SAME options (don’t use bare cors())
 //app.options('*', cors(corsOptions));
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

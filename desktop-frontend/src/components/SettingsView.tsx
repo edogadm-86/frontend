@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../hooks/useTheme';
 import { 
   Settings, 
   User, 
@@ -47,6 +48,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onNavigate,
 }) => {
   const { t, i18n } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const { user } = useApp();
   const [activeTab, setActiveTab] = useState<'dogs' | 'emergency' | 'profile' | 'preferences' | 'security' | 'data' | 'support'>('dogs');
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -128,13 +130,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const renderPreferences = () => (
     <div className="space-y-6">
       <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-white">
           <Globe className="mr-2" />
           Language & Region
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Language</label>
             <select
               value={i18n.language}
               onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -145,7 +147,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Date Format</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Date Format</label>
             <select className="input-field">
               <option>MM/DD/YYYY</option>
               <option>DD/MM/YYYY</option>
@@ -153,14 +155,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Time Format</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Time Format</label>
             <select className="input-field">
               <option>12 Hour (AM/PM)</option>
               <option>24 Hour</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Timezone</label>
             <select className="input-field">
               <option>Europe/Sofia (GMT+2)</option>
               <option>Europe/London (GMT+0)</option>
@@ -172,16 +174,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </Card>
 
       <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-white">
           <Bell className="mr-2" />
           Notifications
         </h3>
         <div className="space-y-4">
           {Object.entries(notifications).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
+            <div key={key} className="flex items-center justify-between p-3 bg-white/50 rounded-xl dark:bg-gray-700/50">
               <div>
-                <div className="font-medium text-gray-900 capitalize">{key} Notifications</div>
-                <div className="text-sm text-gray-500">
+                <div className="font-medium text-gray-900 capitalize dark:text-white">{key} Notifications</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   Receive notifications about {key.toLowerCase()}
                 </div>
               </div>
@@ -203,30 +205,45 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </Card>
 
       <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-white">
           <Palette className="mr-2" />
           Appearance
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Theme</label>
             <div className="grid grid-cols-3 gap-3">
-              <button className="p-3 border-2 border-primary-500 rounded-xl bg-white text-center">
+              <button 
+                onClick={() => setTheme('light')}
+                className={`p-3 border-2 rounded-xl bg-white text-center transition-all ${
+                  theme === 'light' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded mb-2"></div>
-                <div className="text-xs font-medium">Light</div>
+                <div className="text-xs font-medium text-gray-900">Light</div>
               </button>
-              <button className="p-3 border-2 border-gray-300 rounded-xl bg-gray-800 text-white text-center">
+              <button 
+                onClick={() => setTheme('dark')}
+                className={`p-3 border-2 rounded-xl bg-gray-800 text-white text-center transition-all ${
+                  theme === 'dark' ? 'border-primary-500 shadow-lg' : 'border-gray-600 hover:border-gray-500'
+                }`}
+              >
                 <div className="w-full h-8 bg-gradient-to-r from-gray-700 to-gray-900 rounded mb-2"></div>
                 <div className="text-xs font-medium">Dark</div>
               </button>
-              <button className="p-3 border-2 border-gray-300 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 text-center">
+              <button 
+                onClick={() => setTheme('system')}
+                className={`p-3 border-2 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 text-center transition-all ${
+                  theme === 'system' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded mb-2"></div>
-                <div className="text-xs font-medium">Auto</div>
+                <div className="text-xs font-medium text-gray-900">Auto</div>
               </button>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Accent Color</label>
             <div className="grid grid-cols-6 gap-2">
               {['blue', 'purple', 'green', 'red', 'orange', 'pink'].map((color) => (
                 <button

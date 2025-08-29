@@ -323,9 +323,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upcoming Appointments */}
-        <Card variant="gradient">
+        <Card variant="gradient" className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-200/20 to-blue-200/20 rounded-full -translate-y-12 translate-x-12"></div>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900 flex items-center">
+            <h3 className="text-xl font-bold text-gray-900 flex items-center dark:text-white">
               <Calendar className="mr-2 text-primary-500" />
               {t('upcomingAppointments')}
             </h3>
@@ -336,35 +337,93 @@ export const Dashboard: React.FC<DashboardProps> = ({
           
           {upcomingAppointments.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4 dark:from-gray-600 dark:to-gray-700">
                 <Calendar size={32} className="text-gray-400" />
               </div>
-              <p className="text-gray-500 mb-4">{t('noData')}</p>
+              <p className="text-gray-500 mb-4 dark:text-gray-400">{t('noData')}</p>
               <Button size="sm" onClick={() => onNavigate('calendar')} variant="outline">
                 {t('scheduleAppointment')}
               </Button>
             </div>
           ) : (
-            <div className="space-y-4">
-              {upcomingAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 hover:bg-white/80 transition-all duration-200">
-                  <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Calendar size={20} className="text-white" />
+            <div className="grid grid-cols-7 gap-2 mb-4">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <div key={day} className="text-center text-xs font-semibold text-gray-500 py-2 dark:text-gray-400">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-2">
+              {(() => {
+                const today = new Date();
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay());
+                
+                return Array.from({ length: 7 }, (_, i) => {
+                  const date = new Date(startOfWeek);
+                  date.setDate(startOfWeek.getDate() + i);
+                  
+                  const dayAppointments = upcomingAppointments.filter(apt => {
+                    const aptDate = new Date(apt.date);
+                    return aptDate.toDateString() === date.toDateString();
+                  });
+                  
+                  const isToday = date.toDateString() === today.toDateString();
+                  
+                  return (
+                    <div
+                      key={i}
+                      className={`min-h-[80px] p-2 rounded-xl border transition-all duration-200 cursor-pointer hover:shadow-lg ${
+                        isToday 
+                          ? 'bg-gradient-to-br from-primary-100 to-blue-100 border-primary-300 dark:from-primary-900/30 dark:to-blue-900/30' 
+                          : 'bg-white/60 backdrop-blur-sm border-white/30 hover:bg-white/80 dark:bg-gray-800/60 dark:border-gray-600/30'
+                      }`}
+                      onClick={() => onNavigate('calendar')}
+                    >
+                      <div className={`text-sm font-medium mb-1 ${isToday ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                        {date.getDate()}
+                      </div>
+                      <div className="space-y-1">
+                        {dayAppointments.slice(0, 2).map(apt => (
+                          <div key={apt.id} className="text-xs bg-primary-500 text-white px-1 py-0.5 rounded truncate">
+                            {apt.time.slice(0, 5)}
+                          </div>
+                        ))}
+                        {dayAppointments.length > 2 && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400">+{dayAppointments.length - 2}</div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+            <div className="mt-4 space-y-2">
+              {upcomingAppointments.slice(0, 3).map((appointment) => (
+                <div key={appointment.id} className="flex items-center space-x-4 p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/30 hover:bg-white/80 transition-all duration-200 dark:bg-gray-800/60 dark:border-gray-600/30">
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{appointment.title}</h4>
-                    <p className="text-sm text-gray-600">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">{appointment.title}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       {formatDate(appointment.date)} at {appointment.time}
                     </p>
                     {appointment.location && (
-                      <p className="text-xs text-gray-500">{appointment.location}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{appointment.location}</p>
                     )}
                   </div>
-                  <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-xs rounded-full font-medium">
+                  <span className="px-2 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-xs rounded-full font-medium dark:from-blue-900/50 dark:to-cyan-900/50 dark:text-blue-300">
                     {appointment.type}
                   </span>
                 </div>
               ))}
+              {upcomingAppointments.length > 3 && (
+                <button 
+                  onClick={() => onNavigate('calendar')}
+                  className="w-full text-center py-2 text-sm text-primary-600 hover:text-primary-700 font-medium dark:text-primary-400"
+                >
+                  View {upcomingAppointments.length - 3} more appointments →
+                </button>
+              )}
             </div>
           )}
         </Card>

@@ -297,13 +297,9 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     if (metadata.healthRecordId) formData.append('healthRecordId', metadata.healthRecordId);
     if (metadata.documentType) formData.append('documentType', metadata.documentType);
 
-    return this.request<{ document: any }>('/uploads/upload', {
+    return this.request<{ document: any; fileUrl: string }>('/uploads/upload', {
       method: 'POST',
       body: formData,
-      headers: {
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        // Don't set Content-Type for FormData, let browser set it with boundary
-      },
     });
   }
 
