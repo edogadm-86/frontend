@@ -1,400 +1,210 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { 
-  Heart, 
-  Calendar, 
-  Shield, 
-  Award, 
-  Plus,
-  TrendingUp,
-  AlertCircle,
-  Clock,
-  Sparkles,
-  Activity,
-  Target
-} from 'lucide-react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
-import { formatDate } from '../lib/utils';
-import { apiClient } from '../lib/api';
+import { Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import pool from '../config/database';
+import { AuthRequest } from '../types';
 
-interface DashboardProps {
-  currentDog: any;
-  dogs: any[];
-  vaccinations: any[];
-  healthRecords: any[];
-  appointments: any[];
-  trainingSessions: any[];
-  onNavigate: (view: string) => void;
-}
-
-export const Dashboard: React.FC<DashboardProps> = ({
-  currentDog,
-  dogs,
-  vaccinations,
-  healthRecords,
-  appointments,
-  trainingSessions,
-  onNavigate,
-}) => {
-  const { t } = useTranslation();
-  const [healthStatus, setHealthStatus] = React.useState<any>(null);
-  const [loadingHealthStatus, setLoadingHealthStatus] = React.useState(false);
-
-  React.useEffect(() => {
-    if (currentDog?.id) {
-      loadHealthStatus();
-    }
-  }, [currentDog?.id]);
-
-  const loadHealthStatus = async () => {
-    if (!currentDog?.id) return;
-    
-    setLoadingHealthStatus(true);
-    try {
-      const status = await apiClient.getDogHealthStatus(currentDog.id);
-      setHealthStatus(status);
-    } catch (error) {
-      console.error('Error loading health status:', error);
-    } finally {
-      setLoadingHealthStatus(false);
-    }
-  };
-
-  if (!currentDog) {
-    return (
-      <div className="p-8 min-h-screen">
-        <div className="text-center py-20">
-          <div className="relative mb-8">
-            <div className="w-32 h-32 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full mx-auto flex items-center justify-center shadow-2xl float-animation">
-              <Heart size={48} className="text-white" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
-              <Sparkles size={16} className="text-white" />
-            </div>
-          </div>
-          <h2 className="text-3xl font-bold gradient-text mb-4">
-            {t('welcome')} to eDog Desktop
-          </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
-            Select a dog from the sidebar or add your first dog to get started
-          </p>
-          <Button onClick={() => onNavigate('settings')} size="lg" icon={<Plus size={20} />}>
-            {t('addDog')}
-          </Button>
-        </div>
-      </div>
+export const getDogs = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM dogs WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.user!.id]
     );
+
+    res.json({ dogs: result.rows });
+  } catch (error) {
+    console.error('Get dogs error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
+};
 
-  const dogVaccinations = vaccinations.filter(v => v.dog_id === currentDog.id);
-  const dogHealthRecords = healthRecords.filter(r => r.dog_id === currentDog.id);
-  const dogAppointments = appointments.filter(a => a.dog_id === currentDog.id);
-  const dogTrainingSessions = trainingSessions.filter(s => s.dog_id === currentDog.id);
+export const createDog = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, breed, age, weight, profile_picture, microchip_id, license_number } = req.body;
 
-  const upcomingAppointments = dogAppointments
-    .filter(a => new Date(a.date) >= new Date())
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(0, 3);
+    const dogId = uuidv4();
+    const result = await pool.query(
+      'INSERT INTO dogs (id, user_id, name, breed, age, weight, profile_picture, microchip_id, license_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+      [dogId, req.user!.id, name, breed, age, weight, profile_picture || null, microchip_id || null, license_number || null]
+    );
 
-  const stats = [
-    {
-      icon: Shield,
-      label: t('vaccinations'),
-      value: dogVaccinations.length,
-      color: 'from-blue-500 to-cyan-500',
-      bgColor: 'from-blue-50 to-cyan-50',
-      onClick: () => onNavigate('health'),
-    },
-    {
-      icon: Heart,
-      label: t('healthRecords'),
-      value: dogHealthRecords.length,
-      color: 'from-red-500 to-pink-500',
-      bgColor: 'from-red-50 to-pink-50',
-      onClick: () => onNavigate('health'),
-    },
-    {
-      icon: Calendar,
-      label: t('appointments'),
-      value: upcomingAppointments.length,
-      color: 'from-green-500 to-emerald-500',
-      bgColor: 'from-green-50 to-emerald-50',
-      onClick: () => onNavigate('calendar'),
-    },
-    {
-      icon: Award,
-      label: t('trainingSessions'),
-      value: dogTrainingSessions.length,
-      color: 'from-purple-500 to-violet-500',
-      bgColor: 'from-purple-50 to-violet-50',
-      onClick: () => onNavigate('training'),
-    },
-  ];
+    res.status(201).json({
+      message: 'Dog created successfully',
+      dog: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Create dog error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
-  const getStatusColor = (color: string) => {
-    switch (color) {
-  return (
-    <div className="p-8 space-y-8">
-      {/* Dog Profile Header */}
-      <Card variant="gradient" className="relative overflow-hidden mb-6">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-200/30 to-blue-200/30 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="relative flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center space-x-6">
-            <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
-                {currentDog.profile_picture ? (
-                  <img
-                    src={currentDog.profile_picture}
-                    alt={currentDog.name}
-                    className="w-24 h-24 rounded-3xl object-cover"
-                  />
-                ) : (
-                  <span className="text-3xl font-bold text-white">
-                    {currentDog.name.charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center border-4 border-white">
-                <Activity size={12} className="text-white" />
-              </div>
-            </div>
-            <div>
-              <h2 className="text-4xl font-bold gradient-text">{currentDog.name}</h2>
-              <p className="text-xl text-gray-600 mb-2">{currentDog.breed}</p>
-              <div className="flex items-center space-x-6 text-sm text-gray-500">
-                <div className="flex items-center space-x-1">
-                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-                  <span>{currentDog.age} years old</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                  <span>{currentDog.weight} kg</span>
-                </div>
-                {currentDog.microchip_id && (
-                  <div className="flex items-center space-x-1">
-                    <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-                    <span>Microchip: {currentDog.microchip_id}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex-shrink-0">
-            <Button onClick={() => onNavigate('settings')} variant="glass" icon={<Plus size={16} />}>
-              {t('edit')} {t('profile')}
-            </Button>
-          </div>
-        </div>
-      </Card>
+export const updateDog = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, breed, age, weight, profile_picture, microchip_id, license_number } = req.body;
 
-      {/* Health Status Banner */}
-      <Card variant="gradient" className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Target size={24} className="text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-green-800">Health Status: Excellent</h3>
-              <p className="text-green-600">All vaccinations up to date • Next checkup in 2 months</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-green-600">98%</div>
-            <div className="text-sm text-green-500">Health Score</div>
-          </div>
-        </div>
-      </Card>
+    const result = await pool.query(
+      'UPDATE dogs SET name = $1, breed = $2, age = $3, weight = $4, profile_picture = $5, microchip_id = $6, license_number = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8 AND user_id = $9 RETURNING *',
+      [name, breed, age, weight, profile_picture || null, microchip_id || null, license_number || null, id, req.user!.id]
+    );
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} onClick={stat.onClick} variant="stat" className="cursor-pointer group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-14 h-14 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
-                <stat.icon size={24} className="text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-sm text-gray-500">{stat.label}</div>
-              </div>
-            </div>
-            <div className="progress-bar">
-              <div 
-                className={`progress-fill bg-gradient-to-r ${stat.color}`}
-                style={{ width: `${Math.min(stat.value * 10, 100)}%` }}
-              ></div>
-            </div>
-          </Card>
-        ))}
-      </div>
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Dog not found' });
+    }
 
-      {/* Quick Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card variant="glass" className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <TrendingUp size={20} className="text-white" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">7 days</div>
-          <div className="text-sm text-gray-600">Since last vet visit</div>
-        </Card>
-        
-        <Card variant="glass" className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Activity size={20} className="text-white" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">2.5 hrs</div>
-          <div className="text-sm text-gray-600">Daily activity average</div>
-        </Card>
-        
-        <Card variant="glass" className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Heart size={20} className="text-white" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">Excellent</div>
-          <div className="text-sm text-gray-600">Overall health</div>
-        </Card>
-      </div>
+    res.json({
+      message: 'Dog updated successfully',
+      dog: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Update dog error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Upcoming Appointments */}
-        <Card variant="gradient">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900 flex items-center">
-              <Calendar className="mr-2 text-primary-500" />
-              {t('upcomingAppointments')}
-            </h3>
-            <Button variant="ghost" size="sm" onClick={() => onNavigate('calendar')}>
-              {t('viewAll')}
-            </Button>
-          </div>
-          
-          {upcomingAppointments.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <Calendar size={32} className="text-gray-400" />
-              </div>
-              <p className="text-gray-500 mb-4">{t('noData')}</p>
-              <Button size="sm" onClick={() => onNavigate('calendar')} variant="outline">
-                {t('scheduleAppointment')}
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {upcomingAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 hover:bg-white/80 transition-all duration-200">
-                  <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Calendar size={20} className="text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{appointment.title}</h4>
-                    <p className="text-sm text-gray-600">
-                      {formatDate(appointment.date)} at {appointment.time}
-                    </p>
-                    {appointment.location && (
-                      <p className="text-xs text-gray-500">{appointment.location}</p>
-                    )}
-                  </div>
-                  <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-xs rounded-full font-medium">
-                    {appointment.type}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
+export const deleteDog = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
 
-        {/* Quick Actions */}
-        <Card variant="gradient">
-          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-            <Sparkles className="mr-2 text-primary-500" />
-            {t('quickActions')}
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={() => onNavigate('health')}
-              className="group p-6 text-left border-2 border-blue-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Shield className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('addVaccination')}</p>
-              <p className="text-sm text-gray-500">Track vaccination records</p>
-            </button>
-            
-            <button
-              onClick={() => onNavigate('health')}
-              className="group p-6 text-left border-2 border-red-200 rounded-2xl hover:border-red-300 hover:bg-red-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Heart className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('addHealthRecord')}</p>
-              <p className="text-sm text-gray-500">Log health information</p>
-            </button>
-            
-            <button
-              onClick={() => onNavigate('calendar')}
-              className="group p-6 text-left border-2 border-green-200 rounded-2xl hover:border-green-300 hover:bg-green-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Calendar className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('scheduleAppointment')}</p>
-              <p className="text-sm text-gray-500">Book vet visits</p>
-            </button>
-            
-            <button
-              onClick={() => onNavigate('training')}
-              className="group p-6 text-left border-2 border-purple-200 rounded-2xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Award className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('addTrainingSession')}</p>
-              <p className="text-sm text-gray-500">Track progress</p>
-            </button>
-          </div>
-        </Card>
-      </div>
+    const result = await pool.query(
+      'DELETE FROM dogs WHERE id = $1 AND user_id = $2 RETURNING id',
+      [id, req.user!.id]
+    );
 
-      {/* Recent Activity */}
-      <Card variant="gradient">
-        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-          <Clock className="mr-2 text-primary-500" />
-          {t('recentActivity')}
-        </h3>
-        <div className="space-y-4">
-          {dogHealthRecords
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 5)
-            .map((record) => (
-              <div key={record.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30">
-                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart size={16} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900">{record.title}</p>
-                  <p className="text-sm text-gray-500">{formatDate(record.date)}</p>
-                </div>
-                <span className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 text-xs rounded-full font-medium">
-                  {record.type}
-                </span>
-              </div>
-            ))}
-          
-          {dogHealthRecords.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <Clock size={32} className="text-gray-400" />
-              </div>
-              <p className="text-gray-500">{t('noData')}</p>
-            </div>
-          )}
-        </div>
-      </Card>
-    </div>
-  );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Dog not found' });
+    }
+
+    res.json({ message: 'Dog deleted successfully' });
+  } catch (error) {
+    console.error('Delete dog error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getDogHealthStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { dogId } = req.params;
+
+    // Verify dog belongs to user
+    const dogCheck = await pool.query(
+      'SELECT * FROM dogs WHERE id = $1 AND user_id = $2',
+      [dogId, req.user!.id]
+    );
+
+    if (dogCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Dog not found' });
+    }
+
+    const dog = dogCheck.rows[0];
+
+    // Get all health data
+    const [vaccinationsResult, healthRecordsResult, appointmentsResult] = await Promise.all([
+      pool.query('SELECT * FROM vaccinations WHERE dog_id = $1', [dogId]),
+      pool.query('SELECT * FROM health_records WHERE dog_id = $1', [dogId]),
+      pool.query('SELECT * FROM appointments WHERE dog_id = $1', [dogId])
+    ]);
+
+    const vaccinations = vaccinationsResult.rows;
+    const healthRecords = healthRecordsResult.rows;
+    const appointments = appointmentsResult.rows;
+
+    // Check if we have enough data to calculate health status
+    const totalRecords = vaccinations.length + healthRecords.length + appointments.length;
+    if (totalRecords < 2) {
+      return res.json({
+        hasEnoughData: false,
+        message: 'Not enough data to calculate health status'
+      });
+    }
+
+    // Calculate health score
+    let score = 0;
+    const factors = [];
+
+    // Vaccination score (40% weight)
+    const currentDate = new Date();
+    const upToDateVaccinations = vaccinations.filter(v => {
+      if (!v.next_due_date) return true;
+      return new Date(v.next_due_date) > currentDate;
+    });
+    
+    const vaccinationScore = vaccinations.length > 0 ? (upToDateVaccinations.length / vaccinations.length) * 40 : 0;
+    score += vaccinationScore;
+    
+    if (vaccinationScore >= 35) factors.push('Vaccinations up to date');
+    else if (vaccinationScore >= 20) factors.push('Some vaccinations due');
+    else factors.push('Vaccinations need attention');
+
+    // Health records score (30% weight)
+    const recentHealthRecords = healthRecords.filter(r => {
+      const recordDate = new Date(r.date);
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      return recordDate > sixMonthsAgo;
+    });
+    
+    const healthRecordScore = healthRecords.length > 0 ? Math.min((recentHealthRecords.length / 2) * 30, 30) : 0;
+    score += healthRecordScore;
+    
+    if (healthRecordScore >= 25) factors.push('Regular health monitoring');
+    else if (healthRecordScore >= 15) factors.push('Some health tracking');
+    else factors.push('More health monitoring needed');
+
+    // Appointment score (20% weight)
+    const upcomingAppointments = appointments.filter(a => new Date(a.date) > currentDate);
+    const appointmentScore = appointments.length > 0 ? Math.min((upcomingAppointments.length / 1) * 20, 20) : 0;
+    score += appointmentScore;
+    
+    if (appointmentScore >= 15) factors.push('Appointments scheduled');
+    else factors.push('Schedule regular checkups');
+
+    // Care consistency score (10% weight)
+    const careScore = Math.min(totalRecords * 2, 10);
+    score += careScore;
+
+    // Determine status and color
+    let status, statusColor, nextAction;
+    
+    if (score >= 85) {
+      status = 'Excellent';
+      statusColor = 'green';
+      nextAction = 'Keep up the great care routine!';
+    } else if (score >= 70) {
+      status = 'Good';
+      statusColor = 'blue';
+      nextAction = 'Consider scheduling a routine checkup';
+    } else if (score >= 55) {
+      status = 'Fair';
+      statusColor = 'yellow';
+      nextAction = 'Update vaccinations and schedule vet visit';
+    } else if (score >= 40) {
+      status = 'Needs Attention';
+      statusColor = 'orange';
+      nextAction = 'Schedule vet visit and update records';
+    } else {
+      status = 'Poor';
+      statusColor = 'red';
+      nextAction = 'Immediate vet attention recommended';
+    }
+
+    res.json({
+      hasEnoughData: true,
+      score: Math.round(score),
+      status,
+      statusColor,
+      nextAction,
+      factors,
+      summary: {
+        totalVaccinations: vaccinations.length,
+        upToDateVaccinations: upToDateVaccinations.length,
+        totalHealthRecords: healthRecords.length,
+        recentHealthRecords: recentHealthRecords.length,
+        totalAppointments: appointments.length,
+        upcomingAppointments: upcomingAppointments.length
+      }
+    });
+  } catch (error) {
+    console.error('Get dog health status error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };

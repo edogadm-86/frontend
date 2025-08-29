@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req: any, file: any, cb: any) => {
   // Allow images and documents
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt/;
+  const allowedTypes = /jpeg|jpg|png|gif|webp|pdf|doc|docx|txt/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
@@ -81,11 +81,24 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req: Aut
 
     res.json({
       message: 'File uploaded successfully',
-      document: result.rows[0]
+      document: result.rows[0],
+      fileUrl: `/api/uploads/file/${req.file.filename}`
     });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'File upload failed' });
+  }
+});
+
+// Serve uploaded files
+router.get('/file/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(uploadsDir, filename);
+  
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: 'File not found' });
   }
 });
 
@@ -151,18 +164,6 @@ router.delete('/:documentId', authenticateToken, async (req: AuthRequest, res) =
   } catch (error) {
     console.error('Delete document error:', error);
     res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Serve uploaded files
-router.get('/file/:filename', (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(uploadsDir, filename);
-  
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ error: 'File not found' });
   }
 });
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, File, Image, Camera } from 'lucide-react';
+import { Upload, X, File, Image, Camera, CheckCircle } from 'lucide-react';
 import { Button } from './Button';
 import { apiClient } from '../../lib/api';
 
@@ -33,6 +33,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImage || null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (files: FileList | null) => {
@@ -54,6 +55,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
 
     setUploading(true);
+    setUploadSuccess(false);
+    
     try {
       const response = await apiClient.uploadFile(file, {
         dogId,
@@ -62,11 +65,18 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         documentType
       });
 
-      const fileUrl = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/uploads/file/${response.document.filename}`;
+      const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const fileUrl = `${baseUrl}${response.fileUrl}`;
+      
       onFileUploaded(fileUrl, file.name);
+      setUploadSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => setUploadSuccess(false), 3000);
     } catch (error) {
       console.error('Upload failed:', error);
       alert('Upload failed. Please try again.');
+      setPreview(null);
     } finally {
       setUploading(false);
     }
@@ -116,11 +126,19 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           >
             {uploading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+            ) : uploadSuccess ? (
+              <CheckCircle size={20} className="text-green-400" />
             ) : (
               <Camera size={20} className="text-white" />
             )}
           </button>
         </div>
+        
+        {uploadSuccess && (
+          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+            Uploaded!
+          </div>
+        )}
       </div>
     );
   }
@@ -144,16 +162,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         className={`
           border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200
           ${dragOver 
-            ? 'border-primary-500 bg-primary-50' 
+            ? 'border-primary-500 bg-primary-50 scale-105' 
             : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
           }
           ${uploading ? 'pointer-events-none opacity-50' : ''}
+          ${uploadSuccess ? 'border-green-500 bg-green-50' : ''}
         `}
       >
         {uploading ? (
           <div className="flex flex-col items-center space-y-2">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
             <p className="text-sm text-gray-600">Uploading...</p>
+          </div>
+        ) : uploadSuccess ? (
+          <div className="flex flex-col items-center space-y-2">
+            <CheckCircle size={32} className="text-green-500" />
+            <p className="text-sm text-green-600 font-medium">Upload successful!</p>
           </div>
         ) : (
           <div className="flex flex-col items-center space-y-2">
@@ -176,13 +200,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
       {preview && variant === 'default' && (
         <div className="mt-4 relative inline-block">
-          <img src={preview} alt="Preview" className="w-32 h-32 object-cover rounded-lg" />
+          <img src={preview} alt="Preview" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
           <button
             onClick={(e) => {
               e.stopPropagation();
               setPreview(null);
             }}
-            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
           >
             <X size={12} />
           </button>

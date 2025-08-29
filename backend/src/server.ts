@@ -66,6 +66,10 @@ const corsOptions: cors.CorsOptions = {
 //app.use(cors(corsOptions));
 // IMPORTANT: tie preflight to the SAME options (don’t use bare cors())
 //app.options('*', cors(corsOptions));
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Body parsing middleware
 
 
