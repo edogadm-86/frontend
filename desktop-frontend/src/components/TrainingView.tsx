@@ -64,128 +64,110 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         dogName={currentDog.name}
       />
 
-      {/* YouTube Training Resources */}
-      <Card variant="gradient" className="mt-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-          <Award className="mr-2 text-primary-500" />
-          Training Resources
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            {
-              title: "Basic Obedience Training",
-              description: "Learn the fundamentals of dog training",
-              videoId: "jFMA5ggFsXU",
-              duration: "5:56",
-              level: "Beginner"
-            },
-            {
-              title: "House Training Your Puppy",
-              description: "Complete guide to potty training",
-              videoId: "Pptoq7avEKM",
-              duration: "4:50",
-              level: "Beginner"
-            },
-            {
-              title: "Advanced Tricks Training",
-              description: "Teach your dog amazing tricks",
-              videoId: "K1co_bZfs6w",
-              duration: "8:36",
-              level: "Advanced"
-            },
-            {
-              title: "Leash Training Techniques",
-              description: "Stop pulling and walk nicely",
-              videoId: "tSvfVs4LKyg",
-              duration: "9:14",
-              level: "Intermediate"
-            },
-            {
-              title: "Socialization Training",
-              description: "Help your dog interact with others",
-              videoId: "ysxjfhmj4c0",
-              duration: "6:18",
-              level: "Beginner"
-            },
-            {
-              title: "Agility Training Basics",
-              description: "Introduction to dog agility",
-              videoId: "vkxggodZzqc",
-              duration: "4:04",
-              level: "Advanced"
-            }
-          ].map((video, index) => (
-            <div key={index} className="bg-white/60 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <div className="relative">
-                <img
-                  src={`https://img.youtube.com/vi/${video.videoId}/maxresdefault.jpg`}
-                  alt={video.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-                <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-xs">
-                  {video.duration}
-                </div>
-                <div className="absolute top-2 left-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    video.level === 'Beginner' ? 'bg-green-100 text-green-800' :
-                    video.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {video.level}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setOpenVideoId(video.videoId)}
-                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
-                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl">
-                    <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </div>
-                </button>
-              </div>
-              <div className="p-4">
-                <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
-                  {video.title}
-                </h4>
-                <p className="text-sm text-gray-600 mb-3">{video.description}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(`https://www.youtube.com/watch?v=${video.videoId}`, '_blank')}
-                  className="w-full"
-                >
-                  Watch on YouTube
-                </Button>
-              </div>
-            </div>
-          ))}
+      {/* Training Assistant and Resources Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* AI Training Assistant */}
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+            <Bot className="mr-2 text-purple-500" />
+            AI Training Assistant
+          </h3>
+          <ChatBot dogName={currentDog.name} />
         </div>
-        {openVideoId && (
-  <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-    <div className="relative w-full max-w-4xl">
-      <button
-        onClick={() => setOpenVideoId(null)}
-        className="absolute -top-10 right-0 text-white/90 hover:text-white text-sm"
-        aria-label="Close"
-      >
-        Close ✕
-      </button>
-      <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
-        <iframe
-          className="w-full h-full"
-          src={`https://www.youtube-nocookie.com/embed/${openVideoId}?autoplay=1&rel=0&modestbranding=1`}
-          title="YouTube player"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
+
+        {/* Training Resources */}
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+            <Award className="mr-2 text-primary-500" />
+            Training Resources
+          </h3>
+          <Card variant="gradient" className="h-[600px] overflow-y-auto">
+            <div className="space-y-4">
+              {[
+                {
+                  title: "Basic Obedience Training",
+                  description: "Learn the fundamentals of dog training",
+                  videoId: "jFMA5ggFsXU",
+                  duration: "5:56",
+                  level: "Beginner"
+                },
+                {
+                  title: "House Training Your Puppy",
+                  description: "Complete guide to potty training",
+                  videoId: "Pptoq7avEKM",
+                  duration: "4:50",
+                  level: "Beginner"
+                },
+                {
+                  title: "Advanced Tricks Training",
+                  description: "Teach your dog amazing tricks",
+                  videoId: "K1co_bZfs6w",
+                  duration: "8:36",
+                  level: "Advanced"
+                },
+                {
+                  title: "Leash Training Techniques",
+                  description: "Stop pulling and walk nicely",
+                  videoId: "tSvfVs4LKyg",
+                  duration: "9:14",
+                  level: "Intermediate"
+                },
+                {
+                  title: "Socialization Training",
+                  description: "Help your dog interact with others",
+                  videoId: "ysxjfhmj4c0",
+                  duration: "6:18",
+                  level: "Beginner"
+                },
+                {
+                  title: "Agility Training Basics",
+                  description: "Introduction to dog agility",
+                  videoId: "vkxggodZzqc",
+                  duration: "4:04",
+                  level: "Advanced"
+                }
+              ].map((video, index) => (
+                <div key={index} className="bg-white/60 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <div className="flex space-x-4 p-4">
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`}
+                        alt={video.title}
+                        className="w-24 h-16 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute bottom-1 right-1 bg-black/80 text-white px-1 py-0.5 rounded text-xs">
+                        {video.duration}
+                      </div>
+                      <div className="absolute top-1 left-1">
+                        <span className={`px-1 py-0.5 rounded text-xs font-medium ${
+                          video.level === 'Beginner' ? 'bg-green-100 text-green-800' :
+                          video.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {video.level}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors truncate">
+                        {video.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">{video.description}</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(`https://www.youtube.com/watch?v=${video.videoId}`, '_blank')}
+                      >
+                        Watch
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
-    </div>
-  </div>
-)}
-      </Card>
     </div>
   );
 };

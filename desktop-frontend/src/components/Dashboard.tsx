@@ -12,12 +12,15 @@ import {
   Clock,
   Sparkles,
   Activity,
-  Target
+  Target,
+  FileText,
+  Bot
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
+import { PetPassport } from './PetPassport';
 
 interface DashboardProps {
   currentDog: any;
@@ -41,6 +44,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const { t } = useTranslation();
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
+  const [showPassport, setShowPassport] = useState(false);
 
   useEffect(() => {
     if (currentDog?.id) {
@@ -323,7 +327,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upcoming Appointments */}
-        <Card variant="gradient">
+        <Card variant="gradient" className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary-200/20 to-blue-200/20 rounded-full -translate-y-10 translate-x-10"></div>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-gray-900 flex items-center">
               <Calendar className="mr-2 text-primary-500" />
@@ -334,43 +339,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Button>
           </div>
           
-          {upcomingAppointments.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <Calendar size={32} className="text-gray-400" />
-              </div>
-              <p className="text-gray-500 mb-4">{t('noData')}</p>
-              <Button size="sm" onClick={() => onNavigate('calendar')} variant="outline">
-                {t('scheduleAppointment')}
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {upcomingAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 hover:bg-white/80 transition-all duration-200">
-                  <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Calendar size={20} className="text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{appointment.title}</h4>
-                    <p className="text-sm text-gray-600">
-                      {formatDate(appointment.date)} at {appointment.time}
-                    </p>
-                    {appointment.location && (
-                      <p className="text-xs text-gray-500">{appointment.location}</p>
-                    )}
-                  </div>
-                  <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-xs rounded-full font-medium">
-                    {appointment.type}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          <MiniCalendar appointments={dogAppointments} onNavigate={onNavigate} />
         </Card>
 
         {/* Quick Actions */}
-        <Card variant="gradient">
+        <Card variant="gradient" className="xl:col-span-1">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
             <Sparkles className="mr-2 text-primary-500" />
             {t('quickActions')}
@@ -423,6 +396,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </Card>
       </div>
 
+      {/* Pet Passport Modal */}
+      {showPassport && (
+        <PetPassport dog={currentDog} onClose={() => setShowPassport(false)} />
+      )}
+
       {/* Recent Activity */}
       <Card variant="gradient">
         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
@@ -461,3 +439,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
     </div>
   );
 };
+
+// Mini Calendar Component for Dashboard
+const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) => void }> = ({ 
+  appointments, 
+  onNavigate 
+}) => {
+  const today = new Date();
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  // Get this week's dates
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  
+  const weekDates = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + i);
+    return date;
+  });
+
+  const getAppointmentsForDate = (date: Date) => {
+    return appointments.filter(apt => 
+      new Date(apt.date).toDateString() === date.toDateString()
+    );
+  };

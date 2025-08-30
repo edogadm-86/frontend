@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shield, Heart, ArrowLeft } from 'lucide-react';
+import { Shield, Heart, ArrowLeft, FileText } from 'lucide-react';
 import { Button } from './ui/Button';
 import { VaccinationManagement } from './VaccinationManagement';
 import { HealthRecordManagement } from './HealthRecordManagement';
+import { PetPassport } from './PetPassport';
 import { Dog } from '../types';
 
 interface HealthManagementProps {
@@ -19,6 +20,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'vaccinations' | 'health-records'>('vaccinations');
+  const [showPassport, setShowPassport] = useState(false);
 
   if (!currentDog) {
     return (

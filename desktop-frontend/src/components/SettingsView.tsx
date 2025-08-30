@@ -67,6 +67,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     email: true,
     push: true,
   });
+  const [preferences, setPreferences] = useState({
+    language: i18n.language,
+    theme: theme,
+    dateFormat: 'MM/DD/YYYY',
+    timeFormat: '12',
+    timezone: 'Europe/Sofia',
+    autoBackup: true,
+    dataSharing: false,
+    marketingEmails: false,
+  });
 
   const tabs = [
     { id: 'dogs', icon: User, label: t('myDogs'), color: 'from-blue-500 to-cyan-500' },
@@ -88,6 +98,54 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       console.error('Error updating profile:', error);
     }
   };
+
+  const handleSavePreferences = async () => {
+    try {
+      // Save language
+      if (preferences.language !== i18n.language) {
+        i18n.changeLanguage(preferences.language);
+      }
+      
+      // Save theme
+      if (preferences.theme !== theme) {
+        setTheme(preferences.theme as any);
+      }
+      
+      // Save other preferences to localStorage
+      localStorage.setItem('userPreferences', JSON.stringify(preferences));
+      
+      // Here you would also call your API to save preferences
+      console.log('Saving preferences:', preferences);
+      
+      alert('Preferences saved successfully!');
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      alert('Failed to save preferences');
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Here you would call your API to update profile
+      await apiClient.updateProfile(profileData);
+      setShowProfileModal(false);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile');
+    }
+  };
+
+  // Load preferences on mount
+  useEffect(() => {
+    const savedPreferences = localStorage.getItem('userPreferences');
+    if (savedPreferences) {
+      const parsed = JSON.parse(savedPreferences);
+      setPreferences({ ...preferences, ...parsed });
+    }
+  }, []);
+
   const renderProfileSettings = () => (
     <div className="space-y-6">
       <Card variant="gradient" className="p-8">
@@ -138,8 +196,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Language</label>
             <select
-              value={i18n.language}
-              onChange={(e) => i18n.changeLanguage(e.target.value)}
+              value={preferences.language}
+              onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}
               className="input-field"
             >
               <option value="en">🇺🇸 English</option>
@@ -149,6 +207,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Date Format</label>
             <select className="input-field">
+              value={preferences.dateFormat}
+              onChange={(e) => setPreferences({ ...preferences, dateFormat: e.target.value })}
               <option>MM/DD/YYYY</option>
               <option>DD/MM/YYYY</option>
               <option>YYYY-MM-DD</option>
@@ -157,6 +217,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Time Format</label>
             <select className="input-field">
+              value={preferences.timeFormat}
+              onChange={(e) => setPreferences({ ...preferences, timeFormat: e.target.value })}
               <option>12 Hour (AM/PM)</option>
               <option>24 Hour</option>
             </select>
@@ -164,12 +226,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Timezone</label>
             <select className="input-field">
+              value={preferences.timezone}
+              onChange={(e) => setPreferences({ ...preferences, timezone: e.target.value })}
               <option>Europe/Sofia (GMT+2)</option>
               <option>Europe/London (GMT+0)</option>
               <option>America/New_York (GMT-5)</option>
               <option>America/Los_Angeles (GMT-8)</option>
             </select>
           </div>
+        </div>
+        <div className="mt-6">
+          <Button onClick={handleSavePreferences} className="w-full">
+            Save Language & Region Settings
+          </Button>
         </div>
       </Card>
 
@@ -200,7 +269,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           ))}
         </div>
         <div className="mt-6">
-          <Button className="w-full">Save Notification Preferences</Button>
+          <Button onClick={handleSavePreferences} className="w-full">
+            Save Notification Preferences
+          </Button>
         </div>
       </Card>
 
@@ -214,27 +285,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Theme</label>
             <div className="grid grid-cols-3 gap-3">
               <button 
-                onClick={() => setTheme('light')}
+                onClick={() => setPreferences({ ...preferences, theme: 'light' })}
                 className={`p-3 border-2 rounded-xl bg-white text-center transition-all ${
-                  theme === 'light' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
+                  preferences.theme === 'light' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded mb-2"></div>
                 <div className="text-xs font-medium text-gray-900">Light</div>
               </button>
               <button 
-                onClick={() => setTheme('dark')}
+                onClick={() => setPreferences({ ...preferences, theme: 'dark' })}
                 className={`p-3 border-2 rounded-xl bg-gray-800 text-white text-center transition-all ${
-                  theme === 'dark' ? 'border-primary-500 shadow-lg' : 'border-gray-600 hover:border-gray-500'
+                  preferences.theme === 'dark' ? 'border-primary-500 shadow-lg' : 'border-gray-600 hover:border-gray-500'
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-gray-700 to-gray-900 rounded mb-2"></div>
                 <div className="text-xs font-medium">Dark</div>
               </button>
               <button 
-                onClick={() => setTheme('system')}
+                onClick={() => setPreferences({ ...preferences, theme: 'system' })}
                 className={`p-3 border-2 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 text-center transition-all ${
-                  theme === 'system' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
+                  preferences.theme === 'system' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded mb-2"></div>
