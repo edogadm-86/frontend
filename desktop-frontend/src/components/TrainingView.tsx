@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Award, ArrowLeft } from 'lucide-react';
+import { Award, ArrowLeft, Bot } from 'lucide-react';
+import { ChatBot } from './ChatBot';
 import { Button } from './ui/Button';
 import { TrainingManagement } from './TrainingManagement';
 import { Dog } from '../types';
@@ -57,16 +58,16 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
+      
       {/* Training Management */}
       <TrainingManagement
         dogId={currentDog.id}
         dogName={currentDog.name}
       />
+      {/* AI Training Assistant */}
 
-      {/* Training Assistant and Resources Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {/* AI Training Assistant */}
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
             <Bot className="mr-2 text-purple-500" />
@@ -74,6 +75,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           </h3>
           <ChatBot dogName={currentDog.name} />
         </div>
+        </div>
+
+      {/* Training Assistant and Resources Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-8">
+        
 
         {/* Training Resources */}
         <div>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
+import { apiClient } from '../lib/api';
 import { 
   Settings, 
   User, 
@@ -17,7 +18,8 @@ import {
   Database,
   HelpCircle,
   Mail,
-  Smartphone
+  Smartphone,
+  Clock
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -88,16 +90,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     { id: 'support', icon: HelpCircle, label: 'Help & Support', color: 'from-gray-500 to-slate-500' },
   ];
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      // Here you would call your API to update profile
-      console.log('Updating profile:', profileData);
-      setShowProfileModal(false);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-    }
-  };
+
 
   const handleSavePreferences = async () => {
     try {
@@ -206,32 +199,35 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Date Format</label>
-            <select className="input-field">
+            <select className="input-field"
               value={preferences.dateFormat}
               onChange={(e) => setPreferences({ ...preferences, dateFormat: e.target.value })}
-              <option>MM/DD/YYYY</option>
-              <option>DD/MM/YYYY</option>
-              <option>YYYY-MM-DD</option>
+              >
+              <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+              <option value="YYYY-MM-DD">YYYY-MM-DD</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Time Format</label>
-            <select className="input-field">
+            <select className="input-field"
               value={preferences.timeFormat}
               onChange={(e) => setPreferences({ ...preferences, timeFormat: e.target.value })}
-              <option>12 Hour (AM/PM)</option>
-              <option>24 Hour</option>
+              >
+               <option value="12">12 Hour (AM/PM)</option>
+               <option value="24">24 Hour</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Timezone</label>
-            <select className="input-field">
+            <select className="input-field"
               value={preferences.timezone}
               onChange={(e) => setPreferences({ ...preferences, timezone: e.target.value })}
-              <option>Europe/Sofia (GMT+2)</option>
-              <option>Europe/London (GMT+0)</option>
-              <option>America/New_York (GMT-5)</option>
-              <option>America/Los_Angeles (GMT-8)</option>
+              >
+              <option value="Europe/Sofia">Europe/Sofia (GMT+2)</option>
+              <option value="Europe/London">Europe/London (GMT+0)</option>
+              <option value="America/New_York">America/New_York (GMT-5)</option>
+              <option value="America/Los_Angeles">America/Los_Angeles (GMT-8)</option>
             </select>
           </div>
         </div>

@@ -55,7 +55,7 @@
   "addVaccination": "Добави ваксинация",
   "addHealthRecord": "Добави здравен запис",
   "scheduleAppointment": "Насрочи среща",
-  "addTrainingSession": "Добави тренировъчна сесия",
+  "addTrainingSession": "Добави тренировка",
   "viewAll": "Виж всички",
   "noData": "Няма налични данни",
   "searchDogs": "Търси кучета...",
@@ -67,7 +67,6 @@
   "addVaccination": "Добави ваксинация",
   "addHealthRecord": "Добави здравен запис",
   "scheduleAppointment": "Насрочи среща",
-  "addTrainingSession": "Добави тренировъчна сесия",
   "upcomingAppointments": "Предстоящи срещи",
   "quickActions": "Бързи действия",
   "recentActivity": "Последна активност",
@@ -91,5 +90,6 @@
   "version": "Версия",
   "lastUpdated": "Последно обновяване",
   "platform": "Платформа",
-  "Shop & Services": "Магазин & Услуги"
+  "Shop & Services": "Магазин & Услуги",
+  "Pet Passport": "Паспорт"
 }

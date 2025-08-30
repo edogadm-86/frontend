@@ -8,7 +8,7 @@ import {
   Phone,
   FileText,
   Download,
-  Print,
+  Printer as Print, 
   Star,
   Heart,
   Award

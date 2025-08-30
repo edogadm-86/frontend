@@ -148,7 +148,6 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
           <h3 className="text-lg font-semibold text-gray-900">
             {t('training')} - {dogName}
           </h3>
-          <p className="text-gray-600">Track training progress and sessions</p>
         </div>
         <Button onClick={handleCreate}>
           <Plus size={20} className="mr-2" />
