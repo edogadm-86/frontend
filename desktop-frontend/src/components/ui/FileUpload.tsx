@@ -5,6 +5,7 @@ import { apiClient } from '../../lib/api';
 
 interface FileUploadProps {
   onFileUploaded: (fileUrl: string, fileName: string) => void;
+  onUploadStart?: () => void;
   acceptedTypes?: string;
   maxSize?: number; // in MB
   dogId?: string;
@@ -19,6 +20,7 @@ interface FileUploadProps {
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileUploaded,
+  onUploadStart,
   acceptedTypes = 'image/*,.pdf,.doc,.docx',
   maxSize = 10,
   dogId,
@@ -58,6 +60,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
     setUploading(true);
     setUploadSuccess(false);
+    onUploadStart?.();
 
     try {
       const response = await apiClient.uploadFile(file, {
@@ -67,7 +70,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         documentType
       });
 
-      const fileUrl: string = response.fileUrl; // backend returns full URL
+      // Use the full URL returned by backend
+      const fileUrl = response.fileUrl.startsWith('http') 
+        ? response.fileUrl 
+        : `http://localhost:3001${response.fileUrl}`;
+        
       onFileUploaded(fileUrl, file.name);
       setUploadSuccess(true);
 

@@ -8,14 +8,13 @@
   }
   
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900 transition-colors duration-300;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-attachment: fixed;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   html.dark body {
-    @apply bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 text-white;
+    @apply bg-gradient-to-br from-gray-900 via-slate-900 to-black text-white;
   }
 
   /* Dark mode for all elements */
@@ -23,12 +22,29 @@
     color-scheme: dark;
   }
 
-  .dark * {
-    @apply border-gray-700;
-  }
-
+  /* Comprehensive dark mode styles */
   .dark .bg-white {
     @apply bg-gray-800;
+  }
+
+  .dark .bg-white\/80 {
+    @apply bg-gray-800/80;
+  }
+
+  .dark .bg-white\/60 {
+    @apply bg-gray-800/60;
+  }
+
+  .dark .bg-white\/50 {
+    @apply bg-gray-800/50;
+  }
+
+  .dark .bg-white\/20 {
+    @apply bg-gray-800/20;
+  }
+
+  .dark .bg-white\/10 {
+    @apply bg-gray-800/10;
   }
 
   .dark .bg-gray-50 {
@@ -37,6 +53,26 @@
 
   .dark .bg-gray-100 {
     @apply bg-gray-800;
+  }
+
+  .dark .bg-gray-200 {
+    @apply bg-gray-700;
+  }
+
+  .dark .border-white\/20 {
+    @apply border-gray-700/30;
+  }
+
+  .dark .border-white\/30 {
+    @apply border-gray-700/40;
+  }
+
+  .dark .border-gray-200 {
+    @apply border-gray-700;
+  }
+
+  .dark .border-gray-300 {
+    @apply border-gray-600;
   }
 
   .dark .text-gray-900 {
@@ -56,6 +92,157 @@
   }
 
   .dark .text-gray-500 {
+    @apply text-gray-400;
+  }
+
+  .dark .text-gray-400 {
+    @apply text-gray-500;
+  }
+
+  /* Hover states for dark mode */
+  .dark .hover\:bg-gray-50:hover {
+    @apply bg-gray-800;
+  }
+
+  .dark .hover\:bg-gray-100:hover {
+    @apply bg-gray-700;
+  }
+
+  .dark .hover\:bg-white\/50:hover {
+    @apply bg-gray-800/50;
+  }
+
+  .dark .hover\:text-gray-600:hover {
+    @apply text-gray-300;
+  }
+
+  .dark .hover\:text-gray-700:hover {
+    @apply text-gray-200;
+  }
+
+  /* Card backgrounds in dark mode */
+  .dark .card {
+    @apply bg-gray-800/80 border-gray-700/30;
+  }
+
+  .dark .glass-card {
+    @apply bg-gray-900/20 border-gray-700/30;
+  }
+
+  /* Input fields in dark mode */
+  .dark .input-field {
+    @apply bg-gray-800 border-gray-600 text-white placeholder-gray-400;
+  }
+
+  .dark .input-field:focus {
+    @apply bg-gray-800 border-primary-500 ring-primary-500;
+  }
+
+  /* Modal in dark mode */
+  .dark .modal-content {
+    @apply bg-gray-800/95 border-gray-700/30;
+  }
+
+  /* Sidebar in dark mode */
+  .dark .sidebar-item {
+    @apply text-gray-300 hover:from-primary-900/30 hover:to-blue-900/30 hover:text-primary-300;
+  }
+
+  /* Progress bars in dark mode */
+  .dark .progress-bar {
+    @apply bg-gray-700;
+  }
+
+  /* Tab buttons in dark mode */
+  .dark .tab-button:not(.active) {
+    @apply text-gray-300 hover:text-primary-400 hover:bg-primary-900/20;
+  }
+
+  /* Settings sections in dark mode */
+  .dark .settings-section {
+    @apply bg-gray-800/60 border-gray-700/30;
+  }
+
+  /* Chat messages in dark mode */
+  .dark .chat-message.bot {
+    @apply bg-gray-700 text-gray-200;
+  }
+
+  .dark .chat-input {
+    @apply bg-gray-800/80 border-gray-600 text-white;
+  }
+
+  /* Passport styles in dark mode */
+  .dark .passport-page {
+    @apply from-blue-900/20 to-indigo-900/20 border-blue-700;
+  }
+
+  .dark .passport-field {
+    @apply bg-gray-800/50 border-gray-600;
+  }
+
+  .dark .passport-photo {
+    @apply border-gray-700;
+  }
+
+  /* Community styles in dark mode */
+  .dark .bg-gray-50\/50 {
+    @apply bg-gray-800/50;
+  }
+
+  /* Scrollbar in dark mode */
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply from-primary-600 to-blue-600;
+  }
+
+  /* Ensure all backgrounds are properly themed */
+  .dark .bg-gradient-to-br {
+    background: linear-gradient(to bottom right, rgb(17 24 39), rgb(15 23 42), rgb(0 0 0)) !important;
+  }
+
+  .dark .bg-gradient-to-r.from-slate-50 {
+    background: linear-gradient(to right, rgb(17 24 39), rgb(15 23 42)) !important;
+  }
+
+  /* Fix any remaining white backgrounds */
+  .dark [class*="bg-white"] {
+    @apply bg-gray-800;
+  }
+
+  .dark [class*="bg-gray-50"] {
+    @apply bg-gray-900;
+  }
+
+  .dark [class*="bg-gray-100"] {
+    @apply bg-gray-800;
+  }
+
+  .dark [class*="bg-gray-200"] {
+    @apply bg-gray-700;
+  }
+
+  /* Ensure text is readable in dark mode */
+  .dark [class*="text-gray-900"] {
+    @apply text-white;
+  }
+
+  .dark [class*="text-gray-800"] {
+    @apply text-gray-100;
+  }
+
+  .dark [class*="text-gray-700"] {
+    @apply text-gray-200;
+  }
+
+  .dark [class*="text-gray-600"] {
+    @apply text-gray-300;
+  }
+
+  .dark [class*="text-gray-500"] {
     @apply text-gray-400;
   }
 }

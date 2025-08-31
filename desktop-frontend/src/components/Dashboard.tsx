@@ -355,7 +355,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Quick Actions */}
         <Card variant="gradient" className="xl:col-span-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
             <Sparkles className="mr-2 text-primary-500" />
             {t('quickActions')}
           </h3>
@@ -443,6 +443,62 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Clock size={32} className="text-gray-400" />
               </div>
               <p className="text-gray-500">{t('noData')}</p>
+            </div>
+          )}
+        <div className="space-y-4">
+          {/* Week View Calendar */}
+          <div className="grid grid-cols-7 gap-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => {
+              const date = new Date();
+              date.setDate(date.getDate() - date.getDay() + index);
+              const isToday = date.toDateString() === new Date().toDateString();
+              const dayAppointments = dogAppointments.filter(apt => 
+                new Date(apt.date).toDateString() === date.toDateString()
+              );
+              
+              return (
+                <div key={day} className={`text-center p-3 rounded-xl transition-all duration-200 cursor-pointer hover:bg-primary-50 dark:hover:bg-primary-900/20 ${
+                  isToday ? 'bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow-lg' : 'bg-white/50 dark:bg-gray-800/50'
+                }`}>
+                  <div className={`text-xs font-medium mb-1 ${isToday ? 'text-white' : 'text-gray-600 dark:text-gray-400'}`}>
+                    {day}
+                  </div>
+                  <div className={`text-lg font-bold ${isToday ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                    {date.getDate()}
+                  </div>
+                  {dayAppointments.length > 0 && (
+                    <div className={`w-2 h-2 rounded-full mx-auto mt-1 ${
+                      isToday ? 'bg-white' : 'bg-primary-500'
+                    }`}></div>
+                  )}
+                  {dayAppointments.length > 1 && (
+                    <div className={`text-xs mt-1 ${isToday ? 'text-white' : 'text-primary-600 dark:text-primary-400'}`}>
+                      +{dayAppointments.length - 1}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Today's Appointments */}
+          {dogAppointments.filter(apt => new Date(apt.date).toDateString() === new Date().toDateString()).length > 0 && (
+            <div className="space-y-2">
+              <h4 className="font-medium text-gray-900 dark:text-white">Today's Appointments</h4>
+              {dogAppointments
+                .filter(apt => new Date(apt.date).toDateString() === new Date().toDateString())
+                .map(apt => (
+                  <div key={apt.id} className="flex items-center space-x-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-xl">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                      <Calendar size={14} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900 dark:text-white text-sm">{apt.title}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{apt.time}</div>
+                    </div>
+                  </div>
+                ))
+              }
             </div>
           )}
         </div>

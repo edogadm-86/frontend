@@ -106,9 +106,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       
       // Save other preferences to localStorage
       localStorage.setItem('userPreferences', JSON.stringify(preferences));
+      localStorage.setItem('userNotifications', JSON.stringify(notifications));
       
-      // Here you would also call your API to save preferences
-      console.log('Saving preferences:', preferences);
+      // Update profile if needed
+      if (profileData.name !== user?.name || profileData.email !== user?.email || profileData.phone !== user?.phone) {
+        await apiClient.updateProfile(profileData);
+      }
       
       alert('Preferences saved successfully!');
     } catch (error) {
@@ -137,11 +140,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       const parsed = JSON.parse(savedPreferences);
       setPreferences({ ...preferences, ...parsed });
     }
+    
+    const savedNotifications = localStorage.getItem('userNotifications');
+    if (savedNotifications) {
+      const parsed = JSON.parse(savedNotifications);
+      setNotifications({ ...notifications, ...parsed });
+    }
+    
+    // Load user data
+    if (user) {
+      setProfileData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+      });
+    }
   }, []);
 
   const renderProfileSettings = () => (
     <div className="space-y-6">
-      <Card variant="gradient" className="p-8">
+      <Card variant="gradient">
         <div className="flex items-center space-x-6 mb-6">
           <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
             <span className="text-3xl font-bold text-white">
@@ -149,9 +167,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </span>
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-gray-900">{user?.name || 'User'}</h3>
-            <p className="text-gray-600">{user?.email || 'user@example.com'}</p>
-            <p className="text-sm text-gray-500">Member since January 2024</p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{user?.name || 'User'}</h3>
+            <p className="text-gray-600 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">Member since January 2024</p>
           </div>
           <div className="ml-auto">
             <Button onClick={() => setShowProfileModal(true)} variant="outline">
@@ -161,17 +179,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 bg-white/50 rounded-2xl">
-            <div className="text-2xl font-bold text-primary-600">{dogs.length}</div>
-            <div className="text-sm text-gray-600">Dogs Registered</div>
+          <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
+            <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{dogs.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Dogs Registered</div>
           </div>
-          <div className="text-center p-4 bg-white/50 rounded-2xl">
-            <div className="text-2xl font-bold text-green-600">24</div>
-            <div className="text-sm text-gray-600">Health Records</div>
+          <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">24</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Health Records</div>
           </div>
-          <div className="text-center p-4 bg-white/50 rounded-2xl">
-            <div className="text-2xl font-bold text-purple-600">12</div>
-            <div className="text-sm text-gray-600">Appointments</div>
+          <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">12</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Appointments</div>
           </div>
         </div>
       </Card>
@@ -181,7 +199,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const renderPreferences = () => (
     <div className="space-y-6">
       <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Globe className="mr-2" />
           Language & Region
         </h3>
@@ -239,15 +257,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </Card>
 
       <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Bell className="mr-2" />
           Notifications
         </h3>
         <div className="space-y-4">
           {Object.entries(notifications).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between p-3 bg-white/50 rounded-xl dark:bg-gray-700/50">
+            <div key={key} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
               <div>
-                <div className="font-medium text-gray-900 capitalize dark:text-white">{key} Notifications</div>
+                <div className="font-medium text-gray-900 dark:text-white capitalize">{key} Notifications</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   Receive notifications about {key.toLowerCase()}
                 </div>
@@ -272,7 +290,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </Card>
 
       <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Palette className="mr-2" />
           Appearance
         </h3>
@@ -308,6 +326,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <div className="text-xs font-medium text-gray-900">Auto</div>
               </button>
             </div>
+          </div>
+          <div className="mt-6">
+            <Button onClick={handleSavePreferences} className="w-full">
+              Apply Theme Changes
+            </Button>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Accent Color</label>

@@ -30,6 +30,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     breed: '',
@@ -108,24 +109,21 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   };
 
 const handleFileUploaded = (fileUrl: string) => {
-  const publicUrl = normalizeUploadUrl(fileUrl);
-
-  // If normalizeUploadUrl returned empty (e.g. it was a blob: URL),
-  // you can either skip saving, or store a preview in a separate state
-  if (!publicUrl) {
-    // optional: setPreview(fileUrl); // for showing temporary preview
-    return;
-  }
-
-  setFormData(prev => ({ ...prev, profilePicture: publicUrl }));
+  console.log('File uploaded:', fileUrl);
+  setFormData(prev => ({ ...prev, profilePicture: fileUrl }));
+  setUploadingImage(false);
 };
+  const handleFileUploadStart = () => {
+    setUploadingImage(true);
+  };
+
   return (
-    <div className="p-8 space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{t('myDogs')}</h2>
-          <p className="text-gray-600">Manage your dog profiles</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('myDogs')}</h2>
+          <p className="text-gray-600 dark:text-gray-400">Manage your dog profiles</p>
         </div>
         <Button onClick={handleCreateDog}>
           <Plus size={20} className="mr-2" />
@@ -141,7 +139,7 @@ const handleFileUploaded = (fileUrl: string) => {
           placeholder={t('searchDogs')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full"
+          className="input-field pl-10"
         />
       </div>
 
@@ -149,11 +147,11 @@ const handleFileUploaded = (fileUrl: string) => {
       {filteredDogs.length === 0 ? (
         <Card className="text-center py-16">
           <div className="text-gray-500 mb-4">
-            <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <Plus size={32} className="text-gray-400" />
+            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <Plus size={32} className="text-gray-400 dark:text-gray-500" />
             </div>
-            <p className="text-lg font-medium">No dogs found</p>
-            <p className="text-sm">Create your first dog profile to get started</p>
+            <p className="text-lg font-medium text-gray-900 dark:text-white">No dogs found</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Create your first dog profile to get started</p>
           </div>
           <Button onClick={handleCreateDog}>
             {t('addDog')}
@@ -165,13 +163,13 @@ const handleFileUploaded = (fileUrl: string) => {
             <Card
               key={dog.id}
               className={`cursor-pointer transition-all ${
-                currentDog?.id === dog.id ? 'ring-2 ring-primary-500 bg-primary-50' : ''
+                currentDog?.id === dog.id ? 'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900/20' : ''
               }`}
               onClick={() => onSelectDog(dog)}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden">
                     {dog.profilePicture ? (
                       <img
                         src={dog.profilePicture}
@@ -185,9 +183,9 @@ const handleFileUploaded = (fileUrl: string) => {
                     )}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{dog.name}</h3>
-                    <p className="text-gray-600">{dog.breed}</p>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{dog.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">{dog.breed}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-500">
                       {dog.age} years • {dog.weight} kg
                     </p>
                   </div>
@@ -197,20 +195,20 @@ const handleFileUploaded = (fileUrl: string) => {
                     e.stopPropagation();
                     handleEditDog(dog);
                   }}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <Edit size={16} />
                 </button>
               </div>
               
               {dog.microchipId && (
-                <div className="text-xs text-gray-500 mb-2">
+                <div className="text-xs text-gray-500 dark:text-gray-500 mb-2">
                   Microchip: {dog.microchipId}
                 </div>
               )}
               
               {dog.licenseNumber && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-500">
                   License: {dog.licenseNumber}
                 </div>
               )}
@@ -229,7 +227,7 @@ const handleFileUploaded = (fileUrl: string) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Profile Picture Upload */}
           <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Picture</label>
             <FileUpload
               variant="avatar"
               acceptedTypes="image/*"
@@ -237,9 +235,13 @@ const handleFileUploaded = (fileUrl: string) => {
               dogId={editingDog?.id}
               documentType="profile_image"
               onFileUploaded={handleFileUploaded}
+              onUploadStart={handleFileUploadStart}
               currentImage={formData.profilePicture}
               className="mx-auto"
             />
+            {uploadingImage && (
+              <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">Uploading image...</div>
+            )}
           </div>
           
           <Input
