@@ -8,6 +8,8 @@ import { HealthRecordManagement } from './HealthRecordManagement';
 import { NutritionManagement } from './NutritionManagement';
 import { PetPassport } from './PetPassport';
 import { Dog } from '../types';
+import { formatDate } from '../lib/utils';
+
 
 interface HealthManagementProps {
   currentDog: Dog | null;

@@ -94,10 +94,10 @@
   .dark .text-gray-500 {
     @apply text-gray-400;
   }
-
+  /*
   .dark .text-gray-400 {
     @apply text-gray-500;
-  }
+  }*/
 
   /* Hover states for dark mode */
   .dark .hover\:bg-gray-50:hover {
@@ -199,10 +199,10 @@
     @apply from-primary-600 to-blue-600;
   }
 
-  /* Ensure all backgrounds are properly themed */
+  /* Ensure all backgrounds are properly themed 
   .dark .bg-gradient-to-br {
     background: linear-gradient(to bottom right, rgb(17 24 39), rgb(15 23 42), rgb(0 0 0)) !important;
-  }
+  }*/
 
   .dark .bg-gradient-to-r.from-slate-50 {
     background: linear-gradient(to right, rgb(17 24 39), rgb(15 23 42)) !important;
