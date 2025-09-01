@@ -311,6 +311,68 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     return this.request(`/uploads/${documentId}`, { method: 'DELETE' });
   }
 
+  // Nutrition endpoints
+  async getNutritionRecords(dogId: string) {
+    return this.request<{ nutritionRecords: any[] }>(`/nutrition/dog/${dogId}/records`);
+  }
+
+  async createNutritionRecord(dogId: string, nutritionData: any) {
+    return this.request<{ nutritionRecord: any }>(`/nutrition/dog/${dogId}/records`, {
+      method: 'POST',
+      body: JSON.stringify(nutritionData),
+    });
+  }
+
+  async updateNutritionRecord(dogId: string, recordId: string, nutritionData: any) {
+    return this.request<{ nutritionRecord: any }>(`/nutrition/dog/${dogId}/records/${recordId}`, {
+      method: 'PUT',
+      body: JSON.stringify(nutritionData),
+    });
+  }
+
+  async deleteNutritionRecord(dogId: string, recordId: string) {
+    return this.request(`/nutrition/dog/${dogId}/records/${recordId}`, { method: 'DELETE' });
+  }
+
+  async getMealPlan(dogId: string) {
+    return this.request<{ mealPlan: any[] }>(`/nutrition/dog/${dogId}/meal-plan`);
+  }
+
+  async createMealPlan(dogId: string, mealData: any) {
+    return this.request<{ mealPlan: any }>(`/nutrition/dog/${dogId}/meal-plan`, {
+      method: 'POST',
+      body: JSON.stringify(mealData),
+    });
+  }
+
+  async updateMealPlan(dogId: string, mealId: string, mealData: any) {
+    return this.request<{ mealPlan: any }>(`/nutrition/dog/${dogId}/meal-plan/${mealId}`, {
+      method: 'PUT',
+      body: JSON.stringify(mealData),
+    });
+  }
+
+  async updateEntireMealPlan(dogId: string, mealPlan: any[]) {
+    return this.request<{ mealPlan: any[] }>(`/nutrition/dog/${dogId}/meal-plan`, {
+      method: 'PUT',
+      body: JSON.stringify({ mealPlan }),
+    });
+  }
+
+  async deleteMealPlan(dogId: string, mealId: string) {
+    return this.request(`/nutrition/dog/${dogId}/meal-plan/${mealId}`, { method: 'DELETE' });
+  }
+
+  async getNutritionStats(dogId: string) {
+    return this.request<{
+      latestRecord: any;
+      mealPlan: any[];
+      dailyTotals: { amount: number; calories: number };
+      nutritionHistory: any[];
+      hasData: boolean;
+    }>(`/nutrition/dog/${dogId}/stats`);
+  }
+
   // Health status endpoint
   async getDogHealthStatus(dogId: string) {
     return this.request<{

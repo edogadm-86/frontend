@@ -10,6 +10,8 @@ interface AppContextType {
   appointments: any[];
   trainingSessions: any[];
   emergencyContacts: any[];
+  nutritionRecords: any[];
+  mealPlans: { [dogId: string]: any[] };
   loading: boolean;
   error: string | null;
   register: (userData: { name: string; email: string; password: string; phone?: string }) => Promise<any>;
@@ -44,6 +46,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     appointments,
     trainingSessions,
     emergencyContacts,
+    nutritionRecords,
+    mealPlans,
     loading,
     error,
     register,
@@ -70,6 +74,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     appointments,
     trainingSessions,
     emergencyContacts,
+    nutritionRecords,
+    mealPlans,
     loading,
     error,
     register,

@@ -10,6 +10,8 @@ export const useApi = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
+  const [nutritionRecords, setNutritionRecords] = useState<any[]>([]);
+  const [mealPlans, setMealPlans] = useState<{ [dogId: string]: any[] }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,20 +72,26 @@ export const useApi = () => {
         const allHealthRecords: any[] = [];
         const allAppointments: any[] = [];
         const allTrainingSessions: any[] = [];
+        const allNutritionRecords: any[] = [];
+        const allMealPlans: { [dogId: string]: any[] } = {};
 
         for (const dog of dogsWithTypes) {
           try {
-            const [vaccinationsRes, healthRes, appointmentsRes, trainingRes] = await Promise.all([
+            const [vaccinationsRes, healthRes, appointmentsRes, trainingRes, nutritionRes, mealPlanRes] = await Promise.all([
               apiClient.getVaccinations(dog.id),
               apiClient.getHealthRecords(dog.id),
               apiClient.getAppointments(dog.id),
               apiClient.getTrainingSessions(dog.id),
+              apiClient.getNutritionRecords(dog.id),
+              apiClient.getMealPlan(dog.id),
             ]);
 
             allVaccinations.push(...vaccinationsRes.vaccinations);
             allHealthRecords.push(...healthRes.healthRecords);
             allAppointments.push(...appointmentsRes.appointments);
             allTrainingSessions.push(...trainingRes.trainingSessions);
+            allNutritionRecords.push(...nutritionRes.nutritionRecords);
+            allMealPlans[dog.id] = mealPlanRes.mealPlan;
           } catch (error) {
             console.error(`Error loading data for dog ${dog.id}:`, error);
           }
@@ -93,6 +101,8 @@ export const useApi = () => {
         setHealthRecords(allHealthRecords);
         setAppointments(allAppointments);
         setTrainingSessions(allTrainingSessions);
+        setNutritionRecords(allNutritionRecords);
+        setMealPlans(allMealPlans);
       }
     } catch (error: any) {
       console.error('Error loading data:', error);
@@ -134,6 +144,8 @@ export const useApi = () => {
     setAppointments([]);
     setTrainingSessions([]);
     setEmergencyContacts([]);
+    setNutritionRecords([]);
+    setMealPlans({});
   };
 
   // CRUD operations
@@ -203,6 +215,8 @@ export const useApi = () => {
     appointments,
     trainingSessions,
     emergencyContacts,
+    nutritionRecords,
+    mealPlans,
     loading,
     error,
     register,

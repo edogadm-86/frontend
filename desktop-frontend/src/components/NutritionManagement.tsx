@@ -6,6 +6,8 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
 import { formatDate } from '../lib/utils';
+import { apiClient } from '../lib/api';
+import { useApp } from '../context/AppContext';
 
 interface NutritionManagementProps {
   dogId: string;
@@ -40,11 +42,14 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   dogName,
 }) => {
   const { t } = useTranslation();
+  const { nutritionRecords: allNutritionRecords, mealPlans: allMealPlans } = useApp();
   const [nutritionRecords, setNutritionRecords] = useState<NutritionRecord[]>([]);
   const [mealPlan, setMealPlan] = useState<MealPlan[]>([]);
+  const [nutritionStats, setNutritionStats] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMealPlanModalOpen, setIsMealPlanModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<NutritionRecord | null>(null);
+  const [editingMeal, setEditingMeal] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeView, setActiveView] = useState<'overview' | 'records' | 'meal-plan'>('overview');
   const [formData, setFormData] = useState({
@@ -60,47 +65,31 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     notes: '',
     weight_at_time: '',
   });
+  const [mealFormData, setMealFormData] = useState({
+    meal_time: '',
+    food_type: '',
+    amount: '',
+    calories: '',
+  });
 
-  // Mock data for demonstration
   useEffect(() => {
-    // In real app, this would load from API
-    setNutritionRecords([
-      {
-        id: '1',
-        date: '2024-01-15',
-        food_brand: 'Royal Canin',
-        food_type: 'Adult Large Breed',
-        daily_amount: 300,
-        calories_per_day: 1200,
-        protein_percentage: 26,
-        fat_percentage: 12,
-        carb_percentage: 45,
-        supplements: ['Omega-3', 'Glucosamine'],
-        notes: 'Switched to large breed formula',
-        weight_at_time: 28.5,
-      },
-      {
-        id: '2',
-        date: '2024-01-01',
-        food_brand: 'Hill\'s Science Diet',
-        food_type: 'Adult Chicken & Rice',
-        daily_amount: 280,
-        calories_per_day: 1150,
-        protein_percentage: 24,
-        fat_percentage: 14,
-        carb_percentage: 42,
-        supplements: ['Multivitamin'],
-        notes: 'Good digestion, maintaining weight',
-        weight_at_time: 28.2,
-      },
-    ]);
-
-    setMealPlan([
-      { id: '1', meal_time: '07:00', food_type: 'Dry Food', amount: 150, calories: 600 },
-      { id: '2', meal_time: '12:00', food_type: 'Wet Food', amount: 100, calories: 300 },
-      { id: '3', meal_time: '18:00', food_type: 'Dry Food', amount: 150, calories: 600 },
-    ]);
+    loadNutritionData();
   }, [dogId]);
+
+  const loadNutritionData = async () => {
+    try {
+      const [recordsRes, statsRes] = await Promise.all([
+        apiClient.getNutritionRecords(dogId),
+        apiClient.getNutritionStats(dogId),
+      ]);
+      
+      setNutritionRecords(recordsRes.nutritionRecords);
+      setNutritionStats(statsRes);
+      setMealPlan(statsRes.mealPlan || []);
+    } catch (error) {
+      console.error('Error loading nutrition data:', error);
+    }
+  };
 
   const handleCreate = () => {
     setEditingRecord(null);
@@ -118,6 +107,17 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       weight_at_time: '',
     });
     setIsModalOpen(true);
+  };
+
+  const handleCreateMeal = () => {
+    setEditingMeal(null);
+    setMealFormData({
+      meal_time: '',
+      food_type: '',
+      amount: '',
+      calories: '',
+    });
+    setIsMealPlanModalOpen(true);
   };
 
   const handleEdit = (record: NutritionRecord) => {
@@ -138,13 +138,40 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     setIsModalOpen(true);
   };
 
+  const handleEditMeal = (meal: MealPlan) => {
+    setEditingMeal(meal);
+    setMealFormData({
+      meal_time: meal.meal_time,
+      food_type: meal.food_type,
+      amount: meal.amount.toString(),
+      calories: meal.calories.toString(),
+    });
+    setIsMealPlanModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // In real app, this would call API
-      console.log('Saving nutrition record:', formData);
+      const nutritionData = {
+        ...formData,
+        daily_amount: parseFloat(formData.daily_amount),
+        calories_per_day: parseInt(formData.calories_per_day),
+        protein_percentage: parseFloat(formData.protein_percentage),
+        fat_percentage: parseFloat(formData.fat_percentage),
+        carb_percentage: parseFloat(formData.carb_percentage),
+        supplements: formData.supplements.split(',').map(s => s.trim()).filter(s => s),
+        weight_at_time: parseFloat(formData.weight_at_time),
+      };
+
+      if (editingRecord) {
+        await apiClient.updateNutritionRecord(dogId, editingRecord.id, nutritionData);
+      } else {
+        await apiClient.createNutritionRecord(dogId, nutritionData);
+      }
+      
+      await loadNutritionData();
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error saving nutrition record:', error);
@@ -153,8 +180,58 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     }
   };
 
-  const currentRecord = nutritionRecords[0]; // Latest record
-  const totalCalories = mealPlan.reduce((sum, meal) => sum + meal.calories, 0);
+  const handleMealSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const mealData = {
+        meal_time: mealFormData.meal_time,
+        food_type: mealFormData.food_type,
+        amount: parseFloat(mealFormData.amount),
+        calories: parseInt(mealFormData.calories),
+      };
+
+      if (editingMeal) {
+        await apiClient.updateMealPlan(dogId, editingMeal.id, mealData);
+      } else {
+        await apiClient.createMealPlan(dogId, mealData);
+      }
+      
+      await loadNutritionData();
+      setIsMealPlanModalOpen(false);
+    } catch (error) {
+      console.error('Error saving meal plan:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteMeal = async (mealId: string) => {
+    if (window.confirm('Are you sure you want to delete this meal?')) {
+      try {
+        await apiClient.deleteMealPlan(dogId, mealId);
+        await loadNutritionData();
+      } catch (error) {
+        console.error('Error deleting meal:', error);
+      }
+    }
+  };
+
+  const handleDeleteRecord = async (recordId: string) => {
+    if (window.confirm('Are you sure you want to delete this nutrition record?')) {
+      try {
+        await apiClient.deleteNutritionRecord(dogId, recordId);
+        await loadNutritionData();
+      } catch (error) {
+        console.error('Error deleting nutrition record:', error);
+      }
+    }
+  };
+
+  const currentRecord = nutritionRecords[0];
+  const totalCalories = nutritionStats?.dailyTotals?.calories || mealPlan.reduce((sum, meal) => sum + meal.calories, 0);
+  const totalAmount = nutritionStats?.dailyTotals?.amount || mealPlan.reduce((sum, meal) => sum + meal.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -184,50 +261,58 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               <Apple className="mr-2 text-orange-500" />
               Current Nutrition Profile
             </h3>
-            {currentRecord ? (
+            {currentRecord || nutritionStats?.hasData ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{currentRecord.daily_amount}g</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {currentRecord?.daily_amount || Math.round(totalAmount)}g
+                    </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Daily Amount</div>
                   </div>
                   <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{currentRecord.calories_per_day}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {currentRecord?.calories_per_day || totalCalories}
+                    </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Calories/Day</div>
                   </div>
                 </div>
                 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Protein</span>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.protein_percentage}%</span>
+                {currentRecord && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Protein</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.protein_percentage}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div className="progress-fill bg-gradient-to-r from-blue-500 to-cyan-500" style={{ width: `${currentRecord.protein_percentage}%` }}></div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fat</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.fat_percentage}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div className="progress-fill bg-gradient-to-r from-green-500 to-emerald-500" style={{ width: `${currentRecord.fat_percentage}%` }}></div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Carbohydrates</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.carb_percentage}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div className="progress-fill bg-gradient-to-r from-orange-500 to-amber-500" style={{ width: `${currentRecord.carb_percentage}%` }}></div>
+                    </div>
                   </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill bg-gradient-to-r from-blue-500 to-cyan-500" style={{ width: `${currentRecord.protein_percentage}%` }}></div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fat</span>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.fat_percentage}%</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill bg-gradient-to-r from-green-500 to-emerald-500" style={{ width: `${currentRecord.fat_percentage}%` }}></div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Carbohydrates</span>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.carb_percentage}%</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill bg-gradient-to-r from-orange-500 to-amber-500" style={{ width: `${currentRecord.carb_percentage}%` }}></div>
-                  </div>
-                </div>
+                )}
                 
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Food</div>
-                  <div className="text-gray-900 dark:text-white font-semibold">{currentRecord.food_brand}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{currentRecord.food_type}</div>
-                </div>
+                {currentRecord && (
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Food</div>
+                    <div className="text-gray-900 dark:text-white font-semibold">{currentRecord.food_brand}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{currentRecord.food_type}</div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-8">
@@ -250,7 +335,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             </div>
             <div className="space-y-3">
               {mealPlan.map((meal) => (
-                <div key={meal.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
+                <div key={meal.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl group">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
                       <Utensils size={16} className="text-white" />
@@ -264,8 +349,31 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     <div className="font-semibold text-gray-900 dark:text-white">{meal.amount}g</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">{meal.calories} cal</div>
                   </div>
+                  <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleEditMeal(meal)}
+                      className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMeal(meal.id)}
+                      className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               ))}
+              {mealPlan.length === 0 && (
+                <div className="text-center py-8">
+                  <Utensils size={32} className="mx-auto mb-2 text-gray-300" />
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">No meal plan set</p>
+                  <Button size="sm" onClick={handleCreateMeal}>
+                    Add First Meal
+                  </Button>
+                </div>
+              )}
               <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-700 dark:text-gray-300">Total Daily Calories</span>
@@ -373,7 +481,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => {/* handleDelete(record.id) */}}
+                        onClick={() => handleDeleteRecord(record.id)}
                         className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         <Trash2 size={16} />
@@ -408,7 +516,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Daily Schedule</h4>
                 <div className="space-y-3">
                   {mealPlan.map((meal) => (
-                    <div key={meal.id} className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
+                    <div key={meal.id} className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl group">
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
                           <Utensils size={20} className="text-white" />
@@ -422,8 +530,31 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                         <div className="font-semibold text-gray-900 dark:text-white">{meal.amount}g</div>
                         <div className="text-sm text-gray-600 dark:text-gray-400">{meal.calories} cal</div>
                       </div>
+                      <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleEditMeal(meal)}
+                          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMeal(meal.id)}
+                          className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
                   ))}
+                  {mealPlan.length === 0 && (
+                    <div className="text-center py-8">
+                      <Utensils size={32} className="mx-auto mb-2 text-gray-300" />
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">No meals scheduled</p>
+                      <Button onClick={handleCreateMeal}>
+                        Add First Meal
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>
@@ -556,6 +687,56 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? 'Saving...' : 'Save Record'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Meal Plan Modal */}
+      <Modal
+        isOpen={isMealPlanModalOpen}
+        onClose={() => setIsMealPlanModalOpen(false)}
+        title={editingMeal ? 'Edit Meal' : 'Add Meal'}
+        size="md"
+      >
+        <form onSubmit={handleMealSubmit} className="space-y-4">
+          <Input
+            label="Meal Time"
+            type="time"
+            value={mealFormData.meal_time}
+            onChange={(e) => setMealFormData({ ...mealFormData, meal_time: e.target.value })}
+            required
+          />
+          <Input
+            label="Food Type"
+            value={mealFormData.food_type}
+            onChange={(e) => setMealFormData({ ...mealFormData, food_type: e.target.value })}
+            placeholder="Dry Food, Wet Food, Treats, etc."
+            required
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Amount (g)"
+              type="number"
+              step="0.1"
+              value={mealFormData.amount}
+              onChange={(e) => setMealFormData({ ...mealFormData, amount: e.target.value })}
+              required
+            />
+            <Input
+              label="Calories"
+              type="number"
+              value={mealFormData.calories}
+              onChange={(e) => setMealFormData({ ...mealFormData, calories: e.target.value })}
+              required
+            />
+          </div>
+          <div className="flex space-x-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setIsMealPlanModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1" disabled={loading}>
+              {loading ? 'Saving...' : 'Save Meal'}
             </Button>
           </div>
         </form>

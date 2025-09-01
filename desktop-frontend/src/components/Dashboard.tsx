@@ -147,6 +147,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
       default: return 'from-gray-500 to-slate-500';
     }
   };
+
+  // Calculate days since last vet visit
+  const lastVetVisit = dogHealthRecords
+    .filter(record => record.type === 'vet-visit')
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+  
+  const daysSinceLastVet = lastVetVisit 
+    ? Math.floor((new Date().getTime() - new Date(lastVetVisit.date).getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+
   return (
     <div className="p-4 lg:p-8 space-y-6 lg:space-y-8">
       {/* Dog Profile Header */}
@@ -314,7 +324,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <TrendingUp size={20} className="text-white" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">7 days</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {daysSinceLastVet !== null ? `${daysSinceLastVet} days` : 'No data'}
+          </div>
           <div className="text-sm text-gray-600">Since last vet visit</div>
         </Card>
         
@@ -322,16 +334,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <Activity size={20} className="text-white" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">2.5 hrs</div>
-          <div className="text-sm text-gray-600">Daily activity average</div>
+          <div className="text-2xl font-bold text-gray-900">{dogVaccinations.length}</div>
+          <div className="text-sm text-gray-600">Total vaccinations</div>
         </Card>
         
         <Card variant="glass" className="text-center">
           <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <Heart size={20} className="text-white" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">Excellent</div>
-          <div className="text-sm text-gray-600">Overall health</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {healthStatus?.status || 'Unknown'}
+          </div>
+          <div className="text-sm text-gray-600">Health status</div>
         </Card>
       </div>
 
@@ -475,3 +489,67 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
     );
   };
 }
+  const upcomingAppointments = appointments
+    .filter(apt => new Date(apt.date) >= today)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3);
+
+  return (
+    <div className="space-y-4">
+      {/* Week View */}
+      <div className="grid grid-cols-7 gap-2">
+        {weekDays.map((day, index) => {
+          const date = weekDates[index];
+          const dayAppointments = getAppointmentsForDate(date);
+          const isToday = date.toDateString() === today.toDateString();
+          
+          return (
+            <div key={index} className="text-center">
+              <div className="text-xs font-medium text-gray-500 mb-1">{day}</div>
+              <div className={`
+                w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mx-auto mb-2
+                ${isToday ? 'bg-primary-500 text-white' : 'text-gray-700 hover:bg-gray-100'}
+                ${dayAppointments.length > 0 ? 'ring-2 ring-blue-300' : ''}
+              `}>
+                {date.getDate()}
+              </div>
+              {dayAppointments.length > 0 && (
+                <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto"></div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Upcoming Appointments List */}
+      <div className="space-y-3">
+        <h4 className="font-medium text-gray-900 dark:text-white">Next Appointments</h4>
+        {upcomingAppointments.length > 0 ? (
+          upcomingAppointments.map((appointment) => (
+            <div key={appointment.id} className="flex items-center space-x-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
+              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <Calendar size={14} className="text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-gray-900 dark:text-white truncate">{appointment.title}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {formatDate(appointment.date)} at {appointment.time}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-4">
+            <Calendar size={24} className="mx-auto mb-2 text-gray-300" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">No upcoming appointments</p>
+            <button
+              onClick={() => onNavigate('calendar')}
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+            >
+              Schedule one now
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );

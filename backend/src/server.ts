@@ -20,6 +20,7 @@ import emergencyRoutes from './routes/emergency';
 import uploadsRoutes from './routes/uploads';
 import postsRoutes from './routes/posts';
 import eventsRoutes from './routes/events';
+import nutritionRoutes from './routes/nutrition';
 
 dotenv.config();
 
@@ -119,6 +120,7 @@ app.use('/api/emergency', emergencyRoutes);
 app.use('/api/uploads', uploadsRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/events', eventsRoutes);
+app.use('/api/nutrition', nutritionRoutes);
 
 // Email reminder endpoints (for testing)
 app.post('/api/test/appointment-reminders', triggerAppointmentReminders);

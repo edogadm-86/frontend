@@ -210,6 +210,38 @@ const runMigrations = async () => {
       CREATE INDEX IF NOT EXISTS idx_post_comments_post_id ON post_comments(post_id);
       CREATE INDEX IF NOT EXISTS idx_event_participants_event_id ON event_participants(event_id);
 
+      -- Create nutrition_records table
+      CREATE TABLE IF NOT EXISTS nutrition_records (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        date DATE NOT NULL,
+        food_brand VARCHAR(255) NOT NULL,
+        food_type VARCHAR(255) NOT NULL,
+        daily_amount DECIMAL(6,2) NOT NULL CHECK (daily_amount > 0),
+        calories_per_day INTEGER NOT NULL CHECK (calories_per_day > 0),
+        protein_percentage DECIMAL(5,2) NOT NULL CHECK (protein_percentage >= 0 AND protein_percentage <= 100),
+        fat_percentage DECIMAL(5,2) NOT NULL CHECK (fat_percentage >= 0 AND fat_percentage <= 100),
+        carb_percentage DECIMAL(5,2) NOT NULL CHECK (carb_percentage >= 0 AND carb_percentage <= 100),
+        supplements TEXT[] DEFAULT '{}',
+        notes TEXT,
+        weight_at_time DECIMAL(5,2) NOT NULL CHECK (weight_at_time > 0),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Create meal_plans table
+      CREATE TABLE IF NOT EXISTS meal_plans (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        meal_time TIME NOT NULL,
+        food_type VARCHAR(255) NOT NULL,
+        amount DECIMAL(6,2) NOT NULL CHECK (amount > 0),
+        calories INTEGER NOT NULL CHECK (calories > 0),
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
       -- Create trigger function for updating updated_at timestamp
       CREATE OR REPLACE FUNCTION update_updated_at_column()
       RETURNS TRIGGER AS $$
@@ -234,6 +266,18 @@ const runMigrations = async () => {
 
       DROP TRIGGER IF EXISTS update_post_comments_updated_at ON post_comments;
       CREATE TRIGGER update_post_comments_updated_at BEFORE UPDATE ON post_comments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      DROP TRIGGER IF EXISTS update_nutrition_records_updated_at ON nutrition_records;
+      CREATE TRIGGER update_nutrition_records_updated_at BEFORE UPDATE ON nutrition_records FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      DROP TRIGGER IF EXISTS update_meal_plans_updated_at ON meal_plans;
+      CREATE TRIGGER update_meal_plans_updated_at BEFORE UPDATE ON meal_plans FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      -- Create indexes for nutrition tables
+      CREATE INDEX IF NOT EXISTS idx_nutrition_records_dog_id ON nutrition_records(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_nutrition_records_date ON nutrition_records(date);
+      CREATE INDEX IF NOT EXISTS idx_meal_plans_dog_id ON meal_plans(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_meal_plans_active ON meal_plans(is_active);
     `;
 
     await pool.query(migrationSQL);
