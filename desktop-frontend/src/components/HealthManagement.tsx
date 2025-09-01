@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shield, Heart, ArrowLeft, FileText, Apple, Utensils, Activity, TrendingUp, Target, Award } from 'lucide-react';
 import { Button } from './ui/Button';

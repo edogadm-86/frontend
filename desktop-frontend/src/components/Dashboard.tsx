@@ -488,7 +488,7 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
       new Date(apt.date).toDateString() === date.toDateString()
     );
   };
-}
+
   const upcomingAppointments = appointments
     .filter(apt => new Date(apt.date) >= today)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -553,3 +553,4 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
       </div>
     </div>
   );
+};
