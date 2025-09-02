@@ -85,7 +85,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             Select a dog from the sidebar or add your first dog to get started
           </p>
           <Button onClick={() => onNavigate('settings')} size="lg" icon={<Plus size={20} />}>
-            {t('addDog')}
+            {t('petPassport')}
           </Button>
         </div>
       </div>
@@ -470,6 +470,7 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
   appointments, 
   onNavigate 
 }) => {
+  const { t } = useTranslation();
   const today = new Date();
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
@@ -488,7 +489,7 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
       new Date(apt.date).toDateString() === date.toDateString()
     );
   };
-}
+
   const upcomingAppointments = appointments
     .filter(apt => new Date(apt.date) >= today)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -523,7 +524,7 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
 
       {/* Upcoming Appointments List */}
       <div className="space-y-3">
-        <h4 className="font-medium text-gray-900 dark:text-white">Next Appointments</h4>
+        <h4 className="font-medium text-gray-900 dark:text-white">{t('upcomingAppointments')}</h4>
         {upcomingAppointments.length > 0 ? (
           upcomingAppointments.map((appointment) => (
             <div key={appointment.id} className="flex items-center space-x-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
@@ -541,15 +542,16 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
         ) : (
           <div className="text-center py-4">
             <Calendar size={24} className="mx-auto mb-2 text-gray-300" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">No upcoming appointments</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('noUpcomingAppointments')}</p>
             <button
               onClick={() => onNavigate('calendar')}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
             >
-              Schedule one now
+              {t('scheduleOneNow')}
             </button>
           </div>
         )}
       </div>
     </div>
   );
+};
