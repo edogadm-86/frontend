@@ -31,6 +31,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onAddDog,
 }) => {
   const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = React.useState(true);
+  const [isHovered, setIsHovered] = React.useState(false);
 
   const navigationItems = [
     { id: 'dashboard', icon: Home, label: t('dashboard'), gradient: 'from-blue-500 to-cyan-500' },
@@ -42,71 +44,117 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'settings', icon: Settings, label: t('settings'), gradient: 'from-gray-500 to-slate-500' },
   ];
 
+  const shouldShowExpanded = isExpanded || isHovered;
+
   return (
-    <div className="w-80 bg-white/60 backdrop-blur-md border-r border-white/20 flex flex-col h-full shadow-2xl">
+    <div 
+      className={cn(
+        "bg-white/60 dark:bg-gray-900/60 backdrop-blur-md border-r border-white/20 dark:border-gray-700/20 flex flex-col h-full shadow-2xl transition-all duration-300 relative z-40",
+        shouldShowExpanded ? "w-80" : "w-20"
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Logo */}
-      <div className="p-6 border-b border-white/20">
+      <div className={cn("border-b border-white/20 dark:border-gray-700/20 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
         <div className="flex items-center space-x-3 group">
-          <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+          <div className={cn(
+            "bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110",
+            shouldShowExpanded ? "w-12 h-12" : "w-10 h-10"
+          )}>
             <img
               src="/logo.png"
               alt="eDog Logo"
-              className="w-8 h-8"
+              className={shouldShowExpanded ? "w-8 h-8" : "w-6 h-6"}
             />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">eDog</h1>
-            <p className="text-sm text-gray-500 flex items-center">
-              <Sparkles size={12} className="mr-1" />
-              Desktop
-            </p>
-          </div>
+          {shouldShowExpanded && (
+            <div className="overflow-hidden">
+              <h1 className="text-2xl font-bold gradient-text">eDog</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                <Sparkles size={12} className="mr-1" />
+                Desktop
+              </p>
+            </div>
+          )}
         </div>
+        
+        {/* Toggle Button */}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="absolute -right-3 top-8 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+        >
+          <div className={cn("w-2 h-2 bg-primary-500 rounded-full transition-transform duration-300", !isExpanded && "rotate-180")}></div>
+        </button>
       </div>
 
       {/* Dogs Section */}
-      <div className="p-6 border-b border-white/20">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center">
-            <Heart size={14} className="mr-2 text-primary-500" />
-            {t('myDogs')}
-          </h2>
-          <button
-            onClick={onAddDog}
-            className="p-2 text-primary-500 hover:text-primary-600 rounded-xl hover:bg-primary-50 transition-all duration-200 hover:scale-110"
-          >
-            <PlusCircle size={16} />
-          </button>
-        </div>
-        
-        {dogs.length === 0 ? (
-          <div className="text-center py-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <Heart size={24} className="text-gray-400" />
+      <div className={cn("border-b border-white/20 dark:border-gray-700/20 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
+        {shouldShowExpanded ? (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center">
+                <Heart size={14} className="mr-2 text-primary-500" />
+                {t('myDogs')}
+              </h2>
+              <button
+                onClick={onAddDog}
+                className="p-2 text-primary-500 hover:text-primary-600 rounded-xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 hover:scale-110"
+              >
+                <PlusCircle size={16} />
+              </button>
             </div>
-            <p className="text-sm text-gray-500 mb-3">{t('noData')}</p>
+          </>
+        ) : (
+          <div className="flex justify-center mb-4">
             <button
               onClick={onAddDog}
-              className="text-sm text-primary-600 hover:text-primary-700 font-semibold bg-primary-50 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-all duration-200"
+              className="p-2 text-primary-500 hover:text-primary-600 rounded-xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 hover:scale-110"
+              title={t('addDog')}
             >
-              {t('addDog')}
+              <PlusCircle size={16} />
             </button>
           </div>
+        )}
+        
+        {dogs.length === 0 ? (
+          <div className={cn("text-center", shouldShowExpanded ? "py-6" : "py-2")}>
+            <div className={cn(
+              "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full mx-auto mb-3 flex items-center justify-center",
+              shouldShowExpanded ? "w-16 h-16" : "w-8 h-8"
+            )}>
+              <Heart size={shouldShowExpanded ? 24 : 16} className="text-gray-400 dark:text-gray-500" />
+            </div>
+            {shouldShowExpanded && (
+              <>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{t('noData')}</p>
+                <button
+                  onClick={onAddDog}
+                  className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-semibold bg-primary-50 dark:bg-primary-900/20 px-3 py-1.5 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-200"
+                >
+                  {t('addDog')}
+                </button>
+              </>
+            )}
+          </div>
         ) : (
-          <div className="space-y-3">
+          <div className={cn("space-y-3", !shouldShowExpanded && "space-y-2")}>
             {dogs.map((dog) => (
               <div
                 key={dog.id}
                 onClick={() => onDogSelect(dog)}
                 className={cn(
-                  'flex items-center p-4 rounded-2xl cursor-pointer transition-all duration-300 group',
+                  'flex items-center rounded-2xl cursor-pointer transition-all duration-300 group',
+                  shouldShowExpanded ? 'p-4' : 'p-2 justify-center',
                   currentDog?.id === dog.id
                     ? 'bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow-lg transform scale-105'
                     : 'hover:bg-white/80 hover:shadow-lg hover:transform hover:scale-105'
                 )}
+                title={!shouldShowExpanded ? dog.name : undefined}
               >
                 <div className={cn(
-                  'w-12 h-12 rounded-2xl flex items-center justify-center mr-4 shadow-md transition-all duration-300',
+                  'rounded-2xl flex items-center justify-center shadow-md transition-all duration-300',
+                  shouldShowExpanded ? 'w-12 h-12 mr-4' : 'w-8 h-8',
                   currentDog?.id === dog.id
                     ? 'bg-white/20 backdrop-blur-sm'
                     : 'bg-gradient-to-r from-gray-200 to-gray-300 group-hover:from-primary-100 group-hover:to-blue-100'
@@ -115,31 +163,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <img
                       src={dog.profile_picture}
                       alt={dog.name}
-                      className="w-12 h-12 rounded-2xl object-cover"
+                      className={cn("rounded-2xl object-cover", shouldShowExpanded ? "w-12 h-12" : "w-8 h-8")}
                     />
                   ) : (
                     <span className={cn(
-                      'text-lg font-bold',
+                      'font-bold',
+                      shouldShowExpanded ? 'text-lg' : 'text-sm',
                       currentDog?.id === dog.id ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'
                     )}>
                       {dog.name.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className={cn(
-                    'font-semibold truncate transition-colors',
-                    currentDog?.id === dog.id ? 'text-white' : 'text-gray-900 group-hover:text-primary-700'
-                  )}>
-                    {dog.name}
-                  </p>
-                  <p className={cn(
-                    'text-sm truncate transition-colors',
-                    currentDog?.id === dog.id ? 'text-white/80' : 'text-gray-500 group-hover:text-primary-500'
-                  )}>
-                    {dog.breed}
-                  </p>
-                </div>
+                {shouldShowExpanded && (
+                  <div className="flex-1 min-w-0">
+                    <p className={cn(
+                      'font-semibold truncate transition-colors',
+                      currentDog?.id === dog.id ? 'text-white' : 'text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-300'
+                    )}>
+                      {dog.name}
+                    </p>
+                    <p className={cn(
+                      'text-sm truncate transition-colors',
+                      currentDog?.id === dog.id ? 'text-white/80' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary-500 dark:group-hover:text-primary-400'
+                    )}>
+                      {dog.breed}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -147,40 +198,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 p-6">
+      <div className={cn("flex-1 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
         <nav className="space-y-2">
           {navigationItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onViewChange(item.id)}
               className={cn(
-                'sidebar-item w-full group',
+                'w-full group flex items-center rounded-xl transition-all duration-200 cursor-pointer',
+                shouldShowExpanded ? 'px-4 py-3' : 'px-2 py-3 justify-center',
+                currentView === item.id 
+                  ? 'bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow-lg transform scale-105'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-blue-50 dark:hover:from-primary-900/30 dark:hover:to-blue-900/30 hover:text-primary-700 dark:hover:text-primary-300 hover:shadow-md hover:transform hover:translate-x-1',
                 currentView === item.id && 'active'
               )}
+              title={!shouldShowExpanded ? item.label : undefined}
             >
               <div className={cn(
-                'w-10 h-10 rounded-xl flex items-center justify-center mr-3 transition-all duration-300',
+                'rounded-xl flex items-center justify-center transition-all duration-300',
+                shouldShowExpanded ? 'w-10 h-10 mr-3' : 'w-8 h-8',
                 currentView === item.id 
                   ? 'bg-white/20 backdrop-blur-sm' 
                   : `bg-gradient-to-r ${item.gradient} opacity-80 group-hover:opacity-100`
               )}>
-                <item.icon size={20} className={cn(
+                <item.icon size={shouldShowExpanded ? 20 : 16} className={cn(
                   'transition-all duration-300',
                   currentView === item.id ? 'text-white' : 'text-white group-hover:scale-110'
                 )} />
               </div>
-              <span className="font-medium">{item.label}</span>
+              {shouldShowExpanded && (
+                <span className="font-medium overflow-hidden">{item.label}</span>
+              )}
             </button>
           ))}
         </nav>
       </div>
 
       {/* Footer */}
-      <div className="p-6 border-t border-white/20">
+      <div className={cn("border-t border-white/20 dark:border-gray-700/20 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
         <div className="text-center">
-          <p className="text-xs text-gray-500">
-            Made with <Heart size={12} className="inline text-red-500" /> for dog lovers
-          </p>
+          {shouldShowExpanded ? (
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Made with <Heart size={12} className="inline text-red-500" /> for dog lovers
+            </p>
+          ) : (
+            <Heart size={16} className="text-red-500 mx-auto" />
+          )}
         </div>
       </div>
     </div>

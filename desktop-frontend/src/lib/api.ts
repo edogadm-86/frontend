@@ -373,6 +373,15 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     }>(`/nutrition/dog/${dogId}/stats`);
   }
 
+  // Notification endpoints
+  async getNotifications() {
+    return this.request<{ notifications: any[] }>('/auth/notifications');
+  }
+
+  async markNotificationRead(notificationId: string) {
+    return this.request(`/auth/notifications/${notificationId}/read`, { method: 'PUT' });
+  }
+
   // Health status endpoint
   async getDogHealthStatus(dogId: string) {
     return this.request<{

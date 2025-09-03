@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, Search, User, LogOut, Globe, Settings, Moon, Sun, MessageSquare, HelpCircle, Download } from 'lucide-react';
+import { Bell, Search, User, LogOut, Globe, Settings, Moon, Sun, MessageSquare, HelpCircle, Download, FileText, Shield, Calendar } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useTheme } from '../hooks/useTheme';
+import { HelpSupportPage } from './HelpSupportPage';
+import { apiClient } from '../lib/api';
 
 interface HeaderProps {
   user: any;
@@ -16,12 +18,10 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showHelpPage, setShowHelpPage] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [notifications] = useState([
-    { id: 1, title: 'Vaccination due for Max', message: 'Rabies vaccination due in 3 days', time: '2 hours ago', type: 'warning' },
-    { id: 2, title: 'Appointment reminder', message: 'Vet appointment tomorrow at 2 PM', time: '1 day ago', type: 'info' },
-    { id: 3, title: 'Training milestone', message: 'Bella completed basic commands!', time: '2 days ago', type: 'success' },
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
 
   // Close menus when clicking outside
   React.useEffect(() => {
@@ -34,6 +34,23 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
+
+  // Load notifications when component mounts
+  React.useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  const loadNotifications = async () => {
+    setLoadingNotifications(true);
+    try {
+      const response = await apiClient.getNotifications();
+      setNotifications(response.notifications);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
 
   const getPageTitle = () => {
     switch (currentView) {
@@ -61,24 +78,78 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Implement search functionality
-      console.log('Searching for:', searchQuery);
-      alert(`Search functionality for "${searchQuery}" would be implemented here`);
+      // Simple search implementation - you can enhance this
+      const query = searchQuery.toLowerCase();
+      let foundItems: string[] = [];
+      
+      // This is a basic implementation - in production you'd search the actual data
+      if (query.includes('dog') || query.includes('pet')) {
+        foundItems.push('Dogs section');
+      }
+      if (query.includes('health') || query.includes('vaccination') || query.includes('vet')) {
+        foundItems.push('Health section');
+      }
+      if (query.includes('appointment') || query.includes('calendar') || query.includes('schedule')) {
+        foundItems.push('Calendar section');
+      }
+      if (query.includes('training') || query.includes('command')) {
+        foundItems.push('Training section');
+      }
+      if (query.includes('community') || query.includes('post') || query.includes('event')) {
+        foundItems.push('Community section');
+      }
+      
+      if (foundItems.length > 0) {
+        alert(`Found results in: ${foundItems.join(', ')}`);
+      } else {
+        alert(`No results found for "${searchQuery}"`);
+      }
+      setSearchQuery('');
     }
   };
 
   const handleExportData = () => {
-    // Implement data export
-    alert('Data export functionality would be implemented here');
+    // Create a simple data export
+    const exportData = {
+      user: {
+        name: user?.name,
+        email: user?.email,
+        exportDate: new Date().toISOString()
+      },
+      note: 'This is a basic export. Full implementation would include all dog data, health records, appointments, etc.'
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `edog-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleHelp = () => {
-    // Open help documentation
-    window.open('https://docs.edog.app', '_blank');
+    setShowHelpPage(true);
+    setShowUserMenu(false);
+  };
+
+  const markNotificationAsRead = async (notificationId: string) => {
+    try {
+      await apiClient.markNotificationRead(notificationId);
+      setNotifications(prev => prev.map(n => 
+        n.id === notificationId ? { ...n, read: true } : n
+      ));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-white/20 px-4 lg:px-8 py-4 shadow-lg relative z-50">
+    <>
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-white/20 dark:border-gray-700/20 px-4 lg:px-8 py-4 shadow-lg relative z-50">
       <div className="flex items-center justify-between">
         <div className="flex-1 min-w-0 pr-4 max-w-xs lg:max-w-none">
           <h1 className="text-xl lg:text-3xl font-bold gradient-text truncate">{getPageTitle()}</h1>
@@ -172,9 +243,19 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/30 dark:border-gray-700/30 py-2 z-[60] max-h-96 overflow-y-auto">
                 <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{t('notifications')}</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{t('notifications')}</h3>
+                    {loadingNotifications && (
+                      <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                  </div>
                 </div>
-                {notifications.length === 0 ? (
+                {loadingNotifications ? (
+                  <div className="px-4 py-8 text-center">
+                    <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('loadingNotifications')}</p>
+                  </div>
+                ) : notifications.length === 0 ? (
                   <div className="px-4 py-8 text-center">
                     <Bell size={32} className="mx-auto mb-2 text-gray-300" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">{t('noNotifications')}</p>
@@ -182,7 +263,11 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                 ) : (
                   <div className="py-2">
                     {notifications.map((notification) => (
-                      <div key={notification.id} className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+                      <div 
+                        key={notification.id} 
+                        className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0 cursor-pointer"
+                        onClick={() => markNotificationAsRead(notification.id)}
+                      >
                         <div className="flex items-start space-x-3">
                           <div className={`w-2 h-2 rounded-full mt-2 ${
                             notification.type === 'warning' ? 'bg-orange-500' :
@@ -200,7 +285,16 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                   </div>
                 )}
                 <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
-                  <button className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
+                  <button 
+                    onClick={loadNotifications}
+                    className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
+                  >
+                    {t('refreshNotifications')}
+                  </button>
+                  <button 
+                    onClick={() => setShowNotifications(false)}
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium ml-4"
+                  >
                     {t('viewAllNotifications')}
                   </button>
                 </div>
@@ -235,28 +329,6 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowUserMenu(false);
-                    // Navigate to profile section in settings
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors flex items-center space-x-2 text-gray-900 dark:text-white"
-                >
-                  <User size={16} />
-                  <span>{t('profile')}</span>
-                </button>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowUserMenu(false);
-                    // Navigate to settings
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors flex items-center space-x-2 text-gray-900 dark:text-white"
-                >
-                  <Settings size={16} />
-                  <span>{t('settings')}</span>
-                </button>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowUserMenu(false);
                     handleExportData();
                   }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors flex items-center space-x-2 text-gray-900 dark:text-white"
@@ -274,6 +346,17 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                 >
                   <HelpCircle size={16} />
                   <span>{t('helpSupport')}</span>
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowUserMenu(false);
+                    // Navigate to settings
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors flex items-center space-x-2 text-gray-900 dark:text-white"
+                >
+                  <Settings size={16} />
+                  <span>{t('settings')}</span>
                 </button>
                 <hr className="my-2 border-gray-200 dark:border-gray-700" />
                 <button
@@ -293,5 +376,11 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
         </div>
       </div>
     </header>
+
+      {/* Help & Support Page Modal */}
+      {showHelpPage && (
+        <HelpSupportPage onClose={() => setShowHelpPage(false)} />
+      )}
+    </>
   );
 };

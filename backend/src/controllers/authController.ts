@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import pool from '../config/database';
 import { sendEmail, emailTemplates } from '../config/email';
-import { AuthRequest } from '../types';
+import { AuthRequest, Notification  } from '../types';
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_EXPIRES_IN: SignOptions['expiresIn'] =
@@ -234,6 +234,122 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     console.error('Update profile error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getNotifications = async (req: AuthRequest, res: Response) => {
+  try {
+    // Get user's dogs for filtering notifications
+    const dogsResult = await pool.query('SELECT id FROM dogs WHERE user_id = $1', [req.user!.id]);
+    const dogIds = dogsResult.rows.map(row => row.id);
+
+  const notifications: Notification[] = [];
+
+    if (dogIds.length > 0) {
+      // Check for upcoming vaccinations (due in next 30 days)
+      const upcomingVaccinations = await pool.query(`
+        SELECT v.vaccine_name, v.next_due_date, d.name as dog_name, d.id as dog_id
+        FROM vaccinations v
+        JOIN dogs d ON v.dog_id = d.id
+        WHERE d.user_id = $1 
+          AND v.next_due_date IS NOT NULL
+          AND v.next_due_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+        ORDER BY v.next_due_date ASC
+      `, [req.user!.id]);
+
+      upcomingVaccinations.rows.forEach(vac => {
+        const daysUntil = Math.ceil((new Date(vac.next_due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        notifications.push({
+          id: uuidv4(),
+          title: `Vaccination due for ${vac.dog_name}`,
+          message: `${vac.vaccine_name} vaccination due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`,
+          time: `${daysUntil} day${daysUntil !== 1 ? 's' : ''} from now`,
+          type: daysUntil <= 7 ? 'warning' : 'info',
+          read: false,
+          created_at: new Date().toISOString()
+        });
+      });
+
+      // Check for upcoming appointments (next 7 days)
+      const upcomingAppointments = await pool.query(`
+        SELECT a.title, a.date, a.time, d.name as dog_name
+        FROM appointments a
+        JOIN dogs d ON a.dog_id = d.id
+        WHERE d.user_id = $1 
+          AND a.date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
+        ORDER BY a.date ASC, a.time ASC
+      `, [req.user!.id]);
+
+      upcomingAppointments.rows.forEach(apt => {
+        const appointmentDate = new Date(apt.date);
+        const today = new Date();
+        const daysUntil = Math.ceil((appointmentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        const timeText = daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `in ${daysUntil} days`;
+        
+        notifications.push({
+          id: uuidv4(),
+          title: `Appointment reminder`,
+          message: `${apt.title} for ${apt.dog_name} ${timeText} at ${apt.time}`,
+          time: timeText,
+          type: daysUntil <= 1 ? 'warning' : 'info',
+          read: false,
+          created_at: new Date().toISOString()
+        });
+      });
+
+      // Check for recent training achievements
+      const recentTraining = await pool.query(`
+        SELECT t.progress, t.date, d.name as dog_name, t.commands
+        FROM training_sessions t
+        JOIN dogs d ON t.dog_id = d.id
+        WHERE d.user_id = $1 
+          AND t.date >= CURRENT_DATE - INTERVAL '7 days'
+          AND t.progress = 'excellent'
+        ORDER BY t.date DESC
+        LIMIT 3
+      `, [req.user!.id]);
+
+      recentTraining.rows.forEach(training => {
+        const daysAgo = Math.floor((new Date().getTime() - new Date(training.date).getTime()) / (1000 * 60 * 60 * 24));
+        const timeText = daysAgo === 0 ? 'today' : daysAgo === 1 ? 'yesterday' : `${daysAgo} days ago`;
+        
+        notifications.push({
+          id: uuidv4(),
+          title: `Training milestone`,
+          message: `${training.dog_name} had an excellent training session ${timeText}!`,
+          time: timeText,
+          type: 'success',
+          read: false,
+          created_at: new Date().toISOString()
+        });
+      });
+    }
+
+    // Sort notifications by urgency and date
+    notifications.sort((a, b) => {
+      const urgencyOrder = { warning: 0, info: 1, success: 2 };
+      if (a.type !== b.type) {
+        return urgencyOrder[a.type as keyof typeof urgencyOrder] - urgencyOrder[b.type as keyof typeof urgencyOrder];
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    res.json({ notifications: notifications.slice(0, 10) }); // Limit to 10 most recent
+  } catch (error) {
+    console.error('Get notifications error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const markNotificationRead = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    // For now, just return success since we're generating notifications dynamically
+    // In a real implementation, you'd store notification read status in the database
+    res.json({ message: 'Notification marked as read' });
+  } catch (error) {
+    console.error('Mark notification read error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

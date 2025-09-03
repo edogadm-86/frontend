@@ -93,3 +93,12 @@ export interface AuthRequest extends ExpressRequest  {
     email: string;
   };
 }
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  type: 'warning' | 'info' | 'success';
+  read: boolean;
+  created_at: string;
+}
