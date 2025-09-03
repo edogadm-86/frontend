@@ -71,10 +71,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       });
 
       // Use the full URL returned by backend
-      const fileUrl = response.fileUrl.startsWith('http') 
-        ? response.fileUrl 
-        : `http://localhost:3001${response.fileUrl}`;
-        
+      const fileUrl = response.fileUrl;
+      console.log('Upload response from backend:', response);
+
       onFileUploaded(fileUrl, file.name);
       setUploadSuccess(true);
 
@@ -133,8 +132,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             )}
           </div>
           <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
+            type="button"   // ✅ prevent accidental form submit
+            onClick={(e) => {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }}
+            disabled={uploading}  
             className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           >
             {uploading ? (

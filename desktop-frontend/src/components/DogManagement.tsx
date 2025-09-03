@@ -75,6 +75,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    
     e.preventDefault();
     setLoading(true);
     
@@ -87,6 +88,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
       microchipId: formData.microchipId || undefined,
       licenseNumber: formData.licenseNumber || undefined,
     };
+console.log("Submitting dog payload:", dogData);
 
     try {
       if (editingDog) {
@@ -109,8 +111,8 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   };
 
 const handleFileUploaded = (fileUrl: string) => {
-  console.log('File uploaded:', fileUrl);
-  setFormData(prev => ({ ...prev, profilePicture: fileUrl }));
+  console.log('✅ Final fileUrl from backend:', fileUrl);
+  setFormData(prev => ({ ...prev, profilePicture: normalizeUploadUrl(fileUrl) }));
   setUploadingImage(false);
 };
   const handleFileUploadStart = () => {

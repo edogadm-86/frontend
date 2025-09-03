@@ -76,9 +76,22 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
 
   // Dog endpoints
-  async getDogs() {
+  /*async getDogs() {
     return this.request<{ dogs: any[] }>('/dogs');
-  }
+  }*/
+  async getDogs() {
+  const response = await this.request<{ dogs: any[] }>('/dogs');
+  return {
+    dogs: response.dogs.map(d => ({
+      ...d,
+      profilePicture: d.profile_picture, // map snake_case → camelCase
+      microchipId: d.microchip_id,
+      licenseNumber: d.license_number,
+      createdAt: d.created_at,
+      updatedAt: d.updated_at,
+    })),
+  };
+}
 
   async createDog(dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) {
     return this.request<{ dog: any }>('/dogs', {

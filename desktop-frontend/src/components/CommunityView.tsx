@@ -675,6 +675,31 @@ export const CommunityView: React.FC<CommunityViewProps> = ({ onNavigate }) => {
           {/* Right Sidebar - Trending & Suggestions */}
           <div className="lg:col-span-1">
             <div className="space-y-6 sticky top-6">
+              
+    {/* Facebook Community Card */}
+    <Card variant="gradient" className="p-4 text-center">
+      <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+        Join us on Facebook
+      </h4>
+      <img
+        src="https://scontent.fsof4-1.fna.fbcdn.net/v/t39.30808-6/543053661_122101854086998923_5807597672063898062_n.jpg?stp=dst-jpg_s960x960_tt6&_nc_cat=104&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=1BTIvCNK0UwQ7kNvwEVRIKA&_nc_oc=AdkOALbpOj7tPhzPWtv9dEejnx-oNlL248PHGBGVB1mXyrA0g2KkJvaZsSV3suXft1Y&_nc_zt=23&_nc_ht=scontent.fsof4-1.fna&_nc_gid=NiWDFerxxgjufh58nR85Hw&oh=00_AfZXGkAF4-2vCCPbIKz51g2aOx6ANSQwZ92fy5TwTjjffg&oe=68BE48D3"
+        alt="Facebook Page Cover"
+        className="w-full h-32 object-cover rounded-xl mb-3"
+      />
+      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+        Be part of our growing eDog community on Facebook!
+      </p>
+      <a
+        href="https://www.facebook.com/profile.php?id=61579967714491"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block w-full"
+      >
+        <Button variant="primary" className="w-full">
+          Visit Page
+        </Button>
+      </a>
+    </Card>
               {/* Trending Topics */}
               <Card variant="gradient">
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">

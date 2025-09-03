@@ -79,11 +79,11 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req: Aut
       ]
     );
 
-    res.json({
-      message: 'File uploaded successfully',
-      document: result.rows[0],
-      fileUrl: `/api/uploads/file/${req.file.filename}`
-    });
+   res.json({
+  message: 'File uploaded successfully',
+  document: result.rows[0],
+  fileUrl: `${req.protocol}://${req.get('host')}/api/uploads/file/${req.file.filename}`
+});
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'File upload failed' });

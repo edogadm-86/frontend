@@ -363,6 +363,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowUserMenu(false);
+                    
                     onLogout();
                   }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex items-center space-x-2"
