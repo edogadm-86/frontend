@@ -35,6 +35,16 @@ const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [showAddDogModal, setShowAddDogModal] = useState(false);
 
+  // Listen for navigation events from header
+  useEffect(() => {
+    const handleNavigate = (event: CustomEvent) => {
+      setCurrentView(event.detail);
+    };
+    
+    window.addEventListener('navigate', handleNavigate as EventListener);
+    return () => window.removeEventListener('navigate', handleNavigate as EventListener);
+  }, []);
+
   const handleAddDog = () => {
     setCurrentView('settings');
     setShowAddDogModal(true);

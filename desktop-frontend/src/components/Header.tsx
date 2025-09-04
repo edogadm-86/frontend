@@ -351,7 +351,12 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowUserMenu(false);
-                    // Navigate to settings
+                    window.location.hash = '#settings';
+                    // Trigger navigation to settings
+                    setTimeout(() => {
+                      const event = new CustomEvent('navigate', { detail: 'settings' });
+                      window.dispatchEvent(event);
+                    }, 100);
                   }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors flex items-center space-x-2 text-gray-900 dark:text-white"
                 >

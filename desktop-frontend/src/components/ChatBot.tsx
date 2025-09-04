@@ -169,18 +169,55 @@ export const ChatBot: React.FC<ChatBotProps> = ({ dogName = 'your dog' }) => {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI thinking time
-    setTimeout(() => {
+    try {
+      // Use free AI API (Hugging Face Inference API)
+      const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: `Dog training question: ${inputValue}. Please provide helpful advice for training ${dogName}.`,
+          parameters: {
+            max_length: 200,
+            temperature: 0.7,
+            do_sample: true,
+          }
+        })
+      });
+
+      let aiResponse = '';
+      if (response.ok) {
+        const data = await response.json();
+        aiResponse = data[0]?.generated_text || getAIResponse(inputValue);
+        // Clean up the response to remove the input prompt
+        aiResponse = aiResponse.replace(`Dog training question: ${inputValue}. Please provide helpful advice for training ${dogName}.`, '').trim();
+      } else {
+        // Fallback to local responses
+        aiResponse = getAIResponse(inputValue);
+      }
+
+      const botResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: aiResponse || getAIResponse(inputValue),
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error('AI API error:', error);
+      // Fallback to local responses
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
         content: getAIResponse(inputValue),
         timestamp: new Date(),
       };
-
       setMessages(prev => [...prev, botResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleQuickQuestion = (question: string) => {

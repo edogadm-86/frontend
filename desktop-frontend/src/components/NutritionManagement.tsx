@@ -741,6 +741,63 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           </div>
         </form>
       </Modal>
+
+      {/* Nutrition Templates Modal */}
+      <Modal
+        isOpen={showTemplatesModal}
+        onClose={() => setShowTemplatesModal(false)}
+        title="Nutrition Plan Templates"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Choose a pre-designed nutrition plan based on your dog's life stage and needs.
+          </p>
+          <div className="grid gap-4">
+            {nutritionTemplates.map((template, index) => (
+              <Card key={index} variant="gradient" className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{template.name}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{template.description}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Daily Calories:</span>
+                        <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.calories_per_day}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Meals:</span>
+                        <span className="ml-1 text-gray-900 dark:text-white">{template.meals.length}/day</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Protein:</span>
+                        <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.protein_percentage}%</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Fat:</span>
+                        <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.fat_percentage}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    onClick={() => applyTemplate(template)}
+                    disabled={loading}
+                  >
+                    {loading ? 'Applying...' : 'Apply'}
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+          <div className="flex justify-end pt-4">
+            <Button variant="outline" onClick={() => setShowTemplatesModal(false)}>
+              Close
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

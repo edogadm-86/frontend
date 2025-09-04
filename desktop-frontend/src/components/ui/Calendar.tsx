@@ -158,7 +158,7 @@ export const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className={`grid grid-cols-7 gap-1 ${view === 'week' ? 'min-h-[200px]' : ''}`}>
         {/* Week day headers */}
         {weekDays.map(day => (
           <div key={day} className="p-3 text-center text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg dark:bg-gray-700 dark:text-gray-300">
@@ -180,7 +180,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                 }
               }}
               className={`
-                min-h-[100px] p-2 border border-gray-100 rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:shadow-md dark:border-gray-600 dark:hover:bg-blue-900/20
+                ${view === 'week' ? 'min-h-[150px]' : 'min-h-[100px]'} p-2 border border-gray-100 rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:shadow-md dark:border-gray-600 dark:hover:bg-blue-900/20
                 ${!day.isCurrentMonth ? 'opacity-40' : ''}
                 ${isToday(day.date) ? 'bg-gradient-to-br from-blue-100 to-cyan-100 border-blue-300 dark:from-blue-900/50 dark:to-cyan-900/50' : 'bg-white dark:bg-gray-800'}
                 ${isSelected(day.date) ? 'ring-2 ring-primary-500' : ''}
