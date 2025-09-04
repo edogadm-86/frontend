@@ -175,7 +175,6 @@ export const ChatBot: React.FC<ChatBotProps> = ({ dogName = 'your dog' }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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',
 
         },
         body: JSON.stringify({
