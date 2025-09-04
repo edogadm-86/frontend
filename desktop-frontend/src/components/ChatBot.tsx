@@ -171,10 +171,12 @@ export const ChatBot: React.FC<ChatBotProps> = ({ dogName = 'your dog' }) => {
 
     try {
       // Use free AI API (Hugging Face Inference API)
-      const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+      const response = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot_small-90M', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer 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',
+
         },
         body: JSON.stringify({
           inputs: `Dog training question: ${inputValue}. Please provide helpful advice for training ${dogName}.`,

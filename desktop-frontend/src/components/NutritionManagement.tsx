@@ -72,6 +72,56 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     calories: '',
   });
 
+  // NEW STATE for templates modal
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+
+  // Nutrition templates
+  const nutritionTemplates = [
+    {
+      name: "Puppy Growth Plan",
+      description: "High-protein plan for puppies under 1 year.",
+      nutrition: {
+        calories_per_day: 1200,
+        protein_percentage: 28,
+        fat_percentage: 16,
+        carb_percentage: 56,
+        daily_amount: 500,
+        food_brand: "Puppy Choice",
+        food_type: "Puppy Kibble",
+        date: new Date().toISOString().split("T")[0],
+        supplements: ["Omega-3"],
+        notes: "Designed for puppies",
+        weight_at_time: 5,
+      },
+      meals: [
+        { meal_time: "08:00", food_type: "Puppy Kibble", amount: 150, calories: 400 },
+        { meal_time: "13:00", food_type: "Wet Food", amount: 200, calories: 400 },
+        { meal_time: "19:00", food_type: "Kibble + Treats", amount: 150, calories: 400 },
+      ],
+    },
+    {
+      name: "Adult Maintenance Plan",
+      description: "Balanced nutrition for adult dogs with moderate activity.",
+      nutrition: {
+        calories_per_day: 900,
+        protein_percentage: 24,
+        fat_percentage: 14,
+        carb_percentage: 62,
+        daily_amount: 400,
+        food_brand: "DoggoLife",
+        food_type: "Adult Dry Food",
+        date: new Date().toISOString().split("T")[0],
+        supplements: [],
+        notes: "For adult dogs",
+        weight_at_time: 20,
+      },
+      meals: [
+        { meal_time: "09:00", food_type: "Dry Food", amount: 200, calories: 450 },
+        { meal_time: "18:00", food_type: "Wet Food", amount: 200, calories: 450 },
+      ],
+    },
+  ];
+
   useEffect(() => {
     loadNutritionData();
   }, [dogId]);
@@ -88,6 +138,23 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       setMealPlan(statsRes.mealPlan || []);
     } catch (error) {
       console.error('Error loading nutrition data:', error);
+    }
+  };
+
+  // NEW applyTemplate function
+  const applyTemplate = async (template: any) => {
+    try {
+      setLoading(true);
+      await apiClient.createNutritionRecord(dogId, template.nutrition);
+      for (const meal of template.meals) {
+        await apiClient.createMealPlan(dogId, meal);
+      }
+      await loadNutritionData();
+      setShowTemplatesModal(false);
+    } catch (error) {
+      console.error("Error applying template:", error);
+    } finally {
+      setLoading(false);
     }
   };
 

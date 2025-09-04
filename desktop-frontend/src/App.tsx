@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
 import { Auth } from './components/Auth';
