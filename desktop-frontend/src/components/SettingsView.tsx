@@ -692,63 +692,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </form>
       </Modal>
-
-      <Modal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        title="Change Password"
-        size="md"
-      >
-        <form className="space-y-4">
-          <Input label="Current Password" type="password" required />
-          <Input label="New Password" type="password" required />
-          <Input label="Confirm New Password" type="password" required />
-          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
-            <p className="text-sm text-blue-800 font-medium">Password Requirements:</p>
-            <ul className="text-xs text-blue-600 mt-1 space-y-1">
-              <li>• At least 8 characters long</li>
-              <li>• Contains uppercase and lowercase letters</li>
-              <li>• Contains at least one number</li>
-              <li>• Contains at least one special character</li>
-            </ul>
-          </div>
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" className="flex-1">Update Password</Button>
-          </div>
-        </form>
-      </Modal>
-
-      <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        title="Delete Account"
-        size="md"
-      >
-        <form className="space-y-4">
-          <div className="p-4 bg-red-50 rounded-xl border border-red-200">
-            <p className="text-red-800 font-medium">⚠️ This action cannot be undone!</p>
-            <p className="text-red-600 text-sm mt-1">
-              All your data, including dog profiles, health records, and appointments will be permanently deleted.
-            </p>
-          </div>
-          <Input 
-            label="Type 'DELETE' to confirm" 
-            placeholder="DELETE"
-            required
-          />
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setShowDeleteModal(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="danger" className="flex-1">
-              Delete My Account
-            </Button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 };

@@ -240,16 +240,16 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
 
 export const getNotifications = async (req: AuthRequest, res: Response) => {
   try {
-    // Get user's dogs for filtering notifications
-    const dogsResult = await pool.query('SELECT id FROM dogs WHERE user_id = $1', [req.user!.id]);
-    const dogIds = dogsResult.rows.map(row => row.id);
+    const notifications: Notification[] = [];
 
-  const notifications: Notification[] = [];
+    // Get user's dogs
+    const dogsResult = await pool.query('SELECT id, name FROM dogs WHERE user_id = $1', [req.user!.id]);
+    const dogs = dogsResult.rows;
 
-    if (dogIds.length > 0) {
+    if (dogs.length > 0) {
       // Check for upcoming vaccinations (due in next 30 days)
       const upcomingVaccinations = await pool.query(`
-        SELECT v.vaccine_name, v.next_due_date, d.name as dog_name, d.id as dog_id
+        SELECT v.vaccine_name, v.next_due_date, d.name as dog_name
         FROM vaccinations v
         JOIN dogs d ON v.dog_id = d.id
         WHERE d.user_id = $1 
@@ -284,6 +284,8 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
       upcomingAppointments.rows.forEach(apt => {
         const appointmentDate = new Date(apt.date);
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        appointmentDate.setHours(0, 0, 0, 0);
         const daysUntil = Math.ceil((appointmentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         const timeText = daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `in ${daysUntil} days`;
         
@@ -311,7 +313,11 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
       `, [req.user!.id]);
 
       recentTraining.rows.forEach(training => {
-        const daysAgo = Math.floor((new Date().getTime() - new Date(training.date).getTime()) / (1000 * 60 * 60 * 24));
+        const trainingDate = new Date(training.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        trainingDate.setHours(0, 0, 0, 0);
+        const daysAgo = Math.floor((today.getTime() - trainingDate.getTime()) / (1000 * 60 * 60 * 24));
         const timeText = daysAgo === 0 ? 'today' : daysAgo === 1 ? 'yesterday' : `${daysAgo} days ago`;
         
         notifications.push({
@@ -335,7 +341,7 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
-    res.json({ notifications: notifications.slice(0, 10) }); // Limit to 10 most recent
+    res.json({ notifications: notifications.slice(0, 10) });
   } catch (error) {
     console.error('Get notifications error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -345,8 +351,6 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
 export const markNotificationRead = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    // For now, just return success since we're generating notifications dynamically
-    // In a real implementation, you'd store notification read status in the database
     res.json({ message: 'Notification marked as read' });
   } catch (error) {
     console.error('Mark notification read error:', error);
