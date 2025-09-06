@@ -220,7 +220,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
                   </div>
                   <div className="passport-field">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('species')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">Canis familiaris</p>
+                    <p className="text-lg text-gray-900 dark:text-white">Dog (Canis familiaris)</p>
                   </div>
                 </div>
                 
@@ -257,8 +257,8 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
               <div className="flex flex-col items-center">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('petPhotograph')}</label>
                 <div className="passport-photo bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                  {dog.profile_picture ? (
-                    <img src={dog.profile_picture} alt={dog.name} className="passport-photo" />
+                  {dog.profilePicture ? (
+                    <img src={dog.profilePicture} alt={dog.name} className="passport-photo" />
                   ) : (
                     <div className="text-center text-gray-500 dark:text-gray-400">
                       <Heart size={32} className="mx-auto mb-2" />
@@ -283,7 +283,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
                   {t('microchipCode')}
                 </label>
                 <p className="text-xl font-mono font-bold text-gray-900">
-                  {dog.microchip_id || t('notRegistered')}
+                  {dog.microchipId || t('notRegistered')}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">ISO 11784/11785 compliant</p>
               </div>
@@ -299,7 +299,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                   {t('microchipDate')}
                 </label>
-                <p className="text-gray-900 dark:text-white">{formatDate(dog.created_at)}</p>
+                <p className="text-gray-900 dark:text-white">{formatDate(dog.createdAt)}</p>
               </div>
               
               <div className="passport-field">
@@ -451,7 +451,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('name')}</label>
-                  <p className="text-lg text-gray-900 dark:text-white">{t('ownerName')}</p>
+                  <p className="text-lg text-gray-900 dark:text-white">{user?.name || 'Owner Name'}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('address')}</label>
@@ -463,7 +463,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('email')}</label>
-                  <p className="text-gray-900 dark:text-white">owner@example.com</p>
+                  <p className="text-gray-900 dark:text-white">{user?.email || 'owner@example.com'}</p>
                 </div>
               </div>
             </div>
@@ -474,7 +474,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm opacity-90">{t('issuedBy')}: {t('bulgarianFoodSafetyAgency')}</p>
-                <p className="text-xs opacity-75">{t('dateOfIssue')}: {formatDate(dog.created_at)}</p>
+                <p className="text-xs opacity-75">{t('dateOfIssue')}: {formatDate(dog.createdAt)}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Star className="text-yellow-300" size={16} />

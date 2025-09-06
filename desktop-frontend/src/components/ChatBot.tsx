@@ -170,29 +170,33 @@ export const ChatBot: React.FC<ChatBotProps> = ({ dogName = 'your dog' }) => {
     setIsTyping(true);
 
     try {
-      // Use free AI API (Hugging Face Inference API)
-      const response = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot_small-90M', {
+      // Use OpenAI-compatible free API
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-
         },
         body: JSON.stringify({
-          inputs: `Dog training question: ${inputValue}. Please provide helpful advice for training ${dogName}.`,
-          parameters: {
-            max_length: 200,
-            temperature: 0.7,
-            do_sample: true,
-          }
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a professional dog trainer helping with ${dogName}. Provide helpful, practical advice for dog training questions. Keep responses concise but informative.`
+            },
+            {
+              role: 'user',
+              content: inputValue
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.7
         })
       });
 
       let aiResponse = '';
       if (response.ok) {
         const data = await response.json();
-        aiResponse = data[0]?.generated_text || getAIResponse(inputValue);
-        // Clean up the response to remove the input prompt
-        aiResponse = aiResponse.replace(`Dog training question: ${inputValue}. Please provide helpful advice for training ${dogName}.`, '').trim();
+        aiResponse = data.choices?.[0]?.message?.content || getAIResponse(inputValue);
       } else {
         // Fallback to local responses
         aiResponse = getAIResponse(inputValue);
@@ -207,7 +211,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ dogName = 'your dog' }) => {
 
       setMessages(prev => [...prev, botResponse]);
     } catch (error) {
-      console.error('AI API error:', error);
+      console.error('AI API error, using fallback:', error);
       // Fallback to local responses
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
