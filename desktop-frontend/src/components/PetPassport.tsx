@@ -22,10 +22,11 @@ import { apiClient } from '../lib/api';
 
 interface PetPassportProps {
   dog: any;
+  user?: { name: string; email: string }; // add user here
   onClose: () => void;
 }
 
-export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
+export const PetPassport: React.FC<PetPassportProps> = ({ dog, user, onClose }) => {
   const { t } = useTranslation();
   const [vaccinations, setVaccinations] = useState<any[]>([]);
   const [healthRecords, setHealthRecords] = useState<any[]>([]);

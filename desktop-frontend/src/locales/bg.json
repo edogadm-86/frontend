@@ -362,5 +362,6 @@
   "weekView": "Седмичен изглед",
   "monthView": "Месечен изглед",
   "noEventsThisWeek": "Няма събития тази седмица",
-  "addEventForDate": "Добави събитие за тази дата"
+  "addEventForDate": "Добави събитие за тази дата",
+  "Preferences": "Предпочитания"
 }

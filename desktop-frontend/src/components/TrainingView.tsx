@@ -66,21 +66,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         dogId={currentDog.id}
         dogName={currentDog.name}
       />
-      {/* AI Training Assistant */}
-
-        <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-            <Bot className="mr-2 text-purple-500" />
-            AI Training Assistant
-          </h3>
-          <ChatBot dogName={currentDog.name} />
-        </div>
-        </div>
-
+     
       {/* Training Assistant and Resources Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-8">
         
-
+ <ChatBot dogName={currentDog.name} />
         {/* Training Resources */}
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
@@ -174,6 +164,8 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           </Card>
         </div>
       </div>
+        </div>
+
     </div>
   );
 };

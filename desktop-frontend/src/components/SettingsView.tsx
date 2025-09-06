@@ -84,10 +84,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     { id: 'dogs', icon: User, label: t('myDogs'), color: 'from-blue-500 to-cyan-500' },
     { id: 'emergency', icon: Phone, label: t('emergencyContacts'), color: 'from-red-500 to-pink-500' },
     { id: 'profile', icon: User, label: t('profile'), color: 'from-green-500 to-emerald-500' },
-    { id: 'preferences', icon: Palette, label: 'Preferences', color: 'from-purple-500 to-violet-500' },
-    { id: 'security', icon: Shield, label: 'Security', color: 'from-orange-500 to-amber-500' },
-    { id: 'data', icon: Database, label: 'Data Management', color: 'from-indigo-500 to-blue-500' },
-    { id: 'support', icon: HelpCircle, label: 'Help & Support', color: 'from-gray-500 to-slate-500' },
+    { id: 'preferences', icon: Palette, label: t('Preferences'), color: 'from-purple-500 to-violet-500' },
+    { id: 'security', icon: Shield, label: t('security'), color: 'from-orange-500 to-amber-500' },
+    /*{ id: 'data', icon: Database, label: 'Data Management', color: 'from-indigo-500 to-blue-500' },
+    { id: 'support', icon: HelpCircle, label: 'Help & Support', color: 'from-gray-500 to-slate-500' },*/
   ];
 
 
@@ -359,71 +359,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <Button onClick={() => setShowPasswordModal(true)} variant="outline" className="w-full">
             Change Password
           </Button>
-          <div className="p-4 bg-green-50 rounded-xl border border-green-200">
-            <div className="flex items-center">
-              <Shield className="text-green-600 mr-2" size={20} />
-              <div>
-                <div className="font-medium text-green-800">Two-Factor Authentication</div>
-                <div className="text-sm text-green-600">Enabled via SMS</div>
-              </div>
-            </div>
-          </div>
+         
         </div>
       </Card>
 
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Privacy Settings</h3>
-        <div className="space-y-4">
-          {[
-            { key: 'profile_public', label: 'Public Profile', description: 'Allow others to see your profile' },
-            { key: 'activity_tracking', label: 'Activity Tracking', description: 'Track app usage for improvements' },
-            { key: 'data_sharing', label: 'Data Sharing', description: 'Share anonymized data for research' },
-            { key: 'marketing_emails', label: 'Marketing Emails', description: 'Receive promotional emails' },
-          ].map((setting) => (
-            <div key={setting.key} className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
-              <div>
-                <div className="font-medium text-gray-900">{setting.label}</div>
-                <div className="text-sm text-gray-500">{setting.description}</div>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-              </label>
-            </div>
-          ))}
-        </div>
-      </Card>
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Login Activity</h3>
-        <div className="space-y-3">
-          {[
-            { device: 'Desktop - Chrome', location: 'Sofia, Bulgaria', time: '2 hours ago', current: true },
-            { device: 'Mobile - Safari', location: 'Sofia, Bulgaria', time: '1 day ago', current: false },
-            { device: 'Desktop - Firefox', location: 'Plovdiv, Bulgaria', time: '3 days ago', current: false },
-          ].map((session, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                  <Smartphone size={16} className="text-white" />
-                </div>
-                <div>
-                  <div className="font-medium text-gray-900">{session.device}</div>
-                  <div className="text-sm text-gray-500">{session.location} • {session.time}</div>
-                </div>
-              </div>
-              {session.current ? (
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Current</span>
-              ) : (
-                <Button variant="ghost" size="sm">Revoke</Button>
-              )}
-            </div>
-          ))}
-        </div>
-      </Card>
     </div>
   );
 
-  const renderDataManagement = () => (
+  /*const renderDataManagement = () => (
     <div className="space-y-6">
       <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -502,7 +445,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </Card>
     </div>
-  );
+  );*/
 
   const renderSupport = () => (
     <div className="space-y-6">
@@ -689,6 +632,62 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               Cancel
             </Button>
             <Button type="submit" className="flex-1">Save Changes</Button>
+          </div>
+        </form>
+      </Modal>
+      <Modal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        title="Change Password"
+        size="md"
+      >
+        <form className="space-y-4">
+          <Input label="Current Password" type="password" required />
+          <Input label="New Password" type="password" required />
+          <Input label="Confirm New Password" type="password" required />
+          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
+            <p className="text-sm text-blue-800 font-medium">Password Requirements:</p>
+            <ul className="text-xs text-blue-600 mt-1 space-y-1">
+              <li>• At least 8 characters long</li>
+              <li>• Contains uppercase and lowercase letters</li>
+              <li>• Contains at least one number</li>
+              <li>• Contains at least one special character</li>
+            </ul>
+          </div>
+          <div className="flex space-x-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1">Update Password</Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Account"
+        size="md"
+      >
+        <form className="space-y-4">
+          <div className="p-4 bg-red-50 rounded-xl border border-red-200">
+            <p className="text-red-800 font-medium">⚠️ This action cannot be undone!</p>
+            <p className="text-red-600 text-sm mt-1">
+              All your data, including dog profiles, health records, and appointments will be permanently deleted.
+            </p>
+          </div>
+          <Input 
+            label="Type 'DELETE' to confirm" 
+            placeholder="DELETE"
+            required
+          />
+          <div className="flex space-x-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setShowDeleteModal(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="danger" className="flex-1">
+              Delete My Account
+            </Button>
           </div>
         </form>
       </Modal>
