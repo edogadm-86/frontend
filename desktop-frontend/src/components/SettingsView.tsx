@@ -37,6 +37,7 @@ interface SettingsViewProps {
   dogs: Dog[];
   onCreateDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
   onUpdateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
+  onDeleteDog: (dogId: string) => Promise<void>;
   onSelectDog: (dog: Dog) => void;
   onNavigate: (view: string) => void;
 }
@@ -46,16 +47,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   dogs,
   onCreateDog,
   onUpdateDog,
+  onDeleteDog,
   onSelectDog,
   onNavigate,
 }) => {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { user } = useApp();
-  const [activeTab, setActiveTab] = useState<'dogs' | 'emergency' | 'profile' | 'preferences' | 'security' | 'data' | 'support'>('dogs');
+  const [activeTab, setActiveTab] = useState<'dogs' | 'emergency' | 'profile' | 'preferences' | 'support'>('dogs');
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [healthRecordsCount, setHealthRecordsCount] = useState(0);
+  const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -85,9 +87,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     { id: 'emergency', icon: Phone, label: t('emergencyContacts'), color: 'from-red-500 to-pink-500' },
     { id: 'profile', icon: User, label: t('profile'), color: 'from-green-500 to-emerald-500' },
     { id: 'preferences', icon: Palette, label: 'Preferences', color: 'from-purple-500 to-violet-500' },
-    { id: 'security', icon: Shield, label: 'Security', color: 'from-orange-500 to-amber-500' },
-    { id: 'data', icon: Database, label: 'Data Management', color: 'from-indigo-500 to-blue-500' },
-    { id: 'support', icon: HelpCircle, label: 'Help & Support', color: 'from-gray-500 to-slate-500' },
+    { id: 'support', icon: HelpCircle, label: t('helpSupport'), color: 'from-gray-500 to-slate-500' },
   ];
 
 
@@ -135,6 +135,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   // Load preferences on mount
   useEffect(() => {
+    loadStatistics();
+    
     const savedPreferences = localStorage.getItem('userPreferences');
     if (savedPreferences) {
       const parsed = JSON.parse(savedPreferences);
@@ -156,6 +158,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       });
     }
   }, []);
+
+  const loadStatistics = async () => {
+    try {
+      let totalHealthRecords = 0;
+      let totalAppointments = 0;
+      
+      for (const dog of dogs) {
+        const [healthRes, appointmentsRes] = await Promise.all([
+          apiClient.getHealthRecords(dog.id),
+          apiClient.getAppointments(dog.id),
+        ]);
+        totalHealthRecords += healthRes.healthRecords.length;
+        totalAppointments += appointmentsRes.appointments.length;
+      }
+      
+      setHealthRecordsCount(totalHealthRecords);
+      setAppointmentsCount(totalAppointments);
+    } catch (error) {
+      console.error('Error loading statistics:', error);
+    }
+  };
 
   const renderProfileSettings = () => (
     <div className="space-y-6">
@@ -181,15 +204,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
             <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{dogs.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Dogs Registered</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('dogsRegistered')}</div>
           </div>
           <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">24</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Health Records</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{healthRecordsCount}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('healthRecords')}</div>
           </div>
           <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">12</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Appointments</div>
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{appointmentsCount}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t('appointments')}</div>
           </div>
         </div>
       </Card>
@@ -201,11 +224,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Globe className="mr-2" />
-          Language & Region
+          {t('languageRegion')}
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Language</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('language')}</label>
             <select
               value={preferences.language}
               onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}
@@ -216,7 +239,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Date Format</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('dateFormat')}</label>
             <select className="input-field"
               value={preferences.dateFormat}
               onChange={(e) => setPreferences({ ...preferences, dateFormat: e.target.value })}
@@ -227,7 +250,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Time Format</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('timeFormat')}</label>
             <select className="input-field"
               value={preferences.timeFormat}
               onChange={(e) => setPreferences({ ...preferences, timeFormat: e.target.value })}
@@ -237,7 +260,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Timezone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('timezone')}</label>
             <select className="input-field"
               value={preferences.timezone}
               onChange={(e) => setPreferences({ ...preferences, timezone: e.target.value })}
@@ -251,7 +274,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
         <div className="mt-6">
           <Button onClick={handleSavePreferences} className="w-full">
-            Save Language & Region Settings
+            {t('saveLanguageRegionSettings')}
           </Button>
         </div>
       </Card>
@@ -259,15 +282,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Bell className="mr-2" />
-          Notifications
+          {t('notifications')}
         </h3>
         <div className="space-y-4">
           {Object.entries(notifications).map(([key, value]) => (
             <div key={key} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
               <div>
-                <div className="font-medium text-gray-900 dark:text-white capitalize">{key} Notifications</div>
+                <div className="font-medium text-gray-900 dark:text-white capitalize">{t(`${key}Notifications`)}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Receive notifications about {key.toLowerCase()}
+                  {t('receiveNotificationsAbout')} {t(key.toLowerCase())}
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -284,7 +307,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
         <div className="mt-6">
           <Button onClick={handleSavePreferences} className="w-full">
-            Save Notification Preferences
+            {t('saveNotificationPreferences')}
           </Button>
         </div>
       </Card>
@@ -292,11 +315,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Palette className="mr-2" />
-          Appearance
+          {t('appearance')}
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Theme</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('theme')}</label>
             <div className="grid grid-cols-3 gap-3">
               <button 
                 onClick={() => setPreferences({ ...preferences, theme: 'light' })}
@@ -305,7 +328,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded mb-2"></div>
-                <div className="text-xs font-medium text-gray-900">Light</div>
+                <div className="text-xs font-medium text-gray-900">{t('light')}</div>
               </button>
               <button 
                 onClick={() => setPreferences({ ...preferences, theme: 'dark' })}
@@ -314,7 +337,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-gray-700 to-gray-900 rounded mb-2"></div>
-                <div className="text-xs font-medium">Dark</div>
+                <div className="text-xs font-medium">{t('dark')}</div>
               </button>
               <button 
                 onClick={() => setPreferences({ ...preferences, theme: 'system' })}
@@ -323,25 +346,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded mb-2"></div>
-                <div className="text-xs font-medium text-gray-900">Auto</div>
+                <div className="text-xs font-medium text-gray-900">{t('auto')}</div>
               </button>
             </div>
           </div>
           <div className="mt-6">
             <Button onClick={handleSavePreferences} className="w-full">
-              Apply Theme Changes
+              {t('applyThemeChanges')}
             </Button>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Accent Color</label>
-            <div className="grid grid-cols-6 gap-2">
-              {['blue', 'purple', 'green', 'red', 'orange', 'pink'].map((color) => (
-                <button
-                  key={color}
-                  className={`w-8 h-8 rounded-full bg-${color}-500 border-2 border-white shadow-lg hover:scale-110 transition-transform`}
-                />
-              ))}
-            </div>
           </div>
         </div>
       </Card>

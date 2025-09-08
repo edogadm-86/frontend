@@ -27,11 +27,11 @@ const runMigrations = async () => {
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         name VARCHAR(255) NOT NULL,
         breed VARCHAR(255) NOT NULL,
-        age INTEGER NOT NULL CHECK (age >= 0 AND age <= 30),
+        date_of_birth DATE NOT NULL,
         weight DECIMAL(5,2) NOT NULL CHECK (weight > 0),
         profile_picture TEXT,
         microchip_id VARCHAR(50),
-        license_number VARCHAR(50),
+        passport_number VARCHAR(50),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );

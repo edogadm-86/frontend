@@ -14,6 +14,7 @@ interface DogManagementProps {
   dogs: Dog[];
   onCreateDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
   onUpdateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
+  onDeleteDog: (dogId: string) => Promise<void>;
   onSelectDog: (dog: Dog) => void;
   currentDog: Dog | null;
 }
@@ -22,6 +23,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   dogs,
   onCreateDog,
   onUpdateDog,
+  onDeleteDog,
   onSelectDog,
   currentDog,
 }) => {
@@ -34,11 +36,11 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     breed: '',
-    age: '',
+    dateOfBirth: '',
     weight: '',
     profilePicture: '',
     microchipId: '',
-    licenseNumber: '',
+    passportNumber: '',
   });
 
   const filteredDogs = dogs.filter(dog =>
@@ -51,11 +53,11 @@ export const DogManagement: React.FC<DogManagementProps> = ({
     setFormData({
       name: '',
       breed: '',
-      age: '',
+      dateOfBirth: '',
       weight: '',
       profilePicture: '',
       microchipId: '',
-      licenseNumber: '',
+      passportNumber: '',
     });
     setIsModalOpen(true);
   };
@@ -65,11 +67,11 @@ export const DogManagement: React.FC<DogManagementProps> = ({
     setFormData({
       name: dog.name,
       breed: dog.breed,
-      age: dog.age.toString(),
+      dateOfBirth: dog.dateOfBirth.toISOString().split('T')[0],
       weight: dog.weight.toString(),
       profilePicture: dog.profilePicture || '',
       microchipId: dog.microchipId || '',
-      licenseNumber: dog.licenseNumber || '',
+      passportNumber: dog.passportNumber || '',
     });
     setIsModalOpen(true);
   };
@@ -82,11 +84,11 @@ export const DogManagement: React.FC<DogManagementProps> = ({
     const dogData = {
       name: formData.name,
       breed: formData.breed,
-      age: parseInt(formData.age),
+      dateOfBirth: new Date(formData.dateOfBirth),
       weight: parseFloat(formData.weight),
       profilePicture: formData.profilePicture || undefined,
       microchipId: formData.microchipId || undefined,
-      licenseNumber: formData.licenseNumber || undefined,
+      passportNumber: formData.passportNumber || undefined,
     };
 console.log("Submitting dog payload:", dogData);
 
@@ -108,6 +110,32 @@ console.log("Submitting dog payload:", dogData);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteDog = async (dog: Dog) => {
+    if (window.confirm(t('confirmDeleteDog').replace('{dogName}', dog.name))) {
+      try {
+        await onDeleteDog(dog.id);
+        if (currentDog?.id === dog.id) {
+          onSelectDog(dogs.find(d => d.id !== dog.id) || null);
+        }
+      } catch (error) {
+        console.error('Error deleting dog:', error);
+      }
+    }
+  };
+
+  const calculateAge = (dateOfBirth: Date): number => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
   };
 
 const handleFileUploaded = (fileUrl: string) => {
@@ -188,19 +216,30 @@ const handleFileUploaded = (fileUrl: string) => {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{dog.name}</h3>
                     <p className="text-gray-600 dark:text-gray-400">{dog.breed}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-500">
-                      {dog.age} years • {dog.weight} kg
+                      {calculateAge(dog.dateOfBirth)} {t('yearsOld')} • {dog.weight} kg
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditDog(dog);
-                  }}
-                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Edit size={16} />
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditDog(dog);
+                    }}
+                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDog(dog);
+                    }}
+                    className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               
               {dog.microchipId && (
@@ -209,9 +248,9 @@ const handleFileUploaded = (fileUrl: string) => {
                 </div>
               )}
               
-              {dog.licenseNumber && (
+              {dog.passportNumber && (
                 <div className="text-xs text-gray-500 dark:text-gray-500">
-                  License: {dog.licenseNumber}
+                  {t('passport')}: {dog.passportNumber}
                 </div>
               )}
             </Card>
@@ -247,7 +286,7 @@ const handleFileUploaded = (fileUrl: string) => {
           </div>
           
           <Input
-            label={t('dogName')}
+            label={t('name')}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
@@ -258,32 +297,30 @@ const handleFileUploaded = (fileUrl: string) => {
             onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
             required
           />
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label={`${t('age')} (years)`}
-              type="number"
-              value={formData.age}
-              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-              required
-            />
-            <Input
-              label={`${t('weight')} (kg)`}
-              type="number"
-              step="0.1"
-              value={formData.weight}
-              onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-              required
-            />
-          </div>
           <Input
-            label="Microchip ID (optional)"
+            label={t('dateOfBirth')}
+            type="date"
+            value={formData.dateOfBirth}
+            onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+            required
+          />
+          <Input
+            label={`${t('weight')} (kg)`}
+            type="number"
+            step="0.1"
+            value={formData.weight}
+            onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+            required
+          />
+          <Input
+            label={`${t('microchipId')} (${t('optional')})`}
             value={formData.microchipId}
             onChange={(e) => setFormData({ ...formData, microchipId: e.target.value })}
           />
           <Input
-            label="License Number (optional)"
-            value={formData.licenseNumber}
-            onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+            label={`${t('passportNumber')} (${t('optional')})`}
+            value={formData.passportNumber}
+            onChange={(e) => setFormData({ ...formData, passportNumber: e.target.value })}
           />
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>

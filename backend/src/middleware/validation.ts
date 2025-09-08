@@ -19,11 +19,11 @@ export const validateUser = [
 export const validateDog = [
   body('name').trim().isLength({ min: 1 }).withMessage('Dog name is required'),
   body('breed').trim().isLength({ min: 1 }).withMessage('Breed is required'),
-  body('age').isInt({ min: 0, max: 30 }).withMessage('Age must be between 0 and 30'),
+  body('date_of_birth').isISO8601().withMessage('Valid date of birth is required'),
   body('weight').isFloat({ min: 0.1 }).withMessage('Weight must be greater than 0'),
   body('profile_picture').optional().isString(),
   body('microchip_id').optional().isString(),
-  body('license_number').optional().isString(),
+  body('passport_number').optional().isString(),
 ];
 
 export const validateVaccination = [

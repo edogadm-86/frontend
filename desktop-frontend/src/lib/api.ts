@@ -84,9 +84,10 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   return {
     dogs: response.dogs.map(d => ({
       ...d,
+      dateOfBirth: new Date(d.date_of_birth),
       profilePicture: d.profile_picture, // map snake_case → camelCase
       microchipId: d.microchip_id,
-      licenseNumber: d.license_number,
+      passportNumber: d.passport_number,
       createdAt: d.created_at,
       updatedAt: d.updated_at,
     })),
@@ -99,11 +100,11 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
       body: JSON.stringify({
         name: dogData.name,
         breed: dogData.breed,
-        age: dogData.age,
+        date_of_birth: dogData.dateOfBirth.toISOString().split('T')[0],
         weight: dogData.weight,
         profile_picture: dogData.profilePicture,
         microchip_id: dogData.microchipId,
-        license_number: dogData.licenseNumber,
+        passport_number: dogData.passportNumber,
       }),
     });
   }
@@ -114,11 +115,11 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
       body: JSON.stringify({
         name: dogData.name,
         breed: dogData.breed,
-        age: dogData.age,
+        date_of_birth: dogData.dateOfBirth ? dogData.dateOfBirth.toISOString().split('T')[0] : undefined,
         weight: dogData.weight,
         profile_picture: dogData.profilePicture,
         microchip_id: dogData.microchipId,
-        license_number: dogData.licenseNumber,
+        passport_number: dogData.passportNumber,
       }),
     });
   }
