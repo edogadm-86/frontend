@@ -19,6 +19,7 @@ interface AppContextType {
   logout: () => void;
   createDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
   updateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
+  deleteDog: (dogId: string) => Promise<void>;
   currentDog: Dog | null;
   setCurrentDog: (dog: Dog | null) => void;
 }
@@ -55,6 +56,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     logout,
     createDog,
     updateDog,
+    deleteDog,
   } = useApi();
 
   const [currentDog, setCurrentDog] = React.useState<Dog | null>(null);
@@ -83,6 +85,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     logout,
     createDog,
     updateDog,
+    deleteDog,
     currentDog,
     setCurrentDog,
   };

@@ -19,12 +19,12 @@ export const getDogs = async (req: AuthRequest, res: Response) => {
 
 export const createDog = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, breed, age, weight, profile_picture, microchip_id, license_number } = req.body;
+    const { name, breed, date_of_birth, weight, profile_picture, microchip_id, passport_number } = req.body;
 
     const dogId = uuidv4();
     const result = await pool.query(
-      'INSERT INTO dogs (id, user_id, name, breed, age, weight, profile_picture, microchip_id, license_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-      [dogId, req.user!.id, name, breed, age, weight, profile_picture || null, microchip_id || null, license_number || null]
+      'INSERT INTO dogs (id, user_id, name, breed, date_of_birth, weight, profile_picture, microchip_id, passport_number) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+      [dogId, req.user!.id, name, breed, date_of_birth, weight, profile_picture || null, microchip_id || null, passport_number || null]
     );
 
     res.status(201).json({
@@ -40,11 +40,11 @@ export const createDog = async (req: AuthRequest, res: Response) => {
 export const updateDog = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, breed, age, weight, profile_picture, microchip_id, license_number } = req.body;
+    const { name, breed, date_of_birth, weight, profile_picture, microchip_id, passport_number } = req.body;
 
     const result = await pool.query(
-      'UPDATE dogs SET name = $1, breed = $2, age = $3, weight = $4, profile_picture = $5, microchip_id = $6, license_number = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8 AND user_id = $9 RETURNING *',
-      [name, breed, age, weight, profile_picture || null, microchip_id || null, license_number || null, id, req.user!.id]
+      'UPDATE dogs SET name = $1, breed = $2, date_of_birth = $3, weight = $4, profile_picture = $5, microchip_id = $6, passport_number = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8 AND user_id = $9 RETURNING *',
+      [name, breed, date_of_birth, weight, profile_picture || null, microchip_id || null, passport_number || null, id, req.user!.id]
     );
 
     if (result.rows.length === 0) {

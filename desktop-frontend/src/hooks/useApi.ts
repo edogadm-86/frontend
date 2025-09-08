@@ -43,11 +43,11 @@ export const useApi = () => {
         id: dog.id,
         name: dog.name,
         breed: dog.breed,
-        age: dog.age,
+        dateOfBirth: new Date(dog.date_of_birth),
         weight: dog.weight,
         profilePicture: dog.profile_picture,
         microchipId: dog.microchip_id,
-        licenseNumber: dog.license_number,
+        passportNumber: dog.passport_number,
         documents: [],
         createdAt: new Date(dog.created_at),
         updatedAt: new Date(dog.updated_at),
@@ -156,11 +156,11 @@ export const useApi = () => {
         id: response.dog.id,
         name: response.dog.name,
         breed: response.dog.breed,
-        age: response.dog.age,
+        dateOfBirth: new Date(response.dog.date_of_birth),
         weight: response.dog.weight,
         profilePicture: response.dog.profile_picture,
         microchipId: response.dog.microchip_id,
-        licenseNumber: response.dog.license_number,
+        passportNumber: response.dog.passport_number,
         documents: [],
         createdAt: new Date(response.dog.created_at),
         updatedAt: new Date(response.dog.updated_at),
@@ -180,17 +180,27 @@ export const useApi = () => {
         id: response.dog.id,
         name: response.dog.name,
         breed: response.dog.breed,
-        age: response.dog.age,
+        dateOfBirth: new Date(response.dog.date_of_birth),
         weight: response.dog.weight,
         profilePicture: response.dog.profile_picture,
         microchipId: response.dog.microchip_id,
-        licenseNumber: response.dog.license_number,
+        passportNumber: response.dog.passport_number,
         documents: [],
         createdAt: new Date(response.dog.created_at),
         updatedAt: new Date(response.dog.updated_at),
       };
       setDogs(prev => prev.map(dog => dog.id === dogId ? updatedDog : dog));
       return updatedDog;
+    } catch (error: any) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
+  const deleteDog = async (dogId: string) => {
+    try {
+      await apiClient.deleteDog(dogId);
+      setDogs(prev => prev.filter(dog => dog.id !== dogId));
     } catch (error: any) {
       setError(error.message);
       throw error;
@@ -224,6 +234,7 @@ export const useApi = () => {
     logout,
     createDog,
     updateDog,
+    deleteDog,
     loadUser,
   };
 };

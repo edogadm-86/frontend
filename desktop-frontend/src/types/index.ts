@@ -2,11 +2,11 @@ export interface Dog {
   id: string;
   name: string;
   breed: string;
-  age: number;
+  dateOfBirth: Date;
   weight: number;
   profilePicture?: string;
   microchipId?: string;
-  licenseNumber?: string;
+  passportNumber?: string;
   documents: Document[];
   createdAt: Date;
   updatedAt: Date;
