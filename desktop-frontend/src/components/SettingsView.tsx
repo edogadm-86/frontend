@@ -611,14 +611,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         return renderProfileSettings();
       case 'preferences':
         return renderPreferences();
-      case 'security':
-        return renderSecurity();
-      case 'data':
-        return renderDataManagement();
       case 'support':
-        return renderSupport();
+        return <HelpSupportPage onClose={() => {}} />;
       default:
-        return renderProfileSettings();
+        return (
+          <DogManagement
+            dogs={dogs}
+            onCreateDog={onCreateDog}
+            onUpdateDog={onUpdateDog}
+            onDeleteDog={onDeleteDog}
+            onSelectDog={onSelectDog}
+            currentDog={currentDog}
+          />
+        );
     }
   };
 
