@@ -278,6 +278,17 @@ const runMigrations = async () => {
       CREATE INDEX IF NOT EXISTS idx_nutrition_records_date ON nutrition_records(date);
       CREATE INDEX IF NOT EXISTS idx_meal_plans_dog_id ON meal_plans(dog_id);
       CREATE INDEX IF NOT EXISTS idx_meal_plans_active ON meal_plans(is_active);
+
+      -- Create table and index for notifications
+      CREATE TABLE IF NOT EXISTS user_read_notifications (
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      notif_key TEXT NOT NULL,
+      read_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      PRIMARY KEY (user_id, notif_key)
+      );
+
+    CREATE INDEX IF NOT EXISTS idx_user_read_notifications_user
+    ON user_read_notifications(user_id);
     `;
 
     await pool.query(migrationSQL);

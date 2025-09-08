@@ -209,7 +209,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                  variant="glass"
                  icon={<FileText size={16} />}
                >
-                 {t('Pet Passport')}
+                 {t('petPassport')}
                </Button>
                <Button
                  onClick={() => onNavigate('settings')}
@@ -246,7 +246,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   healthStatus.statusColor === 'red' ? 'text-red-800' :
                   'text-gray-800'
                 }`}>
-                  Health Status: {healthStatus.status}
+                  {t('healthStatus')}: {healthStatus.status}
                 </h3>
                 <p className={`${
                   healthStatus.statusColor === 'green' ? 'text-green-600' :
@@ -288,7 +288,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 healthStatus.statusColor === 'red' ? 'text-red-500' :
                 'text-gray-500'
               }`}>
-                Health Score
+                {t('healthScore')}
               </div>
             </div>
           </div>
@@ -327,7 +327,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="text-2xl font-bold text-gray-900">
             {daysSinceLastVet !== null ? `${daysSinceLastVet} days` : 'No data'}
           </div>
-          <div className="text-sm text-gray-600">Since last vet visit</div>
+          <div className="text-sm text-gray-600">{t('sinceLastVetVisit')}</div>
         </Card>
         
         <Card variant="glass" className="text-center">
@@ -335,7 +335,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <Activity size={20} className="text-white" />
           </div>
           <div className="text-2xl font-bold text-gray-900">{dogVaccinations.length}</div>
-          <div className="text-sm text-gray-600">Total vaccinations</div>
+          <div className="text-sm text-gray-600">{t('totalVaccinations')}</div>
         </Card>
         
         <Card variant="glass" className="text-center">
@@ -345,7 +345,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="text-2xl font-bold text-gray-900">
             {healthStatus?.status || 'Unknown'}
           </div>
-          <div className="text-sm text-gray-600">Health status</div>
+          <div className="text-sm text-gray-600">{t('healthStatus')}</div>
         </Card>
       </div>
 
@@ -382,7 +382,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Shield className="text-white" size={20} />
               </div>
               <p className="font-semibold text-gray-900">{t('addVaccination')}</p>
-              <p className="text-sm text-gray-500">Track vaccination records</p>
+              <p className="text-sm text-gray-500">{t('trackVaccinationRecords')}</p>
             </button>
             
             <button
@@ -393,7 +393,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Heart className="text-white" size={20} />
               </div>
               <p className="font-semibold text-gray-900">{t('addHealthRecord')}</p>
-              <p className="text-sm text-gray-500">Log health information</p>
+              <p className="text-sm text-gray-500">{t('logHealthInformation')}</p>
             </button>
             
             <button
@@ -404,7 +404,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Calendar className="text-white" size={20} />
               </div>
               <p className="font-semibold text-gray-900">{t('scheduleAppointment')}</p>
-              <p className="text-sm text-gray-500">Book vet visits</p>
+              <p className="text-sm text-gray-500">{t('bookVetVisits')}</p>
             </button>
             
             <button
@@ -415,7 +415,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Award className="text-white" size={20} />
               </div>
               <p className="font-semibold text-gray-900">{t('addTrainingSession')}</p>
-              <p className="text-sm text-gray-500">Track progress</p>
+              <p className="text-sm text-gray-500">{t('trackProgress')}</p>
             </button>
           </div>
         </Card>

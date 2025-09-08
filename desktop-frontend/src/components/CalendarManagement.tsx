@@ -182,18 +182,7 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
     <div className="p-8 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="p-3 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-white/50 transition-all duration-200 dark:hover:bg-gray-700"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h2 className="text-3xl font-bold gradient-text">{t('calendar')}</h2>
-            <p className="text-gray-600 dark:text-gray-300">Manage appointments for {currentDog.name}</p>
-          </div>
-        </div>
+        
         <Button onClick={() => handleAddEvent(new Date())} icon={<Plus size={16} />}>
           Add Appointment
         </Button>

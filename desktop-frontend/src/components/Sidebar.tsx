@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Toggle Button */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute -right-3 top-8 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+          className="absolute right-10 top-6 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-80"
         >
           <div className={cn("w-2 h-2 bg-primary-500 rounded-full transition-transform duration-300", !isExpanded && "rotate-180")}></div>
         </button>
@@ -237,7 +237,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="text-center">
           {shouldShowExpanded ? (
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Made with <Heart size={12} className="inline text-red-500" /> for dog lovers
+              Made with <Heart size={12} className="inline text-red-500" /> for dogs
             </p>
           ) : (
             <Heart size={16} className="text-red-500 mx-auto" />

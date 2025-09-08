@@ -29,6 +29,7 @@ import { DogManagement } from './DogManagement';
 import { EmergencyContactManagement } from './EmergencyContactManagement';
 import { Dog } from '../types';
 import { useApp } from '../context/AppContext';
+import { HelpSupportPage} from './HelpSupportPage'
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
@@ -58,6 +59,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [healthRecordsCount, setHealthRecordsCount] = useState(0);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -544,14 +547,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         return (
           <DogManagement
             dogs={dogs}
-            onCreateDog={onCreateDog}
-            onUpdateDog={onUpdateDog}
-            onSelectDog={onSelectDog}
-            currentDog={currentDog}
+          onCreateDog={onCreateDog}
+          onUpdateDog={onUpdateDog}
+          onDeleteDog={onDeleteDog}
+          onSelectDog={onSelectDog}
+          currentDog={currentDog}
           />
         );
       case 'emergency':
         return <EmergencyContactManagement />;
+      case 'security':
+        return renderSecurity();
       case 'profile':
         return renderProfileSettings();
       case 'preferences':
@@ -574,21 +580,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   return (
     <div className="p-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="p-3 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-white/50 transition-all duration-200"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h2 className="text-3xl font-bold gradient-text">{t('settings')}</h2>
-            <p className="text-gray-600">Manage your account and preferences</p>
-          </div>
-        </div>
-      </div>
+
 
       {/* Tabs */}
       <div className="flex space-x-2 p-2 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 overflow-x-auto">

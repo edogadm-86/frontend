@@ -28,6 +28,7 @@ const AppContent: React.FC = () => {
     logout,
     createDog,
     updateDog,
+    deleteDog,
     currentDog,
     setCurrentDog
   } = useApp();
@@ -103,6 +104,7 @@ const AppContent: React.FC = () => {
             dogs={dogs}
             onCreateDog={createDog}
             onUpdateDog={updateDog}
+            onDeleteDog={deleteDog}
             onSelectDog={setCurrentDog}
             onNavigate={setCurrentView}
           />

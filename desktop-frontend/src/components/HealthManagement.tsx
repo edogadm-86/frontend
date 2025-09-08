@@ -98,7 +98,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
   const healthStats = [
     { 
       icon: Shield, 
-      label: 'Vaccinations', 
+      label: t('vaccinations'), 
       value: vaccinationStatus, 
       status: upToDateVaccinations.length === dogVaccinations.length && dogVaccinations.length > 0 ? 'Up to date' : 'Needs attention',
       color: 'from-blue-500 to-cyan-500',
@@ -106,7 +106,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
     },
     { 
       icon: Heart, 
-      label: 'Health Score', 
+      label: t('healthScore'), 
       value: healthStatus?.score ? `${healthStatus.score}%` : 'No data', 
       status: healthStatus?.status || 'Unknown',
       color: 'from-green-500 to-emerald-500',
@@ -114,7 +114,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
     },
     { 
       icon: Apple, 
-      label: 'Nutrition', 
+      label:  t('nutrition'), 
       value: nutritionScore, 
       status: nutritionStats?.hasData ? 'Tracked' : 'Not tracked',
       color: 'from-orange-500 to-amber-500',
@@ -122,7 +122,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
     },
     { 
       icon: Activity, 
-      label: 'Records', 
+      label:  t('records'), 
       value: dogHealthRecords.length.toString(), 
       status: 'Total entries',
       color: 'from-purple-500 to-violet-500',
@@ -135,24 +135,13 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
       <div className="p-4 lg:p-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => onNavigate('dashboard')}
-              className="p-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-xl hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-200"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div>
-              <h2 className="text-3xl font-bold gradient-text">{t('health')} Management</h2>
-              <p className="text-gray-600 dark:text-gray-300">Complete health overview for {currentDog.name}</p>
-            </div>
-          </div>
+          
           <Button
             onClick={() => setShowPassport(true)}
             variant="gradient"
             icon={<FileText size={16} />}
           >
-            View Pet Passport
+            {t('viewPetPassport')}
           </Button>
         </div>
 
@@ -182,10 +171,10 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
         {/* Enhanced Tabs */}
         <div className="flex space-x-2 p-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30">
           {[
-            { id: 'overview', icon: Target, label: 'Overview' },
+            { id: 'overview', icon: Target, label:  t('overview') },
             { id: 'vaccinations', icon: Shield, label: t('vaccinations') },
             { id: 'health-records', icon: Heart, label: t('healthRecords') },
-            { id: 'nutrition', icon: Apple, label: 'Nutrition' },
+            { id: 'nutrition', icon: Apple, label:  t('nutrition') },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -206,7 +195,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
               <Card variant="gradient" className="h-fit">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                   <Activity className="mr-2 text-primary-500" />
-                  Health Timeline
+                  {t('healthTimeline')}
                 </h3>
                 <div className="space-y-4">
                   {(() => {
@@ -237,7 +226,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
                           date: v.next_due_date,
                           type: 'vaccination',
                           title: `${v.vaccine_name} (Due)`,
-                          status: 'upcoming'
+                          status: t('upcoming')
                         }))
                     ];
 
@@ -284,7 +273,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
               <Card variant="gradient" className="h-fit">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                   <TrendingUp className="mr-2 text-primary-500" />
-                  Health Insights
+                  {t('healthInsights')}
                 </h3>
                 <div className="space-y-6">
                   <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">

@@ -15,7 +15,7 @@ interface DogManagementProps {
   onCreateDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
   onUpdateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
   onDeleteDog: (dogId: string) => Promise<void>;
-  onSelectDog: (dog: Dog) => void;
+  onSelectDog: (dog: Dog | null) => void;
   currentDog: Dog | null;
 }
 
@@ -63,11 +63,13 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   };
 
   const handleEditDog = (dog: Dog) => {
+    const dob = dog.dateOfBirth instanceof Date ? dog.dateOfBirth : new Date(dog.dateOfBirth as any);
     setEditingDog(dog);
     setFormData({
       name: dog.name,
       breed: dog.breed,
-      dateOfBirth: dog.dateOfBirth.toISOString().split('T')[0],
+     /* dateOfBirth: dog.dateOfBirth.toISOString().split('T')[0],*/
+      dateOfBirth: isNaN(dob.getTime()) ? '' : dob.toISOString().split('T')[0],
       weight: dog.weight.toString(),
       profilePicture: dog.profilePicture || '',
       microchipId: dog.microchipId || '',
@@ -125,9 +127,11 @@ console.log("Submitting dog payload:", dogData);
     }
   };
 
-  const calculateAge = (dateOfBirth: Date): number => {
+  /*const calculateAge = (dateOfBirth: Date): number => {*/
+    const calculateAge = (dateOfBirth: Date | string): number => {
     const today = new Date();
-    const birthDate = new Date(dateOfBirth);
+    /*const birthDate = new Date(dateOfBirth);*/
+    const birthDate = dateOfBirth instanceof Date ? dateOfBirth : new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
     

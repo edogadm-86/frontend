@@ -43,21 +43,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
 
   return (
     <div className="p-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">{t('training')}</h2>
-            <p className="text-gray-600">Track training progress for {currentDog.name}</p>
-          </div>
-        </div>
-      </div>
+   
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
       
@@ -74,10 +60,10 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         {/* Training Resources */}
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-            <Award className="mr-2 text-primary-500" />
+            <Award className="mr-2 text-primary-700" />
             Training Resources
           </h3>
-          <Card variant="gradient" className="h-[600px] overflow-y-auto">
+          <Card variant="gradient" className="h-[800px] overflow-y-auto">
             <div className="space-y-4">
               {[
                 {
