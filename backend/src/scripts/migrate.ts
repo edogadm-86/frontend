@@ -32,6 +32,9 @@ const runMigrations = async () => {
         profile_picture TEXT,
         microchip_id VARCHAR(50),
         passport_number VARCHAR(50),
+        sex VARCHAR(10),
+        colour VARCHAR(50),
+        features TEXT;
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );

@@ -15,11 +15,14 @@ export interface Dog {
   user_id: string;
   name: string;
   breed: string;
-  age: number;
+  date_of_birth?: Date;      // added for consistency with DB
   weight: number;
   profile_picture?: string;
   microchip_id?: string;
-  license_number?: string;
+  passport_number?: string;
+  sex?: string;              // NEW
+  colour?: string;           // NEW
+  features?: string;         // NEW
   created_at: Date;
   updated_at: Date;
 }

@@ -19,6 +19,8 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
+import { useApp } from '../context/AppContext';
+
 
 interface PetPassportProps {
   dog: any;
@@ -26,8 +28,9 @@ interface PetPassportProps {
   onClose: () => void;
 }
 
-export const PetPassport: React.FC<PetPassportProps> = ({ dog, user, onClose }) => {
+export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
   const { t } = useTranslation();
+  const { user } = useApp();
   const [vaccinations, setVaccinations] = useState<any[]>([]);
   const [healthRecords, setHealthRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -221,7 +224,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, user, onClose }) 
                   </div>
                   <div className="passport-field">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('species')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">Dog (Canis familiaris)</p>
+                    <p className="text-lg text-gray-900 dark:text-white">{t('Dog')}</p>
                   </div>
                 </div>
                 
@@ -232,7 +235,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, user, onClose }) 
                   </div>
                   <div className="passport-field">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('sex')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">{t('notSpecified')}</p>
+                    <p className="text-lg text-gray-900 dark:text-white">{dog.sex}</p>
                   </div>
                 </div>
                 
@@ -240,19 +243,21 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, user, onClose }) 
                   <div className="passport-field">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('dateOfBirth')}</label>
                     <p className="text-lg text-gray-900 dark:text-white">
-                      {new Date(new Date().getFullYear() - dog.age, 0, 1).toLocaleDateString()}
-                    </p>
+                      {dog.dateOfBirth ? formatDate(dog.dateOfBirth) : t('notSpecified')}</p>
                   </div>
                   <div className="passport-field">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('colour')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">{t('notSpecified')}</p>
-                  </div>
-                </div>
-                
+                    <p className="text-lg text-gray-900 dark:text-white">{dog.colour || 'N/A'}</p>
+                  </div>                
                 <div className="passport-field">
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('notableFeatures')}</label>
-                  <p className="text-gray-900 dark:text-white">{t('weight')}: {dog.weight} kg</p>
+                  <p className="text-gray-900 dark:text-white">{dog.features || 'N/A'}</p>
                 </div>
+                 <div className="passport-field">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('weight')}</label>
+                  <p className="text-gray-900 dark:text-white">{dog.weight} kg</p>
+                </div>
+              </div>
               </div>
               
               <div className="flex flex-col items-center">
@@ -267,6 +272,9 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, user, onClose }) 
                     </div>
                   )}
                 </div>
+                <br></br>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('passportNumber')}</label>
+                  <p><strong>{dog.passportNumber}</strong></p>
               </div>
             </div>
           </div>
@@ -460,7 +468,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, user, onClose }) 
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('telephone')}</label>
-                  <p className="text-gray-900 dark:text-white">+359 XXX XXX XXX</p>
+                  <p className="text-gray-900 dark:text-white">{user?.phone || '+359 XXX XXX XXX'}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('email')}</label>

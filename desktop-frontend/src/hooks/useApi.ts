@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../lib/api';
 import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact } from '../types';
+import { mapDogResponse } from '../utils/mapDog';
+
 
 export const useApi = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -39,19 +41,7 @@ export const useApi = () => {
     try {
       // Load dogs
       const dogsResponse = await apiClient.getDogs();
-      const dogsWithTypes: Dog[] = dogsResponse.dogs.map(dog => ({
-        id: dog.id,
-        name: dog.name,
-        breed: dog.breed,
-        dateOfBirth: new Date(dog.date_of_birth),
-        weight: dog.weight,
-        profilePicture: dog.profile_picture,
-        microchipId: dog.microchip_id,
-        passportNumber: dog.passport_number,
-        documents: [],
-        createdAt: new Date(dog.created_at),
-        updatedAt: new Date(dog.updated_at),
-      }));
+      const dogsWithTypes: Dog[] = dogsResponse.dogs.map(mapDogResponse);
       setDogs(dogsWithTypes);
 
       // Load emergency contacts
@@ -152,19 +142,8 @@ export const useApi = () => {
   const createDog = async (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => {
     try {
       const response = await apiClient.createDog(dogData);
-      const newDog: Dog = {
-        id: response.dog.id,
-        name: response.dog.name,
-        breed: response.dog.breed,
-        dateOfBirth: new Date(response.dog.date_of_birth),
-        weight: response.dog.weight,
-        profilePicture: response.dog.profile_picture,
-        microchipId: response.dog.microchip_id,
-        passportNumber: response.dog.passport_number,
-        documents: [],
-        createdAt: new Date(response.dog.created_at),
-        updatedAt: new Date(response.dog.updated_at),
-      };
+       const newDog: Dog = mapDogResponse(response.dog);
+
       setDogs(prev => [...prev, newDog]);
       return newDog;
     } catch (error: any) {
@@ -176,19 +155,8 @@ export const useApi = () => {
   const updateDog = async (dogId: string, dogData: Partial<Dog>) => {
     try {
       const response = await apiClient.updateDog(dogId, dogData);
-      const updatedDog: Dog = {
-        id: response.dog.id,
-        name: response.dog.name,
-        breed: response.dog.breed,
-        dateOfBirth: new Date(response.dog.date_of_birth),
-        weight: response.dog.weight,
-        profilePicture: response.dog.profile_picture,
-        microchipId: response.dog.microchip_id,
-        passportNumber: response.dog.passport_number,
-        documents: [],
-        createdAt: new Date(response.dog.created_at),
-        updatedAt: new Date(response.dog.updated_at),
-      };
+      const updatedDog: Dog = mapDogResponse(response.dog);
+
       setDogs(prev => prev.map(dog => dog.id === dogId ? updatedDog : dog));
       return updatedDog;
     } catch (error: any) {

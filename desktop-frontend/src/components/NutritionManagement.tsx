@@ -51,6 +51,9 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   const [editingRecord, setEditingRecord] = useState<NutritionRecord | null>(null);
   const [editingMeal, setEditingMeal] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCustomPlanModal, setShowCustomPlanModal] = useState(false);
+  const [customMeals, setCustomMeals] = useState<MealPlan[]>([]);
+  const [mealModalContext, setMealModalContext] = useState<'wizard' | 'normal'>('normal');
   const [activeView, setActiveView] = useState<'overview' | 'records' | 'meal-plan'>('overview');
   const [formData, setFormData] = useState({
     date: '',
@@ -77,50 +80,115 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
   // Nutrition templates
   const nutritionTemplates = [
-    {
-      name: "Puppy Growth Plan",
-      description: "High-protein plan for puppies under 1 year.",
-      nutrition: {
-        calories_per_day: 1200,
-        protein_percentage: 28,
-        fat_percentage: 16,
-        carb_percentage: 56,
-        daily_amount: 500,
-        food_brand: "Puppy Choice",
-        food_type: "Puppy Kibble",
-        date: new Date().toISOString().split("T")[0],
-        supplements: ["Omega-3"],
-        notes: "Designed for puppies",
-        weight_at_time: 5,
-      },
-      meals: [
-        { meal_time: "08:00", food_type: "Puppy Kibble", amount: 150, calories: 400 },
-        { meal_time: "13:00", food_type: "Wet Food", amount: 200, calories: 400 },
-        { meal_time: "19:00", food_type: "Kibble + Treats", amount: 150, calories: 400 },
-      ],
+  {
+    name: t('puppyGrowthPlan'),
+    description: t('highProteinDietGrowingPuppies'),
+    nutrition: {
+      calories_per_day: 1200,
+      protein_percentage: 28,
+      fat_percentage: 16,
+      carb_percentage: 56,
+      daily_amount: 500,
+      food_brand: "Puppy Choice",
+      food_type: t('puppyKibble'),
+      date: new Date().toISOString().split("T")[0],
+      supplements: [t('supplementOmega3')],
+      notes: t('puppyNotes'),
+      weight_at_time: 5,
     },
-    {
-      name: "Adult Maintenance Plan",
-      description: "Balanced nutrition for adult dogs with moderate activity.",
-      nutrition: {
-        calories_per_day: 900,
-        protein_percentage: 24,
-        fat_percentage: 14,
-        carb_percentage: 62,
-        daily_amount: 400,
-        food_brand: "DoggoLife",
-        food_type: "Adult Dry Food",
-        date: new Date().toISOString().split("T")[0],
-        supplements: [],
-        notes: "For adult dogs",
-        weight_at_time: 20,
-      },
-      meals: [
-        { meal_time: "09:00", food_type: "Dry Food", amount: 200, calories: 450 },
-        { meal_time: "18:00", food_type: "Wet Food", amount: 200, calories: 450 },
-      ],
+    meals: [
+      { meal_time: "08:00", food_type: "Puppy Kibble", amount: 150, calories: 400 },
+      { meal_time: "13:00", food_type: "Wet Food", amount: 200, calories: 400 },
+      { meal_time: "19:00", food_type: "Kibble + Treats", amount: 150, calories: 400 },
+    ],
+  },
+  {
+    name: "Adult Maintenance Plan",
+    description: "Balanced nutrition for adult dogs with moderate activity.",
+    nutrition: {
+      calories_per_day: 900,
+      protein_percentage: 24,
+      fat_percentage: 14,
+      carb_percentage: 62,
+      daily_amount: 400,
+      food_brand: "DoggoLife",
+      food_type: "Adult Dry Food",
+      date: new Date().toISOString().split("T")[0],
+      supplements: [],
+      notes: "For adult dogs",
+      weight_at_time: 20,
     },
-  ];
+    meals: [
+      { meal_time: "09:00", food_type: "Dry Food", amount: 200, calories: 450 },
+      { meal_time: "18:00", food_type: "Wet Food", amount: 200, calories: 450 },
+    ],
+  },
+  {
+    name: "Senior Wellness Plan",
+    description: "Lower calorie diet for older dogs, joint support supplements.",
+    nutrition: {
+      calories_per_day: 700,
+      protein_percentage: 22,
+      fat_percentage: 12,
+      carb_percentage: 66,
+      daily_amount: 350,
+      food_brand: "Golden Years",
+      food_type: "Senior Formula",
+      date: new Date().toISOString().split("T")[0],
+      supplements: ["Glucosamine", "Omega-3"],
+      notes: "Supports joint health",
+      weight_at_time: 18,
+    },
+    meals: [
+      { meal_time: "08:30", food_type: "Senior Dry Food", amount: 175, calories: 350 },
+      { meal_time: "18:30", food_type: "Steamed Veggies + Dry Food", amount: 175, calories: 350 },
+    ],
+  },
+  {
+    name: "Active Dog Performance Plan",
+    description: "High energy plan for working or highly active dogs.",
+    nutrition: {
+      calories_per_day: 1500,
+      protein_percentage: 30,
+      fat_percentage: 18,
+      carb_percentage: 52,
+      daily_amount: 600,
+      food_brand: "ProActive",
+      food_type: "Performance Formula",
+      date: new Date().toISOString().split("T")[0],
+      supplements: ["Electrolytes"],
+      notes: "For agility, working dogs, or high activity levels",
+      weight_at_time: 25,
+    },
+    meals: [
+      { meal_time: "07:00", food_type: "Performance Dry Food", amount: 200, calories: 500 },
+      { meal_time: "12:00", food_type: "Protein Mix", amount: 200, calories: 500 },
+      { meal_time: "19:00", food_type: "Dry Food + Wet Mix", amount: 200, calories: 500 },
+    ],
+  },
+  {
+    name: "Weight Management Plan",
+    description: "Lower calorie intake for overweight dogs to support healthy weight loss.",
+    nutrition: {
+      calories_per_day: 600,
+      protein_percentage: 26,
+      fat_percentage: 10,
+      carb_percentage: 64,
+      daily_amount: 300,
+      food_brand: "SlimPaws",
+      food_type: "Light Formula",
+      date: new Date().toISOString().split("T")[0],
+      supplements: ["L-Carnitine"],
+      notes: "Helps gradual weight reduction",
+      weight_at_time: 30,
+    },
+    meals: [
+      { meal_time: "09:00", food_type: "Light Kibble", amount: 150, calories: 300 },
+      { meal_time: "18:00", food_type: "Light Wet Food", amount: 150, calories: 300 },
+    ],
+  },
+];
+
 
   useEffect(() => {
     loadNutritionData();
@@ -247,7 +315,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     }
   };
 
-  const handleMealSubmit = async (e: React.FormEvent) => {
+  const handleMealSubmit = async (e: React.FormEvent, isCustom?: boolean) => {
     e.preventDefault();
     setLoading(true);
 
@@ -258,7 +326,13 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         amount: parseFloat(mealFormData.amount),
         calories: parseInt(mealFormData.calories),
       };
-
+    if (mealModalContext === 'wizard') {
+      // add to custom wizard meals only
+       setCustomMeals((prev) => [
+        ...prev,
+        { ...mealData, id: Date.now().toString() } as MealPlan,
+      ]);
+    } else {
       if (editingMeal) {
         await apiClient.updateMealPlan(dogId, editingMeal.id, mealData);
       } else {
@@ -266,7 +340,11 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       }
       
       await loadNutritionData();
-      setIsMealPlanModalOpen(false);
+    }
+    setIsMealPlanModalOpen(false);
+     if (mealModalContext === 'wizard') {
+      setShowCustomPlanModal(true);
+    }
     } catch (error) {
       console.error('Error saving meal plan:', error);
     } finally {
@@ -328,6 +406,11 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               <Apple className="mr-2 text-orange-500" />
               Current Nutrition Profile
             </h3>
+              <Button size="sm" variant="outline" onClick={() => setShowTemplatesModal(true)}>
+               Choose Template
+              </Button>&nbsp;&nbsp;&nbsp;&nbsp;
+      
+
             {currentRecord || nutritionStats?.hasData ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -380,6 +463,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     <div className="text-sm text-gray-600 dark:text-gray-400">{currentRecord.food_type}</div>
                   </div>
                 )}
+                
               </div>
             ) : (
               <div className="text-center py-8">
@@ -396,7 +480,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                 <Utensils className="mr-2 text-green-500" />
                 Today's Meal Plan
               </h3>
-              <Button size="sm" variant="outline" onClick={() => setIsMealPlanModalOpen(true)}>
+              <Button size="sm" variant="outline" onClick={() => setActiveView('meal-plan')}>
                 Edit Plan
               </Button>
             </div>
@@ -762,12 +846,17 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       {/* Meal Plan Modal */}
       <Modal
         isOpen={isMealPlanModalOpen}
-        onClose={() => setIsMealPlanModalOpen(false)}
+        onClose={() => {
+          setIsMealPlanModalOpen(false);
+          if (showCustomPlanModal === false) {
+            // reopen wizard if we came from custom plan
+            setShowCustomPlanModal(true);
+          }
+        }}
         title={editingMeal ? 'Edit Meal' : 'Add Meal'}
         size="md"
       >
-        <form onSubmit={handleMealSubmit} className="space-y-4">
-          <Input
+        <form onSubmit={(e) => handleMealSubmit(e, !showCustomPlanModal)} className="space-y-4">          <Input
             label="Meal Time"
             type="time"
             value={mealFormData.meal_time}
@@ -799,7 +888,12 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             />
           </div>
           <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsMealPlanModalOpen(false)}>
+            <Button type="button" variant="outline"onClick={() => {
+            setIsMealPlanModalOpen(false);
+            if (mealModalContext === 'wizard') {
+              setShowCustomPlanModal(true);
+            }
+            }}>
               Cancel
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>
@@ -858,6 +952,33 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               </Card>
             ))}
           </div>
+          <Card
+            variant="gradient"
+            className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200"
+            onClick={() => {
+              setShowTemplatesModal(false);
+              setShowCustomPlanModal(true);
+              setCustomMeals([]);
+              setFormData({
+                date: new Date().toISOString().split("T")[0],
+                food_brand: "",
+                food_type: "",
+                daily_amount: "",
+                calories_per_day: "",
+                protein_percentage: "",
+                fat_percentage: "",
+                carb_percentage: "",
+                supplements: "",
+                notes: "",
+                weight_at_time: "",
+              });
+            }}
+          >
+            <div className="flex items-center justify-center h-32 text-center">
+              <Plus size={20} className="mr-2" />
+              <span>Create Custom Plan</span>
+            </div>
+          </Card>
           <div className="flex justify-end pt-4">
             <Button variant="outline" onClick={() => setShowTemplatesModal(false)}>
               Close
@@ -865,6 +986,118 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           </div>
         </div>
       </Modal>
+      <Modal
+  isOpen={showCustomPlanModal}
+  onClose={() => setShowCustomPlanModal(false)}
+  title="Create Custom Nutrition Plan"
+  size="lg"
+>
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+        // Save the nutrition record
+        const nutritionData = {
+          ...formData,
+          daily_amount: parseFloat(formData.daily_amount),
+          calories_per_day: parseInt(formData.calories_per_day),
+          protein_percentage: parseFloat(formData.protein_percentage),
+          fat_percentage: parseFloat(formData.fat_percentage),
+          carb_percentage: parseFloat(formData.carb_percentage),
+          supplements: formData.supplements
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s),
+          weight_at_time: parseFloat(formData.weight_at_time),
+        };
+
+        const createdRecord = await apiClient.createNutritionRecord(dogId, nutritionData);
+
+        // Save all custom meals
+        for (const meal of customMeals) {
+          await apiClient.createMealPlan(dogId, meal);
+        }
+
+        await loadNutritionData();
+        setShowCustomPlanModal(false);
+      } catch (err) {
+        console.error("Error creating custom plan:", err);
+      } finally {
+        setLoading(false);
+      }
+    }}
+    className="space-y-4"
+  >
+    {/* Reuse the same nutrition record fields */}
+    <div className="grid grid-cols-2 gap-4">
+      <Input
+        label="Date"
+        type="date"
+        value={formData.date}
+        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+        required
+      />
+      <Input
+        label="Weight at Time (kg)"
+        type="number"
+        value={formData.weight_at_time}
+        onChange={(e) => setFormData({ ...formData, weight_at_time: e.target.value })}
+        required
+      />
+    </div>
+
+    {/* ... keep the other nutrition record inputs (brand, type, macros, supplements, notes)... */}
+
+    {/* Custom Meals section */}
+    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Meals</h4>
+      {customMeals.map((meal, i) => (
+        <Card key={i} className="flex justify-between items-center p-3">
+          <div>
+            <div className="font-medium">{meal.food_type}</div>
+            <div className="text-sm text-gray-500">{meal.meal_time}</div>
+          </div>
+          <div>{meal.amount}g • {meal.calories} cal</div>
+          <button
+            type="button"
+            onClick={() => setCustomMeals(customMeals.filter((_, idx) => idx !== i))}
+            className="text-red-500"
+          >
+            Remove
+          </button>
+        </Card>
+        ))}
+
+
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="mt-3"
+        onClick={() => {
+          setShowCustomPlanModal(false);   // close custom plan modal
+          setEditingMeal(null);
+          setMealModalContext('wizard');          //  mark as wizard mode
+          setMealFormData({ meal_time: '', food_type: '', amount: '', calories: '' });
+          setIsMealPlanModalOpen(true);    // open meal modal
+        }}
+      >
+        <Plus size={16} className="mr-1" /> Add Meal
+      </Button>
+    </div>
+
+    <div className="flex space-x-3 pt-4">
+      <Button type="button" variant="outline" onClick={() => setShowCustomPlanModal(false)}>
+        Cancel
+      </Button>
+      <Button type="submit" className="flex-1" disabled={loading}>
+        {loading ? "Saving..." : "Save Custom Plan"}
+      </Button>
+    </div>
+  </form>
+</Modal>
+
     </div>
   );
 };

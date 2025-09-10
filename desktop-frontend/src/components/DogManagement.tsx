@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, Search, Camera } from 'lucide-react';
+import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
@@ -9,10 +9,9 @@ import { FileUpload } from './ui/FileUpload';
 import { Dog } from '../types';
 import { normalizeUploadUrl } from '../utils/urlHelpers';
 
-
 interface DogManagementProps {
   dogs: Dog[];
-  onCreateDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
+  onCreateDog: (dogData: Partial<Dog>) => Promise<Dog>;
   onUpdateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
   onDeleteDog: (dogId: string) => Promise<void>;
   onSelectDog: (dog: Dog | null) => void;
@@ -27,12 +26,15 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   onSelectDog,
   currentDog,
 }) => {
+  
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+
+
   const [formData, setFormData] = useState({
     name: '',
     breed: '',
@@ -41,11 +43,15 @@ export const DogManagement: React.FC<DogManagementProps> = ({
     profilePicture: '',
     microchipId: '',
     passportNumber: '',
+    sex: '',
+    colour: '',
+    features: '',
   });
 
-  const filteredDogs = dogs.filter(dog =>
-    dog.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dog.breed.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDogs = dogs.filter(
+    (dog) =>
+      dog.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dog.breed.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleCreateDog = () => {
@@ -58,41 +64,58 @@ export const DogManagement: React.FC<DogManagementProps> = ({
       profilePicture: '',
       microchipId: '',
       passportNumber: '',
+      sex: '',
+      colour: '',
+      features: '',
     });
     setIsModalOpen(true);
   };
 
   const handleEditDog = (dog: Dog) => {
-    const dob = dog.dateOfBirth instanceof Date ? dog.dateOfBirth : new Date(dog.dateOfBirth as any);
+    console.log("✅ Mapped dog:", dog);
+    const dob =
+      dog.dateOfBirth instanceof Date
+        ? dog.dateOfBirth
+        : new Date(dog.dateOfBirth as any);
+    
     setEditingDog(dog);
     setFormData({
       name: dog.name,
       breed: dog.breed,
-     /* dateOfBirth: dog.dateOfBirth.toISOString().split('T')[0],*/
-      dateOfBirth: isNaN(dob.getTime()) ? '' : dob.toISOString().split('T')[0],
+      dateOfBirth: isNaN(dob.getTime())
+        ? ''
+        : dob.toISOString().split('T')[0],
       weight: dog.weight.toString(),
       profilePicture: dog.profilePicture || '',
       microchipId: dog.microchipId || '',
       passportNumber: dog.passportNumber || '',
+      sex: dog.sex || '',
+      colour: dog.colour || '',
+      features: dog.features || '',
     });
     setIsModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    
     e.preventDefault();
     setLoading(true);
-    
-    const dogData = {
+
+    const dogData: Partial<Dog> = {
       name: formData.name,
       breed: formData.breed,
-      dateOfBirth: new Date(formData.dateOfBirth),
+      dateOfBirth: formData.dateOfBirth
+        ? new Date(formData.dateOfBirth)
+        : undefined,
       weight: parseFloat(formData.weight),
       profilePicture: formData.profilePicture || undefined,
       microchipId: formData.microchipId || undefined,
       passportNumber: formData.passportNumber || undefined,
+      sex: formData.sex || undefined,
+      colour: formData.colour || undefined,
+      features: formData.features || undefined,
     };
-console.log("Submitting dog payload:", dogData);
+
+    console.log('Submitting dog payload:', dogData);
 
     try {
       if (editingDog) {
@@ -119,7 +142,7 @@ console.log("Submitting dog payload:", dogData);
       try {
         await onDeleteDog(dog.id);
         if (currentDog?.id === dog.id) {
-          onSelectDog(dogs.find(d => d.id !== dog.id) || null);
+          onSelectDog(dogs.find((d) => d.id !== dog.id) || null);
         }
       } catch (error) {
         console.error('Error deleting dog:', error);
@@ -127,26 +150,32 @@ console.log("Submitting dog payload:", dogData);
     }
   };
 
-  /*const calculateAge = (dateOfBirth: Date): number => {*/
-    const calculateAge = (dateOfBirth: Date | string): number => {
+  const calculateAge = (dateOfBirth: Date | string): number => {
     const today = new Date();
-    /*const birthDate = new Date(dateOfBirth);*/
-    const birthDate = dateOfBirth instanceof Date ? dateOfBirth : new Date(dateOfBirth);
+    const birthDate =
+      dateOfBirth instanceof Date ? dateOfBirth : new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   };
 
-const handleFileUploaded = (fileUrl: string) => {
-  console.log('✅ Final fileUrl from backend:', fileUrl);
-  setFormData(prev => ({ ...prev, profilePicture: normalizeUploadUrl(fileUrl) }));
-  setUploadingImage(false);
-};
+  const handleFileUploaded = (fileUrl: string) => {
+    console.log('✅ Final fileUrl from backend:', fileUrl);
+    setFormData((prev) => ({
+      ...prev,
+      profilePicture: normalizeUploadUrl(fileUrl),
+    }));
+    setUploadingImage(false);
+  };
+
   const handleFileUploadStart = () => {
     setUploadingImage(true);
   };
@@ -156,8 +185,12 @@ const handleFileUploaded = (fileUrl: string) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('myDogs')}</h2>
-          <p className="text-gray-600 dark:text-gray-400">Manage your dog profiles</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {t('myDogs')}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage your dog profiles
+          </p>
         </div>
         <Button onClick={handleCreateDog}>
           <Plus size={20} className="mr-2" />
@@ -184,12 +217,14 @@ const handleFileUploaded = (fileUrl: string) => {
             <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center">
               <Plus size={32} className="text-gray-400 dark:text-gray-500" />
             </div>
-            <p className="text-lg font-medium text-gray-900 dark:text-white">No dogs found</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Create your first dog profile to get started</p>
+            <p className="text-lg font-medium text-gray-900 dark:text-white">
+              No dogs found
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Create your first dog profile to get started
+            </p>
           </div>
-          <Button onClick={handleCreateDog}>
-            {t('addDog')}
-          </Button>
+          <Button onClick={handleCreateDog}>{t('addDog')}</Button>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -197,7 +232,9 @@ const handleFileUploaded = (fileUrl: string) => {
             <Card
               key={dog.id}
               className={`cursor-pointer transition-all ${
-                currentDog?.id === dog.id ? 'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900/20' : ''
+                currentDog?.id === dog.id
+                  ? 'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                  : ''
               }`}
               onClick={() => onSelectDog(dog)}
             >
@@ -217,11 +254,18 @@ const handleFileUploaded = (fileUrl: string) => {
                     )}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{dog.name}</h3>
-                    <p className="text-gray-600 dark:text-gray-400">{dog.breed}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-500">
-                      {calculateAge(dog.dateOfBirth)} {t('yearsOld')} • {dog.weight} kg
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {dog.name}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {dog.breed}
                     </p>
+                    {dog.dateOfBirth && (
+                      <p className="text-sm text-gray-500 dark:text-gray-500">
+                        {calculateAge(dog.dateOfBirth)} {t('yearsOld')} •{' '}
+                        {dog.weight} kg
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex space-x-2">
@@ -245,13 +289,13 @@ const handleFileUploaded = (fileUrl: string) => {
                   </button>
                 </div>
               </div>
-              
+
               {dog.microchipId && (
                 <div className="text-xs text-gray-500 dark:text-gray-500 mb-2">
                   Microchip: {dog.microchipId}
                 </div>
               )}
-              
+
               {dog.passportNumber && (
                 <div className="text-xs text-gray-500 dark:text-gray-500">
                   {t('passport')}: {dog.passportNumber}
@@ -272,7 +316,9 @@ const handleFileUploaded = (fileUrl: string) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Profile Picture Upload */}
           <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Picture</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Profile Picture
+            </label>
             <FileUpload
               variant="avatar"
               acceptedTypes="image/*"
@@ -285,10 +331,12 @@ const handleFileUploaded = (fileUrl: string) => {
               className="mx-auto"
             />
             {uploadingImage && (
-              <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">Uploading image...</div>
+              <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                Uploading image...
+              </div>
             )}
           </div>
-          
+
           <Input
             label={t('name')}
             value={formData.name}
@@ -298,14 +346,18 @@ const handleFileUploaded = (fileUrl: string) => {
           <Input
             label={t('breed')}
             value={formData.breed}
-            onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, breed: e.target.value })
+            }
             required
           />
           <Input
             label={t('dateOfBirth')}
             type="date"
             value={formData.dateOfBirth}
-            onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, dateOfBirth: e.target.value })
+            }
             required
           />
           <Input
@@ -313,21 +365,58 @@ const handleFileUploaded = (fileUrl: string) => {
             type="number"
             step="0.1"
             value={formData.weight}
-            onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, weight: e.target.value })
+            }
             required
           />
           <Input
             label={`${t('microchipId')} (${t('optional')})`}
             value={formData.microchipId}
-            onChange={(e) => setFormData({ ...formData, microchipId: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, microchipId: e.target.value })
+            }
           />
           <Input
             label={`${t('passportNumber')} (${t('optional')})`}
             value={formData.passportNumber}
-            onChange={(e) => setFormData({ ...formData, passportNumber: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, passportNumber: e.target.value })
+            }
           />
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {t('sex')}
+          </label>
+          <select
+          value={formData.sex}
+          onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
+          className="input-field"
+          required
+        >
+          <option value="">{t('selectOption')}</option>
+          <option value="Мъж">{t('male')}</option>
+          <option value="Жена">{t('female')}</option>
+        </select>
+
+          <Input
+            label={t('colour')}
+            value={formData.colour}
+            onChange={(e) => setFormData({ ...formData, colour: e.target.value })}
+            required
+          />
+
+          <Input
+            label={t('notableFeatures')}
+            value={formData.features}
+            onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+          />
+
           <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsModalOpen(false)}
+            >
               {t('cancel')}
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>

@@ -79,50 +79,69 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   /*async getDogs() {
     return this.request<{ dogs: any[] }>('/dogs');
   }*/
-  async getDogs() {
-  const response = await this.request<{ dogs: any[] }>('/dogs');
-  return {
-    dogs: response.dogs.map(d => ({
-      ...d,
-      dateOfBirth: new Date(d.date_of_birth),
-      profilePicture: d.profile_picture, // map snake_case → camelCase
-      microchipId: d.microchip_id,
-      passportNumber: d.passport_number,
-      createdAt: d.created_at,
-      updatedAt: d.updated_at,
-    })),
-  };
-}
+        async getDogs() {
+        const response = await this.request<{ dogs: any[] }>('/dogs');
+        console.log("🐶 Raw dogs from backend:", response.dogs); 
+        return {
+        dogs: response.dogs.map((d) => ({
+          ...d, // keeps original snake_case keys (e.g. date_of_birth, profile_picture, etc.)
+          id: d.id,
+          name: d.name,
+          breed: d.breed,
+          dateOfBirth: d.date_of_birth ? new Date(d.date_of_birth) : undefined,
+          weight: d.weight,
+          profilePicture: d.profile_picture,
+          microchipId: d.microchip_id,
+          passportNumber: d.passport_number,
+          sex: d.sex,
+          colour: d.colour,
+          features: d.features,
+          createdAt: d.created_at ? new Date(d.created_at) : undefined,
+          updatedAt: d.updated_at ? new Date(d.updated_at) : undefined,
+          documents: d.documents || [],
+        })),
+        };
+      }
 
-  async createDog(dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) {
-    return this.request<{ dog: any }>('/dogs', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: dogData.name,
-        breed: dogData.breed,
-        date_of_birth: dogData.dateOfBirth.toISOString().split('T')[0],
-        weight: dogData.weight,
-        profile_picture: dogData.profilePicture,
-        microchip_id: dogData.microchipId,
-        passport_number: dogData.passportNumber,
-      }),
-    });
-  }
+      async createDog(dogData: Partial<Dog>) {
+        const payload = {
+          name: dogData.name,
+          breed: dogData.breed,
+          date_of_birth: dogData.dateOfBirth,
+          weight: dogData.weight,
+          profile_picture: dogData.profilePicture,
+          microchip_id: dogData.microchipId,
+          passport_number: dogData.passportNumber,
+          sex: dogData.sex,
+          colour: dogData.colour,
+          features: dogData.features,
+        };
+        return this.request('/dogs', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+      }
 
-  async updateDog(dogId: string, dogData: Partial<Dog>) {
-    return this.request<{ dog: any }>(`/dogs/${dogId}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        name: dogData.name,
-        breed: dogData.breed,
-        date_of_birth: dogData.dateOfBirth ? dogData.dateOfBirth.toISOString().split('T')[0] : undefined,
-        weight: dogData.weight,
-        profile_picture: dogData.profilePicture,
-        microchip_id: dogData.microchipId,
-        passport_number: dogData.passportNumber,
-      }),
-    });
-  }
+      async updateDog(dogId: string, dogData: Partial<Dog>) {
+        const payload = {
+          name: dogData.name,
+          breed: dogData.breed,
+          date_of_birth: dogData.dateOfBirth,
+          weight: dogData.weight,
+          profile_picture: dogData.profilePicture,
+          microchip_id: dogData.microchipId,
+          passport_number: dogData.passportNumber,
+          sex: dogData.sex,
+          colour: dogData.colour,
+          features: dogData.features,
+        };
+        return this.request(`/dogs/${dogId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+          
+        });
+      }
+
 
   async deleteDog(dogId: string) {
     return this.request(`/dogs/${dogId}`, { method: 'DELETE' });
