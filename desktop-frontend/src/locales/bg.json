@@ -577,7 +577,12 @@
   "profileUpdatedSuc": "Профила е обновен успешно!",
   "failedUpdateProfile": "Неуспешно обновяване на профила",
   "europeanUnion": "Европейски Съюз",
-  "regulation": "Регулация"
+  "regulation": "Регулация",
+  "qrCode": "QR Код",
+  "scanCodeToView": "Сканирай за да видиш публичния профил на ",
+  "previewPublicProfile": "Виж Публичния Профил",
+  "dogNotFound": "Не е намерено куче",
+  "years": "години"
 
   
 }

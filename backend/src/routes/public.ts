@@ -10,7 +10,7 @@ router.get('/dog/:id', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT d.id, d.name, d.breed, d.age, d.weight, d.profile_picture,
+      `SELECT d.id, d.name, d.breed, d.date_of_birth, d.weight, d.profile_picture,
               u.name as owner_name, u.phone as owner_phone
        FROM dogs d
        JOIN users u ON d.user_id = u.id
@@ -27,7 +27,7 @@ router.get('/dog/:id', async (req, res) => {
         id: dog.id,
         name: dog.name,
         breed: dog.breed,
-        age: dog.age,
+        date_of_birth: dog.date_of_birth,
         weight: dog.weight,
         profile_picture: dog.profile_picture,
       },

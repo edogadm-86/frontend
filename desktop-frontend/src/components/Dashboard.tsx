@@ -20,7 +20,11 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
+import { QrCode } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
+import { Modal } from './ui/Modal';
 import { PetPassport } from './PetPassport';
+import { API_BASE_URL } from '../config';
 import {
   statusKeyFromBackend,
   statusKeyFromScore,
@@ -51,13 +55,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
   const [showPassport, setShowPassport] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const rawStatus = healthStatus?.status;
+  // Public profile URL (adjust to your domain)
+// frontend route (served by React Router)
+const publicUrl = `/public/dog/${currentDog?.id}`;
+
   let statusKey = statusKeyFromBackend(rawStatus);
   if (statusKey === 'unknown') {
     const fromScore = statusKeyFromScore(healthStatus?.score);
     if (fromScore) statusKey = fromScore;
   }
   useEffect(() => {
+
     if (currentDog?.id) {
       loadHealthStatus();
     }
@@ -229,7 +239,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                >
                  {t('edit')} {t('profile')}
                </Button>
-             </div>
+               <Button
+                onClick={() => setShowQR(true)}
+                variant="glass"
+                icon={<QrCode size={16} />}
+              >
+                {t('qrCode')}
+              </Button>
+            </div>
         </div>
       </Card>
 
@@ -325,7 +342,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Card>
           );
         })()}
-
+      {/* QR Code Modal */}
+        <Modal
+          isOpen={showQR}
+          onClose={() => setShowQR(false)}
+          title={t('qrCode')}
+        >
+          <div className="flex flex-col items-center gap-2 p-2">
+            <h2 className="text-lg font-bold">{currentDog.name}</h2>
+            
+            <QRCodeCanvas value={window.location.origin + publicUrl} size={250} />
+            <br></br>
+            <p className="text-m text-gray text-center">
+              {t('scanCodeToView')} {currentDog.name}.
+            </p>
+            <Button onClick={() => window.open(publicUrl, '_blank')}>
+                {t('previewPublicProfile')}
+            </Button>
+          </div>
+        </Modal>
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
@@ -381,7 +416,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="text-sm text-gray-600">{t('healthStatus')}</div>
         </Card>
       </div>
-
+          
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upcoming Appointments */}
@@ -567,6 +602,7 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
           );
         })}
       </div>
+       
 
       {/* Upcoming Appointments List */}
       <div className="space-y-3">
@@ -598,6 +634,8 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
           </div>
         )}
       </div>
+      
     </div>
+    
   );
 };

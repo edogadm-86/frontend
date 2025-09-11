@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
 import { Auth } from './components/Auth';
@@ -12,6 +13,7 @@ import { TrainingView } from './components/TrainingView';
 import { SettingsView } from './components/SettingsView';
 import { CommunityView } from './components/CommunityView';
 import { ShopView } from './components/ShopView';
+import { PublicDogProfile } from './components/PublicDogProfile';
 
 const AppContent: React.FC = () => {
   useTheme(); // Initialize theme
@@ -166,7 +168,15 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AppProvider>
-      <AppContent />
+      <Router>
+        <Routes>
+          {/* Public route for QR scan */}
+          <Route path="/public/dog/:id" element={<PublicDogProfile />} />
+
+          {/* Default app (protected area) */}
+          <Route path="/*" element={<AppContent />} />
+        </Routes>
+      </Router>
     </AppProvider>
   );
 };

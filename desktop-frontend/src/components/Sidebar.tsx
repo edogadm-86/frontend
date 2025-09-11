@@ -9,6 +9,8 @@ import {
   Settings,
   PlusCircle,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
   ShoppingBag
 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -76,13 +78,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
         </div>
-        
         {/* Toggle Button */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute right-10 top-6 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-80"
+          className="absolute right-3 top-6 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
+                    rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200"
         >
-          <div className={cn("w-2 h-2 bg-primary-500 rounded-full transition-transform duration-300", !isExpanded && "rotate-180")}></div>
+          {isExpanded ? (
+            <ChevronLeft size={18} className="text-primary-500" />
+          ) : (
+            <ChevronRight size={18} className="text-primary-500" />
+          )}
         </button>
       </div>
 

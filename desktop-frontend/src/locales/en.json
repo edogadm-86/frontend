@@ -573,5 +573,10 @@
   "profileUpdatedSuc": "Profile updated successfully!",
   "failedUpdateProfile": "Failed to update profile",
   "europeanUnion": "European Union",
-  "regulation": "Regulation"
+  "regulation": "Regulation",
+  "qrCode": "QR Code",
+  "scanCodeToView": "Scan this code to view the public profile of ",
+  "previewPublicProfile": "Preview Public Profile",
+  "dogNotFound": "Dog not found",
+  "years": "years"
 }
