@@ -1,0 +1,44 @@
+frontend:
+  image:
+    repository: nikolaypeshev/dogpass
+    tag: edog-frontend-11-09-25
+  service:
+    type: ClusterIP
+    port: 80
+  config: 
+    backend_url: "https://edog.dogpass.net"
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    host: "edog.dogpass.net"
+    className: "nginx"
+    issuer: "letsencrypt-prod"  # Use the ClusterIssuer name
+    tls:
+      - hosts:
+          - "edog.dogpass.net"
+        secretName: edog-frontend-tls
+
+backend:
+  image:
+    repository: nikolaypeshev/dogpass
+    tag: edog-backend-11-09-25
+  service:
+    type: ClusterIP
+    port: 3001
+  config:
+    jwt_secret: "edog-super-secret-jwt-key-2024"
+    jwt_expires_in: "7d"
+    smtp_host: "smtp.gmail.com"
+    smtp_port: "587"
+    smtp_user: "edog.adm@gmail.com"
+    smtp_pass: "synh zlub wmwq vadh"
+  ingress:
+    enabled: true
+    host: "edog.dogpass.net"
+    className: nginx
+    issuer: "letsencrypt-prod" 
+    tls:
+      - hosts:
+          - "edog.dogpass.net"
+        secretName: edog-frontend-tls

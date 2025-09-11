@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edog-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edog-frontend
+  template:
+    metadata:
+      labels:
+        app: edog-frontend
+    spec:
+      imagePullSecrets:
+      - name: dockerhub-secret
+      containers:
+      - name: edog-frontend
+        image: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
+        imagePullPolicy: Always
+        env:
+          - name: VITE_BACKEND_URL
+            value: {{ .Values.frontend.config.backend_url }}
+        ports:
+        - containerPort: {{ .Values.frontend.service.port }}
