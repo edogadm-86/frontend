@@ -17,6 +17,9 @@ WORKDIR /usr/share/nginx/html
 # Copy build output
 COPY --from=builder /app/dist ./
 
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expose HTTP
 EXPOSE 80
 
