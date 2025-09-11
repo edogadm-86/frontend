@@ -179,7 +179,7 @@ const loadVaccinations = async () => {
           <h3 className="text-lg font-semibold text-gray-900">
             {t('vaccinations')} - {dogName}
           </h3>
-          <p className="text-gray-600">Track vaccination records and due dates</p>
+          <p className="text-gray-600">{t('trackVaccinations')}</p>
         </div>
         <Button onClick={handleCreate}>
           <Plus size={20} className="mr-2" />
@@ -299,51 +299,58 @@ const loadVaccinations = async () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingVaccination ? 'Edit Vaccination' : 'Add Vaccination'}
+        title={editingVaccination ? t('editVaccination') : t('addVaccination')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Vaccine Name"
+            label={t('vaccineName')}
             value={formData.vaccineName}
             onChange={(e) => setFormData({ ...formData, vaccineName: e.target.value })}
             required
           />
-          <Input
-            label="Vaccine Type"
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {t('vaccineType')}
+          </label>
+           <select
+            className="input-field"
             value={formData.vaccineType}
             onChange={(e) => setFormData({ ...formData, vaccineType: e.target.value })}
             required
-          />
+            >
+            <option value="">{t('selectOption')}</option>
+             <option value="mandatory">{t('mandatory')}</option>
+             <option value="optional">{t('additional')}</option>
+           </select>
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Date Given"
+              label={t('dateGiven')}
               type="date"
               value={formData.dateGiven}
               onChange={(e) => setFormData({ ...formData, dateGiven: e.target.value })}
               required
             />
             <Input
-              label="Next Due Date (optional)"
+              label={t('nextDueDate')}
               type="date"
               value={formData.nextDueDate}
               onChange={(e) => setFormData({ ...formData, nextDueDate: e.target.value })}
             />
           </div>
           <Input
-            label="Veterinarian"
+            label={t('veterinarian')}
             value={formData.veterinarian}
             onChange={(e) => setFormData({ ...formData, veterinarian: e.target.value })}
             required
           />
           <Input
-            label="Batch Number (optional)"
+            label={t('batchNumber')}
             value={formData.batchNumber}
             onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notes (optional)
+              {t('notes')}
             </label>
             <textarea
               value={formData.notes}

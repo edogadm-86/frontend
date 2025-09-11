@@ -133,7 +133,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   };
 
   const handleDelete = async (recordId: string) => {
-    if (window.confirm('Are you sure you want to delete this health record?')) {
+    if (window.confirm(t('areSureDeleteRecord'))) {
       try {
         await apiClient.deleteHealthRecord(dogId, recordId);
         await loadHealthRecords();
@@ -173,7 +173,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
           <h3 className="text-lg font-semibold text-gray-900">
             {t('healthRecords')} - {dogName}
           </h3>
-          <p className="text-gray-600">Track medical history and health information</p>
+          <p className="text-gray-600">{t('trackMedicalHistoryAndHealthInformation')}</p>
         </div>
         <Button onClick={handleCreate}>
           <Plus size={20} className="mr-2" />
@@ -288,13 +288,13 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingRecord ? 'Edit Health Record' : 'Add Health Record'}
+        title={editingRecord ? t('editHealthRecord') : t('addHealthRecord')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Date"
+              label={t('date')}
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
@@ -302,7 +302,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
             />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Type
+                {t('type')}
               </label>
               <select
                 value={formData.type}
@@ -310,23 +310,23 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               >
-                <option value="vet-visit">Vet Visit</option>
-                <option value="medication">Medication</option>
-                <option value="illness">Illness</option>
-                <option value="injury">Injury</option>
-                <option value="other">Other</option>
+                <option value="vet-visit">{t('vetVisit')}</option>
+                <option value="medication">{t('medication')}</option>
+                <option value="illness">{t('ilness')}</option>
+                <option value="injury">{t('injury')}</option>
+                <option value="other">{t('other')}</option>
               </select>
             </div>
           </div>
           <Input
-            label="Title"
+            label={t('title')}
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             required
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              {t('description')}
             </label>
             <textarea
               value={formData.description}
@@ -337,18 +337,18 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
             />
           </div>
           <Input
-            label="Veterinarian (optional)"
+            label={t('veterinarian')}
             value={formData.veterinarian}
             onChange={(e) => setFormData({ ...formData, veterinarian: e.target.value })}
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Medication (optional)"
+              label={t('medication')}
               value={formData.medication}
               onChange={(e) => setFormData({ ...formData, medication: e.target.value })}
             />
             <Input
-              label="Dosage (optional)"
+              label={t('dosage')}
               value={formData.dosage}
               onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
             />
@@ -358,7 +358,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
          {editingRecord && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Attach Documents (optional)
+               {t('attachedDocuments')}
               </label>
               <FileUpload
                 acceptedTypes="image/*,.pdf,.doc,.docx"
@@ -371,7 +371,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
               />
               {uploadedFiles.length > 0 && (
                 <div className="mt-2 text-sm text-green-600">
-                  {uploadedFiles.length} file(s) uploaded successfully
+                  {uploadedFiles.length} {t('filesUploaded')}
                 </div>
               )}
             </div>

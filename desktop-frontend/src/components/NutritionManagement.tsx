@@ -99,14 +99,14 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       weight_at_time: 5,
     },
     meals: [
-      { meal_time: "08:00", food_type: "Puppy Kibble", amount: 150, calories: 400 },
-      { meal_time: "13:00", food_type: "Wet Food", amount: 200, calories: 400 },
-      { meal_time: "19:00", food_type: "Kibble + Treats", amount: 150, calories: 400 },
+      { meal_time: "08:00", food_type: t('puppyKibble'), amount: 150, calories: 400 },
+      { meal_time: "13:00", food_type: t('wetFood'), amount: 200, calories: 400 },
+      { meal_time: "19:00", food_type: t('kibbleTreats'), amount: 150, calories: 400 },
     ],
   },
   {
-    name: "Adult Maintenance Plan",
-    description: "Balanced nutrition for adult dogs with moderate activity.",
+    name: t('adultMaintenancePlan'),
+    description: t('balancedNutritionHealthyAdults'),
     nutrition: {
       calories_per_day: 900,
       protein_percentage: 24,
@@ -117,17 +117,17 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       food_type: "Adult Dry Food",
       date: new Date().toISOString().split("T")[0],
       supplements: [],
-      notes: "For adult dogs",
+      notes: t('adultNotes'),
       weight_at_time: 20,
     },
     meals: [
-      { meal_time: "09:00", food_type: "Dry Food", amount: 200, calories: 450 },
-      { meal_time: "18:00", food_type: "Wet Food", amount: 200, calories: 450 },
+      { meal_time: "09:00", food_type: t('dryFood'), amount: 200, calories: 450 },
+      { meal_time: "18:00", food_type: t('wetFood'), amount: 200, calories: 450 },
     ],
   },
   {
-    name: "Senior Wellness Plan",
-    description: "Lower calorie diet for older dogs, joint support supplements.",
+    name: t('seniorPlanName'),
+    description: t('seniorPlanDesc'),
     nutrition: {
       calories_per_day: 700,
       protein_percentage: 22,
@@ -138,17 +138,17 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       food_type: "Senior Formula",
       date: new Date().toISOString().split("T")[0],
       supplements: ["Glucosamine", "Omega-3"],
-      notes: "Supports joint health",
+      notes: t('seniorNotes'),
       weight_at_time: 18,
     },
     meals: [
-      { meal_time: "08:30", food_type: "Senior Dry Food", amount: 175, calories: 350 },
-      { meal_time: "18:30", food_type: "Steamed Veggies + Dry Food", amount: 175, calories: 350 },
+      { meal_time: "08:30", food_type: t('dryFood'), amount: 175, calories: 350 },
+      { meal_time: "18:30", food_type: t('streemedVeggiesDryFood') , amount: 175, calories: 350 },
     ],
   },
   {
-    name: "Active Dog Performance Plan",
-    description: "High energy plan for working or highly active dogs.",
+    name: t('activePlanName'),
+    description: t('activePlanDesc'),
     nutrition: {
       calories_per_day: 1500,
       protein_percentage: 30,
@@ -159,18 +159,18 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       food_type: "Performance Formula",
       date: new Date().toISOString().split("T")[0],
       supplements: ["Electrolytes"],
-      notes: "For agility, working dogs, or high activity levels",
+      notes: t('activeNotes'),
       weight_at_time: 25,
     },
     meals: [
-      { meal_time: "07:00", food_type: "Performance Dry Food", amount: 200, calories: 500 },
-      { meal_time: "12:00", food_type: "Protein Mix", amount: 200, calories: 500 },
-      { meal_time: "19:00", food_type: "Dry Food + Wet Mix", amount: 200, calories: 500 },
+      { meal_time: "07:00", food_type: t('dryFood'), amount: 200, calories: 500 },
+      { meal_time: "12:00", food_type: t('proteinMix'), amount: 200, calories: 500 },
+      { meal_time: "19:00", food_type: t('dryFoodWetMix'), amount: 200, calories: 500 },
     ],
   },
   {
-    name: "Weight Management Plan",
-    description: "Lower calorie intake for overweight dogs to support healthy weight loss.",
+    name: t('weightPlanName'),
+    description: t('weightPlanDesc'),
     nutrition: {
       calories_per_day: 600,
       protein_percentage: 26,
@@ -181,12 +181,12 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       food_type: "Light Formula",
       date: new Date().toISOString().split("T")[0],
       supplements: ["L-Carnitine"],
-      notes: "Helps gradual weight reduction",
+      notes: t('weightNotes'),
       weight_at_time: 30,
     },
     meals: [
-      { meal_time: "09:00", food_type: "Light Kibble", amount: 150, calories: 300 },
-      { meal_time: "18:00", food_type: "Light Wet Food", amount: 150, calories: 300 },
+      { meal_time: "09:00", food_type: t('lightKibble'), amount: 150, calories: 300 },
+      { meal_time: "18:00", food_type: t('lightWetFood'), amount: 150, calories: 300 },
     ],
   },
 ];
@@ -400,9 +400,9 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       {/* Navigation Tabs */}
       <div className="flex space-x-2 p-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30">
         {[
-          { id: 'overview', icon: Target, label: 'Overview' },
-          { id: 'records', icon: FileText, label: 'Nutrition Records' },
-          { id: 'meal-plan', icon: Utensils, label: 'Meal Plan' },
+          { id: 'overview', icon: Target, label: t('overview') },
+          { id: 'records', icon: FileText, label: t('nutritionRecords') },
+          { id: 'meal-plan', icon: Utensils, label: t('mealPlan') },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -421,10 +421,10 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           <Card variant="gradient">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
               <Apple className="mr-2 text-orange-500" />
-              Current Nutrition Profile
+              {t('currentNutritionProfile')}
             </h3>
               <Button size="sm" variant="outline" onClick={() => setShowTemplatesModal(true)}>
-               Choose Template
+               {t('chooseTemplate')}
               </Button>&nbsp;&nbsp;&nbsp;&nbsp;
       
 
@@ -435,20 +435,20 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {currentRecord?.daily_amount || Math.round(totalAmount)}g
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Daily Amount</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('dailyAmount')}</div>
                   </div>
                   <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {currentRecord?.calories_per_day || totalCalories}
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Calories/Day</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('caloriesDay')}</div>
                   </div>
                 </div>
                 
                 {currentRecord && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Protein</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('protein')}</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.protein_percentage}%</span>
                     </div>
                     <div className="progress-bar">
@@ -456,7 +456,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fat</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('fat')}</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.fat_percentage}%</span>
                     </div>
                     <div className="progress-bar">
@@ -464,7 +464,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Carbohydrates</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('carbohydrates')}</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.carb_percentage}%</span>
                     </div>
                     <div className="progress-bar">
@@ -475,7 +475,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                 
                 {currentRecord && (
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Food</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('currentFood')}</div>
                     <div className="text-gray-900 dark:text-white font-semibold">{currentRecord.food_brand}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">{currentRecord.food_type}</div>
                   </div>
@@ -485,7 +485,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             ) : (
               <div className="text-center py-8">
                 <Apple size={32} className="mx-auto mb-2 text-gray-300" />
-                <p className="text-gray-500 dark:text-gray-400">No nutrition data available</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('noNutritionData')}</p>
               </div>
             )}
           </Card>
@@ -495,10 +495,10 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <Utensils className="mr-2 text-green-500" />
-                Today's Meal Plan
+                {t('todaysMealPlan')}
               </h3>
               <Button size="sm" variant="outline" onClick={() => setActiveView('meal-plan')}>
-                Edit Plan
+                {t('editPlan')}
               </Button>
             </div>
             <div className="space-y-3">
@@ -536,7 +536,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               {mealPlan.length === 0 && (
                 <div className="text-center py-8">
                   <Utensils size={32} className="mx-auto mb-2 text-gray-300" />
-                  <p className="text-gray-500 dark:text-gray-400 mb-4">No meal plan set</p>
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noMealPlan')}</p>
                   <Button size="sm" onClick={handleCreateMeal}>
                     Add First Meal
                   </Button>
@@ -544,7 +544,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               )}
               <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">Total Daily Calories</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">{t('totalDailyCalories')}</span>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">{totalCalories}</span>
                 </div>
               </div>
@@ -558,22 +558,22 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Nutrition Records - {dogName}
+                {t('nutritionRecords')} - {dogName}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">Track diet changes and nutrition history</p>
+              <p className="text-gray-600 dark:text-gray-400">{t('trackNutritionHistory')}</p>
             </div>
             <Button onClick={handleCreate}>
               <Plus size={20} className="mr-2" />
-              Add Nutrition Record
+              {t('addNutritionRecord')}
             </Button>
           </div>
 
           {nutritionRecords.length === 0 ? (
             <Card className="text-center py-16">
               <Apple size={48} className="mx-auto mb-4 text-gray-300" />
-              <p className="text-gray-500 dark:text-gray-400 mb-4">No nutrition records found</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noRecordsFound')}</p>
               <Button onClick={handleCreate}>
-                Add First Record
+                {t('addFirstRecord')}
               </Button>
             </Card>
           ) : (
@@ -598,34 +598,34 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                             {formatDate(record.date)}
                           </div>
                           <div className="text-gray-600 dark:text-gray-400">
-                            Amount: {record.daily_amount}g/day
+                            {t('amountGrams')}: {record.daily_amount} {t('gram')}/{t('day')}
                           </div>
                           <div className="text-gray-600 dark:text-gray-400">
-                            Calories: {record.calories_per_day}/day
+                            {t('calories')}: {record.calories_per_day}/{t('day')}
                           </div>
                           <div className="text-gray-600 dark:text-gray-400">
-                            Weight: {record.weight_at_time}kg
+                            {t('weight')}: {record.weight_at_time}{t('kg')}
                           </div>
                         </div>
                         
                         <div className="grid grid-cols-3 gap-4 mb-3">
                           <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                             <div className="text-sm font-bold text-blue-600">{record.protein_percentage}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">Protein</div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">{t('protein')}</div>
                           </div>
                           <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                             <div className="text-sm font-bold text-green-600">{record.fat_percentage}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">Fat</div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">{t('fat')}</div>
                           </div>
                           <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                             <div className="text-sm font-bold text-orange-600">{record.carb_percentage}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">Carbs</div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">{t('carbs')}</div>
                           </div>
                         </div>
                         
                         {record.supplements.length > 0 && (
                           <div className="mb-2">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Supplements: </span>
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('supplements')}: </span>
                             <div className="flex flex-wrap gap-1 mt-1">
                               {record.supplements.map((supplement, index) => (
                                 <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded-full">
@@ -642,12 +642,12 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                         {record.meals && record.meals.length > 0 && (
                         <div className="mt-3">
                           <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Meals in this plan:
+                            {t('meals')}:
                           </h5>
                           <ul className="space-y-1">
                             {record.meals.map((meal: any) => (
                               <li key={meal.id} className="text-sm text-gray-600 dark:text-gray-400">
-                                🍽 {meal.meal_time} — {meal.food_type} ({meal.amount}g, {meal.calories} cal)
+                                🍽 {meal.meal_time} — {meal.food_type} ({meal.amount}{t('gram')}, {meal.calories} {t('cal')})
                               </li>
                             ))}
                           </ul>
@@ -683,20 +683,20 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Meal Plan - {dogName}
+                {t('mealPlan')} - {dogName}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">Manage daily feeding schedule</p>
+              <p className="text-gray-600 dark:text-gray-400">{t('manageDailyFeedingSchedule')}</p>
             </div>
             <Button onClick={() => setIsMealPlanModalOpen(true)}>
               <Plus size={20} className="mr-2" />
-              Add Meal
+              {t('addMeal')}
             </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <Card variant="gradient">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Daily Schedule</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">{t('dailySchedule')}</h4>
                 <div className="space-y-3">
                   {mealPlan.map((meal) => (
                     <div key={meal.id} className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl group">
@@ -732,9 +732,9 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                   {mealPlan.length === 0 && (
                     <div className="text-center py-8">
                       <Utensils size={32} className="mx-auto mb-2 text-gray-300" />
-                      <p className="text-gray-500 dark:text-gray-400 mb-4">No meals scheduled</p>
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noMealsScheduled')}</p>
                       <Button onClick={handleCreateMeal}>
-                        Add First Meal
+                        {t('addFirstMeal')}
                       </Button>
                     </div>
                   )}
@@ -744,19 +744,19 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
             <div>
               <Card variant="gradient">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Daily Summary</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">{t('dailySummary')}</h4>
                 <div className="space-y-4">
                   <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl">
                     <div className="text-2xl font-bold text-blue-600">{totalCalories}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Calories</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('totalCalories')}</div>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl">
                     <div className="text-2xl font-bold text-green-600">{mealPlan.length}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Meals per Day</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('mealsPerDay')}</div>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl">
-                    <div className="text-2xl font-bold text-purple-600">Optimal</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Feeding Schedule</div>
+                    <div className="text-2xl font-bold text-purple-600">{t('optimal')}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('feedingSchedule')}</div>
                   </div>
                 </div>
               </Card>
@@ -769,20 +769,20 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingRecord ? 'Edit Nutrition Record' : 'Add Nutrition Record'}
+        title={editingRecord ? t('editNutritionRecord') : t('addNutritionRecordModal')}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Date"
+              label={t('date')}
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               required
             />
             <Input
-              label="Weight at Time (kg)"
+              label={t('weightAtTime')}
               type="number"
               step="0.1"
               value={formData.weight_at_time}
@@ -792,13 +792,13 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Food Brand"
+              label={t('foodBrand')}
               value={formData.food_brand}
               onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })}
               required
             />
             <Input
-              label="Food Type"
+              label={t('foodType')}
               value={formData.food_type}
               onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
               required
@@ -806,14 +806,14 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Daily Amount (g)"
+              label={t('dailyAmountGrams')}
               type="number"
               value={formData.daily_amount}
               onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })}
               required
             />
             <Input
-              label="Calories per Day"
+              label={t('caloriesPerDay')}
               type="number"
               value={formData.calories_per_day}
               onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })}
@@ -822,7 +822,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           </div>
           <div className="grid grid-cols-3 gap-4">
             <Input
-              label="Protein %"
+              label={t('proteinPercent')}
               type="number"
               step="0.1"
               value={formData.protein_percentage}
@@ -830,7 +830,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
             <Input
-              label="Fat %"
+              label={t('fatPercent')}
               type="number"
               step="0.1"
               value={formData.fat_percentage}
@@ -838,7 +838,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
             <Input
-              label="Carbs %"
+              label={t('carbsPercent')}
               type="number"
               step="0.1"
               value={formData.carb_percentage}
@@ -847,29 +847,29 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             />
           </div>
           <Input
-            label="Supplements (comma separated)"
+            label={t('supplementsPlaceholder')}
             value={formData.supplements}
             onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
             placeholder="Omega-3, Glucosamine, Multivitamin"
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Notes
+              {t('notes')}
             </label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="input-field"
               rows={3}
-              placeholder="Any observations about diet changes, preferences, etc."
+              placeholder={t('notesPlaceholder')}
             />
           </div>
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Record'}
+              {loading ? t('saving') : t('saveRecord')}
             </Button>
           </div>
         </form>
@@ -885,18 +885,18 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             setShowCustomPlanModal(true);
           }
         }}
-        title={editingMeal ? 'Edit Meal' : 'Add Meal'}
+        title={editingMeal ? t('editMeal') :t('addMealModal')}
         size="md"
       >
         <form onSubmit={(e) => handleMealSubmit(e, !showCustomPlanModal)} className="space-y-4">          <Input
-            label="Meal Time"
+            label={t('mealTime')}
             type="time"
             value={mealFormData.meal_time}
             onChange={(e) => setMealFormData({ ...mealFormData, meal_time: e.target.value })}
             required
           />
           <Input
-            label="Food Type"
+            label={t('foodType')}
             value={mealFormData.food_type}
             onChange={(e) => setMealFormData({ ...mealFormData, food_type: e.target.value })}
             placeholder="Dry Food, Wet Food, Treats, etc."
@@ -904,7 +904,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Amount (g)"
+              label={t('amountGrams')}
               type="number"
               step="0.1"
               value={mealFormData.amount}
@@ -912,7 +912,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
             <Input
-              label="Calories"
+              label={t('calories')}
               type="number"
               value={mealFormData.calories}
               onChange={(e) => setMealFormData({ ...mealFormData, calories: e.target.value })}
@@ -926,10 +926,10 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               setShowCustomPlanModal(true);
             }
             }}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Meal'}
+              {loading ? t('saving') : t('saveMeal')}
             </Button>
           </div>
         </form>
@@ -939,12 +939,12 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       <Modal
         isOpen={showTemplatesModal}
         onClose={() => setShowTemplatesModal(false)}
-        title="Nutrition Plan Templates"
+        title={t('nutritionPlanTemplates')}
         size="lg"
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Choose a pre-designed nutrition plan based on your dog's life stage and needs.
+            {t('choosePreDesignedPlan')}
           </p>
           <div className="grid gap-4">
             {nutritionTemplates.map((template, index) => (
@@ -956,19 +956,19 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Daily Calories:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('dailyCalories')}</span>
                         <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.calories_per_day}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Meals:</span>
-                        <span className="ml-1 text-gray-900 dark:text-white">{template.meals.length}/day</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('meals')}:</span>
+                        <span className="ml-1 text-gray-900 dark:text-white">{template.meals.length}/{t('day')}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Protein:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('protein')}:</span>
                         <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.protein_percentage}%</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Fat:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('fat')}:</span>
                         <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.fat_percentage}%</span>
                       </div>
                     </div>
@@ -978,7 +978,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     onClick={() => applyTemplate(template)}
                     disabled={loading}
                   >
-                    {loading ? 'Applying...' : 'Apply'}
+                    {loading ? t('applying'): t('apply')}
                   </Button>
                 </div>
               </Card>
@@ -1008,12 +1008,12 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           >
             <div className="flex items-center justify-center h-32 text-center">
               <Plus size={20} className="mr-2" />
-              <span>Create Custom Plan</span>
+              <span>{t('createCustomPlan')}</span>
             </div>
           </Card>
           <div className="flex justify-end pt-4">
             <Button variant="outline" onClick={() => setShowTemplatesModal(false)}>
-              Close
+              {t('close')}
             </Button>
           </div>
         </div>
@@ -1021,7 +1021,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       <Modal
   isOpen={showCustomPlanModal}
   onClose={() => setShowCustomPlanModal(false)}
-  title="Create Custom Nutrition Plan"
+  title={t('createCustomNutritionPlan')}
   size="lg"
 >
   <form
@@ -1084,14 +1084,14 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     {/* Reuse the same nutrition record fields */}
     <div className="grid grid-cols-2 gap-4">
       <Input
-        label="Date"
+        label={t('date')}
         type="date"
         value={formData.date}
         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
         required
       />
       <Input
-        label="Weight at Time (kg)"
+        label={t('weightAtTime')}
         type="number"
         value={formData.weight_at_time}
         onChange={(e) => setFormData({ ...formData, weight_at_time: e.target.value })}
@@ -1101,13 +1101,13 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
       <div className="grid grid-cols-2 gap-4">
       <Input
-        label="Food Brand"
+        label={t('foodBrand')}
         value={formData.food_brand}
         onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })}
         required
       />
       <Input
-        label="Food Type"
+        label={t('foodType')}
         value={formData.food_type}
         onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
         required
@@ -1116,14 +1116,14 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
     <div className="grid grid-cols-2 gap-4">
       <Input
-        label="Daily Amount (g)"
+        label={t('dailyAmountGrams')}
         type="number"
         value={formData.daily_amount}
         onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })}
         required
       />
       <Input
-        label="Calories per Day"
+        label={t('caloriesPerDay')}
         type="number"
         value={formData.calories_per_day}
         onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })}
@@ -1133,21 +1133,21 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
     <div className="grid grid-cols-3 gap-4">
       <Input
-        label="Protein %"
+        label={t('proteinPercent')}
         type="number"
         step="0.1"
         value={formData.protein_percentage}
         onChange={(e) => setFormData({ ...formData, protein_percentage: e.target.value })}
       />
       <Input
-        label="Fat %"
+        label={t('fatPercent')}
         type="number"
         step="0.1"
         value={formData.fat_percentage}
         onChange={(e) => setFormData({ ...formData, fat_percentage: e.target.value })}
       />
       <Input
-        label="Carbs %"
+        label={t('carbsPercent')}
         type="number"
         step="0.1"
         value={formData.carb_percentage}
@@ -1155,8 +1155,8 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       />
     </div>
 
-    <Input
-      label="Supplements (comma separated)"
+    <Input   
+      label={t('supplementsPlaceholder')}
       value={formData.supplements}
       onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
       placeholder="Omega-3, Glucosamine, Multivitamin"
@@ -1164,14 +1164,14 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
     <div>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        Notes
+        {t('notes')}
       </label>
       <textarea
         value={formData.notes}
         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
         className="input-field"
         rows={3}
-        placeholder="Any observations about diet changes, preferences, etc."
+        placeholder={t('notesPlaceholder')}
       />
     </div>
 
@@ -1190,7 +1190,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             onClick={() => setCustomMeals(customMeals.filter((_, idx) => idx !== i))}
             className="text-red-500"
           >
-            Remove
+            {t('remove')}
           </button>
         </Card>
         ))}
@@ -1209,16 +1209,16 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           setIsMealPlanModalOpen(true);    // open meal modal
         }}
       >
-        <Plus size={16} className="mr-1" /> Add Meal
+        <Plus size={16} className="mr-1" /> {t('addMeal')}
       </Button>
     </div>
 
     <div className="flex space-x-3 pt-4">
       <Button type="button" variant="outline" onClick={() => setShowCustomPlanModal(false)}>
-        Cancel
+        {t('cancel')}
       </Button>
       <Button type="submit" className="flex-1" disabled={loading}>
-        {loading ? "Saving..." : "Save Custom Plan"}
+        {loading ? t('saving') : t('saveCustomPlan')}
       </Button>
     </div>
   </form>
