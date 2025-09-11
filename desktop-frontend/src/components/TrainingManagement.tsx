@@ -70,7 +70,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
   const handleEdit = (session: TrainingSession) => {
     setEditingSession(session);
     setFormData({
-      date: session.date,
+      date: new Date(session.date).toISOString().split('T')[0], // <-- FIX
       duration: session.duration,
       commands: session.commands.join(', '),
       progress: session.progress,
@@ -105,7 +105,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
   };
 
   const handleDelete = async (sessionId: string) => {
-    if (window.confirm('Are you sure you want to delete this training session?')) {
+    if (window.confirm(t('areSureDeleteRecord'))) {
       try {
         await apiClient.deleteTrainingSession(dogId, sessionId);
         await loadTrainingSessions();
@@ -144,11 +144,6 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            {t('training')} - {dogName}
-          </h3>
-        </div>
         <Button onClick={handleCreate}>
           <Plus size={20} className="mr-2" />
           {t('addTrainingSession')}
@@ -165,7 +160,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{totalSessions}</p>
-                <p className="text-sm text-gray-600">Total Sessions</p>
+                <p className="text-sm text-gray-600">{t('totalSessions')}</p>
               </div>
             </div>
           </Card>
@@ -176,7 +171,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{Math.round(totalDuration / 60)}h</p>
-                <p className="text-sm text-gray-600">Total Time</p>
+                <p className="text-sm text-gray-600">{t('totalTime')}</p>
               </div>
             </div>
           </Card>
@@ -187,7 +182,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{Math.round(averageProgress)}%</p>
-                <p className="text-sm text-gray-600">Success Rate</p>
+                <p className="text-sm text-gray-600">{t('successRate')}</p>
               </div>
             </div>
           </Card>
@@ -197,7 +192,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
       {trainingSessions.length === 0 ? (
         <Card className="text-center py-16">
           <Award size={48} className="mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500 mb-4">No training sessions recorded</p>
+          <p className="text-gray-500 mb-4">{t('noTrainingSessionsRecorded')}</p>
           <Button onClick={handleCreate}>
             {t('addTrainingSession')}
           </Button>
@@ -215,7 +210,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
-                        <h4 className="font-semibold text-gray-900">Training Session</h4>
+                        <h4 className="font-semibold text-gray-900">{t('trainingSession')}</h4>
                         <span className={`px-2 py-1 text-xs rounded-full ${getProgressColor(session.progress)}`}>
                           {session.progress}
                         </span>
@@ -227,12 +222,12 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
                         </div>
                         <div className="flex items-center text-gray-600">
                           <Clock size={16} className="mr-2" />
-                          {session.duration} minutes
+                          {session.duration} {t('minutes')}
                         </div>
                       </div>
                       {session.commands.length > 0 && (
                         <div className="mb-2">
-                          <p className="text-sm font-medium text-gray-700 mb-1">Commands practiced:</p>
+                          <p className="text-sm font-medium text-gray-700 mb-1">{t('commandsPracticed')}</p>
                           <div className="flex flex-wrap gap-1">
                             {session.commands.map((command, index) => (
                               <span
@@ -248,7 +243,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
                       <p className="text-sm text-gray-600 mb-2">{session.notes}</p>
                       {session.behavior_notes && (
                         <p className="text-sm text-gray-500 italic">
-                          Behavior notes: {session.behavior_notes}
+                          {t('behaviorNotes')}: {session.behavior_notes}
                         </p>
                       )}
                     </div>
@@ -276,20 +271,20 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingSession ? 'Edit Training Session' : 'Add Training Session'}
+        title={editingSession ? t('editTrainingSession') : t('addTrainingSession')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Date"
+              label={t('date')}
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               required
             />
             <Input
-              label="Duration (minutes)"
+              label={t('duration')}
               type="number"
               value={formData.duration.toString()}
               onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
@@ -298,14 +293,14 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
             />
           </div>
           <Input
-            label="Commands (comma separated)"
+            label={t('commandsPracticed')}
             value={formData.commands}
             onChange={(e) => setFormData({ ...formData, commands: e.target.value })}
-            placeholder="sit, stay, come, down"
+            placeholder={t('commands')}
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Progress
+              {t('progress')}
             </label>
             <select
               value={formData.progress}
@@ -313,15 +308,15 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               required
             >
-              <option value="excellent">Excellent</option>
-              <option value="good">Good</option>
-              <option value="fair">Fair</option>
-              <option value="needs-work">Needs Work</option>
+              <option value="excellent">{t('excellent')}</option>
+              <option value="good">{t('good')}</option>
+              <option value="fair">{t('fair')}</option>
+              <option value="needs-work">{t('needsWork')}</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Session Notes
+              {t('behaviorNotes')}
             </label>
             <textarea
               value={formData.notes}
@@ -333,7 +328,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Behavior Notes (optional)
+              {t('behaviorNotesDesc')}
             </label>
             <textarea
               value={formData.behavior_notes}

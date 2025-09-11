@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.markNotificationRead = exports.getNotifications = exports.updateProfile = exports.getProfile = exports.resetPassword = exports.forgotPassword = exports.login = exports.register = void 0;
+exports.changePassword = exports.markNotificationRead = exports.getNotifications = exports.updateProfile = exports.getProfile = exports.resetPassword = exports.forgotPassword = exports.login = exports.register = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const uuid_1 = require("uuid");
@@ -322,4 +322,31 @@ const markNotificationRead = async (req, res) => {
     }
 };
 exports.markNotificationRead = markNotificationRead;
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        // Get logged-in user
+        const result = await database_1.default.query('SELECT id, password_hash FROM users WHERE id = $1', [req.user.id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const user = result.rows[0];
+        // Check current password
+        const isMatch = await bcryptjs_1.default.compare(currentPassword, user.password_hash);
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Current password is incorrect' });
+        }
+        // Hash new password
+        const saltRounds = 12;
+        const newHash = await bcryptjs_1.default.hash(newPassword, saltRounds);
+        // Update DB
+        await database_1.default.query('UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [newHash, user.id]);
+        res.json({ message: 'Password updated successfully' });
+    }
+    catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.changePassword = changePassword;
 //# sourceMappingURL=authController.js.map

@@ -61,49 +61,49 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
             <Award className="mr-2 text-primary-700" />
-            Training Resources
+            {t('trainingResources')}
           </h3>
           <Card variant="gradient" className="h-[800px] overflow-y-auto">
             <div className="space-y-4">
               {[
                 {
-                  title: "Basic Obedience Training",
-                  description: "Learn the fundamentals of dog training",
+                  title: t('basicObedienceTraining'),
+                  description: t('learnFundamentals'),
                   videoId: "jFMA5ggFsXU",
                   duration: "5:56",
                   level: "Beginner"
                 },
                 {
-                  title: "House Training Your Puppy",
-                  description: "Complete guide to potty training",
+                  title:  t('houseTrainingPuppy'),
+                  description: t('completeGuideToHouseTraining'),
                   videoId: "Pptoq7avEKM",
                   duration: "4:50",
                   level: "Beginner"
                 },
                 {
-                  title: "Advanced Tricks Training",
-                  description: "Teach your dog amazing tricks",
+                  title: t('advancedTricksTraining'),
+                  description: t('teachAmazingTricks'),
                   videoId: "K1co_bZfs6w",
                   duration: "8:36",
                   level: "Advanced"
                 },
                 {
-                  title: "Leash Training Techniques",
-                  description: "Stop pulling and walk nicely",
+                  title: t('leashTrainingTechniques'),
+                  description: t('stopPullingWalkNicely'),
                   videoId: "tSvfVs4LKyg",
                   duration: "9:14",
                   level: "Intermediate"
                 },
                 {
-                  title: "Socialization Training",
-                  description: "Help your dog interact with others",
+                  title: t('socializationTraining'),
+                  description: t('helpDogInteractWithOthers'),
                   videoId: "ysxjfhmj4c0",
                   duration: "6:18",
                   level: "Beginner"
                 },
                 {
-                  title: "Agility Training Basics",
-                  description: "Introduction to dog agility",
+                  title: t('agilityTrainingBasics'),
+                  description: t('introductionToDogAgility'),
                   videoId: "vkxggodZzqc",
                   duration: "4:04",
                   level: "Advanced"
@@ -140,7 +140,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                         size="sm"
                         onClick={() => window.open(`https://www.youtube.com/watch?v=${video.videoId}`, '_blank')}
                       >
-                        Watch
+                        {t('watch')}
                       </Button>
                     </div>
                   </div>

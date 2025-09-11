@@ -74,6 +74,12 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
       body: JSON.stringify(userData),
     });
   }
+ async changePassword(data: { currentPassword: string; newPassword: string }) {
+  return this.request('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
 
   // Dog endpoints
   /*async getDogs() {

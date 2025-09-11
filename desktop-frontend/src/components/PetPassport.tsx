@@ -188,14 +188,14 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
                 <img src="/logo.png" alt="EU Logo" className="w-12 h-12" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">EUROPEAN UNION</h1>
-                <p className="text-blue-100">Pet Passport</p>
-                <p className="text-xs text-blue-200">Regulation (EU) No 576/2013</p>
+                <h1 className="text-2xl font-bold text-white">{t('europeanUnion')}</h1>
+                <p className="text-blue-100">{t('petPassport')}</p>
+                <p className="text-xs text-blue-200">{t('regulation')} (EU) No 576/2013</p>
               </div>
             </div>
             <div className="flex space-x-2">
               <Button variant="glass" size="sm" onClick={handlePrint} icon={<Print size={16} />}>
-                Print
+               {t('print')}
               </Button>
               <Button variant="glass" size="sm" onClick={handleDownload} icon={<Download size={16} />} data-download-btn>
                 {t('download')}
@@ -485,10 +485,11 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
                 <p className="text-sm opacity-90">{t('issuedBy')}: {t('bulgarianFoodSafetyAgency')}</p>
                 <p className="text-xs opacity-75">{t('dateOfIssue')}: {formatDate(dog.createdAt)}</p>
               </div>
-              <div className="flex items-center space-x-2">
+             
+          {/* <div className="flex items-center space-x-2">
                 <Star className="text-yellow-300" size={16} />
                 <span className="text-sm">{t('validForEUTravel')}</span>
-              </div>
+              </div>*/}
             </div>
           </div>
         </div>

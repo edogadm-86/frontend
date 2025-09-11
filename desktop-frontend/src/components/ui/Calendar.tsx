@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from './Button';
 import { Card } from './Card';
+import { useTranslation } from 'react-i18next';
 
 interface CalendarEvent {
   id: string;
@@ -29,6 +30,11 @@ export const Calendar: React.FC<CalendarProps> = ({
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'month' | 'week'>('month');
+  const { t } = useTranslation();
+
+  // Translated arrays
+  const monthNames: string[] = t('calendar.months', { returnObjects: true });
+  const weekDays: string[] = t('calendar.weekdays', { returnObjects: true });
 
   const today = new Date();
   const year = currentDate.getFullYear();
@@ -41,8 +47,8 @@ export const Calendar: React.FC<CalendarProps> = ({
   const daysInMonth = lastDayOfMonth.getDate();
 
   // Generate calendar days
-  const calendarDays = [];
-  
+  const calendarDays: { date: Date; isCurrentMonth: boolean }[] = [];
+
   // Previous month days
   const prevMonth = new Date(year, month - 1, 0);
   for (let i = firstDayWeekday - 1; i >= 0; i--) {
@@ -51,7 +57,7 @@ export const Calendar: React.FC<CalendarProps> = ({
       isCurrentMonth: false
     });
   }
-  
+
   // Current month days
   for (let day = 1; day <= daysInMonth; day++) {
     calendarDays.push({
@@ -59,7 +65,7 @@ export const Calendar: React.FC<CalendarProps> = ({
       isCurrentMonth: true
     });
   }
-  
+
   // Next month days to fill the grid
   const remainingDays = 42 - calendarDays.length;
   for (let day = 1; day <= remainingDays; day++) {
@@ -82,7 +88,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   };
 
   const getEventsForDate = (date: Date) => {
-    return events.filter(event => 
+    return events.filter(event =>
       event.date.toDateString() === date.toDateString()
     );
   };
@@ -94,13 +100,6 @@ export const Calendar: React.FC<CalendarProps> = ({
   const isSelected = (date: Date) => {
     return selectedDate && date.toDateString() === selectedDate.toDateString();
   };
-
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <Card className="p-6">
@@ -114,26 +113,26 @@ export const Calendar: React.FC<CalendarProps> = ({
             <button
               onClick={() => setView('month')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                view === 'month' 
-                  ? 'bg-primary-500 text-white' 
+                view === 'month'
+                  ? 'bg-primary-500 text-white'
                   : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
             >
-              Month
+              {t('calendar.month')}
             </button>
             <button
               onClick={() => setView('week')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                view === 'week' 
-                  ? 'bg-primary-500 text-white' 
+                view === 'week'
+                  ? 'bg-primary-500 text-white'
                   : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
             >
-              Week
+              {t('calendar.week')}
             </button>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -146,7 +145,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             size="sm"
             onClick={() => setCurrentDate(new Date())}
           >
-            Today
+            {t('calendar.today')}
           </Button>
           <Button
             variant="outline"
@@ -158,18 +157,25 @@ export const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Calendar Grid */}
-      <div className={`grid grid-cols-7 gap-1 ${view === 'week' ? 'min-h-[200px]' : ''}`}>
+      <div
+        className={`grid grid-cols-7 gap-1 ${
+          view === 'week' ? 'min-h-[200px]' : ''
+        }`}
+      >
         {/* Week day headers */}
-        {weekDays.map(day => (
-          <div key={day} className="p-3 text-center text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg dark:bg-gray-700 dark:text-gray-300">
+        {weekDays.map((day, idx) => (
+          <div
+            key={idx}
+            className="p-3 text-center text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg dark:bg-gray-700 dark:text-gray-300"
+          >
             {day}
           </div>
         ))}
-        
+
         {/* Calendar days */}
         {calendarDays.map((day, index) => {
           const dayEvents = getEventsForDate(day.date);
-          
+
           return (
             <div
               key={index}
@@ -180,25 +186,39 @@ export const Calendar: React.FC<CalendarProps> = ({
                 }
               }}
               className={`
-                ${view === 'week' ? 'min-h-[150px]' : 'min-h-[100px]'} p-2 border border-gray-100 rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:shadow-md dark:border-gray-600 dark:hover:bg-blue-900/20
+                ${
+                  view === 'week' ? 'min-h-[150px]' : 'min-h-[100px]'
+                } p-2 border border-gray-100 rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-50 hover:shadow-md dark:border-gray-600 dark:hover:bg-blue-900/20
                 ${!day.isCurrentMonth ? 'opacity-40' : ''}
-                ${isToday(day.date) ? 'bg-gradient-to-br from-blue-100 to-cyan-100 border-blue-300 dark:from-blue-900/50 dark:to-cyan-900/50' : 'bg-white dark:bg-gray-800'}
+                ${
+                  isToday(day.date)
+                    ? 'bg-gradient-to-br from-blue-100 to-cyan-100 border-blue-300 dark:from-blue-900/50 dark:to-cyan-900/50'
+                    : 'bg-white dark:bg-gray-800'
+                }
                 ${isSelected(day.date) ? 'ring-2 ring-primary-500' : ''}
               `}
             >
-              <div className={`
+              <div
+                className={`
                 text-sm font-medium mb-1
-                ${isToday(day.date) ? 'text-blue-700 dark:text-blue-300' : day.isCurrentMonth ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}
-              `}>
+                ${
+                  isToday(day.date)
+                    ? 'text-blue-700 dark:text-blue-300'
+                    : day.isCurrentMonth
+                    ? 'text-gray-900 dark:text-white'
+                    : 'text-gray-400 dark:text-gray-500'
+                }
+              `}
+              >
                 {day.date.getDate()}
               </div>
-              
+
               {/* Events for this day */}
               <div className="space-y-1">
                 {dayEvents.slice(0, 3).map(event => (
                   <div
                     key={event.id}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       onEventClick(event);
                     }}
@@ -217,7 +237,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                   </div>
                 )}
               </div>
-              
+
               {/* Add event button for empty days */}
               {dayEvents.length === 0 && day.isCurrentMonth && (
                 <div className="flex items-center justify-center h-full opacity-0 group-hover:opacity-100 transition-opacity">
@@ -233,19 +253,27 @@ export const Calendar: React.FC<CalendarProps> = ({
       <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-          <span className="text-gray-600 dark:text-gray-300">Vet Appointments</span>
+          <span className="text-gray-600 dark:text-gray-300">
+            {t('calendar.legend.vet')}
+          </span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-          <span className="text-gray-600 dark:text-gray-300">Grooming</span>
+          <span className="text-gray-600 dark:text-gray-300">
+            {t('calendar.legend.grooming')}
+          </span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span className="text-gray-600 dark:text-gray-300">Training</span>
+          <span className="text-gray-600 dark:text-gray-300">
+            {t('calendar.legend.training')}
+          </span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-          <span className="text-gray-600 dark:text-gray-300">Other</span>
+          <span className="text-gray-600 dark:text-gray-300">
+            {t('calendar.legend.other')}
+          </span>
         </div>
       </div>
     </Card>

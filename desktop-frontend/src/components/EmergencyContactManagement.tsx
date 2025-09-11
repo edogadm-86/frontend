@@ -122,20 +122,20 @@ export const EmergencyContactManagement: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900">
             {t('emergencyContacts')}
           </h3>
-          <p className="text-gray-600">Manage emergency contacts for quick access</p>
+          <p className="text-gray-600">{t('manageEmergencyContacs')}</p>
         </div>
         <Button onClick={handleCreate}>
           <Plus size={20} className="mr-2" />
-          Add Contact
+          {t('addContacts')}
         </Button>
       </div>
 
       {contacts.length === 0 ? (
         <Card className="text-center py-16">
           <Phone size={48} className="mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500 mb-4">No emergency contacts added</p>
+          <p className="text-gray-500 mb-4"> {t('noEmergencyContacts')}</p>
           <Button onClick={handleCreate}>
-            Add Emergency Contact
+            {t('addEmergencyContact')}
           </Button>
         </Card>
       ) : (
@@ -199,19 +199,19 @@ export const EmergencyContactManagement: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingContact ? 'Edit Emergency Contact' : 'Add Emergency Contact'}
+        title={editingContact ? t('Edit Emergency Contact') : t('addEmergencyContact')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Name"
+            label={t('name')}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Type
+              {t('type')}
             </label>
             <select
               value={formData.type}
@@ -219,21 +219,21 @@ export const EmergencyContactManagement: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               required
             >
-              <option value="vet">Veterinarian</option>
-              <option value="emergency-vet">Emergency Vet</option>
-              <option value="poison-control">Poison Control</option>
-              <option value="other">Other</option>
+              <option value="vet">{t('veterinarian')}</option>
+              <option value="emergency-vet">{t('emergencyVet')}</option>
+              <option value="poison-control">{t('poisonControl')}</option>
+              <option value="other">{t('other')}</option>
             </select>
           </div>
           <Input
-            label="Phone Number"
+            label={t('phone')}
             type="tel"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             required
           />
           <Input
-            label="Address (optional)"
+            label={t('address')}
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
           />
@@ -244,7 +244,7 @@ export const EmergencyContactManagement: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, available_24h: e.target.checked })}
               className="mr-2"
             />
-            Available 24/7
+            {t('available 24/7')}
           </label>
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>

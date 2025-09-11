@@ -184,7 +184,7 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
       <div className="flex items-center justify-between">
         
         <Button onClick={() => handleAddEvent(new Date())} icon={<Plus size={16} />}>
-          Add Appointment
+          {t('addAppointment')}
         </Button>
       </div>
 
@@ -201,19 +201,19 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
       <Modal
         isOpen={showEventModal}
         onClose={() => setShowEventModal(false)}
-        title={selectedEvent ? 'Edit Appointment' : 'Add Appointment'}
+        title={selectedEvent ? t('editAppointment') : t('addAppointment')}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Title"
+            label={t('title')}
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             required
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
-              Type
+              {t('type')}
             </label>
             <select
               value={formData.type}
@@ -221,24 +221,24 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
               className="input-field"
               required
             >
-              <option value="vet">Vet Visit</option>
-              <option value="grooming">Grooming</option>
-              <option value="training">Training</option>
-              <option value="walk">Walk</option>
-              <option value="feeding">Feeding</option>
-              <option value="other">Other</option>
+              <option value="vet">{t('vetVisit')}</option>
+              <option value="grooming">{t('grooming')}</option>
+              <option value="training">{t('training')}</option>
+              <option value="walk">{t('walk')}</option>
+              <option value="feeding">{t('feeding')}</option>
+              <option value="other">{t('other')}</option>
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Date"
+              label={t('date')}
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               required
             />
             <Input
-              label="Time"
+              label={t('time')}
               type="time"
               value={formData.time}
               onChange={(e) => setFormData({ ...formData, time: e.target.value })}
@@ -246,13 +246,13 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
             />
           </div>
           <Input
-            label="Location (optional)"
+            label={t('location')}
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
-              Notes (optional)
+              {t('notes')}
             </label>
             <textarea
               value={formData.notes}
@@ -269,11 +269,11 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
                 onChange={(e) => setFormData({ ...formData, reminder: e.target.checked })}
                 className="mr-2"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Enable reminder</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">{t('enableReminder')}</span>
             </label>
             {formData.reminder && (
               <Input
-                label="Minutes before"
+                label={t('minutesBefore')}
                 type="number"
                 value={formData.reminder_time.toString()}
                 onChange={(e) => setFormData({ ...formData, reminder_time: parseInt(e.target.value) })}

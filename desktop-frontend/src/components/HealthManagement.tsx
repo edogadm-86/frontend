@@ -11,7 +11,7 @@ import { Dog } from '../types';
 import { formatDate } from '../lib/utils';
 import { useApp } from '../context/AppContext';
 import { apiClient } from '../lib/api';
-
+import { statusKeyFromBackend, statusKeyFromScore, actionKeyFromBackend, factorKeyFromBackend } from '../utils/healthI18n';
 
 interface HealthManagementProps {
   currentDog: Dog | null;
@@ -32,6 +32,25 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
   const [nutritionStats, setNutritionStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
 
+
+  const rawStatus = healthStatus?.status;
+  let statusKey = statusKeyFromBackend(rawStatus);
+  const nextActionKey = actionKeyFromBackend(healthStatus?.nextAction);
+  // If the text didn't map, derive from score
+  if (statusKey === 'unknown') {
+    const fromScore = statusKeyFromScore(healthStatus?.score);
+    if (fromScore) statusKey = fromScore;
+  }
+  // progressText stays the same as before, now using the resilient statusKey
+  const progressText =
+    statusKey === 'excellent'
+      ? t('excellentProgress')
+      : statusKey === 'good'
+        ? t('goodProgress')
+        : rawStatus
+          ? t('statusGeneric', { status: t(statusKey) })
+          : t('healthStatus');
+        
   useEffect(() => {
     if (currentDog?.id) {
       loadHealthStats();
@@ -100,7 +119,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
       icon: Shield, 
       label: t('vaccinations'), 
       value: vaccinationStatus, 
-      status: upToDateVaccinations.length === dogVaccinations.length && dogVaccinations.length > 0 ? 'Up to date' : 'Needs attention',
+      status: upToDateVaccinations.length === dogVaccinations.length && dogVaccinations.length > 0 ? t('upToDate') : t('needsAttention'),
       color: 'from-blue-500 to-cyan-500',
       bgColor: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20'
     },
@@ -108,7 +127,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
       icon: Heart, 
       label: t('healthScore'), 
       value: healthStatus?.score ? `${healthStatus.score}%` : 'No data', 
-      status: healthStatus?.status || 'Unknown',
+      status: t(statusKey),
       color: 'from-green-500 to-emerald-500',
       bgColor: 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
     },
@@ -116,7 +135,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
       icon: Apple, 
       label:  t('nutrition'), 
       value: nutritionScore, 
-      status: nutritionStats?.hasData ? 'Tracked' : 'Not tracked',
+      status: nutritionStats?.hasData ? t('tracked') : t('notTracked'),
       color: 'from-orange-500 to-amber-500',
       bgColor: 'from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20'
     },
@@ -124,7 +143,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
       icon: Activity, 
       label:  t('records'), 
       value: dogHealthRecords.length.toString(), 
-      status: 'Total entries',
+      status: t('totalEntries'),
       color: 'from-purple-500 to-violet-500',
       bgColor: 'from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20'
     },
@@ -270,43 +289,47 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
               </Card>
 
               {/* Health Insights */}
-              <Card variant="gradient" className="h-fit">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                  <TrendingUp className="mr-2 text-primary-500" />
-                  {t('healthInsights')}
-                </h3>
-                <div className="space-y-6">
-                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <Award size={20} className="text-green-600" />
-                      <span className="font-semibold text-green-800 dark:text-green-300">
-                        {healthStatus?.status === 'Excellent' ? 'Excellent Progress!' : 
-                         healthStatus?.status === 'Good' ? 'Good Progress!' :
-                         healthStatus?.status ? `${healthStatus.status} Status` : 'Health Status'}
-                      </span>
+                <Card variant="gradient" className="h-fit">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <TrendingUp className="mr-2 text-primary-500" />
+                    {t('healthInsights')}
+                  </h3>
+
+                  <div className="space-y-6">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <Award size={20} className="text-green-600" />
+                        <span className="font-semibold text-green-800 dark:text-green-300">
+                          {progressText}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-green-700 dark:text-green-400">
+                        {nextActionKey
+                          ? t(nextActionKey)
+                          : t('maintainingGoodHealth', { dogName: currentDog.name })}
+                      </p>
                     </div>
-                    <p className="text-sm text-green-700 dark:text-green-400">
-                      {healthStatus?.nextAction || `${currentDog.name} is maintaining good health with regular care.`}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Recommendations</h4>
-                    <div className="space-y-2">
-                      {healthStatus?.factors?.map((factor: string, index: number) => (
-                        <div key={index} className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{factor}</span>
-                        </div>
-                      )) || [
-                        <div key="default" className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="text-sm text-gray-700 dark:text-gray-300">Keep up regular checkups</span>
-                        </div>
-                      ]}
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">{t('recommendations')}</h4>
+                      <div className="space-y-2">
+                        {(healthStatus?.factors?.length ? healthStatus.factors : ['Keep up regular checkups'])
+                          .map((factor: string, index: number) => {
+                            const key = factorKeyFromBackend(factor);
+                            const text = key ? t(key) : factor; // fallback to raw if unmapped
+                            return (
+                              <div key={index} className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span className="text-sm text-gray-700 dark:text-gray-300">
+                                  {text}
+                                </span>
+                              </div>
+                            );
+                          })}
+                      </div>
                     </div>
                   </div>
-                </div>
               </Card>
             </div>
           )}

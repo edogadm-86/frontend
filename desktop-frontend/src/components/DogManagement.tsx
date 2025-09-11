@@ -189,7 +189,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
             {t('myDogs')}
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage your dog profiles
+            {t('manageDogProfile')}
           </p>
         </div>
         <Button onClick={handleCreateDog}>
@@ -198,7 +198,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
         </Button>
       </div>
 
-      {/* Search */}
+      {/* Search
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
@@ -208,7 +208,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="input-field pl-10"
         />
-      </div>
+      </div> */}
 
       {/* Dogs Grid */}
       {filteredDogs.length === 0 ? (
@@ -317,7 +317,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
           {/* Profile Picture Upload */}
           <div className="text-center">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Profile Picture
+              {t('profilePicture')}
             </label>
             <FileUpload
               variant="avatar"

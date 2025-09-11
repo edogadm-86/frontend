@@ -37,7 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navigationItems = [
     { id: 'dashboard', icon: Home, label: t('dashboard'), gradient: 'from-blue-500 to-cyan-500' },
     { id: 'health', icon: Heart, label: t('health'), gradient: 'from-red-500 to-pink-500' },
-    { id: 'calendar', icon: Calendar, label: t('calendar'), gradient: 'from-green-500 to-emerald-500' },
+    { id: 'calendar', icon: Calendar, label: t('calendar1'), gradient: 'from-green-500 to-emerald-500' },
     { id: 'training', icon: Award, label: t('training'), gradient: 'from-purple-500 to-violet-500' },
     { id: 'settings', icon: Settings, label: t('settings'), gradient: 'from-gray-500 to-slate-500' },
   ];
@@ -237,7 +237,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="text-center">
           {shouldShowExpanded ? (
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Made with <Heart size={12} className="inline text-red-500" /> for dogs
+              {t('madeWithLove')}<Heart size={12} className="inline text-red-500" /> {t('forDogs')}
             </p>
           ) : (
             <Heart size={16} className="text-red-500 mx-auto" />

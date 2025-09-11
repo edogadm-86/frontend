@@ -214,12 +214,12 @@ const loadVaccinations = async () => {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center text-gray-600">
                         <Calendar size={16} className="mr-2" />
-                        Given: {formatDate(vaccination.dateGiven)}
+                        {t('dateGiven')}: {formatDate(vaccination.dateGiven)}
                       </div>
                       {vaccination.nextDueDate && (
                         <div className="flex items-center text-gray-600">
                           <Calendar size={16} className="mr-2" />
-                          Due: {vaccination.nextDueDate && formatDate(vaccination.nextDueDate)}
+                          {t('nextDueDate')}: {vaccination.nextDueDate && formatDate(vaccination.nextDueDate)}
                         </div>
                       )}
                       <div className="flex items-center text-gray-600">
@@ -228,7 +228,7 @@ const loadVaccinations = async () => {
                       </div>
                       {vaccination.batchNumber && (
                         <div className="text-gray-600">
-                          Batch: {vaccination.batchNumber}
+                          {t('batchNumber')}: {vaccination.batchNumber}
                         </div>
                       )}
                     </div>

@@ -22,6 +22,7 @@ const uploads_1 = __importDefault(require("./routes/uploads"));
 const posts_1 = __importDefault(require("./routes/posts"));
 const events_1 = __importDefault(require("./routes/events"));
 const nutrition_1 = __importDefault(require("./routes/nutrition"));
+const public_1 = __importDefault(require("./routes/public"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
@@ -77,6 +78,8 @@ app.get('/health', (req, res) => {
         environment: process.env.NODE_ENV || 'development'
     });
 });
+//Public for lost and found
+app.use('/api/public', public_1.default);
 //Preflight handler
 app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {

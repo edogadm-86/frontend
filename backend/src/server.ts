@@ -21,6 +21,8 @@ import uploadsRoutes from './routes/uploads';
 import postsRoutes from './routes/posts';
 import eventsRoutes from './routes/events';
 import nutritionRoutes from './routes/nutrition';
+import publicRoutes from './routes/public';
+
 
 dotenv.config();
 
@@ -92,6 +94,10 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+
+//Public for lost and found
+app.use('/api/public', publicRoutes);
 
 //Preflight handler
 

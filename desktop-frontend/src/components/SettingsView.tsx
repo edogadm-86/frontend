@@ -61,6 +61,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
+  });
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -118,26 +123,46 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         await apiClient.updateProfile(profileData);
       }
       
-      alert('Preferences saved successfully!');
+      alert(t('preferencesSavedSuc'));
     } catch (error) {
       console.error('Error saving preferences:', error);
-      alert('Failed to save preferences');
+      alert(t('failedToSavePref'));
     }
   };
-
+ 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       // Here you would call your API to update profile
       await apiClient.updateProfile(profileData);
       setShowProfileModal(false);
-      alert('Profile updated successfully!');
+      alert(t('profileUpdatedSuc'));
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+      alert(t('failedUpdateProfile'));
     }
   };
+  // add submit handler
 
+    const handleChangePassword = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
+        alert(t('passwordsDoNotMatch'));
+        return;
+      }
+      try {
+        await apiClient.changePassword({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        });
+        alert(t('passwordUpdatedSuccess'));
+        setShowPasswordModal(false);
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+      } catch (err) {
+        console.error('Password update failed', err);
+        alert(t('failedToUpdatePassword'));
+      }
+    };
   // Load preferences on mount
   useEffect(() => {
     loadStatistics();
@@ -197,11 +222,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{user?.name || 'User'}</h3>
             <p className="text-gray-600 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">Member since January 2024</p>
           </div>
           <div className="ml-auto">
             <Button onClick={() => setShowProfileModal(true)} variant="outline">
-              Edit Profile
+             {t('editProfile')}
             </Button>
           </div>
         </div>
@@ -370,11 +394,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <Card variant="gradient">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <Key className="mr-2" />
-          Password & Authentication
+          {t('passwordAuthentication')}
         </h3>
         <div className="space-y-4">
           <Button onClick={() => setShowPasswordModal(true)} variant="outline" className="w-full">
-            Change Password
+             {t('changePassword')}
           </Button>
          
         </div>
@@ -615,65 +639,73 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <Modal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
-        title="Edit Profile"
+        title={t('editProfile')}
         size="md"
       >
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <Input 
-            label="Full Name" 
+            label={t('name')}
             value={profileData.name}
             onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
             required
           />
           <Input 
-            label="Email" 
+            label={t('email')} 
             type="email" 
             value={profileData.email}
             onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
             required
           />
           <Input 
-            label="Phone" 
+            label={t('phone')}
             type="tel" 
             value={profileData.phone}
             onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
           />
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setShowProfileModal(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button type="submit" className="flex-1">Save Changes</Button>
+            <Button type="submit" className="flex-1">{t('save')}</Button>
           </div>
         </form>
       </Modal>
       <Modal
         isOpen={showPasswordModal}
         onClose={() => setShowPasswordModal(false)}
-        title="Change Password"
+        title={t('changePassword')}
         size="md"
       >
-        <form className="space-y-4">
-          <Input label="Current Password" type="password" required />
-          <Input label="New Password" type="password" required />
-          <Input label="Confirm New Password" type="password" required />
-          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
-            <p className="text-sm text-blue-800 font-medium">Password Requirements:</p>
-            <ul className="text-xs text-blue-600 mt-1 space-y-1">
-              <li>• At least 8 characters long</li>
-              <li>• Contains uppercase and lowercase letters</li>
-              <li>• Contains at least one number</li>
-              <li>• Contains at least one special character</li>
-            </ul>
-          </div>
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" className="flex-1">Update Password</Button>
-          </div>
-        </form>
-      </Modal>
-
+          <form onSubmit={handleChangePassword} className="space-y-4">
+        <Input
+          label={t('currentPassword')}
+          type="password"
+          value={passwordForm.currentPassword}
+          onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+          required
+        />
+        <Input
+          label={t('newPassword')}
+          type="password"
+          value={passwordForm.newPassword}
+          onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+          required
+        />
+        <Input
+          label={t('confirmNewPassword')}
+          type="password"
+          value={passwordForm.confirmNewPassword}
+          onChange={(e) => setPasswordForm({ ...passwordForm, confirmNewPassword: e.target.value })}
+          required
+        />
+        <div className="flex space-x-3 pt-4">
+          <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
+            {t('cancel')}
+          </Button>
+          <Button type="submit" className="flex-1">{t('updatePassword')}</Button>
+        </div>
+      </form>
+    </Modal>
       <Modal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
