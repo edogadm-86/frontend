@@ -81,7 +81,7 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }*/
         async getDogs() {
         const response = await this.request<{ dogs: any[] }>('/dogs');
-        console.log("🐶 Raw dogs from backend:", response.dogs); 
+        //console.log("🐶 Raw dogs from backend:", response.dogs); 
         return {
         dogs: response.dogs.map((d) => ({
           ...d, // keeps original snake_case keys (e.g. date_of_birth, profile_picture, etc.)
@@ -148,9 +148,7 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
 
   // Other endpoints (vaccinations, health records, etc.)
-  async getVaccinations(dogId: string) {
-    return this.request<{ vaccinations: any[] }>(`/vaccinations/dog/${dogId}`);
-  }
+ 
 
   async getHealthRecords(dogId: string) {
     return this.request<{ healthRecords: any[] }>(`/health/dog/${dogId}`);
@@ -166,6 +164,10 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
 
   async getEmergencyContacts() {
     return this.request<{ emergencyContacts: any[] }>('/emergency');
+  }
+  
+  async getVaccinations(dogId: string) {
+    return this.request<{ vaccinations: any[] }>(`/vaccinations/dog/${dogId}`);
   }
 
   // Vaccination endpoints
@@ -384,13 +386,18 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
       body: JSON.stringify(mealData),
     });
   }
+  async updateEntireMealPlan(dogId: string, data: { mealPlan: any[], nutrition_record_id?: string }) {
+  return this.request(`/nutrition/dog/${dogId}/meal-plan`, {
+    method: 'PUT',
+    body: JSON.stringify(data),   // ✅ not wrapped again
+  });
+}
 
-  async updateEntireMealPlan(dogId: string, mealPlan: any[]) {
-    return this.request<{ mealPlan: any[] }>(`/nutrition/dog/${dogId}/meal-plan`, {
-      method: 'PUT',
-      body: JSON.stringify({ mealPlan }),
-    });
-  }
+
+
+    async getMealsForRecord(dogId: string, recordId: string) {
+      return this.request<{ meals: any[] }>(`/nutrition/dog/${dogId}/records/${recordId}/meals`);
+    }
 
   async deleteMealPlan(dogId: string, mealId: string) {
     return this.request(`/nutrition/dog/${dogId}/meal-plan/${mealId}`, { method: 'DELETE' });

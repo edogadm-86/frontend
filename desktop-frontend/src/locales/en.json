@@ -523,5 +523,7 @@
   "puppyKibble": "Puppy Kibble",
   "selectOption":"Select",
   "male":"Male",
-  "female":"Female"
+  "female":"Female",
+  "attachedDocuments": "Attached Documents",
+  "attachment": "Attachment"
 }

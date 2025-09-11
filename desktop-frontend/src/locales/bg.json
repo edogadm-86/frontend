@@ -527,6 +527,8 @@
   "Distinctive Features":"Отличителни белези",
   "selectOption":"Избери",
   "male":"Мъж",
-  "female":"Жена"
+  "female":"Жена",
+  "attachedDocuments": "Прикачени Документи",
+  "attachment": "Прикачени"
   
 }

@@ -9,6 +9,7 @@ import {
   updateMealPlan,
   deleteMealPlan,
   updateEntireMealPlan,
+  getMealsForRecord,
   getNutritionStats
 } from '../controllers/nutritionController';
 import { authenticateToken } from '../middleware/auth';
@@ -24,6 +25,8 @@ router.get('/dog/:dogId/records', getNutritionRecords);
 router.post('/dog/:dogId/records', validateNutritionRecord, validateRequest, createNutritionRecord);
 router.put('/dog/:dogId/records/:id', validateNutritionRecord, validateRequest, updateNutritionRecord);
 router.delete('/dog/:dogId/records/:id', deleteNutritionRecord);
+router.get('/dog/:dogId/records/:recordId/meals', getMealsForRecord);
+
 
 // Meal plan routes
 router.get('/dog/:dogId/meal-plan', getMealPlan);

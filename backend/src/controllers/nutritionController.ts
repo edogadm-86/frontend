@@ -17,17 +17,30 @@ export const getNutritionRecords = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Dog not found' });
     }
 
-    const result = await pool.query(
+    // Get nutrition records
+    const recordsRes = await pool.query(
       'SELECT * FROM nutrition_records WHERE dog_id = $1 ORDER BY date DESC',
       [dogId]
     );
 
-    res.json({ nutritionRecords: result.rows });
+    const records = recordsRes.rows;
+
+    // Attach meals for each record
+    for (const record of records) {
+      const mealsRes = await pool.query(
+        'SELECT * FROM meal_plans WHERE dog_id = $1 AND nutrition_record_id = $2 ORDER BY meal_time ASC',
+        [dogId, record.id]
+      );
+      record.meals = mealsRes.rows; // ✅ add meals to record
+    }
+
+    res.json({ nutritionRecords: records });
   } catch (error) {
     console.error('Get nutrition records error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 export const createNutritionRecord = async (req: AuthRequest, res: Response) => {
   try {
@@ -187,8 +200,15 @@ export const getMealPlan = async (req: AuthRequest, res: Response) => {
 export const createMealPlan = async (req: AuthRequest, res: Response) => {
   try {
     const { dogId } = req.params;
-    const { meal_time, food_type, amount, calories } = req.body;
-
+    const { meal_time, food_type, amount, calories, nutrition_record_id } = req.body;
+    let recordId = nutrition_record_id;
+        if (!recordId) {
+      const latest = await pool.query(
+        'SELECT id FROM nutrition_records WHERE dog_id = $1 ORDER BY date DESC LIMIT 1',
+        [dogId]
+      );
+      recordId = latest.rows[0]?.id || null;
+    }
     // Verify dog belongs to user
     const dogCheck = await pool.query(
       'SELECT id FROM dogs WHERE id = $1 AND user_id = $2',
@@ -201,10 +221,9 @@ export const createMealPlan = async (req: AuthRequest, res: Response) => {
 
     const mealId = uuidv4();
     const result = await pool.query(
-      'INSERT INTO meal_plans (id, dog_id, meal_time, food_type, amount, calories) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [mealId, dogId, meal_time, food_type, amount, calories]
+      'INSERT INTO meal_plans (id, dog_id, meal_time, food_type, amount, calories, nutrition_record_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [mealId, dogId, meal_time, food_type, amount, calories, recordId]
     );
-
     res.status(201).json({
       message: 'Meal plan entry created successfully',
       mealPlan: result.rows[0]
@@ -218,21 +237,31 @@ export const createMealPlan = async (req: AuthRequest, res: Response) => {
 export const updateMealPlan = async (req: AuthRequest, res: Response) => {
   try {
     const { dogId, id } = req.params;
-    const { meal_time, food_type, amount, calories, is_active } = req.body;
+    const { meal_time, food_type, amount, calories, is_active, nutrition_record_id } = req.body;
 
-    // Verify dog belongs to user
     const dogCheck = await pool.query(
       'SELECT id FROM dogs WHERE id = $1 AND user_id = $2',
       [dogId, req.user!.id]
     );
-
     if (dogCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Dog not found' });
     }
 
     const result = await pool.query(
-      'UPDATE meal_plans SET meal_time = $1, food_type = $2, amount = $3, calories = $4, is_active = $5, updated_at = CURRENT_TIMESTAMP WHERE id = $6 AND dog_id = $7 RETURNING *',
-      [meal_time, food_type, amount, calories, is_active !== false, id, dogId]
+      `UPDATE meal_plans 
+       SET meal_time = $1, food_type = $2, amount = $3, calories = $4, is_active = $5,
+           nutrition_record_id = $6, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $7 AND dog_id = $8 RETURNING *`,
+      [
+        meal_time,
+        food_type,
+        amount,
+        calories,
+        is_active !== false,
+        nutrition_record_id || null,
+        id,
+        dogId
+      ]
     );
 
     if (result.rows.length === 0) {
@@ -247,6 +276,17 @@ export const updateMealPlan = async (req: AuthRequest, res: Response) => {
     console.error('Update meal plan error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+};
+
+export const getMealsForRecord = async (req: AuthRequest, res: Response) => {
+  const { dogId, recordId } = req.params;
+
+  const result = await pool.query(
+    'SELECT * FROM meal_plans WHERE dog_id = $1 AND nutrition_record_id = $2 ORDER BY meal_time ASC',
+    [dogId, recordId]
+  );
+
+  res.json({ meals: result.rows });
 };
 
 export const deleteMealPlan = async (req: AuthRequest, res: Response) => {
@@ -282,46 +322,43 @@ export const deleteMealPlan = async (req: AuthRequest, res: Response) => {
 export const updateEntireMealPlan = async (req: AuthRequest, res: Response) => {
   try {
     const { dogId } = req.params;
-    const { mealPlan } = req.body; // Array of meal plan entries
-
-    // Verify dog belongs to user
+    const { mealPlan, nutrition_record_id } = req.body;
+    let recordId = nutrition_record_id;
+    if (!recordId) {
+      const latest = await pool.query(
+        'SELECT id FROM nutrition_records WHERE dog_id = $1 ORDER BY date DESC LIMIT 1',
+        [dogId]
+      );
+      recordId = latest.rows[0]?.id || null;
+    }
     const dogCheck = await pool.query(
       'SELECT id FROM dogs WHERE id = $1 AND user_id = $2',
       [dogId, req.user!.id]
     );
-
     if (dogCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Dog not found' });
     }
 
-    // Start transaction
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
-      // Deactivate all existing meal plans for this dog
-      await client.query(
-        'UPDATE meal_plans SET is_active = false WHERE dog_id = $1',
-        [dogId]
-      );
+      await client.query('UPDATE meal_plans SET is_active = false WHERE dog_id = $1', [dogId]);
 
-      // Insert new meal plan entries
       const newMealPlan = [];
       for (const meal of mealPlan) {
         const mealId = uuidv4();
         const result = await client.query(
-          'INSERT INTO meal_plans (id, dog_id, meal_time, food_type, amount, calories) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-          [mealId, dogId, meal.meal_time, meal.food_type, meal.amount, meal.calories]
-        );
+           `INSERT INTO meal_plans (id, dog_id, meal_time, food_type, amount, calories, nutrition_record_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+            [mealId, dogId, meal.meal_time, meal.food_type, meal.amount, meal.calories, recordId]
+          );
         newMealPlan.push(result.rows[0]);
       }
 
       await client.query('COMMIT');
 
-      res.json({
-        message: 'Meal plan updated successfully',
-        mealPlan: newMealPlan
-      });
+      res.json({ message: 'Meal plan updated successfully', mealPlan: newMealPlan });
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;

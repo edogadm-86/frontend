@@ -8,22 +8,16 @@ import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
+import { API_BASE_URL } from '../config';
+import { HealthRecord } from '../types';
+
 
 interface HealthRecordManagementProps {
   dogId: string;
   dogName: string;
 }
 
-interface HealthRecord {
-  id: string;
-  date: string;
-  type: 'vet-visit' | 'medication' | 'illness' | 'injury' | 'other';
-  title: string;
-  description: string;
-  veterinarian?: string;
-  medication?: string;
-  dosage?: string;
-}
+
 
 export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   dogId,
@@ -50,14 +44,44 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   }, [dogId]);
 
   const loadHealthRecords = async () => {
-    try {
-      const response = await apiClient.getHealthRecords(dogId);
-      setHealthRecords(response.healthRecords);
-    } catch (error) {
-      console.error('Error loading health records:', error);
-    }
-  };
+  try {
+    const [recordsRes, documentsRes] = await Promise.all([
+      apiClient.getHealthRecords(dogId),
+      apiClient.getDocuments(dogId),
+    ]);
 
+    const documentsByRecord: Record<string, any[]> = {};
+    documentsRes.documents.forEach((doc: any) => {
+      if (doc.health_record_id) {
+        if (!documentsByRecord[doc.health_record_id]) {
+          documentsByRecord[doc.health_record_id] = [];
+        }
+        documentsByRecord[doc.health_record_id].push({
+          id: doc.id,
+          url: `${API_BASE_URL}/uploads/file/${doc.filename}`,
+          name: doc.name || doc.originalName || "Attachment",
+        });
+      }
+    });
+
+    const normalized = recordsRes.healthRecords.map((r: any) => ({
+      id: r.id,
+      dogId: r.dog_id,
+      date: r.date,
+      type: r.type,
+      title: r.title,
+      description: r.description,
+      veterinarian: r.veterinarian,
+      medication: r.medication,
+      dosage: r.dosage,
+      documents: documentsByRecord[r.id] || [],
+    }));
+
+    setHealthRecords(normalized);
+  } catch (error) {
+    console.error("Error loading health records:", error);
+  }
+};
   const handleCreate = () => {
     setEditingRecord(null);
     setUploadedFiles([]);
@@ -77,7 +101,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
     setEditingRecord(record);
     setUploadedFiles([]);
     setFormData({
-      date: record.date,
+      date: record.date ? new Date(record.date).toISOString().split('T')[0] : '',
       type: record.type,
       title: record.title,
       description: record.description,
@@ -200,6 +224,44 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                           {record.dosage && ` - ${record.dosage}`}
                         </div>
                       )}
+                      {record.documents && record.documents.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-sm font-medium text-gray-700 flex items-center">
+                          <Paperclip size={14} className="mr-1" />
+                          {t('attachedDocuments')}
+                        </p>
+                        <ul className="mt-1 space-y-1">
+                          {record.documents.map((doc, i) => (
+                            <li key={doc.id || i} className="flex items-center justify-between">
+                              <a
+                                href={doc.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline text-sm"
+                              >
+                                {doc.name || `Document ${i + 1}`}
+                              </a>
+                              <button
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  if (window.confirm('Delete this attachment?')) {
+                                    try {
+                                      await apiClient.deleteDocument(doc.id);
+                                      await loadHealthRecords();
+                                    } catch (err) {
+                                      console.error('Error deleting document:', err);
+                                    }
+                                  }
+                                }}
+                                className="ml-2 text-red-600 hover:text-red-800 text-sm"
+                              >
+                                {t('delete')}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     </div>
                   </div>
                 </div>
@@ -293,25 +355,28 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
           </div>
           
           {/* File Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Attach Documents (optional)
-            </label>
-            <FileUpload
-              acceptedTypes="image/*,.pdf,.doc,.docx"
-              maxSize={10}
-              dogId={dogId}
-              healthRecordId={editingRecord?.id}
-              documentType="health_document"
-              onFileUploaded={handleFileUploaded}
-              multiple={true}
-            />
-            {uploadedFiles.length > 0 && (
-              <div className="mt-2 text-sm text-green-600">
-                {uploadedFiles.length} file(s) uploaded successfully
-              </div>
-            )}
-          </div>
+         {editingRecord && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Attach Documents (optional)
+              </label>
+              <FileUpload
+                acceptedTypes="image/*,.pdf,.doc,.docx"
+                maxSize={10}
+                dogId={dogId}
+                healthRecordId={editingRecord.id}
+                documentType="health_document"
+                onFileUploaded={handleFileUploaded}
+                multiple={true}
+              />
+              {uploadedFiles.length > 0 && (
+                <div className="mt-2 text-sm text-green-600">
+                  {uploadedFiles.length} file(s) uploaded successfully
+                </div>
+              )}
+            </div>
+          )}
+
           
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>

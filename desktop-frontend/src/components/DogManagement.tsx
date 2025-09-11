@@ -72,7 +72,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   };
 
   const handleEditDog = (dog: Dog) => {
-    console.log("✅ Mapped dog:", dog);
+    //console.log("✅ Mapped dog:", dog);
     const dob =
       dog.dateOfBirth instanceof Date
         ? dog.dateOfBirth
@@ -115,7 +115,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
       features: formData.features || undefined,
     };
 
-    console.log('Submitting dog payload:', dogData);
+    //console.log('Submitting dog payload:', dogData);
 
     try {
       if (editingDog) {
@@ -168,7 +168,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   };
 
   const handleFileUploaded = (fileUrl: string) => {
-    console.log('✅ Final fileUrl from backend:', fileUrl);
+    //console.log('✅ Final fileUrl from backend:', fileUrl);
     setFormData((prev) => ({
       ...prev,
       profilePicture: normalizeUploadUrl(fileUrl),

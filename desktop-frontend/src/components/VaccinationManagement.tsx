@@ -8,6 +8,7 @@ import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
+import { API_BASE_URL } from '../config';
 
 interface VaccinationManagementProps {
   dogId: string;
@@ -16,14 +17,17 @@ interface VaccinationManagementProps {
 
 interface Vaccination {
   id: string;
-  vaccine_name: string;
-  vaccine_type: string;
-  date_given: string;
-  next_due_date?: string;
+  dogId: string;
+  vaccineName: string;
+  vaccineType: string;
+  dateGiven: string;        // string because it comes from API, but ISO date
+  nextDueDate?: string;
   veterinarian: string;
-  batch_number?: string;
+  batchNumber?: string;
   notes?: string;
+  documents?: { url: string; name: string }[];
 }
+
 
 export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
   dogId,
@@ -36,23 +40,54 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
   const [loading, setLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [formData, setFormData] = useState({
-    vaccine_name: '',
-    vaccine_type: '',
-    date_given: '',
-    next_due_date: '',
-    veterinarian: '',
-    batch_number: '',
-    notes: '',
+      vaccineName: '',
+      vaccineType: '',
+      dateGiven: '',
+      nextDueDate: '',
+      veterinarian: '',
+      batchNumber: '',
+      notes: '',
   });
 
   useEffect(() => {
     loadVaccinations();
   }, [dogId]);
 
-  const loadVaccinations = async () => {
-    try {
-      const response = await apiClient.getVaccinations(dogId);
-      setVaccinations(response.vaccinations);
+const loadVaccinations = async () => {
+  try {
+    const [vaccinationsRes, documentsRes] = await Promise.all([
+      apiClient.getVaccinations(dogId),
+      apiClient.getDocuments(dogId),
+    ]);
+
+    const documentsByVaccination: Record<string, any[]> = {};
+    documentsRes.documents.forEach((doc: any) => {
+        if (doc.vaccination_id) {
+          if (!documentsByVaccination[doc.vaccination_id]) {
+            documentsByVaccination[doc.vaccination_id] = [];
+          }
+          documentsByVaccination[doc.vaccination_id].push({
+            id: doc.id,  // 👈 keep the document id for delete
+            url: `${API_BASE_URL}/uploads/file/${doc.filename}`, // 👈 direct download URL
+            name: doc.name || doc.originalName || "Attachment",
+          });
+        }
+      });
+
+    const normalized = vaccinationsRes.vaccinations.map((v: any) => ({
+      id: v.id,
+      dogId: v.dog_id,
+      vaccineName: v.vaccine_name,
+      vaccineType: v.vaccine_type,
+      dateGiven: v.date_given,
+      nextDueDate: v.next_due_date,
+      veterinarian: v.veterinarian,
+      batchNumber: v.batch_number,
+      notes: v.notes,
+      documents: documentsByVaccination[v.id] || [],
+    }));
+
+    setVaccinations(normalized);
     } catch (error) {
       console.error('Error loading vaccinations:', error);
     }
@@ -62,12 +97,12 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
     setEditingVaccination(null);
     setUploadedFiles([]);
     setFormData({
-      vaccine_name: '',
-      vaccine_type: '',
-      date_given: '',
-      next_due_date: '',
+      vaccineName: '',
+      vaccineType: '',
+      dateGiven: '',
+      nextDueDate: '',
       veterinarian: '',
-      batch_number: '',
+      batchNumber: '',
       notes: '',
     });
     setIsModalOpen(true);
@@ -77,12 +112,12 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
     setEditingVaccination(vaccination);
     setUploadedFiles([]);
     setFormData({
-      vaccine_name: vaccination.vaccine_name,
-      vaccine_type: vaccination.vaccine_type,
-      date_given: vaccination.date_given,
-      next_due_date: vaccination.next_due_date || '',
+      vaccineName: vaccination.vaccineName,
+      vaccineType: vaccination.vaccineType,
+      dateGiven: vaccination.dateGiven ? vaccination.dateGiven.split('T')[0] : '', // 👈 ensures date input sees YYYY-MM-DD
+      nextDueDate: vaccination.nextDueDate ? vaccination.nextDueDate.split('T')[0] : '',
       veterinarian: vaccination.veterinarian,
-      batch_number: vaccination.batch_number || '',
+      batchNumber: vaccination.batchNumber || '',
       notes: vaccination.notes || '',
     });
     setIsModalOpen(true);
@@ -91,12 +126,21 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+     // Convert camelCase formData → snake_case for backend
+      const payload = {
+        vaccine_name: formData.vaccineName,
+        vaccine_type: formData.vaccineType,
+        date_given: formData.dateGiven,
+        next_due_date: formData.nextDueDate || null,
+        veterinarian: formData.veterinarian,
+        batch_number: formData.batchNumber || null,
+        notes: formData.notes || null,
+      };
     try {
       if (editingVaccination) {
-        await apiClient.updateVaccination(dogId, editingVaccination.id, formData);
+        await apiClient.updateVaccination(dogId, editingVaccination.id, payload);
       } else {
-        await apiClient.createVaccination(dogId, formData);
+        await apiClient.createVaccination(dogId, payload);
       }
       await loadVaccinations();
       setIsModalOpen(false);
@@ -119,8 +163,14 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
     }
   };
 
-  const handleFileUploaded = (fileUrl: string, fileName: string) => {
+  const handleFileUploaded = async (fileUrl: string, fileName: string) => {
     setUploadedFiles(prev => [...prev, fileUrl]);
+    try {
+    // reload vaccinations so new file shows up
+    await loadVaccinations();
+  } catch (err) {
+    console.error('Error refreshing vaccinations after file upload:', err);
+  }
   };
   return (
     <div className="space-y-6">
@@ -156,29 +206,29 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
                   </div>
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-900">
-                      {vaccination.vaccine_name}
+                      {vaccination.vaccineName}
                     </h4>
                     <p className="text-sm text-gray-600 mb-2">
-                      {vaccination.vaccine_type}
+                      {vaccination.vaccineType}
                     </p>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center text-gray-600">
                         <Calendar size={16} className="mr-2" />
-                        Given: {formatDate(vaccination.date_given)}
+                        Given: {formatDate(vaccination.dateGiven)}
                       </div>
-                      {vaccination.next_due_date && (
+                      {vaccination.nextDueDate && (
                         <div className="flex items-center text-gray-600">
                           <Calendar size={16} className="mr-2" />
-                          Due: {formatDate(vaccination.next_due_date)}
+                          Due: {vaccination.nextDueDate && formatDate(vaccination.nextDueDate)}
                         </div>
                       )}
                       <div className="flex items-center text-gray-600">
                         <User size={16} className="mr-2" />
                         {vaccination.veterinarian}
                       </div>
-                      {vaccination.batch_number && (
+                      {vaccination.batchNumber && (
                         <div className="text-gray-600">
-                          Batch: {vaccination.batch_number}
+                          Batch: {vaccination.batchNumber}
                         </div>
                       )}
                     </div>
@@ -186,6 +236,43 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
                       <p className="text-sm text-gray-600 mt-2">
                         {vaccination.notes}
                       </p>
+                    )}
+                    {vaccination.documents && vaccination.documents.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-sm font-medium text-gray-700 flex items-center">
+                          <Paperclip size={14} className="mr-1" />
+                          {t('attachedDocuments')}
+                        </p>
+                        <ul className="mt-1 space-y-1">
+                        {vaccination.documents.map((doc: any, i) => (
+                          <li key={doc.id || i} className="flex items-center justify-between">
+                            <a
+                              href={doc.url || doc.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline text-sm"
+                            >
+                              {`Document ${i + 1}`}
+                            </a>
+                            <button
+                              onClick={async () => {
+                                if (window.confirm('Delete this attachment?')) {
+                                  try {
+                                    await apiClient.deleteDocument(doc.id);
+                                    await loadVaccinations(); // refresh
+                                  } catch (err) {
+                                    console.error('Error deleting document:', err);
+                                  }
+                                }
+                              }}
+                              className="ml-2 text-red-600 hover:text-red-800 text-sm"
+                            >
+                              {t('delete')}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -218,29 +305,29 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Vaccine Name"
-            value={formData.vaccine_name}
-            onChange={(e) => setFormData({ ...formData, vaccine_name: e.target.value })}
+            value={formData.vaccineName}
+            onChange={(e) => setFormData({ ...formData, vaccineName: e.target.value })}
             required
           />
           <Input
             label="Vaccine Type"
-            value={formData.vaccine_type}
-            onChange={(e) => setFormData({ ...formData, vaccine_type: e.target.value })}
+            value={formData.vaccineType}
+            onChange={(e) => setFormData({ ...formData, vaccineType: e.target.value })}
             required
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Date Given"
               type="date"
-              value={formData.date_given}
-              onChange={(e) => setFormData({ ...formData, date_given: e.target.value })}
+              value={formData.dateGiven}
+              onChange={(e) => setFormData({ ...formData, dateGiven: e.target.value })}
               required
             />
             <Input
               label="Next Due Date (optional)"
               type="date"
-              value={formData.next_due_date}
-              onChange={(e) => setFormData({ ...formData, next_due_date: e.target.value })}
+              value={formData.nextDueDate}
+              onChange={(e) => setFormData({ ...formData, nextDueDate: e.target.value })}
             />
           </div>
           <Input
@@ -251,8 +338,8 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
           />
           <Input
             label="Batch Number (optional)"
-            value={formData.batch_number}
-            onChange={(e) => setFormData({ ...formData, batch_number: e.target.value })}
+            value={formData.batchNumber}
+            onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -267,6 +354,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
           </div>
           
           {/* File Upload */}
+          {editingVaccination && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Attach Documents (optional)
@@ -286,6 +374,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
               </div>
             )}
           </div>
+          )}
           
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>

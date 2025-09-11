@@ -27,6 +27,7 @@ interface NutritionRecord {
   supplements: string[];
   notes: string;
   weight_at_time: number;
+  meals?: MealPlan[];
 }
 
 interface MealPlan {
@@ -45,6 +46,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   const { nutritionRecords: allNutritionRecords, mealPlans: allMealPlans } = useApp();
   const [nutritionRecords, setNutritionRecords] = useState<NutritionRecord[]>([]);
   const [mealPlan, setMealPlan] = useState<MealPlan[]>([]);
+  const [meals, setMeals] = useState<any[]>([]);
   const [nutritionStats, setNutritionStats] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMealPlanModalOpen, setIsMealPlanModalOpen] = useState(false);
@@ -211,20 +213,27 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
   // NEW applyTemplate function
   const applyTemplate = async (template: any) => {
-    try {
-      setLoading(true);
-      await apiClient.createNutritionRecord(dogId, template.nutrition);
-      for (const meal of template.meals) {
-        await apiClient.createMealPlan(dogId, meal);
-      }
-      await loadNutritionData();
-      setShowTemplatesModal(false);
-    } catch (error) {
-      console.error("Error applying template:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const recordRes = await apiClient.createNutritionRecord(dogId, template.nutrition);
+    const recordId = recordRes.nutritionRecord.id;
+
+    // Use updateEntireMealPlan so it clears old and sets new
+    await apiClient.updateEntireMealPlan(dogId, {
+      mealPlan: template.meals,
+      nutrition_record_id: recordId,
+    });
+
+    await loadNutritionData();
+    setShowTemplatesModal(false);
+  } catch (error) {
+    console.error("Error applying template:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const handleCreate = () => {
     setEditingRecord(null);
@@ -252,6 +261,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       amount: '',
       calories: '',
     });
+    setMealModalContext('normal');
     setIsMealPlanModalOpen(true);
   };
 
@@ -281,6 +291,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       amount: meal.amount.toString(),
       calories: meal.calories.toString(),
     });
+    setMealModalContext('normal');
     setIsMealPlanModalOpen(true);
   };
 
@@ -334,9 +345,15 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       ]);
     } else {
       if (editingMeal) {
-        await apiClient.updateMealPlan(dogId, editingMeal.id, mealData);
+        await apiClient.updateMealPlan(dogId, editingMeal.id, {
+          ...mealData,
+          nutrition_record_id: editingRecord?.id, // ✅ tie meal to record
+        });
       } else {
-        await apiClient.createMealPlan(dogId, mealData);
+        await apiClient.createMealPlan(dogId, {
+          ...mealData,
+          nutrition_record_id: editingRecord?.id,
+        });
       }
       
       await loadNutritionData();
@@ -622,6 +639,21 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                         {record.notes && (
                           <p className="text-sm text-gray-600 dark:text-gray-400">{record.notes}</p>
                         )}
+                        {record.meals && record.meals.length > 0 && (
+                        <div className="mt-3">
+                          <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Meals in this plan:
+                          </h5>
+                          <ul className="space-y-1">
+                            {record.meals.map((meal: any) => (
+                              <li key={meal.id} className="text-sm text-gray-600 dark:text-gray-400">
+                                🍽 {meal.meal_time} — {meal.food_type} ({meal.amount}g, {meal.calories} cal)
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
                       </div>
                     </div>
                     <div className="flex space-x-2">
@@ -848,7 +880,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         isOpen={isMealPlanModalOpen}
         onClose={() => {
           setIsMealPlanModalOpen(false);
-          if (showCustomPlanModal === false) {
+          if (mealModalContext  === 'wizard') {
             // reopen wizard if we came from custom plan
             setShowCustomPlanModal(true);
           }
@@ -995,29 +1027,49 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   <form
     onSubmit={async (e) => {
       e.preventDefault();
+        //Validate required fields
+          if (!formData.food_brand.trim() || !formData.food_type.trim()) {
+            alert("Please fill in Food Brand and Food Type");
+            return;
+          }
+          if (!formData.calories_per_day || parseInt(formData.calories_per_day) <= 0) {
+            alert("Calories per Day must be greater than 0");
+            return;
+          }
+          if (!formData.daily_amount || parseFloat(formData.daily_amount) <= 0) {
+            alert("Daily Amount must be greater than 0");
+            return;
+          }
       setLoading(true);
       try {
         // Save the nutrition record
         const nutritionData = {
-          ...formData,
-          daily_amount: parseFloat(formData.daily_amount),
-          calories_per_day: parseInt(formData.calories_per_day),
-          protein_percentage: parseFloat(formData.protein_percentage),
-          fat_percentage: parseFloat(formData.fat_percentage),
-          carb_percentage: parseFloat(formData.carb_percentage),
+          date: formData.date || new Date().toISOString().split("T")[0],
+          food_brand: formData.food_brand.trim(),
+          food_type: formData.food_type.trim(),
+          daily_amount: parseFloat(formData.daily_amount) || 0,
+          calories_per_day: parseInt(formData.calories_per_day) || 0,
+          protein_percentage: parseFloat(formData.protein_percentage) || 0,
+          fat_percentage: parseFloat(formData.fat_percentage) || 0,
+          carb_percentage: parseFloat(formData.carb_percentage) || 0,
           supplements: formData.supplements
-            .split(",")
-            .map((s) => s.trim())
-            .filter((s) => s),
-          weight_at_time: parseFloat(formData.weight_at_time),
+            ? formData.supplements.split(",").map(s => s.trim()).filter(Boolean)
+            : [],
+          notes: formData.notes || "",
+          weight_at_time: parseFloat(formData.weight_at_time) || 0,
         };
+        console.log("Submitting nutritionData:", nutritionData);
 
         const createdRecord = await apiClient.createNutritionRecord(dogId, nutritionData);
+        const recordId = createdRecord.nutritionRecord.id;
 
         // Save all custom meals
-        for (const meal of customMeals) {
-          await apiClient.createMealPlan(dogId, meal);
-        }
+       for (const meal of customMeals) {
+          await apiClient.createMealPlan(dogId, {
+            ...meal,
+            nutrition_record_id: recordId,   // ✅ ensure meals point to this record
+          });
+}
 
         await loadNutritionData();
         setShowCustomPlanModal(false);
@@ -1047,7 +1099,81 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       />
     </div>
 
-    {/* ... keep the other nutrition record inputs (brand, type, macros, supplements, notes)... */}
+      <div className="grid grid-cols-2 gap-4">
+      <Input
+        label="Food Brand"
+        value={formData.food_brand}
+        onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })}
+        required
+      />
+      <Input
+        label="Food Type"
+        value={formData.food_type}
+        onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
+        required
+      />
+    </div>
+
+    <div className="grid grid-cols-2 gap-4">
+      <Input
+        label="Daily Amount (g)"
+        type="number"
+        value={formData.daily_amount}
+        onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })}
+        required
+      />
+      <Input
+        label="Calories per Day"
+        type="number"
+        value={formData.calories_per_day}
+        onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })}
+        required
+      />
+    </div>
+
+    <div className="grid grid-cols-3 gap-4">
+      <Input
+        label="Protein %"
+        type="number"
+        step="0.1"
+        value={formData.protein_percentage}
+        onChange={(e) => setFormData({ ...formData, protein_percentage: e.target.value })}
+      />
+      <Input
+        label="Fat %"
+        type="number"
+        step="0.1"
+        value={formData.fat_percentage}
+        onChange={(e) => setFormData({ ...formData, fat_percentage: e.target.value })}
+      />
+      <Input
+        label="Carbs %"
+        type="number"
+        step="0.1"
+        value={formData.carb_percentage}
+        onChange={(e) => setFormData({ ...formData, carb_percentage: e.target.value })}
+      />
+    </div>
+
+    <Input
+      label="Supplements (comma separated)"
+      value={formData.supplements}
+      onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
+      placeholder="Omega-3, Glucosamine, Multivitamin"
+    />
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        Notes
+      </label>
+      <textarea
+        value={formData.notes}
+        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+        className="input-field"
+        rows={3}
+        placeholder="Any observations about diet changes, preferences, etc."
+      />
+    </div>
 
     {/* Custom Meals section */}
     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">

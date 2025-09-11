@@ -243,7 +243,9 @@ const runMigrations = async () => {
         is_active BOOLEAN DEFAULT true,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        
       );
+    ALTER TABLE meal_plans ADD COLUMN nutrition_record_id UUID REFERENCES nutrition_records(id);
 
       -- Create trigger function for updating updated_at timestamp
       CREATE OR REPLACE FUNCTION update_updated_at_column()
