@@ -5,7 +5,6 @@ import { Input } from './ui/Input';
 import { Card } from './ui/Card';
 import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
-import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -21,12 +20,14 @@ import {
   ExternalLink,
   Download,
   Trash2,
+  Edit2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../lib/api';
+import { API_BASE_URL } from '../config';
 
-// ---------- Helpers (auth fetch + cross-platform open/download) ----------
+// ---------- Helpers ----------
 const getAuthToken = () => localStorage.getItem('authToken');
 
 const fetchBlobWithAuth = async (url: string) => {
@@ -49,13 +50,11 @@ const blobToBase64 = (blob: Blob): Promise<string> =>
 const openBlobWeb = (blob: Blob) => {
   const blobUrl = URL.createObjectURL(blob);
   window.open(blobUrl, '_blank', 'noopener,noreferrer');
-  // revoke later to allow load
   setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
 };
 
 const saveAndShareNative = async (blob: Blob, filename: string) => {
   const base64 = await blobToBase64(blob);
-  // write to temp dir
   const path = `${Date.now()}-${filename || 'document'}`;
   await Filesystem.writeFile({
     data: base64,
@@ -63,7 +62,6 @@ const saveAndShareNative = async (blob: Blob, filename: string) => {
     directory: Directory.Cache,
   });
   const fileUri = (await Filesystem.getUri({ path, directory: Directory.Cache })).uri;
-  // Share sheet (lets user preview/open in another app or save)
   await Share.share({
     title: filename || 'document',
     url: fileUri,
@@ -81,20 +79,35 @@ const triggerDownloadWeb = (blob: Blob, filename: string) => {
   setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 };
 
-type Attachment = {
-  url: string;
-  name: string;
-  mimeType?: string;
-};
+// ---------- Normalizer ----------
+function normalizeHealthRecord(r: any): HealthRecord {
+  return {
+    id: r.id,
+    dogId: r.dogId ?? r.dog_id,
+    type: r.type,
+    title: r.title,
+    description: r.description,
+    date: typeof r.date === 'string' ? new Date(r.date) : new Date(r.date),
+    veterinarian: r.veterinarian ?? '',
+    medication: r.medication ?? '',
+    dosage: r.dosage ?? '',
+    documents: r.documents ?? [],   // ✅ fix
+  };
+}
+
+
+// ---------- Component ----------
+type Attachment = { url: string; name: string; id?: string; mimeType?: string };
+
 
 export const HealthRecords: React.FC = () => {
-  const { currentDog, healthRecords } = useApp();
+  const { currentDog } = useApp();
   const { t } = useTranslation();
 
-  // create form / modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [editingRecord, setEditingRecord] = useState<HealthRecord | null>(null);
   const [formData, setFormData] = useState({
     type: 'vet-visit' as HealthRecord['type'],
     title: '',
@@ -105,52 +118,57 @@ export const HealthRecords: React.FC = () => {
     dosage: '',
   });
 
-  // attachments preview modal state
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewItems, setPreviewItems] = useState<Attachment[]>([]);
-
-  // inline document viewer (PDF etc.) inside modal
-  const [viewer, setViewer] = useState<{ url: string; name: string; mime?: string } | null>(null);
-
-  // documents grouped by healthRecordId
+  const [localRecords, setLocalRecords] = useState<HealthRecord[]>([]);
   const [docsByRecord, setDocsByRecord] = useState<Record<string, any[]>>({});
-
-  // optimistic deletions
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
 
-  // Load documents for current dog and group by health_record_id
+  // Refresh records + attachments
+  const refreshAll = async () => {
+    if (!currentDog) return;
+    try {
+      const { healthRecords } = await apiClient.getHealthRecords(currentDog.id);
+      setLocalRecords(healthRecords.map(normalizeHealthRecord));
+      const { documents } = await apiClient.getDocuments(currentDog.id);
+      const grouped: Record<string, any[]> = {};
+      for (const d of documents) {
+        const key = d.health_record_id || d.healthRecordId;
+        if (!key) continue;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(d);
+      }
+      setDocsByRecord(grouped);
+    } catch (err) {
+      console.error('Failed to refresh data:', err);
+    }
+  };
+
   useEffect(() => {
-    const loadDocs = async () => {
-      if (!currentDog) {
-        setDocsByRecord({});
-        return;
-      }
-      try {
-        const { documents } = await apiClient.getDocuments(currentDog.id);
-        const grouped: Record<string, any[]> = {};
-        for (const d of documents) {
-          const key = d.health_record_id || d.healthRecordId;
-          if (!key) continue;
-          if (!grouped[key]) grouped[key] = [];
-          grouped[key].push(d);
-        }
-        setDocsByRecord(grouped);
-      } catch (err) {
-        console.error('Failed to load documents:', err);
-      }
-    };
-    loadDocs();
+    refreshAll();
   }, [currentDog?.id]);
 
   const dogHealthRecords = useMemo(
     () =>
       (currentDog
-        ? healthRecords
+        ? localRecords
             .filter((r) => r.dogId === currentDog.id && !deletedIds.has(r.id))
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        : []) as HealthRecord[],
-    [currentDog, healthRecords, deletedIds]
+            .sort((a, b) => b.date.getTime() - a.date.getTime())
+        : []),
+    [localRecords, currentDog, deletedIds]
   );
+
+   const handleDeleteDoc = async (docId: string) => {
+  if (!window.confirm(t('Delete this attachment?'))) return;
+  try {
+    await apiClient.deleteDocument(docId);
+    await refreshAll(); // reload docs
+  } catch (err: any) {
+    if (String(err?.message || '').includes('Document not found')) {
+      console.warn('Attachment already deleted, ignoring.');
+    } else {
+      console.error('Error deleting document:', err);
+    }
+  }
+};
 
   const getTypeIcon = (type: HealthRecord['type']) => {
     switch (type) {
@@ -182,72 +200,56 @@ export const HealthRecords: React.FC = () => {
     }
   };
 
-  const isImage = (mime?: string, url?: string) => {
-    if (mime) return mime.startsWith('image/');
-    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url || '');
-  };
+  const isImage = (mime?: string, url?: string) =>
+    mime ? mime.startsWith('image/') : /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url || '');
 
-  const isPdf = (mime?: string, url?: string) => {
-    if (mime) return mime === 'application/pdf';
-    return /\.pdf$/i.test(url || '');
-  };
-
-  const openPreview = (items?: Attachment[]) => {
-    if (!items || !items.length) return;
-    setPreviewItems(items);
-    setPreviewOpen(true);
-    setViewer(null);
-  };
-
-  const refreshDocs = async () => {
-    if (!currentDog) return;
-    try {
-      const { documents } = await apiClient.getDocuments(currentDog.id);
-      const grouped: Record<string, any[]> = {};
-      for (const d of documents) {
-        const key = d.health_record_id || d.healthRecordId;
-        if (!key) continue;
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(d);
-      }
-      setDocsByRecord(grouped);
-    } catch (err) {
-      console.error('Failed to refresh documents:', err);
-    }
-  };
+  const isPdf = (mime?: string, url?: string) =>
+    mime ? mime === 'application/pdf' : /\.pdf$/i.test(url || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentDog) return;
-
     setLoading(true);
     try {
-      // 1) Create the record and obtain its ID
-      const { healthRecord } = await apiClient.createHealthRecord(currentDog.id, {
-        date: new Date(formData.date),
-        type: formData.type,
-        title: formData.title,
-        description: formData.description,
-        veterinarian: formData.veterinarian || undefined,
-        medication: formData.medication || undefined,
-        dosage: formData.dosage || undefined,
-      });
+      let recordId: string;
+      if (editingRecord) {
+        await apiClient.updateHealthRecord(currentDog.id, editingRecord.id, {
+          date: formData.date,
+          type: formData.type,
+          title: formData.title,
+          description: formData.description,
+          veterinarian: formData.veterinarian || null,
+          medication: formData.medication || null,
+          dosage: formData.dosage || null,
+        });
+        recordId = editingRecord.id;
+      } else {
+        const { healthRecord } = await apiClient.createHealthRecord(currentDog.id, {
+          dogId: currentDog.id, // ✅ required by type
+          date: new Date(formData.date),
+          type: formData.type,
+          title: formData.title,
+          description: formData.description,
+          veterinarian: formData.veterinarian || undefined,
+          medication: formData.medication || undefined,
+          dosage: formData.dosage || undefined,
+        });
 
-      // 2) Upload files tied to the new healthRecordId
+        recordId = healthRecord.id;
+      }
       if (files.length) {
         await Promise.all(
           files.map((f) =>
             apiClient.uploadFile(f, {
               dogId: currentDog.id,
-              healthRecordId: healthRecord.id,
-              documentType: 'health',
+              healthRecordId: recordId,
+              documentType: 'health_document',
             })
           )
         );
       }
-
-      // 3) Reset form and refresh documents for counts/preview
       setIsModalOpen(false);
+      setEditingRecord(null);
       setFormData({
         type: 'vet-visit',
         title: '',
@@ -258,30 +260,39 @@ export const HealthRecords: React.FC = () => {
         dosage: '',
       });
       setFiles([]);
-      await refreshDocs();
+      await refreshAll();
     } catch (error) {
-      console.error('Error creating health record:', error);
+      console.error('Error saving health record:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteAttachment = async (docId: string) => {
+    if (!window.confirm(t('Delete this attachment?'))) return;
+    try {
+      await apiClient.deleteDocument(docId);
+      await refreshAll();
+    } catch (err: any) {
+      if (String(err?.message || '').includes('Document not found')) {
+        console.warn('Attachment already deleted, ignoring.');
+      } else {
+        console.error('Error deleting document:', err);
+      }
     }
   };
 
   const handleOpen = async (att: Attachment) => {
     try {
       const blob = await fetchBlobWithAuth(att.url);
-
-      // If it's a PDF, prefer inline viewer in the modal (works on web & native)
       if (isPdf(att.mimeType, att.url)) {
         const blobUrl = URL.createObjectURL(blob);
         setViewer({ url: blobUrl, name: att.name, mime: 'application/pdf' });
         return;
       }
-
       if (Capacitor.isNativePlatform()) {
-        // Save and open/share via system
         await saveAndShareNative(blob, att.name);
       } else {
-        // Web
         openBlobWeb(blob);
       }
     } catch (e) {
@@ -293,7 +304,7 @@ export const HealthRecords: React.FC = () => {
     try {
       const blob = await fetchBlobWithAuth(att.url);
       if (Capacitor.isNativePlatform()) {
-        await saveAndShareNative(blob, att.name); // share sheet doubles as "download"
+        await saveAndShareNative(blob, att.name);
       } else {
         triggerDownloadWeb(blob, att.name);
       }
@@ -308,9 +319,7 @@ export const HealthRecords: React.FC = () => {
     if (!ok) return;
     try {
       await apiClient.deleteHealthRecord(currentDog.id, record.id);
-      // optimistic UI:
       setDeletedIds((prev) => new Set(prev).add(record.id));
-      // also drop its docs
       setDocsByRecord((prev) => {
         const copy = { ...prev };
         delete copy[record.id];
@@ -334,6 +343,7 @@ export const HealthRecords: React.FC = () => {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">
           {t('Health Records')} • {currentDog.name}
@@ -344,6 +354,7 @@ export const HealthRecords: React.FC = () => {
         </Button>
       </div>
 
+      {/* Records list */}
       {dogHealthRecords.length === 0 ? (
         <Card className="text-center py-8">
           <Heart size={48} className="mx-auto mb-2 text-gray-300" />
@@ -355,12 +366,10 @@ export const HealthRecords: React.FC = () => {
           {dogHealthRecords.map((record) => {
             const filesForRecord = docsByRecord[record.id] || [];
             const count = filesForRecord.length;
-
             return (
               <Card key={record.id}>
                 <div className="flex items-start gap-3">
                   <div className="mt-1">{getTypeIcon(record.type)}</div>
-
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-gray-900 truncate">{record.title}</h3>
@@ -368,41 +377,80 @@ export const HealthRecords: React.FC = () => {
                         {getTypeLabel(record.type)}
                       </span>
                     </div>
-
                     <p className="text-sm text-gray-600 mb-2">{record.description}</p>
                     <p className="text-xs text-gray-500 mb-2">
-                      {format(new Date(record.date), 'MMM dd, yyyy')}
+                      {format(record.date, 'MMM dd, yyyy')}
                     </p>
-
                     <div className="flex items-center gap-2 mt-1">
                       <Paperclip size={12} className="text-gray-400" />
-                      {count > 0 ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openPreview(
-                              filesForRecord.map((d) => ({
-                                url: d.file_url || d.url,
-                                name: d.original_name || d.name,
-                                mimeType: d.mime_type || d.mimeType,
-                              }))
-                            )
-                          }
-                          className="text-xs text-blue-600 hover:underline"
-                          title={t('View attachments')}
-                        >
-                          {count} {count === 1 ? t('attachment') : t('attachments')}
-                        </button>
-                      ) : (
-                        <span className="text-xs text-gray-500">{t('No attachments')}</span>
+                      {filesForRecord.length > 0 && (
+                        <div className="mt-3 border-t pt-2">
+                          <p className="text-sm font-medium flex items-center">
+                            <Paperclip size={14} className="mr-1" />
+                            {t('Attachments')}
+                          </p>
+                          <ul className="space-y-1 mt-1">
+                            {filesForRecord.map((doc) => (
+                              <li key={doc.id} className="flex items-center justify-between text-sm">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleOpen({
+                                      url:
+                                        doc.file_url ||
+                                        doc.url ||
+                                        (doc.file_path
+                                          ? `${API_BASE_URL}/uploads/file/${doc.file_path.split('/').pop()}`
+                                          : ''),
+                                      name: doc.original_name || doc.name,
+                                      mimeType: doc.mime_type || doc.mimeType,
+                                    })
+                                  }
+                                  className="text-blue-600 hover:underline inline-flex items-center"
+                                >
+                                  <FileText size={14} className="mr-2" />
+                                  {doc.original_name || doc.name || 'Document'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteDoc(doc.id)}
+                                  className="text-red-600 hover:text-red-800 text-xs"
+                                >
+                                  {t('Delete')}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
+
                     </div>
                   </div>
-
-                  <div className="pt-1">
+                  <div className="pt-1 flex gap-2">
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="sm"
+                      title={t('Edit')}
+                      onClick={() => {
+                        setEditingRecord(record);
+                        setFormData({
+                          type: record.type,
+                          title: record.title,
+                          description: record.description || '',
+                          date: record.date.toISOString().split('T')[0],
+                          veterinarian: record.veterinarian || '',
+                          medication: record.medication || '',
+                          dosage: record.dosage || '',
+                        });
+                        setFiles([]);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                    <Edit2 size={16} />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       title={t('Delete')}
                       onClick={() => handleDeleteRecord(record)}
                     >
@@ -416,11 +464,14 @@ export const HealthRecords: React.FC = () => {
         </div>
       )}
 
-      {/* Create record modal */}
+      {/* Add/Edit Modal */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={t('Add Health Record')}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingRecord(null);
+        }}
+        title={editingRecord ? t('Edit Health Record') : t('Add Health Record')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -429,7 +480,7 @@ export const HealthRecords: React.FC = () => {
               {t('Record Type')}
             </label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.type}
               onChange={(e) =>
                 setFormData({ ...formData, type: e.target.value as HealthRecord['type'] })
@@ -443,29 +494,24 @@ export const HealthRecords: React.FC = () => {
               <option value="other">{t('Other')}</option>
             </select>
           </div>
-
           <Input
             label={t('Title')}
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder={t('e.g., Annual checkup, Ear infection')}
             required
           />
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('Description')}
             </label>
             <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder={t('Describe the health record...')}
               required
             />
           </div>
-
           <Input
             label={t('Date')}
             type="date"
@@ -473,13 +519,11 @@ export const HealthRecords: React.FC = () => {
             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
             required
           />
-
           <Input
             label={t('Veterinarian')}
             value={formData.veterinarian}
             onChange={(e) => setFormData({ ...formData, veterinarian: e.target.value })}
           />
-
           {(formData.type === 'medication' || formData.type === 'illness') && (
             <div className="grid grid-cols-2 gap-3">
               <Input
@@ -494,136 +538,38 @@ export const HealthRecords: React.FC = () => {
               />
             </div>
           )}
-
           <FileUpload
-            label={t('Attach Documents (optional)')}
+            label={t('Attach Documents')}
             files={files}
             onFilesChange={setFiles}
             accept="image/*,.pdf,.doc,.docx"
             maxFiles={5}
           />
-
           <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setIsModalOpen(false);
+                setEditingRecord(null);
+              }}
+            >
               {t('Cancel')}
             </Button>
             <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? t('Adding...') : t('Add Record')}
+              {loading
+                ? editingRecord
+                  ? t('Saving...')
+                  : t('Adding...')
+                : editingRecord
+                ? t('Save Changes')
+                : t('Add Record')}
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* Attachments preview modal */}
-      <Modal
-        isOpen={previewOpen}
-        onClose={() => {
-          setPreviewOpen(false);
-          // cleanup any inline viewer blob URL
-          if (viewer?.url?.startsWith('blob:')) {
-            URL.revokeObjectURL(viewer.url);
-          }
-          setViewer(null);
-        }}
-        title={t('Attachments')}
-        className="max-w-3xl"
-      >
-        <div className="space-y-4">
-          {/* Inline viewer for PDFs */}
-          {viewer && (
-            <div className="border rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between px-3 py-2 border-b bg-gray-50">
-                <div className="text-sm font-medium truncate">{viewer.name}</div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    if (viewer.url.startsWith('blob:')) URL.revokeObjectURL(viewer.url);
-                    setViewer(null);
-                  }}
-                >
-                  {t('Close preview')}
-                </Button>
-              </div>
-              <iframe
-                title={viewer.name}
-                src={viewer.url}
-                className="w-full h-[70vh]"
-              />
-            </div>
-          )}
 
-          {/* Images grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {previewItems
-              .filter((a) => isImage(a.mimeType, a.url))
-              .map((a, idx) => (
-                <div key={`img-${idx}`} className="border rounded-lg p-2">
-                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                  <img src={a.url} className="w-full h-40 object-cover rounded" />
-                  <div className="mt-2 text-xs text-gray-700 truncate">{a.name}</div>
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleOpen(a)}
-                      className="inline-flex items-center"
-                    >
-                      <ExternalLink size={14} className="mr-1" /> {t('Open')}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDownload(a)}
-                      className="inline-flex items-center"
-                    >
-                      <Download size={14} className="mr-1" /> {t('Download')}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-          </div>
-
-          {/* Non-images list */}
-          <div className="space-y-2">
-            {previewItems
-              .filter((a) => !isImage(a.mimeType, a.url))
-              .map((a, idx) => (
-                <div
-                  key={`file-${idx}`}
-                  className="flex items-center justify-between border rounded-lg p-3"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <FileText size={18} className="text-gray-500 shrink-0" />
-                    <span className="text-sm text-gray-800 truncate">{a.name}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleOpen(a)}
-                      className="inline-flex items-center"
-                    >
-                      <ExternalLink size={14} className="mr-1" /> {t('Open')}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDownload(a)}
-                      className="inline-flex items-center"
-                    >
-                      <Download size={14} className="mr-1" /> {t('Download')}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

@@ -6,7 +6,6 @@ import { Card } from './ui/Card';
 import { Modal } from './ui/Modal';
 import { EmergencyContact } from '../types';
 import { PlusCircle, Phone, Clock, MapPin, AlertTriangle, Heart } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
 
 export const EmergencyInfo: React.FC = () => {
   const { user, createEmergencyContact } = useApp();

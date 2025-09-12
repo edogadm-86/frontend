@@ -13,7 +13,7 @@ import { SplashScreen } from './screens/SplashScreen';
 import { Button } from './components/ui/Button';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from './hooks/useNotifications';
-import { NutritionScreen } from './components/NutritionScreen';
+import { Health } from './components/Health';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout } = useApp();
@@ -50,14 +50,13 @@ const AppContent: React.FC = () => {
       case 'calendar':
         return <Calendar />;
       case 'health':
-        return (
+      /*  return (
           <div className="space-y-4">
             <VaccinationTracker />
             <HealthRecords />
           </div>
-        );
-      case 'nutrition':
-        return <NutritionScreen />;  
+        );*/
+        return <Health />;
       case 'training':
         return <TrainingTracker />;
       case 'settings':

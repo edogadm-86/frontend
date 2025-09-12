@@ -24,6 +24,7 @@ class ApiClient {
     };
 
     const config: RequestInit = { ...options, headers };
+   
 
     try {
       const response = await fetch(url, config);
@@ -117,31 +118,11 @@ class ApiClient {
     return this.request(`/dogs/${dogId}`, { method: 'DELETE' });
   }
 
-  // Vaccination endpoints
-  async getVaccinations(dogId: string) {
-    return this.request<{ vaccinations: Vaccination[] }>(`/vaccinations/dog/${dogId}`);
-  }
-
-  async createVaccination(dogId: string, vaccinationData: Omit<Vaccination, 'id'>) {
-    return this.request<{ vaccination: Vaccination }>(`/vaccinations/dog/${dogId}`, {
-      method: 'POST',
-      body: JSON.stringify({
-        vaccine_name: vaccinationData.vaccineName,
-        vaccine_type: vaccinationData.vaccineType,
-        date_given: vaccinationData.dateGiven.toISOString().split('T')[0],
-        next_due_date: vaccinationData.nextDueDate?.toISOString().split('T')[0],
-        veterinarian: vaccinationData.veterinarian,
-        batch_number: vaccinationData.batchNumber,
-        notes: vaccinationData.notes,
-      }),
-    });
-  }
 
   // Health record endpoints
   async getHealthRecords(dogId: string) {
     return this.request<{ healthRecords: HealthRecord[] }>(`/health/dog/${dogId}`);
   }
-
   async createHealthRecord(dogId: string, recordData: Omit<HealthRecord, 'id' | 'documents'>) {
     return this.request<{ healthRecord: HealthRecord }>(`/health/dog/${dogId}`, {
       method: 'POST',
@@ -156,6 +137,40 @@ class ApiClient {
       }),
     });
   }
+  
+   // Vaccination endpoints
+
+  async getVaccinations(dogId: string) {
+    return this.request<{ vaccinations: Vaccination[] }>(`/vaccinations/dog/${dogId}`);
+  }
+
+   // Vaccination endpoints
+  async createVaccination(dogId: string, vaccinationData: Omit<Vaccination, 'id'>) {
+  return this.request<{ vaccination: Vaccination }>(`/vaccinations/dog/${dogId}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      vaccine_name: vaccinationData.vaccineName,
+      vaccine_type: vaccinationData.vaccineType,
+      date_given: vaccinationData.dateGiven,        // 👈 already string
+      next_due_date: vaccinationData.nextDueDate || null,
+      veterinarian: vaccinationData.veterinarian,
+      batch_number: vaccinationData.batchNumber,
+      notes: vaccinationData.notes,
+    }),
+  });
+}
+
+  async updateVaccination(dogId: string, vaccinationId: string, vaccinationData: any) {
+    return this.request<{ vaccination: any }>(`/vaccinations/dog/${dogId}/${vaccinationId}`, {
+      method: 'PUT',
+      body: JSON.stringify(vaccinationData),
+    });
+  }
+
+  async deleteVaccination(dogId: string, vaccinationId: string) {
+    return this.request(`/vaccinations/dog/${dogId}/${vaccinationId}`, { method: 'DELETE' });
+  }
+
 
   // Appointment endpoints
   async getAppointments(dogId: string) {
@@ -178,9 +193,14 @@ class ApiClient {
     });
   }
 
-  // Training session endpoints
-  async getTrainingSessions(dogId: string) {
-    return this.request<{ trainingSessions: TrainingSession[] }>(`/training/dog/${dogId}`);
+
+  // Health record endpoints
+
+  async updateHealthRecord(dogId: string, recordId: string, healthData: any) {
+    return this.request<{ healthRecord: any }>(`/health/dog/${dogId}/${recordId}`, {
+      method: 'PUT',
+      body: JSON.stringify(healthData),
+    });
   }
 
   async createTrainingSession(dogId: string, sessionData: Omit<TrainingSession, 'id'>) {
@@ -212,12 +232,6 @@ class ApiClient {
         address: contactData.address,
         available_24h: contactData.available24h,
       }),
-    });
-  }
-
-  async deleteVaccination(dogId: string, vaccinationId: string) {
-    return this.request(`/vaccinations/dog/${dogId}/${vaccinationId}`, {
-      method: 'DELETE',
     });
   }
 
@@ -278,6 +292,66 @@ async getDocuments(dogId: string) {
 async deleteDocument(documentId: string) {
   return this.request(`/uploads/${documentId}`, { method: 'DELETE' });
 }
+
+// Nutrition endpoints
+async getNutritionRecords(dogId: string) {
+  return this.request<{ nutritionRecords: any[] }>(`/nutrition/dog/${dogId}/records`);
+}
+
+async createNutritionRecord(dogId: string, data: any) {
+  return this.request<{ nutritionRecord: any }>(`/nutrition/dog/${dogId}/records`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+async updateNutritionRecord(dogId: string, recordId: string, data: any) {
+  return this.request<{ nutritionRecord: any }>(`/nutrition/dog/${dogId}/records/${recordId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+async deleteNutritionRecord(dogId: string, recordId: string) {
+  return this.request(`/nutrition/dog/${dogId}/records/${recordId}`, { method: 'DELETE' });
+}
+
+// Meal Plan endpoints
+async getMealPlan(dogId: string) {
+  return this.request<{ mealPlan: any[] }>(`/nutrition/dog/${dogId}/meal-plan`);
+}
+
+async createMealPlan(dogId: string, mealData: any) {
+  return this.request<{ mealPlan: any }>(`/nutrition/dog/${dogId}/meal-plan`, {
+    method: 'POST',
+    body: JSON.stringify(mealData),
+  });
+}
+
+async updateMealPlan(dogId: string, mealId: string, mealData: any) {
+  return this.request<{ mealPlan: any }>(`/nutrition/dog/${dogId}/meal-plan/${mealId}`, {
+    method: 'PUT',
+    body: JSON.stringify(mealData),
+  });
+}
+
+async deleteMealPlan(dogId: string, mealId: string) {
+  return this.request(`/nutrition/dog/${dogId}/meal-plan/${mealId}`, { method: 'DELETE' });
+}
+
+async getNutritionStats(dogId: string) {
+  return this.request<{
+    latestRecord: any;
+    mealPlan: any[];
+    dailyTotals: { amount: number; calories: number };
+    nutritionHistory: any[];
+    hasData: boolean;
+  }>(`/nutrition/dog/${dogId}/stats`);
+}
+
+
+
+
 }
 
 

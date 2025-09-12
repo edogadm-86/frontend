@@ -21,6 +21,7 @@ export interface Document {
 }
 
 export interface Vaccination {
+  vaccination: any;
   id: string;
   dogId: string;
   vaccineName: string;
@@ -85,4 +86,15 @@ export interface User {
   phone?: string;
   dogs: Dog[];
   emergencyContacts: EmergencyContact[];
+}
+export interface Nutrition {
+  id: string;
+  dogId: string;
+  foodName: string;
+  brand: string;
+  type: string;
+  quantity: string;
+  frequency: string;
+  notes?: string;
+  createdAt: Date;
 }

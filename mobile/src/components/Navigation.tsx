@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Calendar, Heart, Award, Settings, Sandwich } from 'lucide-react';
+import { Home, Calendar, Heart, Award, Settings } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 
@@ -36,15 +36,6 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChang
       activeColor: 'text-red-600',
       inactiveColor: 'text-gray-400'
     },
-    { 
-      id: 'nutrition', 
-      icon: Sandwich, 
-      label: t('Nutrition'), 
-      gradient: 'from-red-500 to-pink-500',
-      activeColor: 'text-red-600',
-      inactiveColor: 'text-gray-400'
-    },
-    
     { 
       id: 'training', 
       icon: Award, 
