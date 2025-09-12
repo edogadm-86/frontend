@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "source": "./index.html",
+  "type": "module",
+  "name": "edog",
+  "description": "eDog - The Ultimate Dog Owner's App",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@capacitor/browser": "^7.0.2",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/filesystem": "^7.1.4",
+    "@capacitor/share": "^7.0.2",
+    "@capacitor/splash-screen": "^7.0.2",
+    "@hookform/resolvers": "^5.2.1",
+    "@supabase/supabase-js": "^2.55.0",
+    "@types/node": "^24.2.1",
+    "@types/react-datepicker": "^6.2.0",
+    "@types/uuid": "^10.0.0",
+    "clsx": "2.1.1",
+    "date-fns": "^4.1.0",
+    "i18next": "^25.3.6",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "lucide-react": "^0.453.0",
+    "react": "^18.2.0",
+    "react-datepicker": "^8.4.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.62.0",
+    "react-i18next": "^15.6.1",
+    "react-router-dom": "^6.8.1",
+    "supabase": "^2.34.3",
+    "tailwind-merge": "2.5.4",
+    "tailwindcss-animate": "1.0.7",
+    "uuid": "^11.1.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/cli": "^7.4.2",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "esbuild": "0.24.0",
+    "globals": "15.12.0",
+    "tailwindcss": "3.4.16",
+    "typescript": "^5.9.2",
+    "vite": "6.0.4"
+  },
+  "alias": {
+    "@/*": "./src/components/ui/$1"
+  }
+}

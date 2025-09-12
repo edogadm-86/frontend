@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">eDog</string>
+    <string name="title_activity_main">eDog</string>
+    <string name="package_name">com.polygran.edog</string>
+    <string name="custom_url_scheme">com.polygran.edog</string>
+</resources>
