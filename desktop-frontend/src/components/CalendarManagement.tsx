@@ -165,10 +165,10 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
         <div className="text-center py-16">
           <CalendarIcon size={64} className="mx-auto mb-4 text-gray-300" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">
-            No Dog Selected
+               {t('noDogsFound')}
           </h2>
-          <p className="text-gray-500 mb-6 dark:text-gray-400">
-            Please select a dog from the sidebar to view appointments
+          <p className="text-gray-500 mb-6">
+           {t('addFirstDog')} 
           </p>
           <Button onClick={() => onNavigate('settings')}>
             {t('addDog')}

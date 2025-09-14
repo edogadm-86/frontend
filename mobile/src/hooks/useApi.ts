@@ -363,6 +363,58 @@ async function updateNutritionRecord(dogId: string, recordId: string, data: Part
       throw error;
     }
   };
+ const updateAppointment = async (
+  dogId: string,
+  appointmentId: string,
+  data: Partial<Appointment>
+): Promise<Appointment> => {
+  try {
+    const payload = {
+      title: data.title,
+      type: data.type,
+      // format date as YYYY-MM-DD (like your createAppointment does)
+      date:
+        data.date instanceof Date
+          ? data.date.toISOString().split("T")[0]
+          : data.date,
+      time: data.time,
+      location: data.location || "",
+      notes: data.notes || "",
+      reminder: data.reminder,
+      reminder_time: data.reminderTime, // snake_case
+    };
+
+    console.log("Update payload sent to API:", payload);
+
+    const response = await apiClient.updateAppointment(
+      dogId,
+      appointmentId,
+      payload
+    );
+
+    const updatedAppointment: Appointment = {
+      id: response.appointment.id,
+      dogId: response.appointment.dog_id,
+      title: response.appointment.title,
+      type: response.appointment.type as Appointment["type"],
+      date: new Date(response.appointment.date),
+      time: response.appointment.time,
+      location: response.appointment.location,
+      notes: response.appointment.notes,
+      reminder: response.appointment.reminder,
+      reminderTime: response.appointment.reminder_time,
+    };
+
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === appointmentId ? updatedAppointment : a))
+    );
+    return updatedAppointment;
+  } catch (error: any) {
+    setError(error.message);
+    throw error;
+  }
+};
+
 
   const createEmergencyContact = async (contactData: Omit<EmergencyContact, 'id'>) => {
     try {
@@ -486,5 +538,6 @@ async function updateNutritionRecord(dogId: string, recordId: string, data: Part
     createNutritionRecord,
     updateNutritionRecord,
     deleteNutritionRecord,
+    updateAppointment,
   };
 };

@@ -103,7 +103,7 @@ export const Settings: React.FC = () => {
       bgColor: 'from-blue-50 to-cyan-50',
       action: () => setIsProfileModalOpen(true),
     },
-    {
+    /*{
       icon: Bell,
       title: t('notifications'),
       description: t('Control when and how you receive alerts'),
@@ -126,7 +126,7 @@ export const Settings: React.FC = () => {
       color: 'from-pink-500 to-rose-500',
       bgColor: 'from-pink-50 to-rose-50',
       action: () => setIsAppearanceModalOpen(true),
-    },
+    },*/
     {
       icon: HelpCircle,
       title: t('help&support'),
@@ -135,14 +135,14 @@ export const Settings: React.FC = () => {
       bgColor: 'from-teal-50 to-cyan-50',
       action: () => setIsHelpModalOpen(true),
     },
-    {
+    /*{
       icon: Star,
       title: t('rateedog'),
       description: t('Help us improve by rating the app'),
       color: 'from-yellow-500 to-orange-500',
       bgColor: 'from-yellow-50 to-orange-50',
       action: () => window.open('https://play.google.com/store', '_blank'),
-    },
+    },*/
   ];
 
   return (

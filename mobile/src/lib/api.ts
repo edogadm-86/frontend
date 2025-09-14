@@ -118,6 +118,21 @@ class ApiClient {
     return this.request(`/dogs/${dogId}`, { method: 'DELETE' });
   }
 
+  
+  // Health status endpoint
+  async getDogHealthStatus(dogId: string) {
+    return this.request<{
+      hasEnoughData: boolean;
+      score: number;
+      status: string;
+      statusColor: string;
+      nextAction: string;
+      factors: string[];
+      summary: any;
+    }>(`/dogs/${dogId}/health-status`);
+  }
+
+
 
   // Health record endpoints
   async getHealthRecords(dogId: string) {
@@ -193,6 +208,19 @@ class ApiClient {
     });
   }
 
+  async updateAppointment(dogId: string, appointmentId: string, appointmentData: any) {
+    return this.request<{ appointment: any }>(`/appointments/dog/${dogId}/${appointmentId}`, {
+      method: 'PUT',
+      body: JSON.stringify(appointmentData),
+    });
+  }
+
+    async deleteAppointment(dogId: string, appointmentId: string) {
+    return this.request(`/appointments/dog/${dogId}/${appointmentId}`, {
+      method: 'DELETE',
+    });
+  }
+
 
   // Health record endpoints
 
@@ -204,28 +232,28 @@ class ApiClient {
   }
 
 // Training session endpoints
-async getTrainingSessions(dogId: string) {
-  return this.request<{ trainingSessions: any[] }>(`/training/dog/${dogId}/sessions`);
-}
 
-async createTrainingSession(dogId: string, sessionData: any) {
-  return this.request<{ trainingSession: any }>(`/training/dog/${dogId}/sessions`, {
-    method: 'POST',
-    body: JSON.stringify(sessionData),
-  });
-}
+  async getTrainingSessions(dogId: string) {
+    return this.request<{ trainingSessions: any[] }>(`/training/dog/${dogId}`);
+  }
 
-async updateTrainingSession(dogId: string, sessionId: string, sessionData: any) {
-  return this.request<{ trainingSession: any }>(`/training/dog/${dogId}/sessions/${sessionId}`, {
-    method: 'PUT',
-    body: JSON.stringify(sessionData),
-  });
-}
+  async createTrainingSession(dogId: string, sessionData: any) {
+    return this.request<{ trainingSession: any }>(`/training/dog/${dogId}`, {
+      method: 'POST',
+      body: JSON.stringify(sessionData),
+    });
+  }
 
-async deleteTrainingSession(dogId: string, sessionId: string) {
-  return this.request(`/training/dog/${dogId}/sessions/${sessionId}`, { method: 'DELETE' });
-}
+  async updateTrainingSession(dogId: string, sessionId: string, sessionData: any) {
+    return this.request<{ trainingSession: any }>(`/training/dog/${dogId}/${sessionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(sessionData),
+    });
+  }
 
+  async deleteTrainingSession(dogId: string, sessionId: string) {
+    return this.request(`/training/dog/${dogId}/${sessionId}`, { method: 'DELETE' });
+  }
 
 
   // Emergency contact endpoints
@@ -252,11 +280,7 @@ async deleteTrainingSession(dogId: string, sessionId: string) {
     });
   }
 
-  async deleteAppointment(dogId: string, appointmentId: string) {
-    return this.request(`/appointments/dog/${dogId}/${appointmentId}`, {
-      method: 'DELETE',
-    });
-  }
+
 
   async deleteEmergencyContact(contactId: string) {
     return this.request(`/emergency/${contactId}`, {

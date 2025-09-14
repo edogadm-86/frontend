@@ -4,8 +4,6 @@ import { Auth } from './components/Auth';
 import { Navigation } from './components/Navigation';
 import { Dashboard } from './components/Dashboard';
 import { DogProfile } from './components/DogProfile';
-import { VaccinationTracker } from './components/VaccinationTracker';
-import { HealthRecords } from './components/HealthRecords';
 import { Calendar } from './components/Calendar';
 import { TrainingTracker } from './components/TrainingTracker';
 import { Settings } from './components/Settings';
@@ -14,6 +12,8 @@ import { Button } from './components/ui/Button';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from './hooks/useNotifications';
 import { Health } from './components/Health';
+import { LocalNotifications } from "@capacitor/local-notifications";
+
 
 const AppContent: React.FC = () => {
   const { user, loading, logout } = useApp();
@@ -40,6 +40,15 @@ const AppContent: React.FC = () => {
       requestPermission();
     }
   }, [user, loading, showSplash, requestPermission]);
+    useEffect(() => {
+      const initNotifications = async () => {
+        const perm = await LocalNotifications.checkPermissions();
+        if (perm.display !== 'granted') {
+          await LocalNotifications.requestPermissions();
+        }
+      };
+      initNotifications();
+    }, []);
 
   const renderCurrentView = () => {
     switch (currentView) {

@@ -164,10 +164,7 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     return this.request<{ appointments: any[] }>(`/appointments/dog/${dogId}`);
   }
 
-  async getTrainingSessions(dogId: string) {
-    return this.request<{ trainingSessions: any[] }>(`/training/dog/${dogId}`);
-  }
-
+ 
   async getEmergencyContacts() {
     return this.request<{ emergencyContacts: any[] }>('/emergency');
   }
@@ -234,6 +231,11 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
 
   // Training session endpoints
+
+  async getTrainingSessions(dogId: string) {
+    return this.request<{ trainingSessions: any[] }>(`/training/dog/${dogId}`);
+  }
+
   async createTrainingSession(dogId: string, sessionData: any) {
     return this.request<{ trainingSession: any }>(`/training/dog/${dogId}`, {
       method: 'POST',

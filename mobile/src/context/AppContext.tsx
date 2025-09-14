@@ -32,6 +32,8 @@ interface AppContextType {
   createNutritionRecord: (dogId: string, data: Omit<Nutrition, 'id'>) => Promise<Nutrition>;
   updateNutritionRecord: (dogId: string, recordId: string, data: Partial<Nutrition>) => Promise<Nutrition>;
   deleteNutritionRecord: (dogId: string, recordId: string) => Promise<void>;
+  updateAppointment: (dogId: string, appointmentId: string, data: Partial<Appointment>) => Promise<Appointment>;
+
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -62,6 +64,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     createVaccination,
     createHealthRecord,
     createAppointment,
+    updateAppointment,
     createTrainingSession,
     createEmergencyContact,
     updateUser,
@@ -100,6 +103,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   createHealthRecord,
   appointments,
   createAppointment,
+  updateAppointment,
   trainingSessions,
   createTrainingSession,
   createEmergencyContact,

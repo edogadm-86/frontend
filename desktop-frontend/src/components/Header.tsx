@@ -74,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
     switch (currentView) {
       case 'dashboard': return t('dashboard');
       case 'health': return t('health');
-      case 'calendar': return t('calendar');
+      case 'calendar': return t('calendar1');
       case 'training': return t('training');
       case 'community': return t('community');
       case 'shop': return 'Shop & Services';

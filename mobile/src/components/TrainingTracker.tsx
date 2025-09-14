@@ -6,15 +6,22 @@ import { Card } from './ui/Card';
 import { Modal } from './ui/Modal';
 import { ChatBot } from './ChatBot';
 import { TrainingSession } from '../types';
-import { PlusCircle, Award, BookOpen, TrendingUp, Calendar, Clock } from 'lucide-react';
+import { PlusCircle, Award, BookOpen, TrendingUp, Clock, Edit2, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { PageContainer } from './ui/PageContainer';
+import { apiClient } from '../lib/api';
 
 export const TrainingTracker: React.FC = () => {
-  const { currentDog, trainingSessions, createTrainingSession } = useApp();
+  const { currentDog, trainingSessions, createTrainingSession } = useApp(); // ✅ keep the original signature
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [editingSession, setEditingSession] = useState<TrainingSession | null>(null);
+  const [localSessions, setLocalSessions] = useState(trainingSessions);
+  React.useEffect(() => {
+  setLocalSessions(trainingSessions);
+}, [trainingSessions]);
+
   const [formData, setFormData] = useState({
     date: '',
     duration: '',
@@ -25,38 +32,79 @@ export const TrainingTracker: React.FC = () => {
   });
 
   const { t } = useTranslation();
-  const dogTrainingSessions = trainingSessions.filter(s => s.dogId === currentDog?.id);
+  const dogTrainingSessions = localSessions.filter(s => s.dogId === currentDog?.id);  
+  const resetForm = () => {
+    setFormData({
+      date: '',
+      duration: '',
+      commands: '',
+      progress: 'good',
+      notes: '',
+      behaviorNotes: '',
+    });
+    setEditingSession(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     if (!currentDog) return;
+    setLoading(true);
 
-    const sessionData = {
+    const payload = {
       dogId: currentDog.id,
-      date: new Date(formData.date),
-      duration: parseInt(formData.duration),
-      commands: formData.commands.split(',').map(cmd => cmd.trim()).filter(cmd => cmd),
+      date: new Date(formData.date), // JSON.stringify will ISO this
+      duration: parseInt(formData.duration, 10),
+      commands: formData.commands.split(',').map(c => c.trim()).filter(Boolean),
       progress: formData.progress,
       notes: formData.notes,
       behavior_notes: formData.behaviorNotes || undefined,
     };
 
     try {
-      await createTrainingSession(sessionData);
+      if (editingSession) {
+        // ✅ call API client directly for update
+        const updated = await apiClient.updateTrainingSession(currentDog.id, editingSession.id, payload);
+
+        // Replace session locally
+        setLocalSessions(prev =>
+          prev.map(s => s.id === editingSession.id ? { ...s, ...updated.trainingSession } : s)
+        );    
+        } else {
+        // ✅ use your working context method (no dogId param)
+        await createTrainingSession(payload);
+      }
       setIsModalOpen(false);
-      setFormData({
-        date: '',
-        duration: '',
-        commands: '',
-        progress: 'good',
-        notes: '',
-        behaviorNotes: '',
-      });
+      resetForm();
     } catch (error) {
-      console.error('Error creating training session:', error);
+      console.error('Error saving training session:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (session: TrainingSession) => {
+    setEditingSession(session);
+    setFormData({
+      date: format(new Date(session.date), 'yyyy-MM-dd'),
+      duration: String(session.duration),
+      commands: session.commands.join(', '),
+      progress: session.progress,
+      notes: session.notes || '',
+      behaviorNotes: session.behaviorNotes || '',
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (session: TrainingSession) => {
+    if (!currentDog) return;
+    if (window.confirm(t('confirmDeleteTrainingSession') || 'Delete this session?')) {
+      try {
+        await apiClient.deleteTrainingSession(currentDog.id, session.id);
+        setLocalSessions(prev => prev.filter(s => s.id !== session.id));
+
+      } catch (error) {
+        console.error('Error deleting training session:', error);
+      }
     }
   };
 
@@ -99,14 +147,13 @@ export const TrainingTracker: React.FC = () => {
   }
 
   return (
-    <PageContainer>
       <div className="p-4 space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">
             {t('training')} – {currentDog.name}
           </h2>
-          <Button onClick={() => setIsModalOpen(true)} size="sm">
+          <Button onClick={() => { resetForm(); setIsModalOpen(true); }} size="sm">
             <PlusCircle size={16} className="mr-1" />
             {t('addTrainingSession')}
           </Button>
@@ -116,43 +163,33 @@ export const TrainingTracker: React.FC = () => {
 
         {/* Stats */}
         {dogTrainingSessions.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
-            <Card>
-              <div className="flex items-center space-x-2">
-                <Award size={18} className="text-blue-600" />
-                <div>
-                  <p className="text-sm text-gray-600">{t('totalSessions')}</p>
-                  <p className="text-lg font-semibold">{totalSessions}</p>
-                </div>
-              </div>
+          <div className="grid grid-cols-3 gap-3 w-full">
+            <Card className="w-full h-full flex flex-col items-center p-4 text-center">
+              <Award size={28} className="text-blue-600 mb-2" />
+              <p className="text-sm text-gray-600">{t('totalSessions')}</p>
+              <p className="text-xl font-bold">{totalSessions}</p>
             </Card>
-            <Card>
-              <div className="flex items-center space-x-2">
-                <Clock size={18} className="text-green-600" />
-                <div>
-                  <p className="text-sm text-gray-600">{t('totalTime')}</p>
-                  <p className="text-lg font-semibold">{Math.round(totalTime / 60)}h</p>
-                </div>
-              </div>
+
+           <Card className="w-full h-full flex flex-col items-center p-4 text-center">
+              <Clock size={28} className="text-green-600 mb-2" />
+              <p className="text-sm text-gray-600">{t('totalTime')}</p>
+              <p className="text-xl font-bold">{Math.round(totalTime / 60)}h</p>
             </Card>
-            <Card>
-              <div className="flex items-center space-x-2">
-                <TrendingUp size={18} className="text-purple-600" />
-                <div>
-                  <p className="text-sm text-gray-600">{t('successRate')}</p>
-                  <p className="text-lg font-semibold">{successRate}%</p>
-                </div>
-              </div>
+
+            <Card className="w-full h-full flex flex-col items-center p-4 text-center">
+              <TrendingUp size={28} className="text-purple-600 mb-2" />
+              <p className="text-sm text-gray-600">{t('successRate')}</p>
+              <p className="text-xl font-bold">{successRate}%</p>
             </Card>
           </div>
         )}
 
         {/* Sessions */}
         {dogTrainingSessions.length === 0 ? (
-          <Card className="text-center py-8">
+          <Card className="w-full">
             <Award size={48} className="mx-auto mb-2 text-gray-300" />
             <p className="text-gray-500 mb-4">{t('noTrainingSessionsRecorded')}</p>
-            <Button onClick={() => setIsModalOpen(true)}>
+            <Button onClick={() => { resetForm(); setIsModalOpen(true); }}>
               {t('startFirstSession')}
             </Button>
           </Card>
@@ -206,6 +243,14 @@ export const TrainingTracker: React.FC = () => {
                         </p>
                       )}
                     </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(session)}>
+                        <Edit2 size={14} />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleDelete(session)}>
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -216,7 +261,7 @@ export const TrainingTracker: React.FC = () => {
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title={t('addTrainingSession')}
+          title={editingSession ? t('editTrainingSession') : t('addTrainingSession')}
           className="max-w-lg"
         >
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -286,6 +331,5 @@ export const TrainingTracker: React.FC = () => {
           </form>
         </Modal>
       </div>
-    </PageContainer>
   );
 };

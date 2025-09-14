@@ -81,10 +81,10 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
         <div className="text-center py-16">
           <Heart size={64} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            No Dog Selected
+          {t('noDogsFound')}
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Please select a dog from the sidebar to manage health records
+          <p className="text-gray-500 mb-6">
+           {t('addFirstDog')} 
           </p>
           <Button onClick={() => onNavigate('settings')}>
             {t('addDog')}

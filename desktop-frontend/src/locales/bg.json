@@ -582,7 +582,6 @@
   "scanCodeToView": "Сканирай за да видиш публичния профил на ",
   "previewPublicProfile": "Виж Публичния Профил",
   "dogNotFound": "Не е намерено куче",
-  "years": "години"
-
-  
+  "years": "години",
+  "noDogsFound": "Няма избрано куче" 
 }

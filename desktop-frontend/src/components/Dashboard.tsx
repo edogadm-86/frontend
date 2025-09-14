@@ -103,10 +103,10 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
             {t('welcome')} to eDog Desktop
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
-            Select a dog from the sidebar or add your first dog to get started
+            {t('addFirstDog')}
           </p>
           <Button onClick={() => onNavigate('settings')} size="lg" icon={<Plus size={20} />}>
-            {t('petPassport')}
+            {t('addDog')}
           </Button>
         </div>
       </div>

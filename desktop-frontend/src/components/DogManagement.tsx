@@ -218,10 +218,10 @@ export const DogManagement: React.FC<DogManagementProps> = ({
               <Plus size={32} className="text-gray-400 dark:text-gray-500" />
             </div>
             <p className="text-lg font-medium text-gray-900 dark:text-white">
-              No dogs found
+              {t('noDogsFound')}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Create your first dog profile to get started
+              {t('addFirstDog')}
             </p>
           </div>
           <Button onClick={handleCreateDog}>{t('addDog')}</Button>

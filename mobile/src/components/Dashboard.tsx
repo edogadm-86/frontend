@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { Card } from './ui/Card';
+import { statusKeyFromBackend, statusKeyFromScore } from '../lib/healthI18n';
 import { Button } from './ui/Button';
 import {
   Calendar,
@@ -32,22 +33,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
-  const blobRef = useRef<string | null>(null);
+  const [dismissedAlerts, setDismissedAlerts] = useState<{ overdue: boolean; dueSoon: boolean }>({
+    overdue: false,
+    dueSoon: false,
+  });
 
+  const blobRef = useRef<string | null>(null);
   const [showPassport, setShowPassport] = useState(false);
 
-  // Load health status if the api method exists
+  // Debug effect
   useEffect(() => {
+   
     if (currentDog?.id) {
       loadHealthStatus();
+    } else {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDog?.id]);
 
   const loadHealthStatus = async () => {
-    if (!currentDog?.id) return;
+    if (!currentDog?.id) {
+      return;
+    }
 
-    // Guard: method may not exist in your apiClient yet
+
     if (typeof (apiClient as any).getDogHealthStatus !== 'function') {
       setHealthStatus(null);
       return;
@@ -56,52 +65,70 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     setLoadingHealth(true);
     try {
       const response = await (apiClient as any).getDogHealthStatus(currentDog.id);
-      setHealthStatus(response);
+
+      const normalized = response?.data ?? response;
+
+      setHealthStatus(normalized);
     } catch (error) {
-      console.error('Error loading health status:', error);
     } finally {
       setLoadingHealth(false);
     }
   };
 
   // Cache avatar locally whenever the profile picture URL changes
-useEffect(() => {
-  let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
 
-  (async () => {
-    setLocalAvatar(null);
-    if (!currentDog?.profilePicture) return;
+    (async () => {
+      setLocalAvatar(null);
+      if (!currentDog?.profilePicture) return;
 
-    try {
-      const localUrl = await cacheImageToDevice(currentDog.profilePicture);
-      if (cancelled) return;
+      try {
+        const localUrl = await cacheImageToDevice(currentDog.profilePicture);
+        if (cancelled) return;
 
-      // Save the new URL and revoke the previous blob (if any)
-      const prevBlob = blobRef.current;
-      setLocalAvatar(localUrl);
+        const prevBlob = blobRef.current;
+        setLocalAvatar(localUrl);
 
-      if (localUrl.startsWith('blob:')) {
-        blobRef.current = localUrl;
-      } else {
+        if (localUrl.startsWith('blob:')) {
+          blobRef.current = localUrl;
+        } else {
+          blobRef.current = null;
+        }
+
+        if (prevBlob) {
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(prevBlob);
+            } catch {}
+          }, 0);
+        }
+      } catch (e) {
+        console.warn('Avatar cache failed:', e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentDog?.profilePicture]);
+
+  useEffect(() => {
+    if (healthStatus) {
+     
+    }
+  }, [healthStatus]);
+
+  useEffect(() => {
+    return () => {
+      if (blobRef.current) {
+        try {
+          URL.revokeObjectURL(blobRef.current);
+        } catch {}
         blobRef.current = null;
       }
-
-      // Revoke the PREVIOUS blob after the image has a chance to swap src
-      if (prevBlob) {
-        setTimeout(() => {
-          try { URL.revokeObjectURL(prevBlob); } catch {}
-        }, 0);
-      }
-    } catch (e) {
-      console.warn('Avatar cache failed:', e);
-      // keep initials instead of falling back to remote URL (avoids CORP)
-    }
-  })();
-
-  return () => {
-    cancelled = true;
-  };
-}, [currentDog?.profilePicture]);
+    };
+  }, []);
 
   if (!currentDog) {
     return (
@@ -136,25 +163,35 @@ useEffect(() => {
   const dogAppointments = appointments.filter((a) => a.dogId === currentDog.id);
   const dogTrainingSessions = trainingSessions.filter((s) => s.dogId === currentDog.id);
 
-  // Get upcoming appointments
   const upcomingAppointments = dogAppointments
     .filter((a) => isAfter(a.date, new Date()))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 3);
 
-  // Get overdue vaccinations
   const overdueVaccinations = dogVaccinations.filter((v) => {
     if (!v.nextDueDate) return false;
     return isBefore(v.nextDueDate, new Date());
   });
 
-  // Get vaccinations due soon
   const vaccinationsDueSoon = dogVaccinations.filter((v) => {
     if (!v.nextDueDate) return false;
     const today = new Date();
     const warningDate = addDays(v.nextDueDate, -30);
     return isAfter(today, warningDate) && isBefore(today, v.nextDueDate);
   });
+
+  let statusKey = statusKeyFromBackend(healthStatus?.status);
+  if (statusKey === 'unknown') {
+    const fromScore = statusKeyFromScore(healthStatus?.score);
+    if (fromScore) statusKey = fromScore;
+    else if (healthStatus?.status) statusKey = healthStatus.status;
+  }
+
+  useEffect(() => {
+  if (healthStatus) {
+  
+  }
+}, [healthStatus]);
 useEffect(() => {
   return () => {
     if (blobRef.current) {
@@ -227,6 +264,11 @@ useEffect(() => {
       )
     : null;
 
+if (statusKey === 'unknown') {
+  const fromScore = statusKeyFromScore(healthStatus?.score);
+  if (fromScore) statusKey = fromScore;
+  else if (healthStatus?.status) statusKey = healthStatus.status; // fallback to raw
+}
   return (
     <div className="p-4 space-y-4">
       {/* Dog Profile Header */}
@@ -332,7 +374,7 @@ useEffect(() => {
                       : 'text-gray-800'
                   }`}
                 >
-                  {healthStatus.status}
+                  {t(statusKey)}
                 </h3>
                 <p
                   className={`text-sm ${
@@ -378,42 +420,52 @@ useEffect(() => {
       )}
 
       {/* Alerts */}
-      {(overdueVaccinations.length > 0 || vaccinationsDueSoon.length > 0) && (
-        <div className="space-y-2">
-          {overdueVaccinations.length > 0 && (
-            <Card className="bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-lg">
-              <div className="flex items-center space-x-2">
-                <AlertCircle size={20} className="text-red-500" />
-                <div>
-                  <p className="font-medium text-red-900">
-                    {overdueVaccinations.length} {t('vaccination')}
-                    {overdueVaccinations.length > 1 ? 's' : ''} {t('overdue')}
-                  </p>
-                  <p className="text-sm text-red-700">
-                    {t('Please schedule an appointment with your vet')}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-          {vaccinationsDueSoon.length > 0 && (
-            <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 shadow-lg">
-              <div className="flex items-center space-x-2">
-                <AlertCircle size={20} className="text-yellow-600" />
-                <div>
-                  <p className="font-medium text-yellow-900">
-                    {vaccinationsDueSoon.length} {t('vaccination')}
-                    {vaccinationsDueSoon.length > 1 ? 's' : ''} {t('due soon')}
-                  </p>
-                  <p className="text-sm text-yellow-700">
-                    {t('Consider scheduling an appointment')}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-        </div>
-      )}
+      {overdueVaccinations.length > 0 && !dismissedAlerts.overdue && (
+  <Card className="bg-gradient-to-r from-red-50 to-pink-50 border-red-200 shadow-lg relative">
+    <button
+      onClick={() => setDismissedAlerts(prev => ({ ...prev, overdue: true }))}
+      className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+    >
+      ✕
+    </button>
+    <div className="flex items-center space-x-2">
+      <AlertCircle size={20} className="text-red-500" />
+      <div>
+        <p className="font-medium text-red-900">
+          {overdueVaccinations.length} {t('vaccination')}
+          {overdueVaccinations.length > 1 ? 's' : ''} {t('overdue')}
+        </p>
+        <p className="text-sm text-red-700">
+          {t('Please schedule an appointment with your vet')}
+        </p>
+      </div>
+    </div>
+  </Card>
+)}
+
+{vaccinationsDueSoon.length > 0 && !dismissedAlerts.dueSoon && (
+  <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 shadow-lg relative">
+    <button
+      onClick={() => setDismissedAlerts(prev => ({ ...prev, dueSoon: true }))}
+      className="absolute top-2 right-2 text-yellow-600 hover:text-yellow-800"
+    >
+      ✕
+    </button>
+    <div className="flex items-center space-x-2">
+      <AlertCircle size={20} className="text-yellow-600" />
+      <div>
+        <p className="font-medium text-yellow-900">
+          {vaccinationsDueSoon.length} {t('vaccination')}
+          {vaccinationsDueSoon.length > 1 ? 's' : ''} {t('due soon')}
+        </p>
+        <p className="text-sm text-yellow-700">
+          {t('Consider scheduling an appointment')}
+        </p>
+      </div>
+    </div>
+  </Card>
+)}
+
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3">
@@ -469,9 +521,9 @@ useEffect(() => {
             <Heart size={14} className="text-white" />
           </div>
           <div className="text-lg font-bold text-gray-900">
-            {healthStatus?.status || 'Unknown'}
+            {t(statusKey)}
           </div>
-          <div className="text-xs text-gray-600">Status</div>
+          <div className="text-xs text-gray-600">{t('healthStatus')}</div>
         </Card>
       </div>
 

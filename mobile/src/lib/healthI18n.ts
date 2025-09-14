@@ -1,49 +1,47 @@
 // src/utils/healthI18n.ts
+
+// Status map (all lowercase keys)
 const STATUS_MAP: Record<string, string> = {
-  'Excellent': 'excellent',
-  'Good': 'good',
-  'Fair': 'fair',
-  'Needs Attention': 'needsAttention',
-  'Poor': 'poor'
+  'excellent': 'excellent',
+  'good': 'good',
+  'fair': 'fair',
+  'needs attention': 'needsAttention',
+  'poor': 'poor',
 };
 
-// Build a lowercased lookup so we match 'fair', ' FAIR ', etc.
-const LOWER_STATUS_MAP: Record<string, string> = Object.fromEntries(
-  Object.entries(STATUS_MAP).map(([k, v]) => [k.toLowerCase(), v])
-);
-
+// Action map (all lowercase keys)
 const ACTION_MAP: Record<string, string> = {
-  'Keep up the great care routine!': 'keepRoutine',
-  'Consider scheduling a routine checkup': 'scheduleCheckup',
-  'Update vaccinations and schedule vet visit': 'updateVaccinations',
-  'Schedule vet visit and update records': 'scheduleVetVisit',
-  'Immediate vet attention recommended': 'immediateVet'
+  'keep up the great care routine!': 'keepRoutine',
+  'consider scheduling a routine checkup': 'scheduleCheckup',
+  'update vaccinations and schedule vet visit': 'updateVaccinations',
+  'schedule vet visit and update records': 'scheduleVetVisit',
+  'immediate vet attention recommended': 'immediateVet',
 };
 
-// (Optional) if backend sends factor strings in English:
+// Factor map (all lowercase keys)
 const FACTOR_MAP: Record<string, string> = {
-  'Keep up regular checkups': 'keepRegularCheckups',
-  'Maintain vaccination schedule': 'maintainVaccinationSchedule',
-  'Track weight changes': 'trackWeightChanges',
-  'Improve daily activity': 'improveDailyActivity',
-  'Some vaccinations due': 'someVaccinationsDue',
-  'Regular health monitoring': 'regularHealthMonitoring',
-  'Schedule regular checkups': 'scheduleRegularCheckups'
+  'keep up regular checkups': 'keepRegularCheckups',
+  'maintain vaccination schedule': 'maintainVaccinationSchedule',
+  'track weight changes': 'trackWeightChanges',
+  'improve daily activity': 'improveDailyActivity',
+  'some vaccinations due': 'someVaccinationsDue',
+  'regular health monitoring': 'regularHealthMonitoring',
+  'schedule regular checkups': 'scheduleRegularCheckups',
 };
 
-const LOWER_FACTOR_MAP: Record<string, string> = Object.fromEntries(
-  Object.entries(FACTOR_MAP).map(([k, v]) => [k.toLowerCase().trim(), v])
-);
-
+// Normalizer
 const norm = (s?: string) => (s || '').toLowerCase().trim();
 
-export const factorKeyFromBackend = (raw?: string) =>
-  LOWER_FACTOR_MAP[norm(raw)] ?? '';
-
 export const statusKeyFromBackend = (raw?: string) =>
-  LOWER_STATUS_MAP[norm(raw)] ?? 'unknown';
+  STATUS_MAP[norm(raw)] ?? 'unknown';
 
-// ③ Score-based fallback (mirrors backend thresholds)
+export const actionKeyFromBackend = (raw?: string) =>
+  ACTION_MAP[norm(raw)] ?? '';
+
+export const factorKeyFromBackend = (raw?: string) =>
+  FACTOR_MAP[norm(raw)] ?? '';
+
+// Score-based fallback (mirrors backend thresholds)
 export const statusKeyFromScore = (score?: number | null) => {
   if (typeof score !== 'number') return '';
   if (score >= 85) return 'excellent';
@@ -52,9 +50,3 @@ export const statusKeyFromScore = (score?: number | null) => {
   if (score >= 40) return 'needsAttention';
   return 'poor';
 };
-
-
-export const actionKeyFromBackend = (raw?: string) =>
-  ACTION_MAP[norm(raw)] ?? '';
-
-
