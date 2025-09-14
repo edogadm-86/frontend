@@ -34,7 +34,7 @@ export const NutritionRecords: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<NutritionRecord | null>(null);
   const [loading, setLoading] = useState(false);
-   const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
   food_brand: '',
   food_type: '',
   daily_amount: '',
@@ -42,9 +42,12 @@ export const NutritionRecords: React.FC = () => {
   protein_percentage: '',
   fat_percentage: '',
   carb_percentage: '',
+  supplements:  '',
   weight_at_time: '',
   notes: '',
 });
+
+
 
   const refreshRecords = async () => {
     if (!currentDog) return;
@@ -71,7 +74,6 @@ export const NutritionRecords: React.FC = () => {
   setLoading(true);
 
     const payload = {
-    nutritionRecord: {
     date: new Date().toISOString().split('T')[0],
     food_brand: formData.food_brand,
     food_type: formData.food_type,
@@ -81,10 +83,9 @@ export const NutritionRecords: React.FC = () => {
     fat_percentage: Number(formData.fat_percentage) || 0,
     carb_percentage: Number(formData.carb_percentage) || 0,
     weight_at_time: Number(formData.weight_at_time) || 0,
-    supplements: [],
+    supplements: formData.supplements ? formData.supplements.split(',').map(s => s.trim()): [],
     notes: formData.notes,
-  }
-};
+  };
 
 
   try {
@@ -95,7 +96,7 @@ export const NutritionRecords: React.FC = () => {
     }
     setIsModalOpen(false);
     setEditingRecord(null);
-    setFormData({ food_brand: '', food_type: '', daily_amount: '', calories_per_day: '', notes: '' });
+    setFormData({ food_brand: '', food_type: '', daily_amount: '', calories_per_day: '', protein_percentage: '',  fat_percentage: '',  carb_percentage: '', supplements: '', weight_at_time: '',notes: '' });
     await refreshRecords();
   } catch (err) {
     console.error('Error saving nutrition record:', err);
@@ -172,12 +173,18 @@ export const NutritionRecords: React.FC = () => {
                     onClick={() => {
                       setEditingRecord(record);
                       setFormData({
-                        food_brand: record.food_brand,
-                        food_type: record.food_type,
-                        daily_amount: record.daily_amount.toString(),
-                        calories_per_day: record.calories_per_day.toString(),
-                        notes: record.notes || '',
-                      });
+                      food_brand: record.food_brand,
+                      food_type: record.food_type,
+                      daily_amount: record.daily_amount.toString(),
+                      calories_per_day: record.calories_per_day.toString(),
+                      protein_percentage: record.protein_percentage.toString(),
+                      fat_percentage: record.fat_percentage.toString(),
+                      carb_percentage: record.carb_percentage.toString(),
+                      weight_at_time: record.weight_at_time.toString(),
+                      supplements: record.supplements?.join(', ') || '',   // 👈 force string
+                      notes: record.notes || '',
+                    });
+
                       setIsModalOpen(true);
                     }}
                   >
@@ -208,6 +215,10 @@ export const NutritionRecords: React.FC = () => {
           <Input label={t('Food Type')} value={formData.food_type} onChange={(e) => setFormData({ ...formData, food_type: e.target.value })} />
           <Input label={t('Daily Amount (g)')} value={formData.daily_amount} onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })} />
           <Input label={t('Calories per Day')} value={formData.calories_per_day} onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })} />
+          <Input label={t('Protein %')} value={formData.protein_percentage} onChange={(e) => setFormData({ ...formData, protein_percentage: e.target.value })} />
+          <Input label={t('Fat %')} value={formData.fat_percentage} onChange={(e) => setFormData({ ...formData, fat_percentage: e.target.value })} />
+          <Input label={t('Carbs %')} value={formData.carb_percentage} onChange={(e) => setFormData({ ...formData, carb_percentage: e.target.value })} />
+          <Input label={t('Weight at Time (kg)')} value={formData.weight_at_time} onChange={(e) => setFormData({ ...formData, weight_at_time: e.target.value })} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('Notes')}</label>
             <textarea

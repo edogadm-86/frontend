@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../lib/api';
-import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact } from '../types';
+import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, Nutrition } from '../types';
 
 export const useApi = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,6 +12,7 @@ export const useApi = () => {
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [nutritionRecords, setNutritionRecords] = useState<Nutrition[]>([]);
 
   // Load user data
   const loadUser = async () => {
@@ -63,7 +64,7 @@ export const useApi = () => {
         available24h: contact.available_24h,
       }));
       setEmergencyContacts(contactsWithTypes);
-
+      
       // Load data for each dog
       if (dogsWithTypes.length > 0) {
         const allVaccinations: Vaccination[] = [];
@@ -130,7 +131,7 @@ export const useApi = () => {
           } catch (error) {
             console.error(`Error loading appointments for dog ${dog.id}:`, error);
           }
-
+          
           // Load training sessions
           try {
             const trainingResponse = await apiClient.getTrainingSessions(dog.id);
@@ -196,7 +197,7 @@ export const useApi = () => {
     setTrainingSessions([]);
     setEmergencyContacts([]);
   };
-
+  
   // CRUD operations
   const createDog = async (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => {
     try {
@@ -245,7 +246,35 @@ export const useApi = () => {
       throw error;
     }
   };
+   // ---- Nutrition methods ----
+  async function getNutritionRecords(dogId: string) {
+    const { nutritionRecords } = await apiClient.getNutritionRecords(dogId);
+    setNutritionRecords(nutritionRecords);
+    return nutritionRecords;
+  }
 
+ async function createNutritionRecord(dogId: string, data: Omit<Nutrition, 'id'>): Promise<Nutrition> {
+  const res = await apiClient.createNutritionRecord(dogId, data);
+  // assuming API returns { nutritionRecord: {...} }
+  const record: Nutrition = res.nutritionRecord;
+  setNutritionRecords((prev) => [...prev, record]);
+  return record;
+}
+
+async function updateNutritionRecord(dogId: string, recordId: string, data: Partial<Nutrition>): Promise<Nutrition> {
+  const res = await apiClient.updateNutritionRecord(dogId, recordId, data);
+  const record: Nutrition = res.nutritionRecord;
+  setNutritionRecords((prev) =>
+    prev.map((r) => (r.id === record.id ? record : r))
+  );
+  return record;
+}
+
+
+  async function deleteNutritionRecord(dogId: string, recordId: string) {
+    await apiClient.deleteNutritionRecord(dogId, recordId);
+    setNutritionRecords((prev) => prev.filter((r) => r.id !== recordId));
+  }
   const createVaccination = async (vaccinationData: Omit<Vaccination, 'id'>) => {
     try {
       const response = await apiClient.createVaccination(vaccinationData.dogId, vaccinationData);
@@ -452,5 +481,10 @@ export const useApi = () => {
     deleteTrainingSession,
     deleteEmergencyContact,
     loadUser,
+    nutritionRecords,
+    getNutritionRecords,
+    createNutritionRecord,
+    updateNutritionRecord,
+    deleteNutritionRecord,
   };
 };

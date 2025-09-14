@@ -27,7 +27,7 @@ export const MealPlan: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
-  const [formData, setFormData] = useState({ meal_time: '', food_type: '', amount: '', calories: '' });
+  const [formData, setFormData] = useState({ meal_time: '', food_type: '', amount: '', calories: '', is_active: '' });
   const [loading, setLoading] = useState(false);
 
   const refreshMeals = async () => {
@@ -66,25 +66,38 @@ export const MealPlan: React.FC = () => {
       return;
     }
 
-    const payload = {
-      mealPlan: {
-        meal_time: formData.meal_time,
+
+      if (editingMeal) {
+      const payload = {
+        meal_time: formData.meal_time.slice(0,5), // force "HH:mm"
         food_type: formData.food_type,
         amount: Number(formData.amount) || 0,
         calories: Number(formData.calories) || 0,
-        nutrition_record_id: editingMeal?.nutrition_record_id || latestRecord.id,
-      }
-    };
+        nutrition_record_id: editingMeal.nutrition_record_id,  // ✅ reuse existing
+        is_active: "true", // must be string
+      };
 
-    if (editingMeal) {
+      console.log("Final payload:", payload);
       await apiClient.updateMealPlan(currentDog.id, editingMeal.id, payload);
     } else {
+      const payload = {
+        meal_time: formData.meal_time.slice(0,5), // force "HH:mm"
+        food_type: formData.food_type,
+        amount: Number(formData.amount) || 0,
+        calories: Number(formData.calories) || 0,
+        nutrition_record_id: latestRecord.id,
+        is_active: "true", // must be string
+
+      };
+
+      console.log("Create meal payload", payload);
       await apiClient.createMealPlan(currentDog.id, payload);
     }
 
+
     setIsModalOpen(false);
     setEditingMeal(null);
-    setFormData({ meal_time: '', food_type: '', amount: '', calories: '' });
+    setFormData({ meal_time: '', food_type: '', amount: '', calories: '', is_active: 'true' });
     await refreshMeals();
   } catch (err) {
     console.error('Error saving meal:', err);
@@ -158,6 +171,7 @@ export const MealPlan: React.FC = () => {
                         food_type: meal.food_type,
                         amount: meal.amount.toString(),
                         calories: meal.calories.toString(),
+                        is_active: 'true',
                       });
                       setIsModalOpen(true);
                     }}

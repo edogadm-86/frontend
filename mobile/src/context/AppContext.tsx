@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useApi } from '../hooks/useApi';
-import { Dog, User, Vaccination, HealthRecord, Appointment, TrainingSession } from '../types';
+import { Dog, User, Vaccination, HealthRecord, Appointment, TrainingSession, Nutrition } from '../types';
 
 interface AppContextType {
   user: User | null;
@@ -28,6 +28,10 @@ interface AppContextType {
   currentDog: Dog | null;
   setCurrentDog: (dog: Dog | null) => void;
   loading: boolean;
+  nutritionRecords: Nutrition[];
+  createNutritionRecord: (dogId: string, data: Omit<Nutrition, 'id'>) => Promise<Nutrition>;
+  updateNutritionRecord: (dogId: string, recordId: string, data: Partial<Nutrition>) => Promise<Nutrition>;
+  deleteNutritionRecord: (dogId: string, recordId: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -69,6 +73,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     register,
     login,
     logout,
+    nutritionRecords,
+    createNutritionRecord,
+    updateNutritionRecord,
+    deleteNutritionRecord,
   } = useApi();
 
   const [currentDog, setCurrentDog] = React.useState<Dog | null>(null);
@@ -106,6 +114,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   currentDog,
   setCurrentDog,
   loading,
+   nutritionRecords,
+  createNutritionRecord,
+  updateNutritionRecord,
+  deleteNutritionRecord,
 };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

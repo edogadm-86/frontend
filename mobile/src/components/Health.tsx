@@ -1,29 +1,18 @@
 // src/components/Health.tsx
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { useApp } from "../context/AppContext";
-import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
-import { Modal } from "./ui/Modal";
-import { Input } from "./ui/Input";
-import { FileUpload } from "./ui/FileUpload";
 import { useTranslation } from "react-i18next";
 import {
   Shield,
   Heart,
   Apple,
   Target,
-  PlusCircle,
-  Trash2,
-  Edit,
-  Calendar,
-  User,
-  Paperclip,
 } from "lucide-react";
-import { format } from "date-fns";
-import { apiClient } from "../lib/api";
 import { HealthRecords as HealthRecordsSection } from "./HealthRecords";
 import { VaccinationTracker } from "./VaccinationTracker";  
 import { NutritionTracker } from "./NutritionTracker";
+import { HealthOverview } from "./HealthOverview";
 
 // ---------- Main Health Screen ----------
 export const Health: React.FC = () => {
@@ -65,14 +54,8 @@ export const Health: React.FC = () => {
       </div>
 
       {/* Tab Content */}
-      {tab === "overview" && (
-        <Card className="p-4">
-          <p>{t("Health overview coming soon...")}</p>
-        </Card>
-      )}
-      {tab === "vaccinations" && (
-          <VaccinationTracker />
-      )}
+      {tab === "overview" && <HealthOverview />}
+      {tab === "vaccinations" && ( <VaccinationTracker />)}
       {tab === "health" && <HealthRecordsSection />}
       {tab === "nutrition" &&  <NutritionTracker />}
 

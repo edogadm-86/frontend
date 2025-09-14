@@ -6,7 +6,7 @@ import { Card } from './ui/Card';
 import { Modal } from './ui/Modal';
 import { ChatBot } from './ChatBot';
 import { TrainingSession } from '../types';
-import { PlusCircle, Award, BookOpen, TrendingUp, Bot, Calendar, Clock } from 'lucide-react';
+import { PlusCircle, Award, BookOpen, TrendingUp, Calendar, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { PageContainer } from './ui/PageContainer';
@@ -30,7 +30,6 @@ export const TrainingTracker: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
     if (!currentDog) return;
 
     const sessionData = {
@@ -40,7 +39,7 @@ export const TrainingTracker: React.FC = () => {
       commands: formData.commands.split(',').map(cmd => cmd.trim()).filter(cmd => cmd),
       progress: formData.progress,
       notes: formData.notes,
-      behaviorNotes: formData.behaviorNotes || undefined,
+      behavior_notes: formData.behaviorNotes || undefined,
     };
 
     try {
@@ -73,245 +72,220 @@ export const TrainingTracker: React.FC = () => {
 
   const getProgressLabel = (progress: TrainingSession['progress']) => {
     switch (progress) {
-      case 'excellent': return 'Excellent';
-      case 'good': return 'Good';
-      case 'fair': return 'Fair';
-      case 'needs-work': return 'Needs Work';
-      default: return 'Unknown';
+      case 'excellent': return t('excellent');
+      case 'good': return t('good');
+      case 'fair': return t('fair');
+      case 'needs-work': return t('needsWork');
+      default: return t('unknown');
     }
   };
 
-  const getAllCommands = () => {
-    const allCommands = dogTrainingSessions.flatMap(session => session.commands);
-    return [...new Set(allCommands)].sort();
-  };
-
-  const getTotalTrainingTime = () => {
-    return dogTrainingSessions.reduce((total, session) => total + session.duration, 0);
-  };
+  const totalSessions = dogTrainingSessions.length;
+  const totalTime = dogTrainingSessions.reduce((sum, s) => sum + s.duration, 0);
+  const successRate = totalSessions > 0
+    ? Math.round(
+        (dogTrainingSessions.filter(s => s.progress === 'excellent' || s.progress === 'good').length / totalSessions) * 100
+      )
+    : 0;
 
   if (!currentDog) {
     return (
       <div className="p-4">
         <Card className="text-center py-8">
-          <p className="text-gray-500">Please select a dog to view training records</p>
+          <p className="text-gray-500">{t('pleaseSelectDog')}</p>
         </Card>
       </div>
     );
   }
 
-  const allCommands = getAllCommands();
-  const totalTime = getTotalTrainingTime();
-
   return (
-       <PageContainer>
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900">
-          Training - {currentDog.name}
-        </h2>
-        <Button onClick={() => setIsModalOpen(true)} size="sm" className="bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500">
-          <PlusCircle size={16} className="mr-1" />
-          Add Session
-        </Button>
-      </div>
-       <ChatBot dogName={currentDog.name} />
-      {/* Training Stats */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card className="bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-lg">
-          <div className="flex items-center space-x-2">
-            <TrendingUp size={18} className="text-blueblue-500" />
-            <div>
-              <p className="text-sm text-gray-600">Total Sessions</p>
-              <p className="text-lg font-semibold">{dogTrainingSessions.length}</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-lg">
-          <div className="flex items-center space-x-2">
-            <Award size={18} className="text-green-500" />
-            <div>
-              <p className="text-sm text-gray-600">Training Time</p>
-              <p className="text-lg font-semibold">{totalTime} min</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Commands Learned */}
-      {allCommands.length > 0 && (
-        <Card className="bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-lg">
-          <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-            <BookOpen size={16} className="mr-1" />
-            Commands Learned ({allCommands.length})
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {allCommands.map((command) => (
-              <span
-                key={command}
-                className="px-2 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-sm rounded-full"
-              >
-                {command}
-              </span>
-            ))}
-          </div>
-         
-        </Card>
-      )}
-
-     
-        
-    
-
-      {/* Training Sessions */}
-      {dogTrainingSessions.length === 0 ? (
-        <Card className="text-center py-8 bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-lg">
-          <Award size={48} className="mx-auto mb-2 text-gray-300" />
-          <p className="text-gray-500 mb-4">No training sessions yet</p>
-          <Button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500">
-            Start First Session
+    <PageContainer>
+      <div className="p-4 space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">
+            {t('training')} – {currentDog.name}
+          </h2>
+          <Button onClick={() => setIsModalOpen(true)} size="sm">
+            <PlusCircle size={16} className="mr-1" />
+            {t('addTrainingSession')}
           </Button>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold text-gray-900">Recent Sessions</h3>
-          {dogTrainingSessions
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 5)
-            .map((session) => (
-              <Card key={session.id} className="bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-lg">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h3 className="font-semibold text-gray-900">
-                        {format(session.date, 'MMM dd, yyyy')}
-                      </h3>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getProgressColor(session.progress)}`}>
-                        {getProgressLabel(session.progress)}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-                      <div className="flex items-center">
-                        <Clock size={12} className="mr-1" />
-                        {session.duration} min
+        </div>
+
+        <ChatBot dogName={currentDog.name} />
+
+        {/* Stats */}
+        {dogTrainingSessions.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            <Card>
+              <div className="flex items-center space-x-2">
+                <Award size={18} className="text-blue-600" />
+                <div>
+                  <p className="text-sm text-gray-600">{t('totalSessions')}</p>
+                  <p className="text-lg font-semibold">{totalSessions}</p>
+                </div>
+              </div>
+            </Card>
+            <Card>
+              <div className="flex items-center space-x-2">
+                <Clock size={18} className="text-green-600" />
+                <div>
+                  <p className="text-sm text-gray-600">{t('totalTime')}</p>
+                  <p className="text-lg font-semibold">{Math.round(totalTime / 60)}h</p>
+                </div>
+              </div>
+            </Card>
+            <Card>
+              <div className="flex items-center space-x-2">
+                <TrendingUp size={18} className="text-purple-600" />
+                <div>
+                  <p className="text-sm text-gray-600">{t('successRate')}</p>
+                  <p className="text-lg font-semibold">{successRate}%</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Sessions */}
+        {dogTrainingSessions.length === 0 ? (
+          <Card className="text-center py-8">
+            <Award size={48} className="mx-auto mb-2 text-gray-300" />
+            <p className="text-gray-500 mb-4">{t('noTrainingSessionsRecorded')}</p>
+            <Button onClick={() => setIsModalOpen(true)}>
+              {t('startFirstSession')}
+            </Button>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold text-gray-900">{t('recentSessions')}</h3>
+            {dogTrainingSessions
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .map(session => (
+                <Card key={session.id}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h4 className="font-semibold text-gray-900">
+                          {format(new Date(session.date), 'MMM dd, yyyy')}
+                        </h4>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getProgressColor(session.progress)}`}
+                        >
+                          {getProgressLabel(session.progress)}
+                        </span>
                       </div>
-                      <div className="flex items-center">
-                        <BookOpen size={12} className="mr-1" />
-                        {session.commands.length} commands
-                      </div>
-                    </div>
-                    {session.commands.length > 0 && (
-                      <div className="mb-2">
-                        <div className="flex flex-wrap gap-1">
-                          {session.commands.slice(0, 3).map((command, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
-                            >
-                              {command}
-                            </span>
-                          ))}
-                          {session.commands.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                              +{session.commands.length - 3} more
-                            </span>
-                          )}
+                      <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                        <div className="flex items-center">
+                          <Clock size={12} className="mr-1" />
+                          {session.duration} {t('minutes')}
+                        </div>
+                        <div className="flex items-center">
+                          <BookOpen size={12} className="mr-1" />
+                          {session.commands.length} {t('commands')}
                         </div>
                       </div>
-                    )}
-                    {session.notes && (
-                      <p className="text-sm text-gray-600">
-                        <strong>Notes:</strong> {session.notes}
-                      </p>
-                    )}
+                      {session.commands.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {session.commands.map((cmd, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                            >
+                              {cmd}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {session.notes && (
+                        <p className="text-sm text-gray-600">{session.notes}</p>
+                      )}
+                      {session.behaviorNotes && (
+                        <p className="text-sm text-gray-500 italic">
+                          {t('behaviorNotes')}: {session.behaviorNotes}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
-        </div>
-      )}
+                </Card>
+              ))}
+          </div>
+        )}
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Add Training Session"
-        className="max-w-lg"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        {/* Modal */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={t('addTrainingSession')}
+          className="max-w-lg"
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label={t('date')}
+                type="date"
+                value={formData.date}
+                onChange={e => setFormData({ ...formData, date: e.target.value })}
+                required
+              />
+              <Input
+                label={t('duration')}
+                type="number"
+                value={formData.duration}
+                onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                required
+              />
+            </div>
             <Input
-              label="Date"
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              required
+              label={t('commandsPracticed')}
+              value={formData.commands}
+              onChange={e => setFormData({ ...formData, commands: e.target.value })}
+              placeholder={t('commandsPlaceholder')}
             />
-            <Input
-              label="Duration (minutes)"
-              type="number"
-              value={formData.duration}
-              onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-              required
-            />
-          </div>
-          <Input
-            label="Commands Practiced"
-            value={formData.commands}
-            onChange={(e) => setFormData({ ...formData, commands: e.target.value })}
-            placeholder="sit, stay, come (separate with commas)"
-          />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Progress
-            </label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueblue-500 focus:border-transparent"
-              value={formData.progress}
-              onChange={(e) => setFormData({ ...formData, progress: e.target.value as TrainingSession['progress'] })}
-              required
-            >
-              <option value="excellent">Excellent</option>
-              <option value="good">Good</option>
-              <option value="fair">Fair</option>
-              <option value="needs-work">Needs Work</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Session Notes
-            </label>
-            <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueblue-500 focus:border-transparent"
-              rows={3}
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="What did you work on? How did it go?"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Behavior Notes (optional)
-            </label>
-            <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueblue-500 focus:border-transparent"
-              rows={2}
-              value={formData.behaviorNotes}
-              onChange={(e) => setFormData({ ...formData, behaviorNotes: e.target.value })}
-              placeholder="Any behavioral observations..."
-            />
-          </div>
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" className="flex-1 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Session'}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-    </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('progress')}</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                value={formData.progress}
+                onChange={e => setFormData({ ...formData, progress: e.target.value as TrainingSession['progress'] })}
+                required
+              >
+                <option value="excellent">{t('excellent')}</option>
+                <option value="good">{t('good')}</option>
+                <option value="fair">{t('fair')}</option>
+                <option value="needs-work">{t('needsWork')}</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('sessionNotes')}</label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                rows={3}
+                value={formData.notes}
+                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('behaviorNotes')}</label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                rows={2}
+                value={formData.behaviorNotes}
+                onChange={e => setFormData({ ...formData, behaviorNotes: e.target.value })}
+              />
+            </div>
+            <div className="flex space-x-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                {t('cancel')}
+              </Button>
+              <Button type="submit" className="flex-1" disabled={loading}>
+                {loading ? t('loading') : t('save')}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      </div>
     </PageContainer>
   );
 };

@@ -89,12 +89,17 @@ export interface User {
 }
 export interface Nutrition {
   id: string;
-  dogId: string;
-  foodName: string;
-  brand: string;
-  type: string;
-  quantity: string;
-  frequency: string;
+  dog_id: string;
+  date: string;
+  food_brand: string;
+  food_type: string;
+  daily_amount: number;
+  calories_per_day: number;
+  protein_percentage: number;
+  fat_percentage: number;
+  carb_percentage: number;
+  supplements: string[];
   notes?: string;
-  createdAt: Date;
-}
+  weight_at_time: number;
+  created_at: string;
+};

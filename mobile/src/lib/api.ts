@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../config';
 
 class ApiClient {
   private token: string | null = null;
-
+  
   constructor() {
     this.token = localStorage.getItem('authToken');
   }
@@ -204,23 +204,28 @@ class ApiClient {
   }
 
 // Training session endpoints
-  async createTrainingSession(dogId: string, sessionData: any) {
-    return this.request<{ trainingSession: any }>(`/training/dog/${dogId}`, {
-      method: 'POST',
-      body: JSON.stringify(sessionData),
-    });
-  }
+async getTrainingSessions(dogId: string) {
+  return this.request<{ trainingSessions: any[] }>(`/training/dog/${dogId}/sessions`);
+}
 
-  async updateTrainingSession(dogId: string, sessionId: string, sessionData: any) {
-    return this.request<{ trainingSession: any }>(`/training/dog/${dogId}/${sessionId}`, {
-      method: 'PUT',
-      body: JSON.stringify(sessionData),
-    });
-  }
+async createTrainingSession(dogId: string, sessionData: any) {
+  return this.request<{ trainingSession: any }>(`/training/dog/${dogId}/sessions`, {
+    method: 'POST',
+    body: JSON.stringify(sessionData),
+  });
+}
 
-  async deleteTrainingSession(dogId: string, sessionId: string) {
-    return this.request(`/training/dog/${dogId}/${sessionId}`, { method: 'DELETE' });
-  }
+async updateTrainingSession(dogId: string, sessionId: string, sessionData: any) {
+  return this.request<{ trainingSession: any }>(`/training/dog/${dogId}/sessions/${sessionId}`, {
+    method: 'PUT',
+    body: JSON.stringify(sessionData),
+  });
+}
+
+async deleteTrainingSession(dogId: string, sessionId: string) {
+  return this.request(`/training/dog/${dogId}/sessions/${sessionId}`, { method: 'DELETE' });
+}
+
 
 
   // Emergency contact endpoints
@@ -338,6 +343,7 @@ async updateMealPlan(dogId: string, mealId: string, mealData: any) {
 async deleteMealPlan(dogId: string, mealId: string) {
   return this.request(`/nutrition/dog/${dogId}/meal-plan/${mealId}`, { method: 'DELETE' });
 }
+
 
 async getNutritionStats(dogId: string) {
   return this.request<{
