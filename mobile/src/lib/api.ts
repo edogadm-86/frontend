@@ -203,19 +203,25 @@ class ApiClient {
     });
   }
 
-  async createTrainingSession(dogId: string, sessionData: Omit<TrainingSession, 'id'>) {
-    return this.request<{ trainingSession: TrainingSession }>(`/training/dog/${dogId}`, {
+// Training session endpoints
+  async createTrainingSession(dogId: string, sessionData: any) {
+    return this.request<{ trainingSession: any }>(`/training/dog/${dogId}`, {
       method: 'POST',
-      body: JSON.stringify({
-        date: sessionData.date.toISOString().split('T')[0],
-        duration: sessionData.duration,
-        commands: sessionData.commands,
-        progress: sessionData.progress,
-        notes: sessionData.notes,
-        behavior_notes: sessionData.behaviorNotes,
-      }),
+      body: JSON.stringify(sessionData),
     });
   }
+
+  async updateTrainingSession(dogId: string, sessionId: string, sessionData: any) {
+    return this.request<{ trainingSession: any }>(`/training/dog/${dogId}/${sessionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(sessionData),
+    });
+  }
+
+  async deleteTrainingSession(dogId: string, sessionId: string) {
+    return this.request(`/training/dog/${dogId}/${sessionId}`, { method: 'DELETE' });
+  }
+
 
   // Emergency contact endpoints
   async getEmergencyContacts() {
@@ -243,12 +249,6 @@ class ApiClient {
 
   async deleteAppointment(dogId: string, appointmentId: string) {
     return this.request(`/appointments/dog/${dogId}/${appointmentId}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async deleteTrainingSession(dogId: string, sessionId: string) {
-    return this.request(`/training/dog/${dogId}/${sessionId}`, {
       method: 'DELETE',
     });
   }

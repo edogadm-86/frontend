@@ -9,45 +9,48 @@ import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../lib/api';
 import { format } from 'date-fns';
 
-type Nutrition = {
+type NutritionRecord = {
   id: string;
-  dogId: string;
-  foodName: string;
-  brand: string;
-  type: string;
-  quantity: string;
-  frequency: string;
+  dog_id: string;
+  date: string;
+  food_brand: string;
+  food_type: string;
+  daily_amount: number;
+  calories_per_day: number;
+  protein_percentage: number;
+  fat_percentage: number;
+  carb_percentage: number;
+  supplements: string[];
   notes?: string;
-  createdAt: Date;
+  weight_at_time: number;
+  created_at: string;
 };
 
 export const NutritionRecords: React.FC = () => {
   const { currentDog } = useApp();
   const { t } = useTranslation();
 
-  const [localRecords, setLocalRecords] = useState<Nutrition[]>([]);
+  const [localRecords, setLocalRecords] = useState<NutritionRecord[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<Nutrition | null>(null);
+  const [editingRecord, setEditingRecord] = useState<NutritionRecord | null>(null);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    foodName: '',
-    brand: '',
-    type: '',
-    quantity: '',
-    frequency: '',
-    notes: '',
-  });
+   const [formData, setFormData] = useState({
+  food_brand: '',
+  food_type: '',
+  daily_amount: '',
+  calories_per_day: '',
+  protein_percentage: '',
+  fat_percentage: '',
+  carb_percentage: '',
+  weight_at_time: '',
+  notes: '',
+});
 
   const refreshRecords = async () => {
     if (!currentDog) return;
     try {
       const { nutritionRecords } = await apiClient.getNutritionRecords(currentDog.id);
-      setLocalRecords(
-        nutritionRecords.map((n: any) => ({
-          ...n,
-          createdAt: new Date(n.createdAt ?? n.created_at),
-        }))
-      );
+      setLocalRecords(nutritionRecords);
     } catch (err) {
       console.error('Failed to load nutrition records:', err);
     }
@@ -58,32 +61,51 @@ export const NutritionRecords: React.FC = () => {
   }, [currentDog?.id]);
 
   const dogNutritionRecords = useMemo(
-    () => (currentDog ? localRecords.filter((r) => r.dogId === currentDog.id) : []),
+    () => (currentDog ? localRecords.filter((r) => r.dog_id === currentDog.id) : []),
     [localRecords, currentDog]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentDog) return;
-    setLoading(true);
-    try {
-      if (editingRecord) {
-        await apiClient.updateNutritionRecord(currentDog.id, editingRecord.id, formData);
-      } else {
-        await apiClient.createNutritionRecord(currentDog.id, formData);
-      }
-      setIsModalOpen(false);
-      setEditingRecord(null);
-      setFormData({ foodName: '', brand: '', type: '', quantity: '', frequency: '', notes: '' });
-      await refreshRecords();
-    } catch (err) {
-      console.error('Error saving nutrition record:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  if (!currentDog) return;
+  setLoading(true);
 
-  const handleDelete = async (record: Nutrition) => {
+    const payload = {
+    nutritionRecord: {
+    date: new Date().toISOString().split('T')[0],
+    food_brand: formData.food_brand,
+    food_type: formData.food_type,
+    daily_amount: Number(formData.daily_amount) || 0,
+    calories_per_day: Number(formData.calories_per_day) || 0,
+    protein_percentage: Number(formData.protein_percentage) || 0,
+    fat_percentage: Number(formData.fat_percentage) || 0,
+    carb_percentage: Number(formData.carb_percentage) || 0,
+    weight_at_time: Number(formData.weight_at_time) || 0,
+    supplements: [],
+    notes: formData.notes,
+  }
+};
+
+
+  try {
+    if (editingRecord) {
+      await apiClient.updateNutritionRecord(currentDog.id, editingRecord.id, payload);
+    } else {
+      await apiClient.createNutritionRecord(currentDog.id, payload);
+    }
+    setIsModalOpen(false);
+    setEditingRecord(null);
+    setFormData({ food_brand: '', food_type: '', daily_amount: '', calories_per_day: '', notes: '' });
+    await refreshRecords();
+  } catch (err) {
+    console.error('Error saving nutrition record:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const handleDelete = async (record: NutritionRecord) => {
     if (!currentDog) return;
     const ok = window.confirm(t('Are you sure you want to delete this nutrition record?'));
     if (!ok) return;
@@ -131,16 +153,16 @@ export const NutritionRecords: React.FC = () => {
             <Card key={record.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{record.foodName}</h3>
-                  <p className="text-sm text-gray-600">{record.brand} • {record.type}</p>
+                  <h3 className="font-semibold text-gray-900">{record.food_brand}</h3>
+                  <p className="text-sm text-gray-600">{record.food_type}</p>
                   <p className="text-xs text-gray-500">
-                    {t('Quantity')}: {record.quantity}, {t('Frequency')}: {record.frequency}
+                    {t('Amount')}: {record.daily_amount}g, {t('Calories')}: {record.calories_per_day}
                   </p>
                   {record.notes && (
                     <p className="text-xs text-gray-500 mt-1">{t('Notes')}: {record.notes}</p>
                   )}
                   <p className="text-xs text-gray-400 mt-2">
-                    {t('Added')}: {format(record.createdAt, 'MMM dd, yyyy')}
+                    {t('Added')}: {format(new Date(record.created_at), 'MMM dd, yyyy')}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -150,11 +172,10 @@ export const NutritionRecords: React.FC = () => {
                     onClick={() => {
                       setEditingRecord(record);
                       setFormData({
-                        foodName: record.foodName,
-                        brand: record.brand,
-                        type: record.type,
-                        quantity: record.quantity,
-                        frequency: record.frequency,
+                        food_brand: record.food_brand,
+                        food_type: record.food_type,
+                        daily_amount: record.daily_amount.toString(),
+                        calories_per_day: record.calories_per_day.toString(),
                         notes: record.notes || '',
                       });
                       setIsModalOpen(true);
@@ -162,11 +183,7 @@ export const NutritionRecords: React.FC = () => {
                   >
                     <Edit2 size={16} />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(record)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleDelete(record)}>
                     <Trash2 size={16} />
                   </Button>
                 </div>
@@ -187,11 +204,10 @@ export const NutritionRecords: React.FC = () => {
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label={t('Food Name')} value={formData.foodName} onChange={(e) => setFormData({ ...formData, foodName: e.target.value })} required />
-          <Input label={t('Brand')} value={formData.brand} onChange={(e) => setFormData({ ...formData, brand: e.target.value })} />
-          <Input label={t('Type')} value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} />
-          <Input label={t('Quantity')} value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} />
-          <Input label={t('Frequency')} value={formData.frequency} onChange={(e) => setFormData({ ...formData, frequency: e.target.value })} />
+          <Input label={t('Food Brand')} value={formData.food_brand} onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })} required />
+          <Input label={t('Food Type')} value={formData.food_type} onChange={(e) => setFormData({ ...formData, food_type: e.target.value })} />
+          <Input label={t('Daily Amount (g)')} value={formData.daily_amount} onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })} />
+          <Input label={t('Calories per Day')} value={formData.calories_per_day} onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('Notes')}</label>
             <textarea

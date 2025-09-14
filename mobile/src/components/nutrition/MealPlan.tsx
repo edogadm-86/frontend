@@ -10,11 +10,13 @@ import { apiClient } from '../../lib/api';
 
 type Meal = {
   id: string;
-  dogId: string;
-  time: string; // "08:00"
-  food: string;
-  quantity: string;
+  dog_id: string;
+  meal_time: string;
+  food_type: string;
+  amount: number;
+  calories: number;
   notes?: string;
+  nutrition_record_id: string;
 };
 
 export const MealPlan: React.FC = () => {
@@ -22,16 +24,19 @@ export const MealPlan: React.FC = () => {
   const { t } = useTranslation();
 
   const [meals, setMeals] = useState<Meal[]>([]);
+  const [records, setRecords] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
-  const [formData, setFormData] = useState({ time: '', food: '', quantity: '', notes: '' });
+  const [formData, setFormData] = useState({ meal_time: '', food_type: '', amount: '', calories: '' });
   const [loading, setLoading] = useState(false);
 
   const refreshMeals = async () => {
     if (!currentDog) return;
     try {
       const { mealPlan } = await apiClient.getMealPlan(currentDog.id);
+      const { nutritionRecords } = await apiClient.getNutritionRecords(currentDog.id);
       setMeals(mealPlan);
+      setRecords(nutritionRecords);
     } catch (err) {
       console.error('Failed to load meal plan:', err);
     }
@@ -42,37 +47,60 @@ export const MealPlan: React.FC = () => {
   }, [currentDog?.id]);
 
   const dogMeals = useMemo(
-    () => (currentDog ? meals.filter((m) => m.dogId === currentDog.id) : []),
+    () => (currentDog ? meals.filter((m) => m.dog_id === currentDog.id) : []),
     [meals, currentDog]
   );
 
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentDog) return;
-    setLoading(true);
-    try {
-      if (editingMeal) {
-        await apiClient.updateMeal(currentDog.id, editingMeal.id, formData);
-      } else {
-        await apiClient.createMeal(currentDog.id, formData);
-      }
-      setIsModalOpen(false);
-      setEditingMeal(null);
-      setFormData({ time: '', food: '', quantity: '', notes: '' });
-      await refreshMeals();
-    } catch (err) {
-      console.error('Error saving meal:', err);
-    } finally {
-      setLoading(false);
+  e.preventDefault();
+  if (!currentDog) return;
+  setLoading(true);
+
+  try {
+    // grab the latest nutrition record
+    const { nutritionRecords } = await apiClient.getNutritionRecords(currentDog.id);
+    const latestRecord = nutritionRecords[0];
+    if (!latestRecord) {
+      alert("Please create a nutrition record first.");
+      return;
     }
-  };
+
+    const payload = {
+      mealPlan: {
+        meal_time: formData.meal_time,
+        food_type: formData.food_type,
+        amount: Number(formData.amount) || 0,
+        calories: Number(formData.calories) || 0,
+        nutrition_record_id: editingMeal?.nutrition_record_id || latestRecord.id,
+      }
+    };
+
+    if (editingMeal) {
+      await apiClient.updateMealPlan(currentDog.id, editingMeal.id, payload);
+    } else {
+      await apiClient.createMealPlan(currentDog.id, payload);
+    }
+
+    setIsModalOpen(false);
+    setEditingMeal(null);
+    setFormData({ meal_time: '', food_type: '', amount: '', calories: '' });
+    await refreshMeals();
+  } catch (err) {
+    console.error('Error saving meal:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const handleDelete = async (meal: Meal) => {
     if (!currentDog) return;
     const ok = window.confirm(t('Are you sure you want to delete this meal?'));
     if (!ok) return;
     try {
-      await apiClient.deleteMeal(currentDog.id, meal.id);
+      await apiClient.deleteMealPlan(currentDog.id, meal.id);
       await refreshMeals();
     } catch (err) {
       console.error('Error deleting meal:', err);
@@ -113,12 +141,11 @@ export const MealPlan: React.FC = () => {
             <Card key={meal.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{meal.food}</h3>
+                  <h3 className="font-semibold text-gray-900">{meal.food_type}</h3>
                   <p className="text-sm text-gray-600">
-                    {t('Quantity')}: {meal.quantity}
+                    {t('Amount')}: {meal.amount}g, {t('Calories')}: {meal.calories}
                   </p>
-                  <p className="text-xs text-gray-500">{t('Time')}: {meal.time}</p>
-                  {meal.notes && <p className="text-xs text-gray-500 mt-1">{t('Notes')}: {meal.notes}</p>}
+                  <p className="text-xs text-gray-500">{t('Time')}: {meal.meal_time}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -126,7 +153,12 @@ export const MealPlan: React.FC = () => {
                     size="sm"
                     onClick={() => {
                       setEditingMeal(meal);
-                      setFormData({ time: meal.time, food: meal.food, quantity: meal.quantity, notes: meal.notes || '' });
+                      setFormData({
+                        meal_time: meal.meal_time,
+                        food_type: meal.food_type,
+                        amount: meal.amount.toString(),
+                        calories: meal.calories.toString(),
+                      });
                       setIsModalOpen(true);
                     }}
                   >
@@ -153,18 +185,10 @@ export const MealPlan: React.FC = () => {
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label={t('Time')} type="time" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} required />
-          <Input label={t('Food')} value={formData.food} onChange={(e) => setFormData({ ...formData, food: e.target.value })} required />
-          <Input label={t('Quantity')} value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('Notes')}</label>
-            <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-              rows={3}
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            />
-          </div>
+          <Input label={t('Time')} type="time" value={formData.meal_time} onChange={(e) => setFormData({ ...formData, meal_time: e.target.value })} required />
+          <Input label={t('Food')} value={formData.food_type} onChange={(e) => setFormData({ ...formData, food_type: e.target.value })} required />
+          <Input label={t('Amount (g)')} value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} />
+          <Input label={t('Calories')} value={formData.calories} onChange={(e) => setFormData({ ...formData, calories: e.target.value })} />
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               {t('Cancel')}

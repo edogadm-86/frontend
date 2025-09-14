@@ -21,3 +21,8 @@ export function formatTime(time: string): string {
     hour12: true
   });
 }
+export const toYMD = (v: any) =>
+  !v ? new Date().toISOString().slice(0,10)
+  : typeof v === 'string' ? v.slice(0,10)
+  : v instanceof Date ? v.toISOString().slice(0,10)
+  : String(v).slice(0,10);

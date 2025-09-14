@@ -36,6 +36,8 @@ interface MealPlan {
   food_type: string;
   amount: number;
   calories: number;
+  nutrition_record_id: string;
+  is_active: string;
 }
 
 export const NutritionManagement: React.FC<NutritionManagementProps> = ({
@@ -75,10 +77,13 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     food_type: '',
     amount: '',
     calories: '',
+    nutrition_record_id: '',
+    is_active: 'true',
   });
 
   // NEW STATE for templates modal
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const normalizedTime = mealFormData.meal_time.slice(0,5); // "10:00:00" -> "10:00"
 
   // Nutrition templates
   const nutritionTemplates = [
@@ -260,6 +265,8 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       food_type: '',
       amount: '',
       calories: '',
+      nutrition_record_id: '',
+      is_active:'true',
     });
     setMealModalContext('normal');
     setIsMealPlanModalOpen(true);
@@ -290,6 +297,8 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       food_type: meal.food_type,
       amount: meal.amount.toString(),
       calories: meal.calories.toString(),
+      nutrition_record_id: meal.nutrition_record_id,
+      is_active: 'true',
     });
     setMealModalContext('normal');
     setIsMealPlanModalOpen(true);
@@ -310,6 +319,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         supplements: formData.supplements.split(',').map(s => s.trim()).filter(s => s),
         weight_at_time: parseFloat(formData.weight_at_time),
       };
+      console.log("Desktop update payload:", nutritionData);
 
       if (editingRecord) {
         await apiClient.updateNutritionRecord(dogId, editingRecord.id, nutritionData);
@@ -332,11 +342,16 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
     try {
       const mealData = {
-        meal_time: mealFormData.meal_time,
+        meal_time: normalizedTime,
         food_type: mealFormData.food_type,
         amount: parseFloat(mealFormData.amount),
         calories: parseInt(mealFormData.calories),
+        nutrition_record_id: mealFormData.nutrition_record_id, // ✅ add this
+        is_active: 'true',
+
       };
+      console.log("Desktop update payload for meal:", mealData);
+
     if (mealModalContext === 'wizard') {
       // add to custom wizard meals only
        setCustomMeals((prev) => [
@@ -347,8 +362,11 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       if (editingMeal) {
         await apiClient.updateMealPlan(dogId, editingMeal.id, {
           ...mealData,
-          nutrition_record_id: editingRecord?.id, // ✅ tie meal to record
+          nutrition_record_id: editingMeal.nutrition_record_id,
+          is_active: true,   // ✅ force include          
         });
+              console.log("Desktop update payload for meal:", mealData);
+
       } else {
         await apiClient.createMealPlan(dogId, {
           ...mealData,
@@ -1205,7 +1223,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
           setShowCustomPlanModal(false);   // close custom plan modal
           setEditingMeal(null);
           setMealModalContext('wizard');          //  mark as wizard mode
-          setMealFormData({ meal_time: '', food_type: '', amount: '', calories: '' });
+          setMealFormData({ meal_time: '', food_type: '', amount: '', calories: '', nutrition_record_id: '', is_active: '' });
           setIsMealPlanModalOpen(true);    // open meal modal
         }}
       >
