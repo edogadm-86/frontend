@@ -578,5 +578,6 @@
   "scanCodeToView": "Scan this code to view the public profile of ",
   "previewPublicProfile": "Preview Public Profile",
   "dogNotFound": "Dog not found",
-  "years": "years"
+  "years": "years",
+  "noDogsFound": "No Dogs Found"
 }
