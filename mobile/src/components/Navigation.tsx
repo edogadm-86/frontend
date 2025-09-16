@@ -23,7 +23,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChang
     { 
       id: 'calendar', 
       icon: Calendar, 
-      label: t('Calendar'), 
+      label: t('Calendar1'), 
       gradient: 'from-green-500 to-emerald-500',
       activeColor: 'text-green-600',
       inactiveColor: 'text-gray-400'
