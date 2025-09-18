@@ -1,15 +1,18 @@
 export interface Dog {
   id: string;
+  user_id: string;
   name: string;
   breed: string;
-  age: number;
-  weight: number;
+  dateOfBirth?: Date;
+  weight: number | string;
   profilePicture?: string;
   microchipId?: string;
-  licenseNumber?: string;
-  documents: Document[];
-  createdAt: Date;
-  updatedAt: Date;
+  passportNumber?: string;
+  sex?: string;
+  colour?: string;
+  features?: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Document {

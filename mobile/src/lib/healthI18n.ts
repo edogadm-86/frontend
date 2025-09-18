@@ -1,47 +1,45 @@
 // src/utils/healthI18n.ts
 
-// Status map (all lowercase keys)
+// Status map
 const STATUS_MAP: Record<string, string> = {
-  'excellent': 'excellent',
-  'good': 'good',
-  'fair': 'fair',
-  'needs attention': 'needsAttention',
-  'poor': 'poor',
+  'Excellent': 'excellent',
+  'Good': 'good',
+  'Fair': 'fair',
+  'Needs Attention': 'needsAttention',
+  'Poor': 'poor',
 };
 
-// Action map (all lowercase keys)
+// Action map (keep exact case as backend sends)
 const ACTION_MAP: Record<string, string> = {
-  'keep up the great care routine!': 'keepRoutine',
-  'consider scheduling a routine checkup': 'scheduleCheckup',
-  'update vaccinations and schedule vet visit': 'updateVaccinations',
-  'schedule vet visit and update records': 'scheduleVetVisit',
-  'immediate vet attention recommended': 'immediateVet',
+  'Keep up the great care routine!': 'keepRoutine',
+  'Consider scheduling a routine checkup': 'scheduleCheckup',
+  'Update vaccinations and schedule vet visit': 'updateVaccinations',
+  'Schedule vet visit and update records': 'scheduleVetVisit',
+  'Immediate vet attention recommended': 'immediateVet',
 };
 
-// Factor map (all lowercase keys)
+// Factor map (keep exact case as backend sends)
 const FACTOR_MAP: Record<string, string> = {
-  'keep up regular checkups': 'keepRegularCheckups',
-  'maintain vaccination schedule': 'maintainVaccinationSchedule',
-  'track weight changes': 'trackWeightChanges',
-  'improve daily activity': 'improveDailyActivity',
-  'some vaccinations due': 'someVaccinationsDue',
-  'regular health monitoring': 'regularHealthMonitoring',
-  'schedule regular checkups': 'scheduleRegularCheckups',
+  'Keep up regular checkups': 'keepRegularCheckups',
+  'Maintain vaccination schedule': 'maintainVaccinationSchedule',
+  'Track weight changes': 'trackWeightChanges',
+  'Improve daily activity': 'improveDailyActivity',
+  'Some vaccinations due': 'someVaccinationsDue',
+  'Regular health monitoring': 'regularHealthMonitoring',
+  'Schedule regular checkups': 'scheduleRegularCheckups',
 };
 
-// Normalizer
-const norm = (s?: string) => (s || '').toLowerCase().trim();
-
+// --- Mapping functions (NO normalization now) ---
 export const statusKeyFromBackend = (raw?: string) =>
-  STATUS_MAP[norm(raw)] ?? 'unknown';
+  STATUS_MAP[raw || ''] ?? 'unknown';
 
 export const actionKeyFromBackend = (raw?: string) =>
-  ACTION_MAP[norm(raw)] ?? '';
+  ACTION_MAP[raw || ''] ?? '';
 
 export const factorKeyFromBackend = (raw?: string) =>
-  FACTOR_MAP[norm(raw)] ?? '';
+  FACTOR_MAP[raw || ''] ?? '';
 
-// Score-based fallback (mirrors backend thresholds)
+// Score-based fallback
 export const statusKeyFromScore = (score?: number | null) => {
   if (typeof score !== 'number') return '';
   if (score >= 85) return 'excellent';

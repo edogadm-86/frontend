@@ -409,7 +409,7 @@ export const HealthRecords: React.FC = () => {
                                   className="text-blue-600 hover:underline inline-flex items-center"
                                 >
                                   <FileText size={14} className="mr-2" />
-                                  {doc.original_name || doc.name || 'Document'}
+                                  {doc.original_name || doc.name || t('Document')}
                                 </button>
                                 <button
                                   type="button"
@@ -471,7 +471,7 @@ export const HealthRecords: React.FC = () => {
           setIsModalOpen(false);
           setEditingRecord(null);
         }}
-        title={editingRecord ? t('Edit Health Record') : t('Add Health Record')}
+        title={editingRecord ? t('editHealthRecord') : t('addHealthRecord')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">

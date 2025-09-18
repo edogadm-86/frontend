@@ -108,7 +108,7 @@ export const NutritionRecords: React.FC = () => {
 
   const handleDelete = async (record: NutritionRecord) => {
     if (!currentDog) return;
-    const ok = window.confirm(t('Are you sure you want to delete this nutrition record?'));
+    const ok = window.confirm(t('Are you sure?'));
     if (!ok) return;
     try {
       await apiClient.deleteNutritionRecord(currentDog.id, record.id);
@@ -133,7 +133,7 @@ export const NutritionRecords: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">
-          {t('Nutrition')} • {currentDog.name}
+          {t('nutrition')} • {currentDog.name}
         </h2>
         <Button onClick={() => setIsModalOpen(true)} size="sm">
           <PlusCircle size={16} className="mr-1" />
@@ -157,7 +157,7 @@ export const NutritionRecords: React.FC = () => {
                   <h3 className="font-semibold text-gray-900">{record.food_brand}</h3>
                   <p className="text-sm text-gray-600">{record.food_type}</p>
                   <p className="text-xs text-gray-500">
-                    {t('Amount')}: {record.daily_amount}g, {t('Calories')}: {record.calories_per_day}
+                    {t('Amount')}: {record.daily_amount}g, {t('calories')}: {record.calories_per_day}
                   </p>
                   {record.notes && (
                     <p className="text-xs text-gray-500 mt-1">{t('Notes')}: {record.notes}</p>
@@ -207,18 +207,18 @@ export const NutritionRecords: React.FC = () => {
           setIsModalOpen(false);
           setEditingRecord(null);
         }}
-        title={editingRecord ? t('Edit Nutrition Record') : t('Add Nutrition Record')}
+        title={editingRecord ? t('editNutritionRecord') : t('addNutritionRecordModal')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label={t('Food Brand')} value={formData.food_brand} onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })} required />
-          <Input label={t('Food Type')} value={formData.food_type} onChange={(e) => setFormData({ ...formData, food_type: e.target.value })} />
-          <Input label={t('Daily Amount (g)')} value={formData.daily_amount} onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })} />
-          <Input label={t('Calories per Day')} value={formData.calories_per_day} onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })} />
-          <Input label={t('Protein %')} value={formData.protein_percentage} onChange={(e) => setFormData({ ...formData, protein_percentage: e.target.value })} />
-          <Input label={t('Fat %')} value={formData.fat_percentage} onChange={(e) => setFormData({ ...formData, fat_percentage: e.target.value })} />
-          <Input label={t('Carbs %')} value={formData.carb_percentage} onChange={(e) => setFormData({ ...formData, carb_percentage: e.target.value })} />
-          <Input label={t('Weight at Time (kg)')} value={formData.weight_at_time} onChange={(e) => setFormData({ ...formData, weight_at_time: e.target.value })} />
+          <Input label={t('foodBrand')} value={formData.food_brand} onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })} required />
+          <Input label={t('foodType')} value={formData.food_type} onChange={(e) => setFormData({ ...formData, food_type: e.target.value })} />
+          <Input label={t('dailyAmountGrams')} value={formData.daily_amount} onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })} />
+          <Input label={t('caloriesDay')} value={formData.calories_per_day} onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })} />
+          <Input label={t('proteinPercent')} value={formData.protein_percentage} onChange={(e) => setFormData({ ...formData, protein_percentage: e.target.value })} />
+          <Input label={t('fatPercent')} value={formData.fat_percentage} onChange={(e) => setFormData({ ...formData, fat_percentage: e.target.value })} />
+          <Input label={t('carbsPercent')} value={formData.carb_percentage} onChange={(e) => setFormData({ ...formData, carb_percentage: e.target.value })} />
+          <Input label={t('weightAtTime')} value={formData.weight_at_time} onChange={(e) => setFormData({ ...formData, weight_at_time: e.target.value })} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('Notes')}</label>
             <textarea

@@ -129,7 +129,7 @@ export const Settings: React.FC = () => {
     },*/
     {
       icon: HelpCircle,
-      title: t('help&support'),
+      title: t('helpAndSupport'),
       description: t('FAQs, tutorials, and contact information'),
       color: 'from-teal-500 to-cyan-500',
       bgColor: 'from-teal-50 to-cyan-50',
@@ -155,10 +155,10 @@ export const Settings: React.FC = () => {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blueblue-600 to-light-bluelight-blue-600 bg-clip-text text-transparent">
-            {t('settings')}
+          <h2 className="text-2xl font-bold">
+            {t('Settings')}
           </h2>
-          <p className="text-gray-600 mt-1">Manage your account and preferences</p>
+          <p className="text-gray-600 mt-1">{t('manageAccountPreferences')}</p>
         </div>
       </div>
 
@@ -214,11 +214,11 @@ export const Settings: React.FC = () => {
       <Card className="text-center bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-xl relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blueblue-500/5 to-light-bluelight-blue-500/5"></div>
         <div className="relative">
-          <div className="w-16 h-16 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-            <Heart size={24} className="text-white" />
+          <div className="w-20 h-20 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+            <Heart size={35} className="text-white" />
           </div>
-        <div className="space-y-2">
-            <h3 className="text-xl font-bold bg-gradient-to-r from-blueblue-600 to-light-bluelight-blue-600 bg-clip-text text-transparent">eDog</h3>
+        <div className="space-y-1">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-blueblue-600 to-light-bluelight-blue-600 bg-clip-text">eDog</h3>
           <p className="text-sm text-gray-600">{t('ddp')}</p>
           <p className="text-xs text-gray-500">Version 1.0.0</p>
           <p className="text-xs text-gray-500">
@@ -256,7 +256,7 @@ export const Settings: React.FC = () => {
             required
           />
           <Input
-            label={t('email')}
+            label={t('your-email')}
             type="email"
             value={profileData.email}
             onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
@@ -483,113 +483,114 @@ export const Settings: React.FC = () => {
       </Modal>
 
       {/* Help & Support Modal */}
-      <Modal
-        isOpen={isHelpModalOpen}
-        onClose={() => setIsHelpModalOpen(false)}
-        title={t('help&support')}
-        className="max-w-lg"
-      >
-        <div className="space-y-6">
-          {/* About eDog */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
-            <div className="flex items-center space-x-3 mb-3">
-              <Heart size={20} className="text-blue-600" />
-              <h4 className="font-semibold text-blue-800">About eDog</h4>
-            </div>
-            <p className="text-sm text-blue-700">
-              eDog is your comprehensive digital dog passport and health management app. Track vaccinations, health records, appointments, and more.
-            </p>
-          </div>
 
-          {/* Contact Options */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">Contact Support</h4>
-            
-            <button 
-              onClick={() => window.open('mailto:edog.adm@gmail.com', '_blank')}
-              className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-cyan-100 transition-all duration-200"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Mail size={20} className="text-white" />
-              </div>
-              <div className="flex-1 text-left">
-                <h4 className="font-semibold text-gray-900">Email Support</h4>
-                <p className="text-sm text-gray-600">edog.adm@gmail.com</p>
-              </div>
-              <ChevronRight size={16} className="text-gray-400" />
-            </button>
-            
-            <button 
-              onClick={() => window.open('tel:+359888123456', '_blank')}
-              className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all duration-200"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Phone size={20} className="text-white" />
-              </div>
-              <div className="flex-1 text-left">
-                <h4 className="font-semibold text-gray-900">Phone Support</h4>
-                <p className="text-sm text-gray-600">+359 888 123 456</p>
-              </div>
-              <ChevronRight size={16} className="text-gray-400" />
-            </button>
+    <Modal
+      isOpen={isHelpModalOpen}
+      onClose={() => setIsHelpModalOpen(false)}
+      title={t('helpAndSupport')}
+      className="max-w-lg"
+    >
+      <div className="space-y-6">
+        {/* About eDog */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+          <div className="flex items-center space-x-3 mb-3">
+            <Heart size={20} className="text-blue-600" />
+            <h4 className="font-semibold text-blue-800">{t('aboutEDogTitle')}</h4>
           </div>
-          
-          {/* FAQ Section */}
-          <div className="pt-4 border-t border-gray-200">
-            <h4 className="font-medium text-gray-900 mb-3">Frequently Asked Questions</h4>
-            <div className="space-y-2">
-              <details className="group">
-                <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                  <span className="font-medium text-gray-900">How do I add my first dog?</span>
-                  <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
-                </summary>
-                <div className="p-3 text-sm text-gray-600">
-                  Go to Settings → Profile, then tap "Add Dog" to create your first dog profile with basic information like name, breed, age, and weight.
-                </div>
-              </details>
-              
-              <details className="group">
-                <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                  <span className="font-medium text-gray-900">How do I track vaccinations?</span>
-                  <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
-                </summary>
-                <div className="p-3 text-sm text-gray-600">
-                  Navigate to Health → Vaccinations and tap "Add Vaccination" to record vaccine details, dates, and set reminders for future doses.
-                </div>
-              </details>
-              
-              <details className="group">
-                <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                  <span className="font-medium text-gray-900">Can I export my dog's data?</span>
-                  <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
-                </summary>
-                <div className="p-3 text-sm text-gray-600">
-                  Yes! All your dog's health records, vaccinations, and appointments can be exported as a digital pet passport for vet visits or travel.
-                </div>
-              </details>
-
-              <details className="group">
-                <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                  <span className="font-medium text-gray-900">How do I generate a pet passport?</span>
-                  <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
-                </summary>
-                <div className="p-3 text-sm text-gray-600">
-                  Go to your dog's profile and tap the passport icon, or navigate to Health section and look for the "Pet Passport" button.
-                </div>
-              </details>
-            </div>
-          </div>
-          
-          <div className="pt-4">
-            <Button
-              onClick={() => setIsHelpModalOpen(false)}
-              className="w-full"
-            >
-              {t('Close')}
-            </Button>
-          </div>
+          <p className="text-sm text-blue-700">
+            {t('aboutEDogDescription')}
+          </p>
         </div>
-      </Modal>
-    </div>
+
+        {/* Contact Options */}
+        <div className="space-y-3">
+          <h4 className="font-medium text-gray-900">{t('contactSupport')}</h4>
+
+          <button 
+            onClick={() => window.open('mailto:edog.adm@gmail.com', '_blank')}
+            className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-cyan-100 transition-all duration-200"
+          >
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+              <Mail size={20} className="text-white" />
+            </div>
+            <div className="flex-1 text-left">
+              <h4 className="font-semibold text-gray-900">{t('emailSupport')}</h4>
+              <p className="text-sm text-gray-600">edog.adm@gmail.com</p>
+            </div>
+            <ChevronRight size={16} className="text-gray-400" />
+          </button>
+
+          <button 
+            onClick={() => window.open('tel:+359888123456', '_blank')}
+            className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all duration-200"
+          >
+            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+              <Phone size={20} className="text-white" />
+            </div>
+            <div className="flex-1 text-left">
+              <h4 className="font-semibold text-gray-900">{t('phoneSupport')}</h4>
+              <p className="text-sm text-gray-600">+359 888 123 456</p>
+            </div>
+            <ChevronRight size={16} className="text-gray-400" />
+          </button>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="pt-4 border-t border-gray-200">
+          <h4 className="font-medium text-gray-900 mb-3">{t('faqTitle')}</h4>
+          <div className="space-y-2">
+            <details className="group">
+              <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                <span className="font-medium text-gray-900">{t('faqAddDogQuestion')}</span>
+                <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
+              </summary>
+              <div className="p-3 text-sm text-gray-600">
+                {t('faqAddDogAnswer')}
+              </div>
+            </details>
+
+            <details className="group">
+              <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                <span className="font-medium text-gray-900">{t('faqVaccinationQuestion')}</span>
+                <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
+              </summary>
+              <div className="p-3 text-sm text-gray-600">
+                {t('faqVaccinationAnswer')}
+              </div>
+            </details>
+
+            <details className="group">
+              <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                <span className="font-medium text-gray-900">{t('faqExportDataQuestion')}</span>
+                <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
+              </summary>
+              <div className="p-3 text-sm text-gray-600">
+                {t('faqExportDataAnswer')}
+              </div>
+            </details>
+
+            <details className="group">
+              <summary className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                <span className="font-medium text-gray-900">{t('faqPetPassportQuestion')}</span>
+                <ChevronRight size={16} className="text-gray-400 group-open:rotate-90 transition-transform" />
+              </summary>
+                  <div className="p-3 text-sm text-gray-600">
+                  {t('faqPetPassportAnswer')}
+                  </div>
+                </details>
+            </div>
+              <div className="pt-4">
+                  <Button
+                    onClick={() => setIsHelpModalOpen(false)}
+                    className="w-full"
+                      >
+                    {t('Close')}
+                  </Button>
+                  </div>
+                </div>
+            </div>
+        </Modal>
+
+    </div>  
   );
 };

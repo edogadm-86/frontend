@@ -386,7 +386,7 @@ useEffect(() => {
                                 className="text-blue-600 hover:underline inline-flex items-center"
                               >
                                 <FileText size={14} className="mr-2" />
-                                {doc.name || doc.originalName || 'Document'}
+                                {doc.name || doc.originalName || t('Document')}
                               </button>
                               <button
                                 type="button"
@@ -472,7 +472,7 @@ useEffect(() => {
           </div>
           {editingVaccination && (
               <FileUpload
-                label={t('Attach Documents')}
+                label={t('Attach Documents (optional)')}
                 files={files}
                 onFilesChange={setFiles}
                 accept="image/*,.pdf,.doc,.docx"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { Card } from './ui/Card';
-import { statusKeyFromBackend, statusKeyFromScore } from '../lib/healthI18n';
+import { statusKeyFromBackend, statusKeyFromScore, actionKeyFromBackend, factorKeyFromBackend } from '../lib/healthI18n';
 import { Button } from './ui/Button';
 import {
   Calendar,
@@ -391,7 +391,7 @@ if (statusKey === 'unknown') {
                       : 'text-gray-600'
                   }`}
                 >
-                  {healthStatus.nextAction}
+                {t(actionKeyFromBackend(healthStatus?.nextAction))}
                 </p>
               </div>
             </div>
@@ -413,7 +413,7 @@ if (statusKey === 'unknown') {
               >
                 {healthStatus.score}%
               </div>
-              <div className="text-xs text-gray-500">Health Score</div>
+              <div className="text-xs text-gray-500">{t('healthScore')}</div>
             </div>
           </div>
         </Card>
@@ -505,7 +505,7 @@ if (statusKey === 'unknown') {
           <div className="text-lg font-bold text-gray-900">
             {daysSinceLastVet !== null ? `${daysSinceLastVet}` : 'N/A'}
           </div>
-          <div className="text-xs text-gray-600">Days since vet</div>
+          <div className="text-xs text-gray-600">{t('daysSinceLastVet')}</div>
         </Card>
 
         <Card className="text-center bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg">
@@ -513,7 +513,7 @@ if (statusKey === 'unknown') {
             <Activity size={14} className="text-white" />
           </div>
           <div className="text-lg font-bold text-gray-900">{dogVaccinations.length}</div>
-          <div className="text-xs text-gray-600">Vaccinations</div>
+          <div className="text-xs text-gray-600">{t('Vaccinations')}</div>
         </Card>
 
         <Card className="text-center bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg">
@@ -629,7 +629,7 @@ if (statusKey === 'unknown') {
               <Shield className="text-white" size={14} />
             </div>
             <p className="font-semibold text-gray-900 text-sm">{t('addVaccination')}</p>
-            <p className="text-xs text-gray-500">Track vaccines</p>
+            <p className="text-xs text-gray-500">{t('trackVaccination')}</p>
           </button>
 
           <button
@@ -640,7 +640,7 @@ if (statusKey === 'unknown') {
               <Heart className="text-white" size={14} />
             </div>
             <p className="font-semibold text-gray-900 text-sm">{t('addHealthRecord')}</p>
-            <p className="text-xs text-gray-500">Log health info</p>
+            <p className="text-xs text-gray-500">{t('logHealthInformation')}</p>
           </button>
 
           <button
@@ -651,7 +651,7 @@ if (statusKey === 'unknown') {
               <Calendar className="text-white" size={14} />
             </div>
             <p className="font-semibold text-gray-900 text-sm">{t('scheduleAppointment')}</p>
-            <p className="text-xs text-gray-500">Book visits</p>
+            <p className="text-xs text-gray-500">{t('bookVisit')}</p>
           </button>
 
           <button
@@ -662,7 +662,7 @@ if (statusKey === 'unknown') {
               <Award className="text-white" size={14} />
             </div>
             <p className="font-semibold text-gray-900 text-sm">{t('addTrainingSession')}</p>
-            <p className="text-xs text-gray-500">Track progress</p>
+            <p className="text-xs text-gray-500">{t('trackProgress')}</p>
           </button>
         </div>
       </Card>

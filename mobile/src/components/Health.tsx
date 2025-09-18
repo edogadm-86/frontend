@@ -32,13 +32,20 @@ export const Health: React.FC = () => {
 
   return (
     <div className="p-2 space-y-2">
+       {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">
+            {t('Health')} – {currentDog.name}
+          </h2>
+          
+        </div>
       {/* Tab Buttons */}
       <div className="flex space-x-2 bg-white rounded-lg p-2">
         {[
-          { id: "overview", icon: Target, label: t("Overview") },
+          { id: "overview", icon: Target, label: t("overview") },
           { id: "vaccinations", icon: Shield, label: t("Vaccinations") },
           { id: "health", icon: Heart, label: t("Health") },
-          { id: "nutrition", icon: Apple, label: t("Nutrition") },
+          { id: "nutrition", icon: Apple, label: t("nutrition") },
         ].map((tabDef) => (
           <button
             key={tabDef.id}

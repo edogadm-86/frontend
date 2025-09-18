@@ -110,7 +110,7 @@ export const MealPlan: React.FC = () => {
 
   const handleDelete = async (meal: Meal) => {
     if (!currentDog) return;
-    const ok = window.confirm(t('Are you sure you want to delete this meal?'));
+    const ok = window.confirm(t('deleteMealConfirm'));
     if (!ok) return;
     try {
       await apiClient.deleteMealPlan(currentDog.id, meal.id);
@@ -134,19 +134,19 @@ export const MealPlan: React.FC = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">
-          {t('Meal Plan')} • {currentDog.name}
+          {t('mealPlan')} • {currentDog.name}
         </h2>
         <Button onClick={() => setIsModalOpen(true)} size="sm">
           <PlusCircle size={16} className="mr-1" />
-          {t('Add Meal')}
+          {t('addMeal')}
         </Button>
       </div>
 
       {dogMeals.length === 0 ? (
         <Card className="text-center py-8">
           <Calendar size={48} className="mx-auto mb-2 text-gray-300" />
-          <p className="text-gray-500 mb-4">{t('No meals scheduled yet')}</p>
-          <Button onClick={() => setIsModalOpen(true)}>{t('Add First Meal')}</Button>
+          <p className="text-gray-500 mb-4">{t('noMealPlan')}</p>
+          <Button onClick={() => setIsModalOpen(true)}>{t('addFirstMeal')}</Button>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -156,7 +156,7 @@ export const MealPlan: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-gray-900">{meal.food_type}</h3>
                   <p className="text-sm text-gray-600">
-                    {t('Amount')}: {meal.amount}g, {t('Calories')}: {meal.calories}
+                    {t('amountGrams')}: {meal.amount}g, {t('calories')}: {meal.calories}
                   </p>
                   <p className="text-xs text-gray-500">{t('Time')}: {meal.meal_time}</p>
                 </div>
@@ -195,14 +195,14 @@ export const MealPlan: React.FC = () => {
           setIsModalOpen(false);
           setEditingMeal(null);
         }}
-        title={editingMeal ? t('Edit Meal') : t('Add Meal')}
+        title={editingMeal ? t('editMeal') : t('addMealModal')}
         className="max-w-lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label={t('Time')} type="time" value={formData.meal_time} onChange={(e) => setFormData({ ...formData, meal_time: e.target.value })} required />
-          <Input label={t('Food')} value={formData.food_type} onChange={(e) => setFormData({ ...formData, food_type: e.target.value })} required />
-          <Input label={t('Amount (g)')} value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} />
-          <Input label={t('Calories')} value={formData.calories} onChange={(e) => setFormData({ ...formData, calories: e.target.value })} />
+          <Input label={t('food')} value={formData.food_type} onChange={(e) => setFormData({ ...formData, food_type: e.target.value })} required />
+          <Input label={t('amountGrams')} value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} />
+          <Input label={t('calories')} value={formData.calories} onChange={(e) => setFormData({ ...formData, calories: e.target.value })} />
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               {t('Cancel')}

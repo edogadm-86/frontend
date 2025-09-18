@@ -33,7 +33,7 @@ export const NutritionTracker: React.FC = () => {
               onClick={() => setTab('mealplan')}
             >
               <Beef size={16} />
-              {t('Meal Plan')}
+              {t('mealPlan')}
             </button>
           </div>
 

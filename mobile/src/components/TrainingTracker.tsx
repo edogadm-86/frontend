@@ -97,7 +97,7 @@ export const TrainingTracker: React.FC = () => {
 
   const handleDelete = async (session: TrainingSession) => {
     if (!currentDog) return;
-    if (window.confirm(t('confirmDeleteTrainingSession') || 'Delete this session?')) {
+    if (window.confirm(t('confirmDeleteTrainingSession'))) {
       try {
         await apiClient.deleteTrainingSession(currentDog.id, session.id);
         setLocalSessions(prev => prev.filter(s => s.id !== session.id));
@@ -151,7 +151,7 @@ export const TrainingTracker: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">
-            {t('training')} – {currentDog.name}
+            {t('Training')} – {currentDog.name}
           </h2>
           <Button onClick={() => { resetForm(); setIsModalOpen(true); }} size="sm">
             <PlusCircle size={16} className="mr-1" />
@@ -325,7 +325,7 @@ export const TrainingTracker: React.FC = () => {
                 {t('cancel')}
               </Button>
               <Button type="submit" className="flex-1" disabled={loading}>
-                {loading ? t('loading') : t('save')}
+                {loading ? t('loading') : t('Save')}
               </Button>
             </div>
           </form>
