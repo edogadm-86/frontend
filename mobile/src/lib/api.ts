@@ -84,39 +84,50 @@ class ApiClient {
     return this.request<{ dogs: Dog[] }>('/dogs');
   }
 
-  async createDog(dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) {
-    return this.request<{ dog: Dog }>('/dogs', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: dogData.name,
-        breed: dogData.breed,
-        age: dogData.age,
-        weight: dogData.weight,
-        profile_picture: dogData.profilePicture,
-        microchip_id: dogData.microchipId,
-        license_number: dogData.licenseNumber,
-      }),
-    });
-  }
+   async createDog(dogData: Partial<Dog>) {
+        const payload = {
+          name: dogData.name,
+          breed: dogData.breed,
+          date_of_birth: dogData.dateOfBirth,
+          weight: dogData.weight,
+          profile_picture: dogData.profilePicture,
+          microchip_id: dogData.microchipId,
+          passport_number: dogData.passportNumber,
+          sex: dogData.sex,
+          colour: dogData.colour,
+          features: dogData.features,
+        };
+        return this.request('/dogs', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+      }
 
-  async updateDog(dogId: string, dogData: Partial<Dog>) {
-    return this.request<{ dog: Dog }>(`/dogs/${dogId}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        name: dogData.name,
-        breed: dogData.breed,
-        age: dogData.age,
-        weight: dogData.weight,
-        profile_picture: dogData.profilePicture,
-        microchip_id: dogData.microchipId,
-        license_number: dogData.licenseNumber,
-      }),
-    });
-  }
+      async updateDog(dogId: string, dogData: Partial<Dog>) {
+        const payload = {
+          name: dogData.name,
+          breed: dogData.breed,
+          date_of_birth: dogData.dateOfBirth,
+          weight: dogData.weight,
+          profile_picture: dogData.profilePicture,
+          microchip_id: dogData.microchipId,
+          passport_number: dogData.passportNumber,
+          sex: dogData.sex,
+          colour: dogData.colour,
+          features: dogData.features,
+        };
+        return this.request(`/dogs/${dogId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+          
+        });
+      }
+
 
   async deleteDog(dogId: string) {
     return this.request(`/dogs/${dogId}`, { method: 'DELETE' });
   }
+
 
   
   // Health status endpoint

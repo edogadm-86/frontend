@@ -24,7 +24,7 @@ export const Health: React.FC = () => {
     return (
       <div className="p-2">
         <Card className="text-center py-8">
-          <p className="text-gray-500">{t("Please select a dog to view health data")}</p>
+          <p className="text-gray-500">{t("Please select a dog to view health records")}</p>
         </Card>
       </div>
     );

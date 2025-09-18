@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../lib/api';
+import { mapDogResponse } from '../lib/mapDog';
 import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, Nutrition } from '../types';
 
 export const useApi = () => {
@@ -198,23 +199,12 @@ export const useApi = () => {
     setEmergencyContacts([]);
   };
   
-  // CRUD operations
+   // CRUD operations
   const createDog = async (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => {
     try {
       const response = await apiClient.createDog(dogData);
-      const newDog: Dog = {
-        id: response.dog.id,
-        name: response.dog.name,
-        breed: response.dog.breed,
-        age: response.dog.age,
-        weight: response.dog.weight,
-        profilePicture: response.dog.profile_picture,
-        microchipId: response.dog.microchip_id,
-        licenseNumber: response.dog.license_number,
-        documents: [],
-        createdAt: new Date(response.dog.created_at),
-        updatedAt: new Date(response.dog.updated_at),
-      };
+       const newDog: Dog = mapDogResponse(response.dog);
+
       setDogs(prev => [...prev, newDog]);
       return newDog;
     } catch (error: any) {
@@ -226,21 +216,20 @@ export const useApi = () => {
   const updateDog = async (dogId: string, dogData: Partial<Dog>) => {
     try {
       const response = await apiClient.updateDog(dogId, dogData);
-      const updatedDog: Dog = {
-        id: response.dog.id,
-        name: response.dog.name,
-        breed: response.dog.breed,
-        age: response.dog.age,
-        weight: response.dog.weight,
-        profilePicture: response.dog.profile_picture,
-        microchipId: response.dog.microchip_id,
-        licenseNumber: response.dog.license_number,
-        documents: [],
-        createdAt: new Date(response.dog.created_at),
-        updatedAt: new Date(response.dog.updated_at),
-      };
+      const updatedDog: Dog = mapDogResponse(response.dog);
+
       setDogs(prev => prev.map(dog => dog.id === dogId ? updatedDog : dog));
       return updatedDog;
+    } catch (error: any) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
+  const deleteDog = async (dogId: string) => {
+    try {
+      await apiClient.deleteDog(dogId);
+      setDogs(prev => prev.filter(dog => dog.id !== dogId));
     } catch (error: any) {
       setError(error.message);
       throw error;

@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { Card } from './ui/Card';
-import { statusKeyFromBackend, statusKeyFromScore, actionKeyFromBackend, factorKeyFromBackend } from '../lib/healthI18n';
+import {
+  statusKeyFromBackend,
+  statusKeyFromScore,
+  actionKeyFromBackend,
+} from '../lib/healthI18n';
 import { Button } from './ui/Button';
+import { Modal } from './ui/Modal';
 import {
   Calendar,
   Heart,
@@ -16,12 +21,18 @@ import {
   Clock,
   Sparkles,
   FileText,
+  Edit2,
 } from 'lucide-react';
 import { format, isAfter, isBefore, addDays } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../lib/api';
 import { PetPassport } from './PetPassport';
 import { cacheImageToDevice } from '../lib/imageCache';
+import { Dog } from '../types';
+import { Input } from './ui/Input';
+import { FileUpload } from './ui/FileUpload';
+import { useApi } from '../hooks/useApi';
+import { normalizeUploadUrl } from '../lib/urlHelpers';
 
 interface DashboardProps {
   onNavigate: (view: string) => void;
@@ -32,7 +43,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { t } = useTranslation();
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
+
+  const [formData, setFormData] = useState<{
+    name?: string;
+    breed?: string;
+    dateOfBirth?: string; // always a string
+    weight?: string | number;
+    profilePicture?: string;
+    microchipId?: string;
+    passportNumber?: string;
+    sex?: string;
+    colour?: string;
+    features?: string;
+  }>({});
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
+  const [isDogModalOpen, setIsDogModalOpen] = useState(false);
+  const [editingDog, setEditingDog] = useState<Dog | null>(null);
+  const { createDog, updateDog } = useApi();
+
+  // files state for FileUpload
+  const [files, setFiles] = useState<File[]>([]);
+
   const [dismissedAlerts, setDismissedAlerts] = useState<{ overdue: boolean; dueSoon: boolean }>({
     overdue: false,
     dueSoon: false,
@@ -41,7 +72,73 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const blobRef = useRef<string | null>(null);
   const [showPassport, setShowPassport] = useState(false);
 
-  // Debug effect
+  const handleCreateDog = () => {
+    setEditingDog(null);
+    setFormData({
+      name: '',
+      breed: '',
+      dateOfBirth: '',
+      weight: '',
+      profilePicture: '',
+      microchipId: '',
+      passportNumber: '',
+      sex: '',
+      colour: '',
+      features: '',
+    });
+    setFiles([]);
+    setIsDogModalOpen(true);
+  };
+
+  const handleEditDog = () => {
+    if (!currentDog) return;
+    setEditingDog(currentDog);
+    setFormData({
+      name: currentDog.name || '',
+      breed: currentDog.breed || '',
+      dateOfBirth: currentDog.dateOfBirth
+        ? typeof currentDog.dateOfBirth === 'string'
+          ? currentDog.dateOfBirth
+          : new Date(currentDog.dateOfBirth).toISOString().split('T')[0]
+        : '',
+      weight: currentDog.weight?.toString() || '',
+      profilePicture: currentDog.profilePicture || '',
+      microchipId: currentDog.microchipId || '',
+      passportNumber: currentDog.passportNumber || '',
+      sex: currentDog.sex || '',
+      colour: currentDog.colour || '',
+      features: currentDog.features || '',
+    });
+    setFiles([]);
+    setIsDogModalOpen(true);
+  };
+
+  const handleSubmitDog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const dogData: Partial<Dog> = {
+      name: formData.name,
+      breed: formData.breed,
+      dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
+      weight: parseFloat(formData.weight as string),
+      profilePicture: formData.profilePicture || undefined,
+      microchipId: formData.microchipId || undefined,
+      passportNumber: formData.passportNumber || undefined,
+      sex: formData.sex || undefined,
+      colour: formData.colour || undefined,
+      features: formData.features || undefined,
+    };
+    try {
+      if (editingDog) {
+        await updateDog(editingDog.id, dogData);
+      } else {
+        await createDog(dogData as any);
+      }
+      setIsDogModalOpen(false);
+    } catch (err) {
+      console.error('Error saving dog:', err);
+    }
+  };
+    // Debug effect
   useEffect(() => {
    
     if (currentDog?.id) {
@@ -74,6 +171,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       setLoadingHealth(false);
     }
   };
+  useEffect(() => {
+  if (currentDog && isDogModalOpen) {
+    setFormData({
+      name: currentDog.name || '',
+      breed: currentDog.breed || '',
+      dateOfBirth: currentDog.dateOfBirth
+        ? typeof currentDog.dateOfBirth === 'string'
+          ? currentDog.dateOfBirth
+          : new Date(currentDog.dateOfBirth).toISOString().split('T')[0]
+        : '',
+      weight: currentDog.weight?.toString() || '',
+      profilePicture: currentDog.profilePicture || '',
+      microchipId: currentDog.microchipId || '',
+      passportNumber: currentDog.passportNumber || '',
+      sex: currentDog.sex || '',
+      colour: currentDog.colour || '',
+      features: currentDog.features || '',
+    });
+  }
+}, [currentDog, isDogModalOpen]);
 
   // Cache avatar locally whenever the profile picture URL changes
   useEffect(() => {
@@ -147,7 +264,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </p>
           <p className="text-sm text-gray-600 mb-4">{t('createdog')}</p>
           <Button
-            onClick={() => onNavigate('profile')}
+            onClick={handleCreateDog}
             className="bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500"
           >
             <Plus size={16} className="mr-1" />
@@ -157,6 +274,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </div>
     );
   }
+ 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const dogVaccinations = vaccinations.filter((v) => v.dogId === currentDog.id);
   const dogHealthRecords = healthRecords.filter((r) => r.dogId === currentDog.id);
@@ -310,7 +432,13 @@ if (statusKey === 'unknown') {
                   <div className="flex items-center space-x-1">
                     <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
                     <span>
-                      {currentDog.age} {t('years old')}
+                      {currentDog.dateOfBirth
+                        ? typeof currentDog.dateOfBirth === 'string'
+                          ? currentDog.dateOfBirth
+                          : format(currentDog.dateOfBirth, 'yyyy-MM-dd')
+                        : ''}
+                      {' '}
+                      {t('years old')}
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
@@ -319,7 +447,15 @@ if (statusKey === 'unknown') {
                   </div>
                 </div>
               </div>
-            </div>
+            </div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            <Button
+                onClick={handleEditDog}
+                variant="ghost"
+                size="sm"
+                className="text-blueblue-500"
+              >
+                <Edit2 size={16} />
+              </Button>
             <Button
               onClick={() => setShowPassport(true)}
               variant="ghost"
@@ -666,6 +802,50 @@ if (statusKey === 'unknown') {
           </button>
         </div>
       </Card>
+        {isDogModalOpen && (
+        <Modal
+          isOpen={isDogModalOpen}
+          onClose={() => setIsDogModalOpen(false)}
+          title={editingDog ? t('Edit Dog') : t('Add Dog')}
+          className="max-w-lg"
+        >
+          <form onSubmit={handleSubmitDog} className="space-y-4">
+            {/* Profile Picture Upload */}
+            <div className="text-center">
+              <label className="block text-sm font-medium mb-2">
+                {t('profilePicture')}
+              </label>
+              <FileUpload
+                accept="image/*"
+                maxFiles={1}
+                files={files}
+                onFilesChange={setFiles}
+                className="mx-auto"
+              />
+            </div>
+
+            <Input label={t('name')} value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+            <Input label={t('breed')} value={formData.breed || ''} onChange={(e) => setFormData({ ...formData, breed: e.target.value })} required />
+            <Input type="date" label={t('dateOfBirth')} value={formData.dateOfBirth || ''} onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })} required />
+            <Input type="number" label={`${t('weight')} (kg)`} value={formData.weight?.toString() || ''} onChange={(e) => setFormData({ ...formData, weight: e.target.value })} required />
+            <Input label={t('microchipId')} value={formData.microchipId || ''} onChange={(e) => setFormData({ ...formData, microchipId: e.target.value })} />
+            <Input label={t('passportNumber')} value={formData.passportNumber || ''} onChange={(e) => setFormData({ ...formData, passportNumber: e.target.value })} />
+            <Input label={t('colour')} value={formData.colour || ''} onChange={(e) => setFormData({ ...formData, colour: e.target.value })} />
+            <Input label={t('features')} value={formData.features || ''} onChange={(e) => setFormData({ ...formData, features: e.target.value })} />
+
+            <div className="flex space-x-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsDogModalOpen(false)}>
+                {t('cancel')}
+              </Button>
+              <Button type="submit" className="flex-1">
+                {t('save')}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+
 
       {/* Pet Passport Modal */}
       {showPassport && <PetPassport dog={currentDog} onClose={() => setShowPassport(false)} />}

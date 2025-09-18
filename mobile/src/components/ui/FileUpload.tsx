@@ -8,10 +8,12 @@ interface FileUploadProps {
   label?: string;
   accept?: string;
   multiple?: boolean;
+  documentType?: string; // Optional document type for categorization
   files: File[];
   onFilesChange: (files: File[]) => void;
   className?: string;
   maxFiles?: number;
+  dogId?: string; // Optional dog ID for associating files
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({

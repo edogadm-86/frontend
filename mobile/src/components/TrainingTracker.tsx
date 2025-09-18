@@ -140,7 +140,7 @@ export const TrainingTracker: React.FC = () => {
     return (
       <div className="p-4">
         <Card className="text-center py-8">
-          <p className="text-gray-500">{t('pleaseSelectDog')}</p>
+          <p className="text-gray-500">{t('Please select a dog to view training plan')}</p>
         </Card>
       </div>
     );
