@@ -191,38 +191,38 @@ useEffect(() => {
       Object.entries(dogData).filter(([_, value]) => value !== undefined)
     ) as Partial<Dog>;
 
-    // Upload profile picture if provided
+    let savedDog: Dog;
+
+  if (editingDog) {
+      savedDog = await updateDog(editingDog.id, dogData);
+
+ 
+} else {
+  // First create the dog
+   savedDog  = await createDog(
+    cleanedDogData as Required<Omit<Dog, 'id' | 'createdAt' | 'updatedAt' | 'documents'>>
+  );
+  }
+
+   // ✅ Upload profile picture after dog is saved
     if (files.length > 0) {
       const file = files[0];
       const uploadData = await apiClient.uploadFile(file, {
-        dogId: editingDog ? editingDog.id : undefined,
-        documentType: 'profilePicture',
+        dogId: savedDog.id,
+        documentType: 'other',
       });
-      if (uploadData.fileUrl) {
-        cleanedDogData.profilePicture = uploadData.fileUrl;
-      }
+
+          if (uploadData.fileUrl) {
+          const payload = { ...formData, profilePicture: uploadData.fileUrl };
+          console.log("📤 Sending update payload:", payload);
+          await updateDog(savedDog.id, payload);
+        } else {
+          console.log("📤 Sending update payload (no upload):", formData);
+          await updateDog(savedDog.id, formData);
+}
+
     }
 
-    // Create or update dog
-    if (editingDog) {
-       // Update existing dog
-  if (files.length > 0) {
-    const file = files[0];
-    const uploadData = await apiClient.uploadFile(file, {
-      dogId: editingDog.id,
-      documentType: 'profilePicture',
-    });
-    if (uploadData.fileUrl) {
-      cleanedDogData.profilePicture = uploadData.fileUrl;
-    }
-  }
-      await updateDog(editingDog.id, cleanedDogData);
-    } else {
-      await createDog(
-        cleanedDogData as Required<Omit<Dog, 'id' | 'createdAt' | 'updatedAt' | 'documents'>>
-      );
-    }
-    
     await fetchDogs();
 
     // Reset form + close modal
@@ -236,6 +236,9 @@ useEffect(() => {
     setSubmitting(false);
   }
 };
+
+
+
     // Debug effect
   useEffect(() => {
    
@@ -923,7 +926,7 @@ if (statusKey === 'unknown') {
               <label className="block text-sm font-medium mb-2">
                 {t('profilePicture')}
               </label>
-              <FileUpload
+             <FileUpload
                 accept="image/*"
                 maxFiles={1}
                 files={files}
