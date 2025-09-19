@@ -39,7 +39,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
-  const { currentDog, vaccinations, healthRecords, appointments, trainingSessions } = useApp();
+  const { currentDog, vaccinations, healthRecords, appointments, trainingSessions, fetchDogs } = useApp();
   const { t } = useTranslation();
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
@@ -68,7 +68,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
 // Add this effect to debug modal state
 useEffect(() => {
-  console.log('Modal state changed:', isDogModalOpen);
+ // console.log('Modal state changed:', isDogModalOpen);
 }, [isDogModalOpen]);
   
   // Handle file validation on change
@@ -103,7 +103,7 @@ useEffect(() => {
   const [showPassport, setShowPassport] = useState(false);
 
   const handleCreateDog = () => {
-    console.log('handleCreateDog called'); // Add this line
+   // console.log('handleCreateDog called'); // Add this line
     //setEditingDog(null);
     setIsDogModalOpen(true);
   };
@@ -164,90 +164,78 @@ useEffect(() => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmitDog = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setSubmitError(null);
-    
-    try {
-      // Validate required fields
-      if (!formData.name?.trim()) {
-        throw new Error(t('Name is required'));
+ const handleSubmitDog = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSubmitting(true);
+  setSubmitError(null);
+
+  try {
+    // Validate required fields
+    if (!formData.name?.trim()) throw new Error(t('Name is required'));
+    if (!formData.breed?.trim()) throw new Error(t('Breed is required'));
+
+    // Prepare dog data
+    const dogData: Partial<Dog> = {
+      name: formData.name.trim(),
+      breed: formData.breed.trim(),
+      dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
+      weight: formData.weight ? parseFloat(formData.weight.toString()) : undefined,
+      microchipId: formData.microchipId?.trim(),
+      passportNumber: formData.passportNumber?.trim(),
+      sex: formData.sex?.trim(),
+      colour: formData.colour?.trim(),
+      features: formData.features?.trim(),
+    };
+
+    const cleanedDogData = Object.fromEntries(
+      Object.entries(dogData).filter(([_, value]) => value !== undefined)
+    ) as Partial<Dog>;
+
+    // Upload profile picture if provided
+    if (files.length > 0) {
+      const file = files[0];
+      const uploadData = await apiClient.uploadFile(file, {
+        dogId: editingDog ? editingDog.id : undefined,
+        documentType: 'profilePicture',
+      });
+      if (uploadData.fileUrl) {
+        cleanedDogData.profilePicture = uploadData.fileUrl;
       }
-      if (!formData.breed?.trim()) {
-        throw new Error(t('Breed is required'));
-      }
-
-      // Prepare dog data with proper type transformations
-      const dogData: Partial<Dog> & { user_id?: string } = {
-        name: formData.name.trim(),
-        breed: formData.breed.trim(),
-        dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
-        weight: formData.weight ? parseFloat(formData.weight.toString()) : undefined,
-        microchipId: formData.microchipId?.trim(),
-        passportNumber: formData.passportNumber?.trim(),
-        sex: formData.sex?.trim(),
-        colour: formData.colour?.trim(),
-        features: formData.features?.trim(),
-      };
-
-      // Filter out undefined values
-      const cleanedDogData = Object.fromEntries(
-        Object.entries(dogData).filter(([_, value]) => value !== undefined)
-      ) as Partial<Dog>;
-
-      // If we have a file, upload it first
-      if (files.length > 0) {
-        try {
-          const file = files[0];
-          const formDataToSubmit = new FormData();
-          formDataToSubmit.append('file', file);
-
-          // Upload the file using the API client
-          const response = await fetch(`${API_BASE_URL}/uploads`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-            },
-            body: formDataToSubmit,
-          });
-
-          if (!response.ok) {
-            throw new Error(t('Failed to upload profile picture'));
-          }
-
-          const uploadData = await response.json();
-          if (uploadData.fileUrl) {
-            cleanedDogData.profilePicture = uploadData.fileUrl;
-          }
-        } catch (uploadError) {
-          console.error('Error uploading file:', uploadError);
-          throw new Error(t('Failed to upload profile picture. Please try again.'));
-        }
-      }
-
-      // Update or create the dog
-      if (editingDog) {
-        await updateDog(editingDog.id, cleanedDogData);
-      } else {
-        await createDog(cleanedDogData as Required<Omit<Dog, 'id' | 'createdAt' | 'updatedAt' | 'documents'>>);
-      }
-
-      // Reset form and close modal
-      setFormData({});
-      setFiles([]);
-      setSubmitError(null);
-      setIsDogModalOpen(false);
-      
-    } catch (err: any) {
-      console.error('Error saving dog:', err);
-      setSubmitError(err.message || t('Failed to save dog. Please try again.'));
-    } finally {
-        window.location.reload(); // 👈 forces refresh
-
-      setSubmitting(false);
     }
-  };
+
+    // Create or update dog
+    if (editingDog) {
+       // Update existing dog
+  if (files.length > 0) {
+    const file = files[0];
+    const uploadData = await apiClient.uploadFile(file, {
+      dogId: editingDog.id,
+      documentType: 'profilePicture',
+    });
+    if (uploadData.fileUrl) {
+      cleanedDogData.profilePicture = uploadData.fileUrl;
+    }
+  }
+      await updateDog(editingDog.id, cleanedDogData);
+    } else {
+      await createDog(
+        cleanedDogData as Required<Omit<Dog, 'id' | 'createdAt' | 'updatedAt' | 'documents'>>
+      );
+    }
+    
+    await fetchDogs();
+
+    // Reset form + close modal
+    setFormData({});
+    setFiles([]);
+    setIsDogModalOpen(false);
+  } catch (err: any) {
+    console.error('Error saving dog:', err);
+    setSubmitError(err.message || t('Failed to save dog. Please try again.'));
+  } finally {
+    setSubmitting(false);
+  }
+};
     // Debug effect
   useEffect(() => {
    
@@ -361,159 +349,6 @@ useEffect(() => {
     };
   }, []);
 
-  if (!currentDog) {
-    return (
-      <div className="p-4 space-y-4">
-        <Card className="text-center py-8">
-          <div className="relative mb-8">
-            <div className="w-24 h-24 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500 rounded-full mx-auto flex items-center justify-center shadow-2xl animate-pulse">
-              <Heart size={32} className="text-white" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
-              <Sparkles size={12} className="text-white" />
-            </div>
-          </div>
-          <p className="text-lg font-medium text-gray-900 mb-2">
-            {t('welcome')} to eDog!
-          </p>
-          <p className="text-sm text-gray-600 mb-4">{t('createdog')}</p>
-          <Button
-            onClick={handleCreateDog}
-            className="bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500"
-          >
-            <Plus size={16} className="mr-1" />
-            {t('Add Dog')}
-          </Button>
-        </Card>
-        
-      {/* Ensure modal is always rendered */}
-      <Modal
-        isOpen={isDogModalOpen}
-        onClose={() => setIsDogModalOpen(false)}
-        title={t('Add Dog')}
-        className="w-full max-w-lg"
-      >
-        <form onSubmit={handleSubmitDog} className="space-y-4">
-            
-            {/* Error Message */}
-            {uploadError && (
-              <div className="bg-red-50 text-red-600 p-2 rounded text-sm">
-                {uploadError}
-              </div>
-            )}
-          
-            {/* Profile Picture Upload */}
-            <div className="text-center">
-              <label className="block text-sm font-medium mb-2">
-                {t('profilePicture')}
-              </label>
-              <FileUpload
-                accept="image/*"
-                maxFiles={1}
-                files={files}
-                onFilesChange={setFiles}
-                className="mx-auto"
-              />
-            </div>
-
-            <Input 
-              name="name"
-              label={t('name')} 
-              value={formData.name || ''} 
-              onChange={handleChange}
-              required 
-            />
-            <Input 
-              label={t('breed')} 
-              name="breed"
-              value={formData.breed || ''} 
-              onChange={handleChange}
-              required 
-            />
-            <Input 
-              type="date" 
-              label={t('dateOfBirth')} 
-              name="dateOfBirth"
-              value={formData.dateOfBirth || ''} 
-              onChange={handleChange}
-              required 
-            />
-            <Input 
-              type="number" 
-              label={`${t('weight')} (kg)`} 
-              name="weight"
-              value={formData.weight?.toString() || ''} 
-              onChange={handleChange}
-              required 
-            />
-            <Input 
-              label={t('microchipId')} 
-              name="microchipId"
-              value={formData.microchipId || ''} 
-              onChange={handleChange}
-            />
-            <Input 
-              label={t('passportNumber')} 
-              name="passportNumber"
-              value={formData.passportNumber || ''} 
-              onChange={handleChange}
-            />
-            <label className="block text-sm font-medium mb-1">{t('sex')}</label>
-              <select
-                name="sex"
-                value={formData.sex || ''}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-2"
-              >
-                <option value="">{t('select')}</option>
-                <option value="male">{t('male')}</option>
-                <option value="female">{t('female')}</option>
-              </select>
-            <Input 
-              label={t('colour')} 
-              name="colour"
-              value={formData.colour || ''} 
-              onChange={handleChange}
-            />
-            <Input 
-              label={t('features')} 
-              name="features"
-              value={formData.features || ''} 
-              onChange={handleChange}
-            />
-
-            {submitError && (
-              <div className="bg-red-50 text-red-600 p-2 rounded text-sm mb-4">
-                {submitError}
-              </div>
-            )}
-            <div className="flex space-x-3 pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setIsDogModalOpen(false)}
-                disabled={submitting}
-              >
-                {t('cancel')}
-              </Button>
-              <Button 
-                type="submit" 
-                className="flex-1"
-                disabled={submitting}
-              >
-                {submitting 
-                  ? t('saving') + '...'
-                  : editingDog ? t('updateDog') : t('createDog')
-                }
-              </Button>
-            </div>
-          </form>
-       
-      </Modal>
-        
-      </div>
-    );
-  }
  
 
   const dogVaccinations = vaccinations.filter((v) => v.dogId === currentDog.id);
@@ -628,9 +463,33 @@ if (statusKey === 'unknown') {
   else if (healthStatus?.status) statusKey = healthStatus.status; // fallback to raw
 }
 
-  return (
-    <div className="p-4 space-y-4">
-      
+  return ( 
+  <div className="p-4 space-y-4">
+    {/* If no dog yet */}
+    {!currentDog ? (
+      <Card className="text-center py-8">
+        <div className="relative mb-8">
+          <div className="w-24 h-24 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500 rounded-full mx-auto flex items-center justify-center shadow-2xl animate-pulse">
+            <Heart size={32} className="text-white" />
+          </div>
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+            <Sparkles size={12} className="text-white" />
+          </div>
+        </div>
+        <p className="text-lg font-medium text-gray-900 mb-2">
+          {t('welcome')} to eDog!
+        </p>
+        <p className="text-sm text-gray-600 mb-4">{t('createdog')}</p>
+        <Button
+          onClick={handleCreateDog}
+          className="bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500"
+        >
+          <Plus size={16} className="mr-1" />
+          {t('Add Dog')}
+        </Button>
+      </Card>
+    ) : (
+      <>
       {/* Dog Profile Header */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-xl">
         <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blueblue-200/30 to-light-bluelight-blue-200/30 rounded-full -translate-y-12 translate-x-12"></div>
@@ -1040,7 +899,8 @@ if (statusKey === 'unknown') {
           </button>
         </div>
       </Card>
-       
+         </>
+    )}
 
         <Modal
           isOpen={isDogModalOpen}

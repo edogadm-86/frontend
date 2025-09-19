@@ -168,6 +168,8 @@ export const useApi = () => {
     }
   };
 
+
+  
   // Auth functions
   const register = async (userData: { name: string; email: string; password: string; phone?: string }) => {
     try {
@@ -240,6 +242,36 @@ export const useApi = () => {
       throw error;
     }
   };
+  const fetchDogs = async () => {
+  try {
+    const res = await apiClient.getDogs(); // { dogs: [...] }
+
+    const dogsWithTypes: Dog[] = res.dogs.map(dog => ({
+      id: dog.id,
+      name: dog.name,
+      breed: dog.breed,
+      age: dog.age,
+      weight: dog.weight,
+      profilePicture: dog.profile_picture,
+      microchipId: dog.microchip_id,
+      licenseNumber: dog.license_number,
+      passportNumber: dog.passport_number,
+      dateOfBirth: dog.date_of_birth ? new Date(dog.date_of_birth) : undefined,
+      sex: dog.sex,
+      colour: dog.colour,
+      features: dog.features,
+      documents: [],
+      createdAt: new Date(dog.created_at),
+      updatedAt: new Date(dog.updated_at),
+    }));
+
+    setDogs(dogsWithTypes);
+    return dogsWithTypes;
+  } catch (err) {
+    console.error('Failed to fetch dogs', err);
+    return [];
+  }
+};
    // ---- Nutrition methods ----
   async function getNutritionRecords(dogId: string) {
     const { nutritionRecords } = await apiClient.getNutritionRecords(dogId);
@@ -533,5 +565,6 @@ async function updateNutritionRecord(dogId: string, recordId: string, data: Part
     updateNutritionRecord,
     deleteNutritionRecord,
     updateAppointment,
+    fetchDogs,
   };
 };

@@ -6,6 +6,8 @@ interface AppContextType {
   user: User | null;
   updateUser: (userData: Partial<User>) => Promise<User>;
   dogs: Dog[];
+  fetchDogs: () => Promise<Dog[]>;
+  // 👈 add this
   createDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
   updateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
   vaccinations: Vaccination[];
@@ -80,10 +82,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     createNutritionRecord,
     updateNutritionRecord,
     deleteNutritionRecord,
+    fetchDogs: apiFetchDogs,   // 👈 rename the one from useApi
+
+
   } = useApi();
 
   const [currentDog, setCurrentDog] = React.useState<Dog | null>(null);
-
+// Wrap fetchDogs
+const fetchDogs = async () => {
+  const updatedDogs = await apiFetchDogs();
+  if (updatedDogs.length > 0) {
+    setCurrentDog(updatedDogs[0]);  // 👈 always sync
+  } else {
+    setCurrentDog(null);
+  }
+  return updatedDogs;
+};
   // Set current dog to first dog when dogs are loaded
   React.useEffect(() => {
     if (dogs.length > 0 && !currentDog) {
@@ -122,6 +136,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   createNutritionRecord,
   updateNutritionRecord,
   deleteNutritionRecord,
+  fetchDogs,   // 👈 grab from useApi
+
 };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
