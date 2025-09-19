@@ -40,18 +40,23 @@ export const useApi = () => {
       // Load dogs
       const dogsResponse = await apiClient.getDogs();
       const dogsWithTypes: Dog[] = dogsResponse.dogs.map(dog => ({
-        id: dog.id,
-        name: dog.name,
-        breed: dog.breed,
-        age: dog.age,
-        weight: dog.weight,
-        profilePicture: dog.profile_picture,
-        microchipId: dog.microchip_id,
-        licenseNumber: dog.license_number,
-        documents: [],
-        createdAt: new Date(dog.created_at),
-        updatedAt: new Date(dog.updated_at),
-      }));
+          id: dog.id,
+          name: dog.name,
+          breed: dog.breed,
+          age: dog.age,
+          weight: dog.weight,
+          profilePicture: dog.profile_picture,
+          microchipId: dog.microchip_id,
+          licenseNumber: dog.license_number,
+          passportNumber: dog.passport_number,   // 👈 add
+          dateOfBirth: dog.date_of_birth ? new Date(dog.date_of_birth) : undefined, // 👈 add
+          sex: dog.sex,                          // 👈 add
+          colour: dog.colour,                    // 👈 add
+          features: dog.features,                // 👈 add
+          documents: [],
+          createdAt: new Date(dog.created_at),
+          updatedAt: new Date(dog.updated_at),
+        }));
       setDogs(dogsWithTypes);
 
       // Load emergency contacts

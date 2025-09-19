@@ -8,6 +8,7 @@ import {
 } from '../lib/healthI18n';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
+import { API_BASE_URL } from '../config';
 import {
   Calendar,
   Heart,
@@ -32,7 +33,6 @@ import { Dog } from '../types';
 import { Input } from './ui/Input';
 import { FileUpload } from './ui/FileUpload';
 import { useApi } from '../hooks/useApi';
-import { normalizeUploadUrl } from '../lib/urlHelpers';
 
 interface DashboardProps {
   onNavigate: (view: string) => void;
@@ -61,8 +61,38 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
   const { createDog, updateDog } = useApi();
 
-  // files state for FileUpload
+  // File upload state management
   const [files, setFiles] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+
+// Add this effect to debug modal state
+useEffect(() => {
+  console.log('Modal state changed:', isDogModalOpen);
+}, [isDogModalOpen]);
+  
+  // Handle file validation on change
+  useEffect(() => {
+    setUploadError(null);
+    if (files.length > 0) {
+      const file = files[0];
+      // Validate file type and size
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      if (!validTypes.includes(file.type)) {
+        setUploadError('Please upload a valid image file (JPEG, PNG, or GIF)');
+        setFiles([]);
+        return;
+      }
+
+      if (file.size > maxSize) {
+        setUploadError('File size should be less than 5MB');
+        setFiles([]);
+        return;
+      }
+    }
+  }, [files]);
 
   const [dismissedAlerts, setDismissedAlerts] = useState<{ overdue: boolean; dueSoon: boolean }>({
     overdue: false,
@@ -73,69 +103,149 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [showPassport, setShowPassport] = useState(false);
 
   const handleCreateDog = () => {
-    setEditingDog(null);
-    setFormData({
-      name: '',
-      breed: '',
-      dateOfBirth: '',
-      weight: '',
-      profilePicture: '',
-      microchipId: '',
-      passportNumber: '',
-      sex: '',
-      colour: '',
-      features: '',
-    });
-    setFiles([]);
+    console.log('handleCreateDog called'); // Add this line
+    //setEditingDog(null);
     setIsDogModalOpen(true);
   };
 
   const handleEditDog = () => {
     if (!currentDog) return;
     setEditingDog(currentDog);
-    setFormData({
-      name: currentDog.name || '',
-      breed: currentDog.breed || '',
-      dateOfBirth: currentDog.dateOfBirth
-        ? typeof currentDog.dateOfBirth === 'string'
-          ? currentDog.dateOfBirth
-          : new Date(currentDog.dateOfBirth).toISOString().split('T')[0]
-        : '',
-      weight: currentDog.weight?.toString() || '',
-      profilePicture: currentDog.profilePicture || '',
-      microchipId: currentDog.microchipId || '',
-      passportNumber: currentDog.passportNumber || '',
-      sex: currentDog.sex || '',
-      colour: currentDog.colour || '',
-      features: currentDog.features || '',
-    });
-    setFiles([]);
     setIsDogModalOpen(true);
   };
 
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isDogModalOpen) {
+      setFormData({});
+      setFiles([]);
+      setEditingDog(null);
+      setSubmitError(null);
+    }
+  }, [isDogModalOpen]);
+
+  // Initialize form data when editing
+  useEffect(() => {
+    if (isDogModalOpen && editingDog) {
+      setFormData({
+        name: editingDog.name || '',
+        breed: editingDog.breed || '',
+        dateOfBirth: editingDog.dateOfBirth
+          ? typeof editingDog.dateOfBirth === 'string'
+            ? editingDog.dateOfBirth
+            : new Date(editingDog.dateOfBirth).toISOString().split('T')[0]
+          : '',
+        weight: editingDog.weight?.toString() || '',
+        profilePicture: editingDog.profilePicture || '',
+        microchipId: editingDog.microchipId || '',
+        passportNumber: editingDog.passportNumber || '',
+        sex: editingDog.sex || '',
+        colour: editingDog.colour || '',
+        features: editingDog.features || '',
+      });
+    } else if (isDogModalOpen) {
+      // Clear form for new dog
+      setFormData({
+        name: '',
+        breed: '',
+        dateOfBirth: '',
+        weight: '',
+        profilePicture: '',
+        microchipId: '',
+        passportNumber: '',
+        sex: '',
+        colour: '',
+        features: '',
+      });
+      setFiles([]);
+    }
+  }, [isDogModalOpen, editingDog]);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const handleSubmitDog = async (e: React.FormEvent) => {
     e.preventDefault();
-    const dogData: Partial<Dog> = {
-      name: formData.name,
-      breed: formData.breed,
-      dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
-      weight: parseFloat(formData.weight as string),
-      profilePicture: formData.profilePicture || undefined,
-      microchipId: formData.microchipId || undefined,
-      passportNumber: formData.passportNumber || undefined,
-      sex: formData.sex || undefined,
-      colour: formData.colour || undefined,
-      features: formData.features || undefined,
-    };
+    setSubmitting(true);
+    setSubmitError(null);
+    
     try {
-      if (editingDog) {
-        await updateDog(editingDog.id, dogData);
-      } else {
-        await createDog(dogData as any);
+      // Validate required fields
+      if (!formData.name?.trim()) {
+        throw new Error(t('Name is required'));
       }
+      if (!formData.breed?.trim()) {
+        throw new Error(t('Breed is required'));
+      }
+
+      // Prepare dog data with proper type transformations
+      const dogData: Partial<Dog> & { user_id?: string } = {
+        name: formData.name.trim(),
+        breed: formData.breed.trim(),
+        dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
+        weight: formData.weight ? parseFloat(formData.weight.toString()) : undefined,
+        microchipId: formData.microchipId?.trim(),
+        passportNumber: formData.passportNumber?.trim(),
+        sex: formData.sex?.trim(),
+        colour: formData.colour?.trim(),
+        features: formData.features?.trim(),
+      };
+
+      // Filter out undefined values
+      const cleanedDogData = Object.fromEntries(
+        Object.entries(dogData).filter(([_, value]) => value !== undefined)
+      ) as Partial<Dog>;
+
+      // If we have a file, upload it first
+      if (files.length > 0) {
+        try {
+          const file = files[0];
+          const formDataToSubmit = new FormData();
+          formDataToSubmit.append('file', file);
+
+          // Upload the file using the API client
+          const response = await fetch(`${API_BASE_URL}/uploads`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+            },
+            body: formDataToSubmit,
+          });
+
+          if (!response.ok) {
+            throw new Error(t('Failed to upload profile picture'));
+          }
+
+          const uploadData = await response.json();
+          if (uploadData.fileUrl) {
+            cleanedDogData.profilePicture = uploadData.fileUrl;
+          }
+        } catch (uploadError) {
+          console.error('Error uploading file:', uploadError);
+          throw new Error(t('Failed to upload profile picture. Please try again.'));
+        }
+      }
+
+      // Update or create the dog
+      if (editingDog) {
+        await updateDog(editingDog.id, cleanedDogData);
+      } else {
+        await createDog(cleanedDogData as Required<Omit<Dog, 'id' | 'createdAt' | 'updatedAt' | 'documents'>>);
+      }
+
+      // Reset form and close modal
+      setFormData({});
+      setFiles([]);
+      setSubmitError(null);
       setIsDogModalOpen(false);
-    } catch (err) {
+      
+    } catch (err: any) {
       console.error('Error saving dog:', err);
+      setSubmitError(err.message || t('Failed to save dog. Please try again.'));
+    } finally {
+        window.location.reload(); // 👈 forces refresh
+
+      setSubmitting(false);
     }
   };
     // Debug effect
@@ -230,6 +340,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     };
   }, [currentDog?.profilePicture]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
   useEffect(() => {
     if (healthStatus) {
      
@@ -271,14 +385,136 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             {t('Add Dog')}
           </Button>
         </Card>
+        
+      {/* Ensure modal is always rendered */}
+      <Modal
+        isOpen={isDogModalOpen}
+        onClose={() => setIsDogModalOpen(false)}
+        title={t('Add Dog')}
+        className="w-full max-w-lg"
+      >
+        <form onSubmit={handleSubmitDog} className="space-y-4">
+            
+            {/* Error Message */}
+            {uploadError && (
+              <div className="bg-red-50 text-red-600 p-2 rounded text-sm">
+                {uploadError}
+              </div>
+            )}
+          
+            {/* Profile Picture Upload */}
+            <div className="text-center">
+              <label className="block text-sm font-medium mb-2">
+                {t('profilePicture')}
+              </label>
+              <FileUpload
+                accept="image/*"
+                maxFiles={1}
+                files={files}
+                onFilesChange={setFiles}
+                className="mx-auto"
+              />
+            </div>
+
+            <Input 
+              name="name"
+              label={t('name')} 
+              value={formData.name || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              label={t('breed')} 
+              name="breed"
+              value={formData.breed || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              type="date" 
+              label={t('dateOfBirth')} 
+              name="dateOfBirth"
+              value={formData.dateOfBirth || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              type="number" 
+              label={`${t('weight')} (kg)`} 
+              name="weight"
+              value={formData.weight?.toString() || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              label={t('microchipId')} 
+              name="microchipId"
+              value={formData.microchipId || ''} 
+              onChange={handleChange}
+            />
+            <Input 
+              label={t('passportNumber')} 
+              name="passportNumber"
+              value={formData.passportNumber || ''} 
+              onChange={handleChange}
+            />
+            <label className="block text-sm font-medium mb-1">{t('sex')}</label>
+              <select
+                name="sex"
+                value={formData.sex || ''}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2"
+              >
+                <option value="">{t('select')}</option>
+                <option value="male">{t('male')}</option>
+                <option value="female">{t('female')}</option>
+              </select>
+            <Input 
+              label={t('colour')} 
+              name="colour"
+              value={formData.colour || ''} 
+              onChange={handleChange}
+            />
+            <Input 
+              label={t('features')} 
+              name="features"
+              value={formData.features || ''} 
+              onChange={handleChange}
+            />
+
+            {submitError && (
+              <div className="bg-red-50 text-red-600 p-2 rounded text-sm mb-4">
+                {submitError}
+              </div>
+            )}
+            <div className="flex space-x-3 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsDogModalOpen(false)}
+                disabled={submitting}
+              >
+                {t('cancel')}
+              </Button>
+              <Button 
+                type="submit" 
+                className="flex-1"
+                disabled={submitting}
+              >
+                {submitting 
+                  ? t('saving') + '...'
+                  : editingDog ? t('updateDog') : t('createDog')
+                }
+              </Button>
+            </div>
+          </form>
+       
+      </Modal>
+        
       </div>
     );
   }
  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
 
   const dogVaccinations = vaccinations.filter((v) => v.dogId === currentDog.id);
   const dogHealthRecords = healthRecords.filter((r) => r.dogId === currentDog.id);
@@ -391,8 +627,10 @@ if (statusKey === 'unknown') {
   if (fromScore) statusKey = fromScore;
   else if (healthStatus?.status) statusKey = healthStatus.status; // fallback to raw
 }
+
   return (
     <div className="p-4 space-y-4">
+      
       {/* Dog Profile Header */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border border-white/30 shadow-xl">
         <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blueblue-200/30 to-light-bluelight-blue-200/30 rounded-full -translate-y-12 translate-x-12"></div>
@@ -802,14 +1040,24 @@ if (statusKey === 'unknown') {
           </button>
         </div>
       </Card>
-        {isDogModalOpen && (
+       
+
         <Modal
           isOpen={isDogModalOpen}
           onClose={() => setIsDogModalOpen(false)}
           title={editingDog ? t('Edit Dog') : t('Add Dog')}
-          className="max-w-lg"
+          className="w-full max-w-lg"
         >
+          
           <form onSubmit={handleSubmitDog} className="space-y-4">
+            
+            {/* Error Message */}
+            {uploadError && (
+              <div className="bg-red-50 text-red-600 p-2 rounded text-sm">
+                {uploadError}
+              </div>
+            )}
+          
             {/* Profile Picture Upload */}
             <div className="text-center">
               <label className="block text-sm font-medium mb-2">
@@ -824,31 +1072,104 @@ if (statusKey === 'unknown') {
               />
             </div>
 
-            <Input label={t('name')} value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
-            <Input label={t('breed')} value={formData.breed || ''} onChange={(e) => setFormData({ ...formData, breed: e.target.value })} required />
-            <Input type="date" label={t('dateOfBirth')} value={formData.dateOfBirth || ''} onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })} required />
-            <Input type="number" label={`${t('weight')} (kg)`} value={formData.weight?.toString() || ''} onChange={(e) => setFormData({ ...formData, weight: e.target.value })} required />
-            <Input label={t('microchipId')} value={formData.microchipId || ''} onChange={(e) => setFormData({ ...formData, microchipId: e.target.value })} />
-            <Input label={t('passportNumber')} value={formData.passportNumber || ''} onChange={(e) => setFormData({ ...formData, passportNumber: e.target.value })} />
-            <Input label={t('colour')} value={formData.colour || ''} onChange={(e) => setFormData({ ...formData, colour: e.target.value })} />
-            <Input label={t('features')} value={formData.features || ''} onChange={(e) => setFormData({ ...formData, features: e.target.value })} />
+            <Input 
+              name="name"
+              label={t('name')} 
+              value={formData.name || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              label={t('breed')} 
+              name="breed"
+              value={formData.breed || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              type="date" 
+              label={t('dateOfBirth')} 
+              name="dateOfBirth"
+              value={formData.dateOfBirth || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              type="number" 
+              label={`${t('weight')} (kg)`} 
+              name="weight"
+              value={formData.weight?.toString() || ''} 
+              onChange={handleChange}
+              required 
+            />
+            <Input 
+              label={t('microchipId')} 
+              name="microchipId"
+              value={formData.microchipId || ''} 
+              onChange={handleChange}
+            />
+            <Input 
+              label={t('passportNumber')} 
+              name="passportNumber"
+              value={formData.passportNumber || ''} 
+              onChange={handleChange}
+            />
+            <label className="block text-sm font-medium mb-1">{t('sex')}</label>
+              <select
+                name="sex"
+                value={formData.sex || ''}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2"
+              >
+                <option value="">{t('select')}</option>
+                <option value="male">{t('male')}</option>
+                <option value="female">{t('female')}</option>
+              </select>
+            <Input 
+              label={t('colour')} 
+              name="colour"
+              value={formData.colour || ''} 
+              onChange={handleChange}
+            />
+            <Input 
+              label={t('features')} 
+              name="features"
+              value={formData.features || ''} 
+              onChange={handleChange}
+            />
 
+            {submitError && (
+              <div className="bg-red-50 text-red-600 p-2 rounded text-sm mb-4">
+                {submitError}
+              </div>
+            )}
             <div className="flex space-x-3 pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsDogModalOpen(false)}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsDogModalOpen(false)}
+                disabled={submitting}
+              >
                 {t('cancel')}
               </Button>
-              <Button type="submit" className="flex-1">
-                {t('save')}
+              <Button 
+                type="submit" 
+                className="flex-1"
+                disabled={submitting}
+              >
+                {submitting 
+                  ? t('saving') + '...'
+                  : editingDog ? t('updateDog') : t('createDog')
+                }
               </Button>
             </div>
           </form>
         </Modal>
-      )}
-
-
 
       {/* Pet Passport Modal */}
       {showPassport && <PetPassport dog={currentDog} onClose={() => setShowPassport(false)} />}
     </div>
+    
   );
+  
 };
