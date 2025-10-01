@@ -13,28 +13,6 @@ import { FileUpload } from './ui/FileUpload';
 import { openDocument } from '../lib/fileUtils';
 import { API_BASE_URL } from '../config';
 
-
-
-
-// --- tiny helpers (web open/download). For native, you can swap to Capacitor later.
-const getAuthToken = () => localStorage.getItem('authToken');
-const fetchBlobWithAuth = async (url: string) => {
-  const token = getAuthToken();
-  const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-  if (!res.ok) throw new Error(`Failed to fetch file: ${res.status}`);
-  return await res.blob();
-};
-const triggerDownloadWeb = (blob: Blob, filename?: string) => {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename || 'document';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
-};
-
 // Normalize records from either camelCase (mobile) or snake_case (backend/desktop)
 function normalizeVaccination(v: any): {
   id: string;
@@ -85,7 +63,8 @@ export const VaccinationTracker: React.FC = () => {
 
   // documents grouped by vaccination_id
   const [docsByVacc, setDocsByVacc] = useState<Record<string, any[]>>({});
-useEffect(() => {
+  // Load vaccinations for current dog
+  useEffect(() => {
   const loadVaccinations = async () => {
     if (!currentDog) {
       setLocalVaccinations([]);
@@ -279,7 +258,7 @@ useEffect(() => {
           return;
         }
 
-        await openDocument(url, doc.original_name || doc.filename || 'document');
+        await openDocument(url, doc.original_name || doc.name || 'document');
       } catch (err) {
         console.error('Error opening document:', err);
       }

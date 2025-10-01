@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Shield,
@@ -6,19 +6,10 @@ import {
   Heart,
   FileText,
   X,
-  Star,
-  Calendar as CalendarIcon,
-  MapPin,
-  Phone,
-  Download,
-  Printer as Print,
-  Award,
+  Star
 } from 'lucide-react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
 import { format } from 'date-fns';
 import { apiClient } from '../lib/api';
-import { cacheImageToDevice } from '../lib/imageCache';
 
 interface PetPassportProps {
   dog: any;
@@ -31,62 +22,11 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
   const [healthRecords, setHealthRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // local/blob image for the passport
-  const [localPhoto, setLocalPhoto] = useState<string | null>(null);
-  const currentBlobRef = useRef<string | null>(null);
-
   useEffect(() => {
     loadPassportData();
   }, [dog.id]);
 
-  // Load a safe image URL (blob on web, local file on native)
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      setLocalPhoto(null);
-      if (!dog?.profilePicture) return;
-
-      try {
-        const url = await cacheImageToDevice(dog.profilePicture);
-        if (cancelled) return;
-
-        const prev = currentBlobRef.current;
-        setLocalPhoto(url);
-
-        // Track/revoke only blob: URLs (web); file:// (native) should not be revoked
-        if (url.startsWith('blob:')) {
-          currentBlobRef.current = url;
-        } else {
-          currentBlobRef.current = null;
-        }
-
-        if (prev) {
-          // Revoke the previous blob after the element updates
-          setTimeout(() => {
-            try { URL.revokeObjectURL(prev); } catch {}
-          }, 0);
-        }
-      } catch (e) {
-        console.warn('Passport photo load failed:', e);
-        // keep placeholder UI (no fallback to remote URL to avoid CORP)
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [dog?.profilePicture]);
-
-  // Revoke last blob on unmount
-  useEffect(() => {
-    return () => {
-      if (currentBlobRef.current) {
-        try { URL.revokeObjectURL(currentBlobRef.current); } catch {}
-        currentBlobRef.current = null;
-      }
-    };
-  }, []);
+  
 
   const loadPassportData = async () => {
     try {
@@ -104,18 +44,9 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleDownload = () => {
-    // TODO: implement proper PDF export
-    alert('PDF download functionality would be implemented here');
-  };
-
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+<div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl p-8 text-center max-w-sm mx-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blueblue-500 mx-auto mb-4" />
           <p>Loading passport data...</p>
@@ -126,7 +57,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white max-w-md w-full max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl">
+      <div className="bg-white max-w-md w-full h-[85vh] overflow-y-auto rounded-2xl shadow-2xl relative z-[10000]">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
@@ -161,10 +92,9 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <div className="w-20 h-20 bg-white border-4 border-white rounded-lg shadow-lg overflow-hidden">
-                  {localPhoto ? (
+                  {dog?.profilePicture ? (
                     <img
-                      key={localPhoto}
-                      src={localPhoto}
+                      src={dog.profilePicture}
                       alt={dog.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -205,7 +135,12 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
                 <div className="bg-white/50 border border-gray-200 rounded-lg p-2">
                   <label className="block text-xs font-semibold text-gray-700">Date of birth</label>
                   <p className="text-sm text-gray-900">
-                    {new Date(new Date().getFullYear() - dog.dateOfBirth, 0, 1).toLocaleDateString()}
+                     {dog.dateOfBirth
+                                            ? typeof dog.dateOfBirth === 'string'
+                                              ? dog.dateOfBirth
+                                              : format(dog.dateOfBirth, 'yyyy-MM-dd')
+                                            : ''}
+                                          {' '}
                   </p>
                 </div>
                 <div className="bg-white/50 border border-gray-200 rounded-lg p-2">

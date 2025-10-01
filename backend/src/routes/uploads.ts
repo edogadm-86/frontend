@@ -96,6 +96,10 @@ router.get('/file/:filename', (req, res) => {
   const filePath = path.join(uploadsDir, filename);
   
   if (fs.existsSync(filePath)) {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+    res.setHeader("Access-Control-Allow-Origin", "*"); // still good practice
+    res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
     res.sendFile(filePath);
   } else {
     res.status(404).json({ error: 'File not found' });

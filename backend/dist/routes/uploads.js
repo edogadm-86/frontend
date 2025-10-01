@@ -86,6 +86,9 @@ router.get('/file/:filename', (req, res) => {
     const filename = req.params.filename;
     const filePath = path_1.default.join(uploadsDir, filename);
     if (fs_1.default.existsSync(filePath)) {
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+        res.setHeader("Access-Control-Allow-Origin", "*"); // still good practice
         res.sendFile(filePath);
     }
     else {

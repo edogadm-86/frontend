@@ -5,10 +5,8 @@ import { Input } from './ui/Input';
 import { Card } from './ui/Card';
 import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
 import { HealthRecord } from '../types';
+import { openDocument } from '../lib/fileUtils';
 import {
   PlusCircle,
   Heart,
@@ -17,8 +15,6 @@ import {
   AlertTriangle,
   Paperclip,
   FileText,
-  ExternalLink,
-  Download,
   Trash2,
   Edit2,
 } from 'lucide-react';
@@ -27,57 +23,6 @@ import { useTranslation } from 'react-i18next';
 import { apiClient } from '../lib/api';
 import { API_BASE_URL } from '../config';
 
-// ---------- Helpers ----------
-const getAuthToken = () => localStorage.getItem('authToken');
-
-const fetchBlobWithAuth = async (url: string) => {
-  const token = getAuthToken();
-  const res = await fetch(url, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) throw new Error(`Failed to fetch file: ${res.status}`);
-  return await res.blob();
-};
-
-const blobToBase64 = (blob: Blob): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-
-const openBlobWeb = (blob: Blob) => {
-  const blobUrl = URL.createObjectURL(blob);
-  window.open(blobUrl, '_blank', 'noopener,noreferrer');
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
-};
-
-const saveAndShareNative = async (blob: Blob, filename: string) => {
-  const base64 = await blobToBase64(blob);
-  const path = `${Date.now()}-${filename || 'document'}`;
-  await Filesystem.writeFile({
-    data: base64,
-    path,
-    directory: Directory.Cache,
-  });
-  const fileUri = (await Filesystem.getUri({ path, directory: Directory.Cache })).uri;
-  await Share.share({
-    title: filename || 'document',
-    url: fileUri,
-  });
-};
-
-const triggerDownloadWeb = (blob: Blob, filename: string) => {
-  const blobUrl = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = blobUrl;
-  a.download = filename || 'download';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-};
 
 // ---------- Normalizer ----------
 function normalizeHealthRecord(r: any): HealthRecord {
@@ -200,12 +145,6 @@ export const HealthRecords: React.FC = () => {
     }
   };
 
-  const isImage = (mime?: string, url?: string) =>
-    mime ? mime.startsWith('image/') : /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url || '');
-
-  const isPdf = (mime?: string, url?: string) =>
-    mime ? mime === 'application/pdf' : /\.pdf$/i.test(url || '');
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentDog) return;
@@ -283,35 +222,20 @@ export const HealthRecords: React.FC = () => {
   };
 
   const handleOpen = async (att: Attachment) => {
-    try {
-      const blob = await fetchBlobWithAuth(att.url);
-      if (isPdf(att.mimeType, att.url)) {
-        const blobUrl = URL.createObjectURL(blob);
-        setViewer({ url: blobUrl, name: att.name, mime: 'application/pdf' });
-        return;
-      }
-      if (Capacitor.isNativePlatform()) {
-        await saveAndShareNative(blob, att.name);
-      } else {
-        openBlobWeb(blob);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  try {
+    await openDocument(att.url, att.name);
+  } catch (e) {
+    console.error('Error opening attachment:', e);
+  }
+};
 
   const handleDownload = async (att: Attachment) => {
-    try {
-      const blob = await fetchBlobWithAuth(att.url);
-      if (Capacitor.isNativePlatform()) {
-        await saveAndShareNative(blob, att.name);
-      } else {
-        triggerDownloadWeb(blob, att.name);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  try {
+    await openDocument(att.url, att.name);
+  } catch (e) {
+    console.error('Error downloading attachment:', e);
+  }
+};
 
   const handleDeleteRecord = async (record: HealthRecord) => {
     if (!currentDog) return;

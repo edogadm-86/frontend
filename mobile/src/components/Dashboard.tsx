@@ -8,7 +8,6 @@ import {
 } from '../lib/healthI18n';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
-import { API_BASE_URL } from '../config';
 import { IonImg } from '@ionic/react';
 import {
   Calendar,
@@ -29,11 +28,9 @@ import { format, isAfter, isBefore, addDays } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../lib/api';
 import { PetPassport } from './PetPassport';
-import { cacheImageToDevice } from '../lib/imageCache';
 import { Dog } from '../types';
 import { Input } from './ui/Input';
 import { FileUpload } from './ui/FileUpload';
-import { Capacitor } from '@capacitor/core';
 import { useApi } from '../hooks/useApi';
 
 interface DashboardProps {
@@ -58,7 +55,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     colour?: string;
     features?: string;
   }>({});
-  const [localAvatar, setLocalAvatar] = useState<string | null>(null);
   const [isDogModalOpen, setIsDogModalOpen] = useState(false);
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
   const { createDog, updateDog } = useApi();
@@ -296,30 +292,6 @@ useEffect(() => {
   }
 }, [currentDog, isDogModalOpen]);
 
-  // 1) Keep your effect, just ensure it feeds the FULL URL from DB:
-useEffect(() => {
-  let cancelled = false;
-  (async () => {
-    setLocalAvatar(null);
-    if (!currentDog?.profilePicture) return;
-
-    try {
-      // profilePicture is full URL (e.g., https://edog.dogpass.net/api/uploads/file/....jpg)
-      const localUrl = await cacheImageToDevice(currentDog.profilePicture);
-      if (cancelled) return;
-      setLocalAvatar(localUrl);
-    } catch (e) {
-      console.warn('Avatar cache failed:', e);
-      setLocalAvatar(null);
-    }
-  })();
-
-  return () => {
-    cancelled = true;
-  };
-}, [currentDog?.profilePicture]);
-
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -378,30 +350,6 @@ useEffect(() => {
   }
 }, [healthStatus]);
 
-useEffect(() => {
-  (async () => {
-    try {
-      if (currentDog?.profilePicture) {
-        const uri = await cacheImageToDevice(currentDog.profilePicture);
-        console.log("🐶 Avatar set to:", uri);
-      //  alert("Avatar URL: " + uri);
-        setLocalAvatar(uri);
-      }
-    } catch (err) {
-      console.error("❌ cacheImageToDevice failed", err);
-   //   alert("cacheImageToDevice error: " + err);
-    }
-  })();
-}, [currentDog?.profilePicture]);
-
-useEffect(() => {
-  return () => {
-    if (blobRef.current) {
-      try { URL.revokeObjectURL(blobRef.current); } catch {}
-      blobRef.current = null;
-    }
-  };
-}, []);
   const stats = [
     {
       icon: Shield,
@@ -506,28 +454,23 @@ if (statusKey === 'unknown') {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500 rounded-2xl flex items-center justify-center shadow-xl">
-               {localAvatar ? (
-                  <img
-                    src={localAvatar}                  
+               <div className="w-16 h-16 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                {currentDog?.profilePicture ? (
+                  <IonImg
+                    src={currentDog.profilePicture}
                     alt={currentDog.name}
                     className="w-16 h-16 rounded-2xl object-cover"
                     onError={(e) => {
-                      // hide broken image; initials below will show on next render
-                      (e.currentTarget as HTMLImageElement).style.display = 'none';
-                      setLocalAvatar(null);
+                      // fallback: hide the image, initials will show
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
                     }}
                   />
-                  
                 ) : (
-                  // No image until the blob/local file URL is ready — avoids the blocked remote request
                   <span className="text-2xl font-bold text-white">
-                    {currentDog.name.charAt(0).toUpperCase()}
+                    {currentDog?.name?.charAt(0).toUpperCase()}
                   </span>
-                  
                 )}
-
-                </div>
+              </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center border-2 border-white">
                   <Activity size={10} className="text-white" />
                 </div>

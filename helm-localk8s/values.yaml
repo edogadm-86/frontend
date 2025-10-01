@@ -22,7 +22,7 @@ frontend:
 backend:
   image:
     repository: nikolaypeshev/dogpass
-    tag: edog-backend-11-09-25
+    tag: edog-backend-01-10-25
   service:
     type: ClusterIP
     port: 3001
