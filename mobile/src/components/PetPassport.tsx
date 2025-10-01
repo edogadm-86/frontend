@@ -197,7 +197,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
                 </div>
                 <div className="bg-white/50 border border-gray-200 rounded-lg p-2">
                   <label className="block text-xs font-semibold text-gray-700">Sex</label>
-                  <p className="text-sm text-gray-900">Not specified</p>
+                  <p className="text-sm text-gray-900">{dog.sex}</p>
                 </div>
               </div>
 
@@ -205,7 +205,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onClose }) => {
                 <div className="bg-white/50 border border-gray-200 rounded-lg p-2">
                   <label className="block text-xs font-semibold text-gray-700">Date of birth</label>
                   <p className="text-sm text-gray-900">
-                    {new Date(new Date().getFullYear() - dog.age, 0, 1).toLocaleDateString()}
+                    {new Date(new Date().getFullYear() - dog.dateOfBirth, 0, 1).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="bg-white/50 border border-gray-200 rounded-lg p-2">

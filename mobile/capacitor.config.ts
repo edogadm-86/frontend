@@ -6,13 +6,14 @@ const config: CapacitorConfig = {
   webDir: 'dist',               // Vite build output
  server: { 
   androidScheme: 'https',
+  cleartext: true,             // ✅ allow http/https mixed if needed
   allowNavigation: [
-    'edog.dogpass.net',
-    'https://edog.dogpass.net',
-    'https://code.tidio.co',
-    'https://cdn.tidio.co',
-    'https://tidiochat.com',
-    'https://*.tidiochat.com'
+      'edog.dogpass.net',
+      '*.dogpass.net',            // ✅ wildcard for subdomains
+      'code.tidio.co',
+      'cdn.tidio.co',
+      'tidiochat.com',
+      '*.tidiochat.com'
   ]
 },
   plugins: {

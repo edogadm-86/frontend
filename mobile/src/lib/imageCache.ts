@@ -1,40 +1,74 @@
+// src/lib/imageCache.ts
 import { Capacitor } from '@capacitor/core';
+import { Http } from '@capacitor-community/http';
 
-/**
- * Cache remote image and return a URL safe to use in <img>.
- * - On web: returns a blob: URL (created via fetch) to bypass CORS.
- * - On native (Android/iOS): returns the direct backend URL (no CORS issues in WebView).
- */
-export async function cacheImageToDevice(remoteUrl: string): Promise<string> {
-  if (!remoteUrl) throw new Error('No image URL');
-
-  if (Capacitor.getPlatform() === 'web') {
-    try {
-      const res = await fetch(remoteUrl, { mode: 'cors' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      console.log('[cacheImageToDevice] Web blob URL:', blobUrl);
-      return blobUrl;
-    } catch (e) {
-      console.warn('[cacheImageToDevice] Web blob fetch failed, fallback to direct URL:', e);
-      return remoteUrl;
-    }
-  }
-
-  // Native (Android/iOS) → just use the direct URL
-  console.log('[cacheImageToDevice] Native direct URL:', remoteUrl);
-  return remoteUrl;
+function extFromUrl(url: string): string {
+  const m = url.split('?')[0].match(/\.(png|jpg|jpeg|gif|webp|bmp|svg)$/i);
+  return m ? m[1].toLowerCase() : 'jpeg';
 }
 
-/** Invalidate cached copy (web only, revokes blob URL). */
-export async function invalidateCachedImage(remoteUrl: string) {
-  if (Capacitor.getPlatform() === 'web' && remoteUrl.startsWith('blob:')) {
-    try {
-      URL.revokeObjectURL(remoteUrl);
-      console.log('[invalidateCachedImage] Revoked blob URL:', remoteUrl);
-    } catch {
-      /* ignore */
-    }
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+/**
+ * Downloads a remote image URL and returns a WebView-safe URL.
+ * - Web: blob: URL (URL.createObjectURL)
+ * - Native: base64 data URI (always works in <img>)
+ */
+export async function cacheImageToDevice(remoteUrl: string): Promise<string> {
+  if (!remoteUrl) throw new Error('cacheImageToDevice: remoteUrl is empty');
+
+  const platform = Capacitor.getPlatform();
+
+  // ---- Web (vite dev, desktop browsers) ----
+  if (platform === 'web') {
+    const res = await fetch(remoteUrl, { credentials: 'omit', cache: 'no-store' });
+    if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
   }
+
+  // ---- Native (Android/iOS) ----
+  let base64: string | undefined;
+  let mime = `image/${extFromUrl(remoteUrl)}`;
+
+  try {
+    const resp = await Http.get({
+      url: remoteUrl,
+      responseType: 'arraybuffer', // some devices ignore this
+    });
+
+    if (resp?.data instanceof ArrayBuffer) {
+      base64 = arrayBufferToBase64(resp.data);
+    } else if (typeof resp?.data === 'string') {
+      base64 = resp.data.replace(/^data:.*;base64,/, '');
+      const match = resp.data.match(/^data:(.*?);base64,/);
+      if (match) mime = match[1];
+    } else {
+      console.warn("⚠️ Http.get returned unexpected type", resp);
+    }
+  } catch (err) {
+    console.error("❌ Http.get failed", err);
+  }
+
+  if (!base64) {
+    alert("❌ Failed to download image\nURL: " + remoteUrl);
+    throw new Error("Failed to download image or empty response");
+  }
+
+  const finalUri = `data:${mime};base64,${base64}`;
+
+  // 🔔 Debug info: show both input + output
+  alert(
+    "📷 cacheImageToDevice debug\n\n" +
+    "Remote URL:\n" + remoteUrl + "\n\n" +
+    "Final URI length: " + finalUri.length
+  );
+
+  return finalUri;
 }

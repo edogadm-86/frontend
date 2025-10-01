@@ -9,6 +9,8 @@ import { Dog } from '../types';
 import { PlusCircle, Edit, Camera } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from 'react-i18next';
+import { API_BASE_URL } from '../config';
+
 
 export const DogProfile: React.FC = () => {
   const { dogs, createDog, updateDog, currentDog, setCurrentDog } = useApp();
@@ -132,7 +134,7 @@ export const DogProfile: React.FC = () => {
                   <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
                     {dog.profilePicture ? (
                       <img
-                        src={dog.profilePicture}
+                        src={`${API_BASE_URL}/uploads/${dog.profile_picture}`}
                         alt={dog.name}
                         className="w-12 h-12 rounded-full object-cover"
                       />

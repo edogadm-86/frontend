@@ -9,6 +9,7 @@ import {
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
 import { API_BASE_URL } from '../config';
+import { IonImg } from '@ionic/react';
 import {
   Calendar,
   Heart,
@@ -32,6 +33,7 @@ import { cacheImageToDevice } from '../lib/imageCache';
 import { Dog } from '../types';
 import { Input } from './ui/Input';
 import { FileUpload } from './ui/FileUpload';
+import { Capacitor } from '@capacitor/core';
 import { useApi } from '../hooks/useApi';
 
 interface DashboardProps {
@@ -70,7 +72,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 useEffect(() => {
  // console.log('Modal state changed:', isDogModalOpen);
 }, [isDogModalOpen]);
-  
+  //console.log('Platform:', Capacitor.getPlatform(), 'Avatar URL:', currentDog?.profilePicture);
+
   // Handle file validation on change
   useEffect(() => {
     setUploadError(null);
@@ -213,12 +216,12 @@ useEffect(() => {
       });
 
           if (uploadData.fileUrl) {
-          const payload = { ...formData, profilePicture: uploadData.fileUrl };
-          console.log("📤 Sending update payload:", payload);
-          await updateDog(savedDog.id, payload);
-        } else {
-          console.log("📤 Sending update payload (no upload):", formData);
-          await updateDog(savedDog.id, formData);
+        const payload = { ...formData, profilePicture: uploadData.fileUrl };
+        console.log("📤 Sending update payload:", payload);
+        await updateDog(savedDog.id, payload);
+      } else {
+        console.log("📤 Sending update payload (no upload):", formData);
+        await updateDog(savedDog.id, formData);
 }
 
     }
@@ -293,43 +296,29 @@ useEffect(() => {
   }
 }, [currentDog, isDogModalOpen]);
 
-  // Cache avatar locally whenever the profile picture URL changes
-  useEffect(() => {
-    let cancelled = false;
+  // 1) Keep your effect, just ensure it feeds the FULL URL from DB:
+useEffect(() => {
+  let cancelled = false;
+  (async () => {
+    setLocalAvatar(null);
+    if (!currentDog?.profilePicture) return;
 
-    (async () => {
+    try {
+      // profilePicture is full URL (e.g., https://edog.dogpass.net/api/uploads/file/....jpg)
+      const localUrl = await cacheImageToDevice(currentDog.profilePicture);
+      if (cancelled) return;
+      setLocalAvatar(localUrl);
+    } catch (e) {
+      console.warn('Avatar cache failed:', e);
       setLocalAvatar(null);
-      if (!currentDog?.profilePicture) return;
+    }
+  })();
 
-      try {
-        const localUrl = await cacheImageToDevice(currentDog.profilePicture);
-        if (cancelled) return;
+  return () => {
+    cancelled = true;
+  };
+}, [currentDog?.profilePicture]);
 
-        const prevBlob = blobRef.current;
-        setLocalAvatar(localUrl);
-
-        if (localUrl.startsWith('blob:')) {
-          blobRef.current = localUrl;
-        } else {
-          blobRef.current = null;
-        }
-
-        if (prevBlob) {
-          setTimeout(() => {
-            try {
-              URL.revokeObjectURL(prevBlob);
-            } catch {}
-          }, 0);
-        }
-      } catch (e) {
-        console.warn('Avatar cache failed:', e);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [currentDog?.profilePicture]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -388,6 +377,23 @@ useEffect(() => {
   
   }
 }, [healthStatus]);
+
+useEffect(() => {
+  (async () => {
+    try {
+      if (currentDog?.profilePicture) {
+        const uri = await cacheImageToDevice(currentDog.profilePicture);
+        console.log("🐶 Avatar set to:", uri);
+      //  alert("Avatar URL: " + uri);
+        setLocalAvatar(uri);
+      }
+    } catch (err) {
+      console.error("❌ cacheImageToDevice failed", err);
+   //   alert("cacheImageToDevice error: " + err);
+    }
+  })();
+}, [currentDog?.profilePicture]);
+
 useEffect(() => {
   return () => {
     if (blobRef.current) {
@@ -501,9 +507,9 @@ if (statusKey === 'unknown') {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <div className="w-16 h-16 bg-gradient-to-r from-blueblue-500 to-light-bluelight-blue-500 rounded-2xl flex items-center justify-center shadow-xl">
-                 {localAvatar ? (
+               {localAvatar ? (
                   <img
-                    src={localAvatar}
+                    src={localAvatar}                  
                     alt={currentDog.name}
                     className="w-16 h-16 rounded-2xl object-cover"
                     onError={(e) => {
@@ -512,23 +518,27 @@ if (statusKey === 'unknown') {
                       setLocalAvatar(null);
                     }}
                   />
+                  
                 ) : (
                   // No image until the blob/local file URL is ready — avoids the blocked remote request
                   <span className="text-2xl font-bold text-white">
                     {currentDog.name.charAt(0).toUpperCase()}
                   </span>
+                  
                 )}
+
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center border-2 border-white">
                   <Activity size={10} className="text-white" />
                 </div>
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold bg-gradient-to-r from-blueblue-600 to-light-bluelight-blue-600 bg-clip-text text-transparent">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-blueblue-600 to-light-bluelight-blue-600 bg-clip-text ">
                   {currentDog.name}
                 </h2>
                 <p className="text-gray-600">{currentDog.breed}</p>
                 <div className="flex items-center space-x-3 text-sm text-gray-500 mt-1">
+
                   <div className="flex items-center space-x-1">
                     <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
                     <span>
@@ -538,7 +548,7 @@ if (statusKey === 'unknown') {
                           : format(currentDog.dateOfBirth, 'yyyy-MM-dd')
                         : ''}
                       {' '}
-                      {t('years old')}
+                      
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
@@ -566,6 +576,7 @@ if (statusKey === 'unknown') {
             </Button>
           </div>
         </div>
+
       </Card>
 
       {/* Health Status Banner */}
