@@ -181,15 +181,15 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
   return (
     <div className="p-4 lg:p-8 space-y-6 lg:space-y-8">
       {/* Dog Profile Header */}
-      <Card variant="gradient" className="relative overflow-hidden mb-6">
+      <Card variant="gradient" className="stat-card group">
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-200/30 to-blue-200/30 rounded-full -translate-y-16 translate-x-16"></div>
         <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="flex items-center space-x-6">
             <div className="relative">
               <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
-                {currentDog.profile_picture ? (
+                {currentDog.profilePicture ? (
                   <img
-                    src={currentDog.profile_picture}
+                    src={currentDog.profilePicture}
                     alt={currentDog.name}
                     className="w-24 h-24 rounded-3xl object-cover"
                   />
@@ -303,7 +303,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
                                                     'text-gray-500';
 
           return (
-            <Card variant="gradient" className={`bg-gradient-to-r ${borderBg}`}>
+            <Card className="stat-card group">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                 <div className="flex items-center space-x-4">
                   <div className={`w-16 h-16 bg-gradient-to-r ${getHealthStatusColor(healthStatus.status)} rounded-2xl flex items-center justify-center shadow-lg`}>
@@ -364,7 +364,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <Card key={index} onClick={stat.onClick} variant="stat" className="cursor-pointer group">
+          <Card key={index} onClick={stat.onClick} className="stat-card group">
             <div className="flex items-center justify-between mb-4">
               <div className={`w-14 h-14 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
                 <stat.icon size={24} className="text-white" />
@@ -420,7 +420,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upcoming Appointments */}
-        <Card variant="gradient" className="relative overflow-hidden">
+        <Card variant="gradient" className="stat-card group">
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary-200/20 to-blue-200/20 rounded-full -translate-y-10 translate-x-10"></div>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-gray-900 flex items-center">
@@ -436,7 +436,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
         </Card>
 
         {/* Quick Actions */}
-        <Card variant="gradient" className="xl:col-span-1">
+        <Card variant="gradient" className="stat-card group">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
             <Sparkles className="mr-2 text-primary-500" />
             {t('quickActions')}
@@ -495,7 +495,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
       )}
 
       {/* Recent Activity */}
-      <Card variant="gradient">
+      <Card variant="gradient" className="stat-card group">
         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
           <Clock className="mr-2 text-primary-500" />
           {t('recentActivity')}

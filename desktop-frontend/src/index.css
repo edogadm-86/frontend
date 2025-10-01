@@ -523,4 +523,18 @@
 .typing-indicator {
   animation: typing 1.5s infinite;
 }
+
+/* Stat card styles */
+.stat-card {
+  @apply bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm 
+         rounded-2xl p-6 shadow-lg border border-white/30 
+         hover:shadow-xl transition-all duration-300 cursor-pointer;
+}
+
+.dark .stat-card {
+  @apply from-gray-800/90 to-gray-800/70 border-gray-700/30 text-white;
+}
+
+
+
 }

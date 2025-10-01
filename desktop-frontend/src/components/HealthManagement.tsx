@@ -211,7 +211,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Health Timeline */}
-              <Card variant="gradient" className="h-fit">
+              <Card variant="gradient" className="stat-card group">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                   <Activity className="mr-2 text-primary-500" />
                   {t('healthTimeline')}
@@ -289,7 +289,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
               </Card>
 
               {/* Health Insights */}
-                <Card variant="gradient" className="h-fit">
+                <Card variant="gradient" className="stat-card group">
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                     <TrendingUp className="mr-2 text-primary-500" />
                     {t('healthInsights')}

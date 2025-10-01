@@ -1,3 +1,4 @@
+# if the build fails, delete package-lock.json and node_modules folder, then run npm install
 # ---------- Build stage ----------
 FROM node:20-alpine AS builder
 WORKDIR /app

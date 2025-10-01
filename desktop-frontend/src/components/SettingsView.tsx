@@ -212,7 +212,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const renderProfileSettings = () => (
     <div className="space-y-6">
-      <Card variant="gradient">
+      <Card variant="gradient" className="stat-card group">
         <div className="flex items-center space-x-6 mb-6">
           <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
             <span className="text-3xl font-bold text-white">
@@ -250,7 +250,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const renderPreferences = () => (
     <div className="space-y-6">
-      <Card variant="gradient">
+      <Card variant="gradient" className="stat-card group">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Globe className="mr-2" />
           {t('languageRegion')}
@@ -308,7 +308,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </Card>
 
-      <Card variant="gradient">
+      <Card variant="gradient" className="stat-card group">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Bell className="mr-2" />
           {t('notifications')}
@@ -341,7 +341,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </Card>
 
-      <Card variant="gradient">
+      <Card variant="gradient"  className="stat-card group">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
           <Palette className="mr-2" />
           {t('appearance')}
@@ -391,7 +391,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const renderSecurity = () => (
     <div className="space-y-6">
-      <Card variant="gradient">
+      <Card variant="gradient" className="stat-card group">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <Key className="mr-2" />
           {t('passwordAuthentication')}

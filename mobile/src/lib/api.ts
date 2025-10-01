@@ -1,5 +1,7 @@
 import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact } from '../types';
 import { API_BASE_URL } from '../config';
+import { Capacitor } from '@capacitor/core';
+
 
 //const API_BASE_URL = 'http://localhost:3001/api';
 //const API_BASE_URL =import.meta.env.BACKEND_URL;
@@ -12,32 +14,33 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
 
-    const isFormData =
-      typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const isFormData = options.body instanceof FormData;
+  const isBlob = options.body instanceof Blob;
 
-    const headers: Record<string, string> = {
-      ...(this.token && { Authorization: `Bearer ${this.token}` }),
-      ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
-      ...(options.headers as Record<string, string> | undefined),
-    };
+  const headers: Record<string, string> = {
+    ...(this.token && { Authorization: `Bearer ${this.token}` }),
+    // ❌ Don't override Content-Type if FormData or Blob is used
+    ...(!isFormData && !isBlob ? { 'Content-Type': 'application/json' } : {}),
+    ...(options.headers as Record<string, string> | undefined),
+  };
 
-    const config: RequestInit = { ...options, headers };
-   
+  const config: RequestInit = { ...options, headers };
 
-    try {
-      const response = await fetch(url, config);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-      return (await response.json()) as T;
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
+  try {
+    const response = await fetch(url, config);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
+    return (await response.json()) as T;
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
   }
+}
+
 
   setToken(token: string) {
     this.token = token;
@@ -308,22 +311,47 @@ class ApiClient {
     return this.request(`/auth/notifications/${notificationId}/read`, { method: 'PUT' });
   }
   // File upload endpoints
+
+
 async uploadFile(
   file: File,
   metadata: { dogId?: string; vaccinationId?: string; healthRecordId?: string; documentType?: string }
 ) {
-  const formData = new FormData();
-  formData.append('file', file);
-  if (metadata.dogId) formData.append('dogId', metadata.dogId);
-  if (metadata.vaccinationId) formData.append('vaccinationId', metadata.vaccinationId);
-  if (metadata.healthRecordId) formData.append('healthRecordId', metadata.healthRecordId);
-  if (metadata.documentType) formData.append('documentType', metadata.documentType);
+  if (Capacitor.getPlatform() === 'web') {
+    // Web/Emulator → normal fetch
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    if (metadata.dogId) formData.append('dogId', metadata.dogId);
+    if (metadata.vaccinationId) formData.append('vaccinationId', metadata.vaccinationId);
+    if (metadata.healthRecordId) formData.append('healthRecordId', metadata.healthRecordId);
+    if (metadata.documentType) formData.append('documentType', metadata.documentType);
 
-  return this.request<{ document: any; fileUrl: string }>('/uploads/upload', {
-    method: 'POST',
-    body: formData,
-  });
+    return this.request<{ document: any; fileUrl: string }>('/uploads/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  } else {
+    // Native → still use fetch, not CapacitorHttp
+    const formData = new FormData();
+    formData.append('file', file, file.name || 'upload.bin');
+    if (metadata.dogId) formData.append('dogId', metadata.dogId);
+    if (metadata.vaccinationId) formData.append('vaccinationId', metadata.vaccinationId);
+    if (metadata.healthRecordId) formData.append('healthRecordId', metadata.healthRecordId);
+    if (metadata.documentType) formData.append('documentType', metadata.documentType);
+
+    const response = await fetch(`${API_BASE_URL}/uploads/upload`, {
+      method: 'POST',
+      headers: {
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error(`Upload failed: ${response.status}`);
+    return await response.json();
+  }
 }
+
 
 async getDocuments(dogId: string) {
   return this.request<{ documents: any[] }>(`/uploads/dog/${dogId}`);

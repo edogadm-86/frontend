@@ -862,7 +862,7 @@ if (statusKey === 'unknown') {
         <Modal
           isOpen={isDogModalOpen}
           onClose={() => setIsDogModalOpen(false)}
-          title={editingDog ? t('Edit Dog') : t('Add Dog')}
+          title={editingDog ? t('Edit Dog Profile') : t('Add Dog')}
           className="w-full max-w-lg"
         >
           

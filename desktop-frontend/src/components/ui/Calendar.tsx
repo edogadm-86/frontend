@@ -50,10 +50,10 @@ export const Calendar: React.FC<CalendarProps> = ({
   const calendarDays: { date: Date; isCurrentMonth: boolean }[] = [];
 
   // Previous month days
-  const prevMonth = new Date(year, month - 1, 0);
+  const prevMonthLastDay = new Date(year, month, 0).getDate(); // last day of previous month
   for (let i = firstDayWeekday - 1; i >= 0; i--) {
     calendarDays.push({
-      date: new Date(year, month - 1, prevMonth.getDate() - i),
+      date: new Date(year, month - 1, prevMonthLastDay - i),
       isCurrentMonth: false
     });
   }

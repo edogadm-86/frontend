@@ -42,6 +42,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'calendar', icon: Calendar, label: t('calendar1'), gradient: 'from-green-500 to-emerald-500' },
     { id: 'training', icon: Award, label: t('training'), gradient: 'from-purple-500 to-violet-500' },
     { id: 'settings', icon: Settings, label: t('settings'), gradient: 'from-gray-500 to-slate-500' },
+    { 
+    id: 'apk', 
+    icon: ShoppingBag, 
+    label: t('downloadApp'), 
+    gradient: 'from-orange-500 to-yellow-500', 
+    href: '/apk/edog-1.0.0.apk' // 👈 where your APK is served from backend
+  },
   ];
 
   const shouldShowExpanded = isExpanded || isHovered;
@@ -163,9 +170,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     ? 'bg-white/20 backdrop-blur-sm'
                     : 'bg-gradient-to-r from-gray-200 to-gray-300 group-hover:from-primary-100 group-hover:to-blue-100'
                 )}>
-                  {dog.profile_picture ? (
+                  {dog.profilePicture ? (
                     <img
-                      src={dog.profile_picture}
+                      src={dog.profilePicture}
                       alt={dog.name}
                       className={cn("rounded-2xl object-cover", shouldShowExpanded ? "w-12 h-12" : "w-8 h-8")}
                     />
@@ -204,7 +211,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Navigation */}
       <div className={cn("flex-1 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
         <nav className="space-y-2">
-          {navigationItems.map((item) => (
+          {navigationItems.map((item) => 
+          item.href ? (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'w-full group flex items-center rounded-xl transition-all duration-200 cursor-pointer',
+                    shouldShowExpanded ? 'px-4 py-3' : 'px-2 py-3 justify-center',
+                    'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-blue-50 ' +
+                    'dark:hover:from-primary-900/30 dark:hover:to-blue-900/30 hover:text-primary-700 dark:hover:text-primary-300 ' +
+                    'hover:shadow-md hover:transform hover:translate-x-1'
+                  )}
+                  title={!shouldShowExpanded ? item.label : undefined}
+                >
+                  <div className={cn(
+                    'rounded-xl flex items-center justify-center transition-all duration-300',
+                    shouldShowExpanded ? 'w-10 h-10 mr-3' : 'w-8 h-8',
+                    `bg-gradient-to-r ${item.gradient} opacity-80 group-hover:opacity-100`
+                  )}>
+                    <item.icon size={shouldShowExpanded ? 20 : 16} className="text-white group-hover:scale-110" />
+                  </div>
+                  {shouldShowExpanded && (
+                    <span className="font-medium overflow-hidden">{item.label}</span>
+                  )}
+                </a>
+              ) : (
+
+
             <button
               key={item.id}
               onClick={() => onViewChange(item.id)}

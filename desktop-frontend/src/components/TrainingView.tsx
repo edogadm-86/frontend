@@ -63,7 +63,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             <Award className="mr-2 text-primary-700" />
             {t('trainingResources')}
           </h3>
-          <Card variant="gradient" className="h-[800px] overflow-y-auto">
+          <Card variant="gradient" className="stat-card group">
             <div className="space-y-4">
               {[
                 {

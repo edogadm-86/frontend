@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -56,11 +57,11 @@ const corsOptions = {
     },
     credentials: true, // you're using JWT in Authorization header; no cookies
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'If-Modified-Since', 'Cache-Control', 'Range', 'DNT', 'User-Agent'],
 };
-//app.use(cors(corsOptions));
+app.use((0, cors_1.default)(corsOptions));
 // IMPORTANT: tie preflight to the SAME options (don’t use bare cors())
-//app.options('*', cors(corsOptions));
+app.options('*', (0, cors_1.default)(corsOptions));
 // Serve static files from uploads directory
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 // Serve static files from uploads directory
@@ -83,12 +84,7 @@ app.use('/api/public', public_1.default);
 //Preflight handler
 app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {
-        res.set({
-            'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Max-Age': '1728000',
-        });
-        return res.sendStatus(204);
+        console.log('🔎 OPTIONS preflight for', req.url, req.headers['access-control-request-headers']);
     }
     next();
 });

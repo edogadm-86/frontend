@@ -30,6 +30,14 @@ const { t } = useTranslation();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
+    for (const file of selectedFiles) {
+      if (file.size > 10 * 1024 * 1024) {  // 10 MB limit
+        alert("File too large! Max size is 10MB.");
+        return; // stop processing further
+      }
+    }
+
+
     const newFiles = [...files, ...selectedFiles].slice(0, maxFiles);
     onFilesChange(newFiles);
   };

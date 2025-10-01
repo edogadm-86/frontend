@@ -114,7 +114,7 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
     setFormData({
       title: '',
       type: 'vet',
-      date: date.toISOString().split('T')[0],
+      date: date.toLocaleDateString('en-CA'),
       time: '09:00',
       location: '',
       notes: '',

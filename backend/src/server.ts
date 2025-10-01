@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
 
+
 // Import email service
 import { startEmailScheduler, triggerAppointmentReminders, triggerVaccinationReminders } from './services/emailService';
 
@@ -64,12 +65,12 @@ const corsOptions: cors.CorsOptions = {
   },
   credentials: true, // you're using JWT in Authorization header; no cookies
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  allowedHeaders: ['Content-Type','Authorization','Accept','Origin','X-Requested-With','If-Modified-Since', 'Cache-Control', 'Range', 'DNT', 'User-Agent'],
 };
 
-//app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 // IMPORTANT: tie preflight to the SAME options (don’t use bare cors())
-//app.options('*', cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -101,14 +102,9 @@ app.use('/api/public', publicRoutes);
 
 //Preflight handler
 
-app.use((req, res, next) => {
+app.use((req,res,next) => {
   if (req.method === 'OPTIONS') {
-    res.set({
-      'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Max-Age': '1728000',
-    });
-    return res.sendStatus(204);
+    console.log('🔎 OPTIONS preflight for', req.url, req.headers['access-control-request-headers']);
   }
   next();
 });

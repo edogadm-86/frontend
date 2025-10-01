@@ -7,7 +7,7 @@ import { Input } from './ui/Input';
 import { Card } from './ui/Card';
 import { Modal } from './ui/Modal';
 import { LanguageSelector } from './LanguageSelector';
-import { User, Bell, HelpCircle, Star, LogOut, ChevronRight, Palette, Heart, Sparkles, Moon, Sun, Monitor, Mail, Phone, MessageCircle, Globe, Shield, Lock } from 'lucide-react';
+import {  HelpCircle, LogOut, ChevronRight, Palette, Heart, Moon, Sun, Monitor, Mail, Phone, Globe, Shield, Lock } from 'lucide-react';
 
 export const Settings: React.FC = () => {
   const { t } = useTranslation();
@@ -95,7 +95,7 @@ export const Settings: React.FC = () => {
   };
 
   const settingsOptions = [
-    {
+     /*{{
       icon: User, 
       title: t('profile'),
       description: t('Manage your personal information'),
@@ -103,7 +103,7 @@ export const Settings: React.FC = () => {
       bgColor: 'from-blue-50 to-cyan-50',
       action: () => setIsProfileModalOpen(true),
     },
-    /*{
+   
       icon: Bell,
       title: t('notifications'),
       description: t('Control when and how you receive alerts'),
@@ -160,6 +160,10 @@ export const Settings: React.FC = () => {
           </h2>
           <p className="text-gray-600 mt-1">{t('manageAccountPreferences')}</p>
         </div>
+     
+                <div className="flex justify-end mb-4">
+                  <LanguageSelector />
+                </div>
       </div>
 
       {/* User Profile Card */}

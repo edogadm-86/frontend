@@ -254,7 +254,6 @@
     "scheduleAppointment": "Насрочи Среща",
     "addTrainingSession": "Добави Тренировка",
     "Shop & Services": "Магазин & Услуги",
-    "Pet Passport": "Паспорт",
     "fair": "Добър",
     "daysSinceLastVet": "Дни от последения Ветеринар",
     "trackProgress": "Проследяване на напредъка",
@@ -393,7 +392,55 @@
     "faqExportDataQuestion": "Мога ли да експортирам данните на кучето си?",
     "faqExportDataAnswer": "Да! Всички здравни записи, ваксинации и прегледи на вашето куче могат да бъдат експортирани като дигитален паспорт за ветеринар или пътуване.",
     "faqPetPassportQuestion": "Как да генерирам паспорт за домашния любимец?",
-    "faqPetPassportAnswer": "Отидете в профила на вашето куче и натиснете иконата за паспорт или отидете в секцията Здраве и потърсете бутона \"Паспорт\"."
+    "faqPetPassportAnswer": "Отидете в профила на вашето куче и натиснете иконата за паспорт или отидете в секцията Здраве и потърсете бутона \"Паспорт\".",
+
+    "profilePicture": " Снимка на профила",
+    "dateOfBirth": "Дата на раждане",
+    "weight": "Тегло",
+    "colour": "Цвят",
+    "features": "Отличителни белези",
+    "microchipId": "Микрочип",
+    "passportNumber": "Номер на паспорт",
+    "sex": "Пол",
+    "male": "Мъж",
+    "female": "Жена",
+    "updateDog": "Обнови куче",
+    "Error loading passport data:": "Грешка при зареждане на данни за паспорта:",
+    "Loading passport data...": "Зареждане на данни за паспорта...",
+    "EUROPEAN UNION": "ЕВРОПЕЙСКИ СЪЮЗ",
+    "Pet Passport": "Паспорт за домашен любимец",
+    "I. Details of the pet": "I. Данни за домашния любимец",
+    "Species": "Вид",
+    "Dog": "Куче",
+    "Breed": "Порода",
+    "II. Marking of the pet": "II. Маркировка на домашния любимец",
+    "Date of application": "Дата на прилагане",
+    "III. Rabies vaccinations": "III. Ваксинации срещу бяс",
+    "Vaccine": "Ваксина",
+    "Valid until": "Валидна до",
+    "No rabies vaccination recorded": "Няма записана ваксинация срещу бяс",
+    "IV. Other vaccinations": "IV. Други ваксинации",
+    "No other vaccinations recorded": "Няма записани други ваксинации",
+    "V. Health information": "V. Здравна информация",
+    "Details": "Детайли",
+    "No health records available": "Няма налични здравни записи",
+    "Issued by:": "Издаден от:",
+    "Date of issue:": "Дата на издаване:",
+    "Valid for EU travel": "Валиден за пътуване в ЕС",
+    "Edit Appointment": "Редакция на Събитие",
+    "Save Changes": "Запази Промените",
+    "File too large! Max size is 10MB.": "Файлът е твърде голям! Максималният размер е 10MB.",
+    "Delete this attachment?": "Да изтрия този прикачен файл?",
+    "Are you sure you want to delete this health record?": "Сигурни ли сте, че искате да изтриете този здравен запис?",
+    "Failed to delete the record.": "Неуспешно изтриване на записа."
+
+
+
+
+
+
+
+
 
 
 
