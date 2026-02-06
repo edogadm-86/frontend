@@ -538,6 +538,4 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 :root { --bottom-nav-h: 80px; }
-
-
 }

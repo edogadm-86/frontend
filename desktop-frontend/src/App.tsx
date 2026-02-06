@@ -16,6 +16,7 @@ import { ShopView } from './components/ShopView';
 import { PublicDogProfile } from './components/PublicDogProfile';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { ChatBot } from './components/ChatBot';
+import { useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 
 const AppContent: React.FC = () => {
   useTheme(); // Initialize theme
@@ -39,7 +40,11 @@ const AppContent: React.FC = () => {
   
   const [currentView, setCurrentView] = useState('dashboard');
   const [showAddDogModal, setShowAddDogModal] = useState(false);
+  const isTouch = useIsTouchDevice();
+  const isMdUp = useMediaQuery("(min-width: 768px)");
 
+  const showSidebar = !isTouch && isMdUp;
+  const showBottomNav = isTouch || !isMdUp;
   // Listen for navigation events from header
   useEffect(() => {
     const handleNavigate = (event: CustomEvent) => {
@@ -145,7 +150,8 @@ const AppContent: React.FC = () => {
 
  return (
   <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 dark:bg-gray-900 flex">
-    <div className="hidden md:block">
+    {/* Sidebar only for non-touch AND md+ */}
+    <div className={`${isTouch ? "hidden" : "hidden md:block"}`}>
       <Sidebar
         currentView={currentView}
         onViewChange={setCurrentView}
@@ -158,13 +164,17 @@ const AppContent: React.FC = () => {
 
     <div className="flex-1 min-w-0 flex flex-col">
       <Header user={user} onLogout={logout} currentView={currentView} />
-
       <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pb-20 md:pb-0">
         {renderCurrentView()}
       </main>
     </div>
 
-    <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} />
+    {/* Bottom nav for touch devices OR small screens */}
+    {(isTouch || !window.matchMedia("(min-width: 768px)").matches) && (
+      <div className="md:hidden">
+        <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} />
+      </div>
+    )}
   </div>
 );
 

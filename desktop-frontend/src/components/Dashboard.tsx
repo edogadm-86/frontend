@@ -14,7 +14,8 @@ import {
   Activity,
   Target,
   FileText,
-  Bot
+  Bot,
+  Download
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -32,6 +33,7 @@ import {
   factorKeyFromBackend
 } from '../utils/healthI18n';
 import { ChatBot } from './ChatBot';
+import { usePwaInstall } from '../hooks/usePwaInstall';
 
 interface DashboardProps {
   currentDog: any;
@@ -59,9 +61,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [showQR, setShowQR] = useState(false);
   const rawStatus = healthStatus?.status;
   // Public profile URL (adjust to your domain)
+  const { canPromptInstall, showInstallPrompt, isIOS, isStandalone } = usePwaInstall();
+  const [showIosHelp, setShowIosHelp] = useState(false);
 // frontend route (served by React Router)
 const publicUrl = `/public/dog/${currentDog?.id}`;
-
+  
   let statusKey = statusKeyFromBackend(rawStatus);
   if (statusKey === 'unknown') {
     const fromScore = statusKeyFromScore(healthStatus?.score);
@@ -254,6 +258,24 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
               >
                 {t('qrCode')}
               </Button>
+              {!isStandalone && (
+                <Button
+                  className="w-full sm:w-auto"
+                  variant="glass"
+                  icon={<Download size={16} />}
+                  onClick={() => {
+                    if (canPromptInstall) showInstallPrompt();
+                    else if (isIOS) setShowIosHelp(true);
+                    else {
+                      // fallback message for browsers that don't support the prompt
+                      alert("To install: use your browser menu → Add to Home screen / Install app.");
+                    }
+                  }}
+                >
+                  {t("downloadApp") ?? "Install app"}
+                </Button>
+              )}
+
             </div>
         </div>
       </Card>
@@ -369,6 +391,23 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
             </Button>
           </div>
         </Modal>
+
+        <Modal
+          isOpen={showIosHelp}
+          onClose={() => setShowIosHelp(false)}
+          title={t("downloadApp") ?? "Install app"}
+        >
+          <div className="space-y-3 text-sm">
+            <p>
+              On iPhone/iPad: open this site in <b>Safari</b>, tap <b>Share</b>, then choose{" "}
+              <b>Add to Home Screen</b>.
+            </p>
+            <p className="text-gray-500">
+              (iOS doesn’t allow an automatic install popup like Android.)
+            </p>
+          </div>
+        </Modal>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
