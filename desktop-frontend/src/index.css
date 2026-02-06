@@ -535,6 +535,9 @@
   @apply from-gray-800/90 to-gray-800/70 border-gray-700/30 text-white;
 }
 
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+:root { --bottom-nav-h: 80px; }
 
 
 }

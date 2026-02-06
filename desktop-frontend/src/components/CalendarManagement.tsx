@@ -179,16 +179,21 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
   }
 
   return (
-    <div className="p-8 space-y-6">
+      <div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        
-        <Button onClick={() => handleAddEvent(new Date())} icon={<Plus size={16} />}>
-          {t('addAppointment')}
-        </Button>
-      </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            onClick={() => handleAddEvent(new Date())}
+            icon={<Plus size={16} />}
+            className="w-full sm:w-auto"
+          >
+            {t('addAppointment')}
+          </Button>
+        </div>
+
 
       {/* Calendar Component */}
+      
       <Calendar
         events={calendarEvents}
         onDateSelect={handleDateSelect}
@@ -282,16 +287,19 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
               />
             )}
           </div>
-          <div className="flex space-x-3 pt-4">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setShowEventModal(false)}>
               {t('cancel')}
             </Button>
             {selectedEvent && (
-              <Button type="button" variant="danger" onClick={handleDelete}>
-                Delete
+              <Button type="button" variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
+                {t('delete')}
               </Button>
             )}
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button type="button" variant="outline" onClick={() => setShowEventModal(false)} className="w-full sm:w-auto">
+              {t('cancel')}
+            </Button>
+            <Button type="submit" className="w-full sm:flex-1" disabled={loading}>
               {loading ? t('loading') : t('save')}
             </Button>
           </div>

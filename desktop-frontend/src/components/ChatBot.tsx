@@ -1,12 +1,40 @@
 import React, { useEffect } from 'react';
 
-interface ChatBotProps {
-  dogName?: string; // keeping this in case you want to pass info to Tidio later
-}
-
-export const ChatBot: React.FC<ChatBotProps> = () => {
+export const ChatBot: React.FC = () => {
   useEffect(() => {
-    // Inject Tidio script once
+    // ✅ CSS: move up + constrain the open iframe on mobile
+    if (!document.getElementById('tidio-mobile-fix')) {
+      const style = document.createElement('style');
+      style.id = 'tidio-mobile-fix';
+      style.innerHTML = `
+        @media (max-width: 768px) {
+          :root { --bottom-nav-h: 84px; }
+
+          /* launcher container */
+          #tidio-chat {
+            bottom: calc(env(safe-area-inset-bottom) + var(--bottom-nav-h)) !important;
+            right: 14px !important;
+            z-index: 9999 !important;
+          }
+
+          /* opened chat iframe */
+          #tidio-chat iframe,
+          #tidio-chat-iframe {
+            bottom: calc(env(safe-area-inset-bottom) + var(--bottom-nav-h)) !important;
+            right: 14px !important;
+
+            /* ✅ keep it inside viewport */
+            max-height: calc(100vh - (env(safe-area-inset-bottom) + var(--bottom-nav-h) + 24px)) !important;
+            max-width: calc(100vw - 28px) !important;
+
+            border-radius: 18px !important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // inject script once
     if (!document.getElementById('tidio-script')) {
       const script = document.createElement('script');
       script.src = '//code.tidio.co/fmdnzk6y3v2dbwnjx51yls2zfy34vgi5.js';
@@ -15,24 +43,8 @@ export const ChatBot: React.FC<ChatBotProps> = () => {
       document.body.appendChild(script);
     }
 
-    // Example: wait until Tidio loads, then interact with API
-    const checkTidio = setInterval(() => {
-      if ((window as any).tidioChatApi) {
-        clearInterval(checkTidio);
-
-        // OPTIONAL: open chat automatically on load
-        // (window as any).tidioChatApi.open();
-
-        // OPTIONAL: you can pass visitor info to Tidio here
-        // (window as any).tidioChatApi.setVisitorData({
-        //   name: "Dog Owner",
-        //   email: "owner@example.com"
-        // });
-      }
-    }, 500);
-
-    return () => clearInterval(checkTidio);
+    return () => {};
   }, []);
 
-  return null; // Tidio handles rendering its own chat bubble
+  return null;
 };

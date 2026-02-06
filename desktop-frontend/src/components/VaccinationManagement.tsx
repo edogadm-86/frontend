@@ -174,15 +174,18 @@ const loadVaccinations = async () => {
   };
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
             {t('vaccinations')} - {dogName}
           </h3>
           <p className="text-gray-600">{t('trackVaccinations')}</p>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus size={20} className="mr-2" />
+        <Button
+          onClick={handleCreate}
+          className="w-full sm:w-auto"
+          icon={<Plus size={20} />}
+        >
           {t('addVaccination')}
         </Button>
       </div>
@@ -199,8 +202,8 @@ const loadVaccinations = async () => {
         <div className="grid gap-4">
           {vaccinations.map((vaccination) => (
             <Card key={vaccination.id}>
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex items-start gap-4 flex-1 min-w-0">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Shield size={24} className="text-blue-600" />
                   </div>
@@ -211,7 +214,7 @@ const loadVaccinations = async () => {
                     <p className="text-sm text-gray-600 mb-2">
                       {vaccination.vaccineType}
                     </p>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                       <div className="flex items-center text-gray-600">
                         <Calendar size={16} className="mr-2" />
                         {t('dateGiven')}: {formatDate(vaccination.dateGiven)}
@@ -233,7 +236,7 @@ const loadVaccinations = async () => {
                       )}
                     </div>
                     {vaccination.notes && (
-                      <p className="text-sm text-gray-600 mt-2">
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-3 sm:line-clamp-none">
                         {vaccination.notes}
                       </p>
                     )}
@@ -276,16 +279,16 @@ const loadVaccinations = async () => {
                     )}
                   </div>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex gap-2 sm:justify-end sm:items-start">
                   <button
                     onClick={() => handleEdit(vaccination)}
-                    className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                    className="flex-1 sm:flex-none rounded-lg p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
                   >
                     <Edit size={16} />
                   </button>
                   <button
                     onClick={() => handleDelete(vaccination.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-100"
+                    className=" flex-1 sm:flex-none rounded-lg p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-100"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -300,7 +303,7 @@ const loadVaccinations = async () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingVaccination ? t('editVaccination') : t('addVaccination')}
-        className="max-w-lg"
+        className="w-[95vw] sm:w-auto sm:max-w-lg max-h-[90vh] overflow-y-auto"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -322,7 +325,7 @@ const loadVaccinations = async () => {
              <option value="mandatory">{t('mandatory')}</option>
              <option value="optional">{t('additional')}</option>
            </select>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('dateGiven')}
               type="date"
@@ -383,11 +386,11 @@ const loadVaccinations = async () => {
           </div>
           )}
           
-          <div className="flex space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               {t('cancel')}
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button type="submit" className="w-full sm:flex-1" disabled={loading}>
               {loading ? t('loading') : t('save')}
             </Button>
           </div>

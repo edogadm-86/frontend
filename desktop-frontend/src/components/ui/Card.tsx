@@ -21,13 +21,21 @@ export const Card: React.FC<CardProps> = ({
   const baseClasses = 'rounded-2xl border transition-all duration-300';
   
   const variants = {
-    default: 'bg-white/80 backdrop-blur-sm border-white/20 shadow-lg',
-    glass: 'bg-white/10 backdrop-blur-md border-white/20 shadow-xl',
-    gradient: 'bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border-white/30 shadow-lg',
-    stat: 'bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm border-white/30 shadow-lg',
-  };
+  default:
+    'bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm border-white/20 dark:border-gray-700/30 shadow-lg',
+  glass:
+    'bg-white/10 dark:bg-gray-900/30 backdrop-blur-md border-white/20 dark:border-gray-700/30 shadow-xl',
+  gradient:
+    'bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-900/70 dark:to-gray-800/50 backdrop-blur-sm border-white/30 dark:border-gray-700/30 shadow-lg',
+  stat:
+    'bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-900/70 dark:to-gray-800/50 backdrop-blur-sm border-white/30 dark:border-gray-700/30 shadow-lg',
+};
 
-  const hoverEffects = hover ? 'hover:shadow-2xl hover:-translate-y-1 hover:bg-white/90' : '';
+
+  const hoverEffects = hover
+  ? 'hover:shadow-2xl hover:-translate-y-1 hover:bg-white/90 dark:hover:bg-gray-900/70'
+  : '';
+
   const clickableEffects = onClick ? 'cursor-pointer' : '';
   const glowEffects = glow ? 'glow-effect' : '';
 

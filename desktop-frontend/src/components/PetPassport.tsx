@@ -177,7 +177,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="bg-white dark:bg-gray-900 max-w-4xl w-full max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl">
         {/* Passport Header */}
         <div className="passport-header relative overflow-hidden">
@@ -193,21 +193,28 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
                 <p className="text-xs text-blue-200">{t('regulation')} (EU) No 576/2013</p>
               </div>
             </div>
-            <div className="flex space-x-2">
-              <Button variant="glass" size="sm" onClick={handlePrint} icon={<Print size={16} />}>
-               {t('print')}
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
+              <Button variant="glass" size="sm" onClick={handlePrint} icon={<Print size={16} />} className="w-full sm:w-auto">
+                {t('print')}
               </Button>
-              <Button variant="glass" size="sm" onClick={handleDownload} icon={<Download size={16} />} data-download-btn>
+              <Button
+                variant="glass"
+                size="sm"
+                onClick={handleDownload}
+                icon={<Download size={16} />}
+                className="w-full sm:w-auto"
+                data-download-btn
+              >
                 {t('download')}
               </Button>
-              <Button variant="glass" size="sm" onClick={onClose}>
+              <Button variant="glass" size="sm" onClick={onClose} className="w-full sm:w-auto">
                 {t('close')}
               </Button>
             </div>
           </div>
         </div>
 
-        <div id="passport-content" className="p-8 space-y-8">
+        <div id="passport-content" className="p-4 sm:p-8 space-y-6 sm:space-y-8">
           {/* Section I: Details of the pet */}
           <div className="passport-page p-6">
             <h2 className="text-xl font-bold text-blue-800 mb-6 flex items-center">
@@ -239,25 +246,32 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="passport-field">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('dateOfBirth')}</label>
                     <p className="text-lg text-gray-900 dark:text-white">
-                      {dog.dateOfBirth ? formatDate(dog.dateOfBirth) : t('notSpecified')}</p>
+                      {dog.dateOfBirth ? formatDate(dog.dateOfBirth) : t('notSpecified')}
+                    </p>
                   </div>
+
                   <div className="passport-field">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('colour')}</label>
                     <p className="text-lg text-gray-900 dark:text-white">{dog.colour || 'N/A'}</p>
-                  </div>                
-                <div className="passport-field">
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('notableFeatures')}</label>
-                  <p className="text-gray-900 dark:text-white">{dog.features || 'N/A'}</p>
+                  </div>
                 </div>
-                 <div className="passport-field">
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('weight')}</label>
-                  <p className="text-gray-900 dark:text-white">{dog.weight} kg</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="passport-field">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('notableFeatures')}</label>
+                    <p className="text-gray-900 dark:text-white">{dog.features || 'N/A'}</p>
+                  </div>
+
+                  <div className="passport-field">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('weight')}</label>
+                    <p className="text-gray-900 dark:text-white">{dog.weight ? `${dog.weight} kg` : 'N/A'}</p>
+                  </div>
                 </div>
-              </div>
+
               </div>
               
               <div className="flex flex-col items-center">
@@ -333,7 +347,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
                   .filter(v => v.vaccine_name.toLowerCase().includes('rabies'))
                   .map((vaccination, index) => (
                     <div key={vaccination.id} className="passport-field">
-                      <div className="grid grid-cols-4 gap-4 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                         <div>
                           <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('vaccine')}</label>
                           <p className="text-gray-900 dark:text-white">{vaccination.vaccine_name}</p>
@@ -377,7 +391,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
                   .filter(v => !v.vaccine_name.toLowerCase().includes('rabies'))
                   .map((vaccination) => (
                     <div key={vaccination.id} className="passport-field">
-                      <div className="grid grid-cols-4 gap-4 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                         <div>
                           <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('vaccine')}</label>
                           <p className="text-gray-900 dark:text-white">{vaccination.vaccine_name}</p>
@@ -419,7 +433,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
               <div className="space-y-3">
                 {healthRecords.slice(0, 5).map((record) => (
                   <div key={record.id} className="passport-field">
-                    <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                       <div>
                         <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('date')}</label>
                         <p className="text-gray-900 dark:text-white">{formatDate(record.date)}</p>
@@ -457,7 +471,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
             </h2>
             
             <div className="passport-field">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('name')}</label>
                   <p className="text-lg text-gray-900 dark:text-white">{user?.name || 'Owner Name'}</p>

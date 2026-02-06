@@ -36,12 +36,13 @@ const cn = (...classes: Array<string | false | null | undefined>) =>
 interface SettingsViewProps {
   currentDog: Dog | null;
   dogs: Dog[];
-  onCreateDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
+  onCreateDog: (dogData: Partial<Dog>) => Promise<Dog>;
   onUpdateDog: (dogId: string, dogData: Partial<Dog>) => Promise<Dog>;
   onDeleteDog: (dogId: string) => Promise<void>;
-  onSelectDog: (dog: Dog) => void;
+  onSelectDog: (dog: Dog | null) => void;
   onNavigate: (view: string) => void;
 }
+
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   currentDog,
@@ -55,7 +56,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { user } = useApp();
-  const [activeTab, setActiveTab] = useState<'dogs' | 'emergency' | 'profile' | 'preferences' | 'support'>('dogs');
+  const [activeTab, setActiveTab] = useState<'dogs' | 'emergency' | 'profile' | 'preferences' | 'security' | 'support'>('dogs');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [healthRecordsCount, setHealthRecordsCount] = useState(0);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
@@ -213,22 +214,29 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const renderProfileSettings = () => (
     <div className="space-y-6">
       <Card variant="gradient" className="stat-card group">
-        <div className="flex items-center space-x-6 mb-6">
-          <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
+       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
             <span className="text-3xl font-bold text-white">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
-          <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{user?.name || 'User'}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
+
+          <div className="min-w-0">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
+              {user?.name || 'User'}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 truncate">
+              {user?.email || 'user@example.com'}
+            </p>
           </div>
-          <div className="ml-auto">
-            <Button onClick={() => setShowProfileModal(true)} variant="outline">
-             {t('editProfile')}
+
+          <div className="sm:ml-auto">
+            <Button onClick={() => setShowProfileModal(true)} variant="outline" className="w-full sm:w-auto">
+              {t('editProfile')}
             </Button>
           </div>
         </div>
+
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
@@ -302,7 +310,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
         <div className="mt-6">
-          <Button onClick={handleSavePreferences} className="w-full">
+          <Button onClick={handleSavePreferences} className="w-full sm:flex-1" >
             {t('saveLanguageRegionSettings')}
           </Button>
         </div>
@@ -335,7 +343,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           ))}
         </div>
         <div className="mt-6">
-          <Button onClick={handleSavePreferences} className="w-full">
+          <Button onClick={handleSavePreferences} className="w-full sm:flex-1" >
             {t('saveNotificationPreferences')}
           </Button>
         </div>
@@ -353,7 +361,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <button 
                 onClick={() => setPreferences({ ...preferences, theme: 'light' })}
                 className={`p-3 border-2 rounded-xl bg-white text-center transition-all ${
-                  preferences.theme === 'light' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
+                  preferences.theme === 'light' ? 'border-primary-500 shadow-lg' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded mb-2"></div>
@@ -371,7 +380,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <button 
                 onClick={() => setPreferences({ ...preferences, theme: 'system' })}
                 className={`p-3 border-2 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 text-center transition-all ${
-                  preferences.theme === 'system' ? 'border-primary-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
+                  preferences.theme === 'system' ? 'border-primary-500 shadow-lg' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+
                 }`}
               >
                 <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded mb-2"></div>
@@ -380,7 +390,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           </div>
           <div className="mt-6">
-            <Button onClick={handleSavePreferences} className="w-full">
+            <Button onClick={handleSavePreferences} className="w-full sm:flex-1" >
               {t('applyThemeChanges')}
             </Button>
           </div>
@@ -392,7 +402,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const renderSecurity = () => (
     <div className="space-y-6">
       <Card variant="gradient" className="stat-card group">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+
           <Key className="mr-2" />
           {t('passwordAuthentication')}
         </h3>
@@ -603,35 +614,53 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   return (
-    <div className="p-8 space-y-6">
-
+     <div className="min-h-screen bg-gray-50 dark:bg-gray-900" >
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
 
       {/* Tabs */}
-      <div className="flex space-x-2 p-2 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 overflow-x-auto">
+      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30 p-2">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory sm:overflow-visible sm:flex-wrap">
+
+
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={cn(
-              'tab-button flex items-center space-x-2 whitespace-nowrap',
-              activeTab === tab.id && 'active'
+              // sizing
+              'shrink-0 flex items-center gap-2 rounded-xl font-medium transition',
+              // mobile compact
+              'px-2.5 py-2 text-sm',
+              // desktop/tablet
+              'sm:px-3 sm:py-2',
+              // active/inactive styles
+              activeTab === tab.id
+                ? 'bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow'
+                : 'text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/40'
             )}
+            aria-label={tab.label} // ✅ accessibility when label is hidden on mobile
+            title={tab.label}
           >
-            <div className={cn(
-              'w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200',
-              activeTab === tab.id 
-                ? 'bg-white/20 backdrop-blur-sm' 
-                : `bg-gradient-to-r ${tab.color} opacity-80`
-            )}>
-              <tab.icon size={16} className="text-white" />
+            <div
+              className={cn(
+                'rounded-xl flex items-center justify-center transition-all',
+                // icon container size
+                'w-9 h-9',
+                activeTab === tab.id ? 'bg-white/20' : `bg-gradient-to-r ${tab.color} opacity-90`
+              )}
+            >
+              <tab.icon size={18} className="text-white" />
             </div>
-            <span>{tab.label}</span>
+
+            {/* Label hidden on xs, visible on sm+ */}
+            <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
           </button>
         ))}
+        </div>
       </div>
 
       {/* Tab Content */}
-      <div className="mt-8">
+     <div className="mt-4 sm:mt-6 min-w-0">
         {renderTabContent()}
       </div>
 
@@ -641,6 +670,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         onClose={() => setShowProfileModal(false)}
         title={t('editProfile')}
         size="md"
+        className="w-[95vw] sm:w-auto max-h-[90vh] overflow-y-auto"
       >
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <Input 
@@ -662,7 +692,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             value={profileData.phone}
             onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
           />
-          <div className="flex space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setShowProfileModal(false)}>
               {t('cancel')}
             </Button>
@@ -675,6 +705,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         onClose={() => setShowPasswordModal(false)}
         title={t('changePassword')}
         size="md"
+        className="w-[95vw] sm:w-auto max-h-[90vh] overflow-y-auto"
       >
           <form onSubmit={handleChangePassword} className="space-y-4">
         <Input
@@ -698,7 +729,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           onChange={(e) => setPasswordForm({ ...passwordForm, confirmNewPassword: e.target.value })}
           required
         />
-        <div className="flex space-x-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
             {t('cancel')}
           </Button>
@@ -711,6 +742,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         onClose={() => setShowDeleteModal(false)}
         title="Delete Account"
         size="md"
+        className="w-[95vw] sm:w-auto max-h-[90vh] overflow-y-auto"
       >
         <form className="space-y-4">
           <div className="p-4 bg-red-50 rounded-xl border border-red-200">
@@ -724,7 +756,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             placeholder="DELETE"
             required
           />
-          <div className="flex space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setShowDeleteModal(false)}>
               Cancel
             </Button>
@@ -734,6 +766,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </form>
       </Modal>
+    </div>
     </div>
   );
 };

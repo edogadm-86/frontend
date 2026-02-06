@@ -151,35 +151,47 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="p-4 lg:p-8 space-y-6">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          
-          <Button
-            onClick={() => setShowPassport(true)}
-            variant="gradient"
-            icon={<FileText size={16} />}
-          >
-            {t('viewPetPassport')}
-          </Button>
-        </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                {t('health')}
+              </h1>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                {currentDog.name} • {currentDog.breed}
+              </p>
+            </div>
+
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                onClick={() => setShowPassport(true)}
+                variant="gradient"
+                icon={<FileText size={16} />}
+                className="w-full sm:w-auto"
+              >
+                {t('viewPetPassport')}
+              </Button>
+            </div>
+          </div>
+
 
         {/* Health Overview Cards */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
             {healthStats.map((stat, index) => (
               <Card key={index} variant="gradient" className={`bg-gradient-to-br ${stat.bgColor} border-0 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-14 h-14 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center shadow-lg`}>
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center shadow-lg`}>
                     <stat.icon size={24} className="text-white" />
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">{stat.status}</div>
                   </div>
                 </div>
                 <div className="text-sm font-medium text-gray-700 dark:text-gray-300">{stat.label}</div>
-                <div className="progress-bar mt-2">
+                <div className="progress-bar mt-2 hidden sm:block">
                   <div className={`progress-fill bg-gradient-to-r ${stat.color}`} style={{ width: '85%' }}></div>
                 </div>
               </Card>
@@ -188,30 +200,50 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
         )}
 
         {/* Enhanced Tabs */}
-        <div className="flex space-x-2 p-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30">
-          {[
-            { id: 'overview', icon: Target, label:  t('overview') },
-            { id: 'vaccinations', icon: Shield, label: t('vaccinations') },
-            { id: 'health-records', icon: Heart, label: t('healthRecords') },
-            { id: 'nutrition', icon: Apple, label:  t('nutrition') },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`tab-button flex items-center space-x-2 ${activeTab === tab.id ? 'active' : ''}`}
-            >
-              <tab.icon size={16} />
-              <span>{tab.label}</span>
-            </button>
-          ))}
+        <div className="mt-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30 p-2">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            {[
+              { id: 'overview', icon: Target, label: t('overview') },
+              { id: 'vaccinations', icon: Shield, label: t('vaccinations') },
+              { id: 'health-records', icon: Heart, label: t('healthRecords') },
+              { id: 'nutrition', icon: Apple, label: t('nutrition') },
+            ].map((tab) => {
+              const active = activeTab === tab.id;
+              const Icon = tab.icon;
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={[
+                    "shrink-0",
+                    "flex items-center gap-2 px-3 py-2 rounded-xl",
+                    "text-sm font-medium transition",
+                    active
+                      ? "bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow"
+                      : "text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/40",
+                  ].join(" ")}
+                >
+                  <Icon size={16} />
+                  <span className="whitespace-nowrap">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
+
 
         {/* Tab Content */}
         <div className="mt-6">
           {activeTab === 'overview' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
               {/* Health Timeline */}
-              <Card variant="gradient" className="stat-card group">
+              <Card
+                variant="gradient"
+  className="lg:col-span-8 xl:col-span-7 border-0 !bg-white/60 dark:!bg-gray-800/60 backdrop-blur-sm md:hover:shadow-xl transition"
+
+
+              >
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                   <Activity className="mr-2 text-primary-500" />
                   {t('healthTimeline')}
@@ -258,7 +290,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
                       })
                       .slice(0, 6);
                   })().map((item, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
+                    <div key={index} className="flex items-center gap-3 p-3 sm:p-4 !bg-white/50 dark:!bg-gray-900/40 rounded-xl">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                         item.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-orange-100 dark:bg-orange-900/30'
                       }`}>
@@ -266,11 +298,11 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
                         {item.type === 'checkup' && <Heart size={16} className={item.status === 'completed' ? 'text-green-600' : 'text-orange-600'} />}
                         {item.type === 'nutrition' && <Apple size={16} className={item.status === 'completed' ? 'text-green-600' : 'text-orange-600'} />}
                       </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900 dark:text-white">{item.title}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 dark:text-white truncate">{item.title}</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(item.date)}</div>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
+                      <span className={`whitespace-nowrap px-2 py-1 text-xs rounded-full ${
                         item.status === 'completed' 
                           ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
                           : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
@@ -289,7 +321,9 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
               </Card>
 
               {/* Health Insights */}
-                <Card variant="gradient" className="stat-card group">
+                <Card variant="gradient"  
+                  className="lg:col-span-4 xl:col-span-5 border-0 !bg-white/60 dark:!bg-gray-800/60 backdrop-blur-sm md:hover:shadow-xl transition"
+>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                     <TrendingUp className="mr-2 text-primary-500" />
                     {t('healthInsights')}

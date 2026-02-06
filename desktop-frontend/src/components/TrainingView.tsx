@@ -56,7 +56,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       {/* Training Assistant and Resources Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-8">
         
- <ChatBot dogName={currentDog.name} />
+      
         {/* Training Resources */}
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">

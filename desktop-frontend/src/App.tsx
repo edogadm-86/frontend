@@ -6,7 +6,7 @@ import { Auth } from './components/Auth';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
-import { DogManagement } from './components/DogManagement';
+// import { DogManagement } from './components/DogManagement';
 import { HealthManagement } from './components/HealthManagement';
 import { CalendarManagement } from './components/CalendarManagement';
 import { TrainingView } from './components/TrainingView';
@@ -14,6 +14,8 @@ import { SettingsView } from './components/SettingsView';
 import { CommunityView } from './components/CommunityView';
 import { ShopView } from './components/ShopView';
 import { PublicDogProfile } from './components/PublicDogProfile';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { ChatBot } from './components/ChatBot';
 
 const AppContent: React.FC = () => {
   useTheme(); // Initialize theme
@@ -141,8 +143,9 @@ const AppContent: React.FC = () => {
     return <Auth onLogin={login} onRegister={register} />;
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
+ return (
+  <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 dark:bg-gray-900 flex">
+    <div className="hidden md:block">
       <Sidebar
         currentView={currentView}
         onViewChange={setCurrentView}
@@ -151,18 +154,20 @@ const AppContent: React.FC = () => {
         onDogSelect={setCurrentDog}
         onAddDog={handleAddDog}
       />
-      <div className="flex-1 flex flex-col">
-        <Header
-          user={user}
-          onLogout={logout}
-          currentView={currentView}
-        />
-        <main className="flex-1 overflow-auto">
-          {renderCurrentView()}
-        </main>
-      </div>
     </div>
-  );
+
+    <div className="flex-1 min-w-0 flex flex-col">
+      <Header user={user} onLogout={logout} currentView={currentView} />
+
+      <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pb-20 md:pb-0">
+        {renderCurrentView()}
+      </main>
+    </div>
+
+    <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} />
+  </div>
+);
+
 };
 
 const App: React.FC = () => {

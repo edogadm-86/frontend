@@ -192,8 +192,8 @@ export const DogManagement: React.FC<DogManagementProps> = ({
             {t('manageDogProfile')}
           </p>
         </div>
-        <Button onClick={handleCreateDog}>
-          <Plus size={20} className="mr-2" />
+        <Button onClick={handleCreateDog}  className="w-full sm:w-auto"
+                              icon={<Plus size={20} />}>
           {t('addDog')}
         </Button>
       </div>

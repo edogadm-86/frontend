@@ -31,6 +31,7 @@ import {
   actionKeyFromBackend,
   factorKeyFromBackend
 } from '../utils/healthI18n';
+import { ChatBot } from './ChatBot';
 
 interface DashboardProps {
   currentDog: any;
@@ -179,7 +180,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
     : null;
 
   return (
-    <div className="p-4 lg:p-8 space-y-6 lg:space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 lg:space-y-8">
       {/* Dog Profile Header */}
       <Card variant="gradient" className="stat-card group">
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-200/30 to-blue-200/30 rounded-full -translate-y-16 translate-x-16"></div>
@@ -204,8 +205,12 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
               </div>
             </div>
             <div>
-              <h2 className="text-4xl font-bold gradient-text">{currentDog.name}</h2>
-              <p className="text-xl text-gray-600 mb-2">{currentDog.breed}</p>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text">
+                {currentDog.name}
+              </h2>
+              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-2">
+                {currentDog.breed}
+              </p>
               <div className="flex items-center space-x-6 text-sm text-gray-500">
                 <div className="flex items-center space-x-1">
                   <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
@@ -224,8 +229,9 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
               </div>
             </div>
           </div>
-         <div className="flex gap-2">
+         <div className="flex flex-wrap gap-2 w-full lg:w-auto">
                <Button
+                 className="w-full sm:w-auto"
                  onClick={() => setShowPassport(true)}
                  variant="glass"
                  icon={<FileText size={16} />}
@@ -233,6 +239,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
                  {t('petPassport')}
                </Button>
                <Button
+                 className="w-full sm:w-auto"  
                  onClick={() => onNavigate('settings')}
                  variant="glass"
                  icon={<Plus size={16} />}
@@ -240,6 +247,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
                  {t('edit')} {t('profile')}
                </Button>
                <Button
+                className="w-full sm:w-auto"
                 onClick={() => setShowQR(true)}
                 variant="glass"
                 icon={<QrCode size={16} />}
@@ -370,7 +378,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
                 <stat.icon size={24} className="text-white" />
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</div>
                 <div className="text-sm text-gray-500">{stat.label}</div>
               </div>
             </div>
@@ -431,7 +439,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
               {t('viewAll')}
             </Button>
           </div>
-          
+          <ChatBot dogName={currentDog.name} />
           <MiniCalendar appointments={dogAppointments} onNavigate={onNavigate} />
         </Card>
 
@@ -441,10 +449,10 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
             <Sparkles className="mr-2 text-primary-500" />
             {t('quickActions')}
           </h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <button
               onClick={() => onNavigate('health')}
-              className="group p-6 text-left border-2 border-blue-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="group p-4 sm:p-6  text-left border-2 border-blue-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             >
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Shield className="text-white" size={20} />
@@ -455,7 +463,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
             
             <button
               onClick={() => onNavigate('health')}
-              className="group p-6 text-left border-2 border-red-200 rounded-2xl hover:border-red-300 hover:bg-red-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="group p-4 sm:p-6  text-left border-2 border-red-200 rounded-2xl hover:border-red-300 hover:bg-red-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             >
               <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Heart className="text-white" size={20} />
@@ -466,7 +474,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
             
             <button
               onClick={() => onNavigate('calendar')}
-              className="group p-6 text-left border-2 border-green-200 rounded-2xl hover:border-green-300 hover:bg-green-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="group p-4 sm:p-6 text-left border-2 border-green-200 rounded-2xl hover:border-green-300 hover:bg-green-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             >
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Calendar className="text-white" size={20} />
@@ -477,7 +485,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
             
             <button
               onClick={() => onNavigate('training')}
-              className="group p-6 text-left border-2 border-purple-200 rounded-2xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="group p-4 sm:p-6 text-left border-2 border-purple-200 rounded-2xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             >
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Award className="text-white" size={20} />

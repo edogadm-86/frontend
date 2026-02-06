@@ -124,8 +124,8 @@ export const EmergencyContactManagement: React.FC = () => {
           </h3>
           <p className="text-gray-600">{t('manageEmergencyContacs')}</p>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus size={20} className="mr-2" />
+        <Button onClick={handleCreate}  className="w-full sm:w-auto"
+                              icon={<Plus size={20} />}>
           {t('addContacts')}
         </Button>
       </div>

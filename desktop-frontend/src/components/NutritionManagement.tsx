@@ -416,37 +416,55 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   return (
     <div className="space-y-6">
       {/* Navigation Tabs */}
-      <div className="flex space-x-2 p-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30">
-        {[
-          { id: 'overview', icon: Target, label: t('overview') },
-          { id: 'records', icon: FileText, label: t('nutritionRecords') },
-          { id: 'meal-plan', icon: Utensils, label: t('mealPlan') },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveView(tab.id as any)}
-            className={`tab-button flex items-center space-x-2 ${activeView === tab.id ? 'active' : ''}`}
-          >
-            <tab.icon size={16} />
-            <span>{tab.label}</span>
-          </button>
-        ))}
+      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30 p-2">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {[
+            { id: 'overview', icon: Target, label: t('overview') },
+            { id: 'records', icon: FileText, label: t('nutritionRecords') },
+            { id: 'meal-plan', icon: Utensils, label: t('mealPlan') },
+          ].map((tab) => {
+            const active = activeView === tab.id;
+            const Icon = tab.icon;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveView(tab.id as any)}
+                className={[
+                  "shrink-0",
+                  "flex items-center gap-2 px-3 py-2 rounded-xl",
+                  "text-sm font-medium transition",
+                  active
+                    ? "bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow"
+                    : "text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/40",
+                ].join(" ")}
+              >
+                <Icon size={16} />
+                <span className="whitespace-nowrap">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
+
 
       {activeView === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Current Nutrition Stats */}
           <Card variant="gradient">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-              <Apple className="mr-2 text-orange-500" />
-              {t('currentNutritionProfile')}
-            </h3>
-              <Button size="sm" variant="outline" onClick={() => setShowTemplatesModal(true)}>
-               {t('chooseTemplate')}
-              </Button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <Apple className="mr-2 text-orange-500" />
+                {t('currentNutritionProfile')}
+              </h3>
+
+              <Button size="sm" variant="outline" onClick={() => setShowTemplatesModal(true)} className="w-full sm:flex-1">
+                {t('chooseTemplate')}
+              </Button>
+            </div>
       
 
-            {currentRecord || nutritionStats?.hasData ? (
+            {currentRecord || mealPlan.length > 0 || nutritionStats?.hasData ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
@@ -521,21 +539,21 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             </div>
             <div className="space-y-3">
               {mealPlan.map((meal) => (
-                <div key={meal.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl group">
+                <div key={meal.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl group">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
                       <Utensils size={16} className="text-white" />
                     </div>
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">{meal.food_type}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 dark:text-white truncate">{meal.food_type}</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">{meal.meal_time}</div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <div className="font-semibold text-gray-900 dark:text-white">{meal.amount}g</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">{meal.calories} cal</div>
                   </div>
-                  <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleEditMeal(meal)}
                       className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
@@ -580,8 +598,8 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               </h3>
               <p className="text-gray-600 dark:text-gray-400">{t('trackNutritionHistory')}</p>
             </div>
-            <Button onClick={handleCreate}>
-              <Plus size={20} className="mr-2" />
+            <Button onClick={handleCreate}  className="w-full sm:w-auto"
+                      icon={<Plus size={20} />}>
               {t('addNutritionRecord')}
             </Button>
           </div>
@@ -598,19 +616,19 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             <div className="grid gap-4">
               {nutritionRecords.map((record) => (
                 <Card key={record.id} variant="gradient">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex items-start gap-4 flex-1 min-w-0">
                       <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
                         <Apple size={24} className="text-orange-600" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h4 className="font-semibold text-gray-900 dark:text-white">{record.food_brand}</h4>
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h4 className="font-semibold text-gray-900 dark:text-white truncate max-w-full">{record.food_brand}</h4>
                           <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
                             {record.food_type}
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm mb-3">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-sm mb-3">
                           <div className="flex items-center text-gray-600 dark:text-gray-400">
                             <Calendar size={16} className="mr-2" />
                             {formatDate(record.date)}
@@ -626,7 +644,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-3 gap-4 mb-3">
+                        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-3">
                           <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                             <div className="text-sm font-bold text-blue-600">{record.protein_percentage}%</div>
                             <div className="text-xs text-gray-600 dark:text-gray-400">{t('protein')}</div>
@@ -655,7 +673,9 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                         )}
                         
                         {record.notes && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{record.notes}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 sm:line-clamp-none">
+                            {record.notes}
+                          </p>
                         )}
                         {record.meals && record.meals.length > 0 && (
                         <div className="mt-3">
@@ -674,7 +694,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
 
                       </div>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <button
                         onClick={() => handleEdit(record)}
                         className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -705,8 +725,8 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               </h3>
               <p className="text-gray-600 dark:text-gray-400">{t('manageDailyFeedingSchedule')}</p>
             </div>
-            <Button onClick={() => setIsMealPlanModalOpen(true)}>
-              <Plus size={20} className="mr-2" />
+            <Button onClick={() => setIsMealPlanModalOpen(true)}  className="w-full sm:w-auto"
+                      icon={<Plus size={20} />}>
               {t('addMeal')}
             </Button>
           </div>
@@ -731,10 +751,10 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                         <div className="font-semibold text-gray-900 dark:text-white">{meal.amount}g</div>
                         <div className="text-sm text-gray-600 dark:text-gray-400">{meal.calories} cal</div>
                       </div>
-                      <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleEditMeal(meal)}
-                          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                          className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
                           <Edit size={16} />
                         </button>
@@ -791,7 +811,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('date')}
               type="date"
@@ -808,7 +828,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('foodBrand')}
               value={formData.food_brand}
@@ -822,7 +842,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('dailyAmountGrams')}
               type="number"
@@ -838,7 +858,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label={t('proteinPercent')}
               type="number"
@@ -906,7 +926,8 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         title={editingMeal ? t('editMeal') :t('addMealModal')}
         size="md"
       >
-        <form onSubmit={(e) => handleMealSubmit(e, !showCustomPlanModal)} className="space-y-4">          <Input
+        <form onSubmit={(e) => handleMealSubmit(e, !showCustomPlanModal)} className="space-y-4">          
+          <Input
             label={t('mealTime')}
             type="time"
             value={mealFormData.meal_time}
@@ -920,7 +941,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             placeholder="Dry Food, Wet Food, Treats, etc."
             required
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('amountGrams')}
               type="number"
@@ -937,7 +958,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
-          <div className="flex space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button type="button" variant="outline"onClick={() => {
             setIsMealPlanModalOpen(false);
             if (mealModalContext === 'wizard') {
@@ -972,7 +993,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{template.name}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{template.description}</p>
                     
-                    <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                       <div>
                         <span className="font-medium text-gray-700 dark:text-gray-300">{t('dailyCalories')}</span>
                         <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.calories_per_day}</span>
@@ -1100,7 +1121,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     className="space-y-4"
   >
     {/* Reuse the same nutrition record fields */}
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid  grid-cols-1 sm:grid-cols-2 gap-4">
       <Input
         label={t('date')}
         type="date"
@@ -1117,7 +1138,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       />
     </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <Input
         label={t('foodBrand')}
         value={formData.food_brand}
@@ -1132,7 +1153,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       />
     </div>
 
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <Input
         label={t('dailyAmountGrams')}
         type="number"
@@ -1149,7 +1170,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       />
     </div>
 
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <Input
         label={t('proteinPercent')}
         type="number"

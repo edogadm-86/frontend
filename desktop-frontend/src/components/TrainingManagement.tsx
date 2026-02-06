@@ -143,16 +143,17 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Button onClick={handleCreate}>
-          <Plus size={20} className="mr-2" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+        <Button onClick={handleCreate}  className="w-full sm:w-auto"
+                              icon={<Plus size={20} />}>
           {t('addTrainingSession')}
         </Button>
       </div>
 
       {/* Training Stats */}
       {trainingSessions.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -190,7 +191,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
       )}
 
       {trainingSessions.length === 0 ? (
-        <Card className="text-center py-16">
+        <Card className="text-center py-16 flex flex-col items-center gap-4">
           <Award size={48} className="mx-auto mb-4 text-gray-300" />
           <p className="text-gray-500 mb-4">{t('noTrainingSessionsRecorded')}</p>
           <Button onClick={handleCreate}>
@@ -209,14 +210,14 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
                       <Award size={24} className="text-purple-600" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <h4 className="font-semibold text-gray-900">{t('trainingSession')}</h4>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                       <h4 className="font-semibold text-gray-900 dark:text-white">{t('trainingSession')}</h4>
                         <span className={`px-2 py-1 text-xs rounded-full ${getProgressColor(session.progress)}`}>
                           {session.progress}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                        <div className="flex items-center text-gray-600">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm mb-3">
+                        <div className="flex items-center text-gray-600 dark:text-gray-400">
                           <Calendar size={16} className="mr-2" />
                           {formatDate(session.date)}
                         </div>
@@ -232,7 +233,7 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
                             {session.commands.map((command, index) => (
                               <span
                                 key={index}
-                                className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                                className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded whitespace-nowrap"
                               >
                                 {command}
                               </span>
@@ -240,24 +241,26 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
                           </div>
                         </div>
                       )}
-                      <p className="text-sm text-gray-600 mb-2">{session.notes}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-3 sm:line-clamp-none">
+                        {session.notes}
+                      </p>
                       {session.behavior_notes && (
-                        <p className="text-sm text-gray-500 italic">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
                           {t('behaviorNotes')}: {session.behavior_notes}
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex gap-2 sm:justify-end">
                     <button
                       onClick={() => handleEdit(session)}
-                      className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                      className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                     >
                       <Edit size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(session.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-100"
+                      className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -272,10 +275,10 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingSession ? t('editTrainingSession') : t('addTrainingSession')}
-        className="max-w-lg"
+        className="w-[95vw] sm:w-auto sm:max-w-lg max-h-[90vh] overflow-y-auto"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('date')}
               type="date"
@@ -337,11 +340,11 @@ export const TrainingManagement: React.FC<TrainingManagementProps> = ({
               rows={2}
             />
           </div>
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button type="button" variant="outline" className="w-full sm:flex-1" onClick={() => setIsModalOpen(false)}>
               {t('cancel')}
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button type="submit" className="w-full sm:flex-1" disabled={loading}>
               {loading ? t('loading') : t('save')}
             </Button>
           </div>

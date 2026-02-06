@@ -168,15 +168,15 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
             {t('healthRecords')} - {dogName}
           </h3>
           <p className="text-gray-600">{t('trackMedicalHistoryAndHealthInformation')}</p>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus size={20} className="mr-2" />
+        <Button onClick={handleCreate}  className="w-full sm:w-auto"
+                              icon={<Plus size={20} />}>
           {t('addHealthRecord')}
         </Button>
       </div>
@@ -193,20 +193,24 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
         <div className="grid gap-4">
           {healthRecords.map((record) => (
             <Card key={record.id}>
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex items-start gap-4 flex-1 min-w-0">
                   <div className={`w-12 h-12 ${getTypeColor(record.type)} rounded-lg flex items-center justify-center`}>
                     {getTypeIcon(record.type)}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h4 className="font-semibold text-gray-900">{record.title}</h4>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h4 className="font-semibold text-gray-900 dark:text-white truncate max-w-full">
+                        {record.title}
+                      </h4>
+                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded-full whitespace-nowrap">
                         {record.type}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{record.description}</p>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-3 sm:line-clamp-none">
+                      {record.description}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                       <div className="flex items-center text-gray-600">
                         <Calendar size={16} className="mr-2" />
                         {formatDate(record.date)}
@@ -224,13 +228,13 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                           {record.dosage && ` - ${record.dosage}`}
                         </div>
                       )}
-                      {record.documents && record.documents.length > 0 && (
-                      <div className="mt-3">
+                     {record.documents && record.documents.length > 0 && (
+                      <div> 
                         <p className="text-sm font-medium text-gray-700 flex items-center">
                           <Paperclip size={14} className="mr-1" />
                           {t('attachedDocuments')}
                         </p>
-                        <ul className="mt-1 space-y-1">
+                        <ul className="mt-2 space-y-1 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                           {record.documents.map((doc, i) => (
                             <li key={doc.id || i} className="flex items-center justify-between">
                               <a
@@ -255,7 +259,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                                 }}
                                 className="ml-2 text-red-600 hover:text-red-800 text-sm"
                               >
-                                {t('delete')}
+                                {t('delete')} {t('attachedDocuments')}
                               </button>
                             </li>
                           ))}
@@ -263,18 +267,19 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                       </div>
                     )}
                     </div>
+                     
                   </div>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex gap-2 sm:justify-end">
                   <button
                     onClick={() => handleEdit(record)}
-                    className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                    className="flex-1 sm:flex-none  p-2 text-gray-400 hover:text-blue-600 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
                     <Edit size={16} />
                   </button>
                   <button
                     onClick={() => handleDelete(record.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-100"
+                    className="flex-1 sm:flex-none  p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -289,10 +294,10 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingRecord ? t('editHealthRecord') : t('addHealthRecord')}
-        className="max-w-lg"
+        className="w-[95vw] sm:w-auto sm:max-w-lg max-h-[90vh] overflow-y-auto"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('date')}
               type="date"
@@ -376,13 +381,11 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
               )}
             </div>
           )}
-
-          
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => setIsModalOpen(false)}>
               {t('cancel')}
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button type="submit" className="w-full sm:flex-1" disabled={loading}>
               {loading ? t('loading') : t('save')}
             </Button>
           </div>
