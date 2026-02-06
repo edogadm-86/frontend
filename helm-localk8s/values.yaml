@@ -1,7 +1,7 @@
 frontend:
   image:
     repository: nikolaypeshev/dogpass
-    tag: edog-frontend-06-02-26
+    tag: edog-frontend-06-02-26-01
   service:
     type: ClusterIP
     port: 80

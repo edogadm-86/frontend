@@ -275,7 +275,7 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
                   {t("downloadApp") ?? "Install app"}
                 </Button>
               )}
-
+            
             </div>
         </div>
       </Card>

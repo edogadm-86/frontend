@@ -16,7 +16,7 @@ import { ShopView } from './components/ShopView';
 import { PublicDogProfile } from './components/PublicDogProfile';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { ChatBot } from './components/ChatBot';
-import { useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
+import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 
 const AppContent: React.FC = () => {
   useTheme(); // Initialize theme
@@ -40,11 +40,10 @@ const AppContent: React.FC = () => {
   
   const [currentView, setCurrentView] = useState('dashboard');
   const [showAddDogModal, setShowAddDogModal] = useState(false);
-  const isTouch = useIsTouchDevice();
+  const isCoarse = useIsCoarsePointer();
   const isMdUp = useMediaQuery("(min-width: 768px)");
-
-  const showSidebar = !isTouch && isMdUp;
-  const showBottomNav = isTouch || !isMdUp;
+  const showSidebar = isMdUp && !isCoarse;      // desktop only
+  const showBottomNav = !isMdUp || isCoarse
   // Listen for navigation events from header
   useEffect(() => {
     const handleNavigate = (event: CustomEvent) => {
@@ -151,7 +150,7 @@ const AppContent: React.FC = () => {
  return (
   <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 dark:bg-gray-900 flex">
     {/* Sidebar only for non-touch AND md+ */}
-    <div className={`${isTouch ? "hidden" : "hidden md:block"}`}>
+   {showSidebar && (
       <Sidebar
         currentView={currentView}
         onViewChange={setCurrentView}
@@ -160,7 +159,7 @@ const AppContent: React.FC = () => {
         onDogSelect={setCurrentDog}
         onAddDog={handleAddDog}
       />
-    </div>
+     )}
 
     <div className="flex-1 min-w-0 flex flex-col">
       <Header user={user} onLogout={logout} currentView={currentView} />
@@ -170,7 +169,7 @@ const AppContent: React.FC = () => {
     </div>
 
     {/* Bottom nav for touch devices OR small screens */}
-    {(isTouch || !window.matchMedia("(min-width: 768px)").matches) && (
+   {showBottomNav && (
       <div className="md:hidden">
         <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} />
       </div>
