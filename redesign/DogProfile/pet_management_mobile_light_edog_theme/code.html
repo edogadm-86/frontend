@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - My Pets Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#6f787d",
+                    "on-surface-variant": "#3f484c",
+                    "tertiary-fixed-dim": "#d6bee4",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#86d0ef",
+                    "secondary-container": "#d7e3f8",
+                    "on-error": "#ffffff",
+                    "surface-tint": "#006782",
+                    "on-tertiary-container": "#e9d0f7",
+                    "surface-variant": "#e3e2e2",
+                    "tertiary-fixed": "#f3daff",
+                    "surface-dim": "#dbdada",
+                    "tertiary-container": "#6b5778",
+                    "primary-fixed-dim": "#86d0ef",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#523f5f",
+                    "inverse-on-surface": "#f2f0f0",
+                    "surface-container-high": "#e9e8e8",
+                    "on-primary-fixed-variant": "#004d62",
+                    "surface-bright": "#faf9f9",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#52405f",
+                    "on-secondary-fixed-variant": "#3c4858",
+                    "secondary-fixed": "#d7e3f8",
+                    "on-primary-fixed": "#001f29",
+                    "secondary-fixed-dim": "#bbc7db",
+                    "outline-variant": "#bfc8cd",
+                    "on-secondary-container": "#596576",
+                    "primary-container": "#006782",
+                    "on-background": "#1b1c1c",
+                    "surface": "#faf9f9",
+                    "background": "#faf9f9",
+                    "primary": "#004e63",
+                    "on-tertiary-fixed": "#251431",
+                    "on-surface": "#1b1c1c",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#2f3131",
+                    "surface-container-highest": "#e3e2e2",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container": "#efeded",
+                    "on-primary-container": "#9fe2ff",
+                    "secondary": "#535f70",
+                    "primary-fixed": "#baeaff",
+                    "on-secondary-fixed": "#101c2b",
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#f4f3f3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "margin-desktop": "48px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "xl": "32px",
+                    "gutter": "16px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "title-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 sticky top-0 z-50 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-extrabold text-primary">eDog</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined p-sm rounded-full text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95 duration-200">notifications</button>
+<button class="material-symbols-outlined p-sm rounded-full text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95 duration-200">settings</button>
+<div class="w-8 h-8 rounded-full bg-primary overflow-hidden border border-outline-variant">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A professional studio portrait of a friendly-looking middle-aged man with short hair and a warm smile. The lighting is high-key and bright, consistent with a clean corporate light-mode aesthetic. The background is a soft, out-of-focus neutral grey, emphasizing a professional yet approachable personal brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5GBsTFxWIRPerJgmmSto2fRn90ZeWNyRD_ilRh6yHWctMy-bDwcc_EbIVwe-k8nGqNrQSQMTTObmflMP0R2WV5uwLMH_CgDQQOPeA4ZhL3-Co46G1Oi6IgX82KLAa4ykOXJqSHD40vdkbI-XbMLQ50_t1o2cfJ01CdbCHMHqUQwds7m3RWzfwQg9Yv_SY5q1ZinywNs0n8aZll2IDuqt7S9lEy_u9dci8YV0OrEuRlwb7znxjC9euxGSzwXVZvLIwIfL8b_CrSrEv"/>
+</div>
+</div>
+</header>
+<main class="max-w-xl mx-auto px-margin-mobile pt-lg flex flex-col gap-lg">
+<!-- Welcome Header -->
+<section class="flex flex-col gap-xs">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">My Pets Hub</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Managing 3 happy dogs today</p>
+</section>
+<!-- Summary Chips (Horizontal Scroll) -->
+<section class="flex gap-sm overflow-x-auto hide-scrollbar">
+<div class="flex items-center gap-xs bg-secondary-container text-on-secondary-container px-md py-sm rounded-xl shrink-0">
+<span class="material-symbols-outlined text-[18px]">pets</span>
+<span class="font-label-md text-label-md">3 Dogs Total</span>
+</div>
+<div class="flex items-center gap-xs bg-surface-container text-on-surface-variant px-md py-sm rounded-xl border border-outline-variant shrink-0">
+<span class="material-symbols-outlined text-[18px]">event</span>
+<span class="font-label-md text-label-md">2 Appointments</span>
+</div>
+<div class="flex items-center gap-xs bg-surface-container text-on-surface-variant px-md py-sm rounded-xl border border-outline-variant shrink-0">
+<span class="material-symbols-outlined text-[18px]">vaccines</span>
+<span class="font-label-md text-label-md">All Vaccinated</span>
+</div>
+</section>
+<!-- Pet Profile Cards -->
+<div class="flex flex-col gap-md">
+<!-- Card: Cooper -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col gap-md hover:bg-surface-container-high transition-colors">
+<div class="flex gap-md">
+<div class="w-20 h-20 rounded-full border-2 border-primary-container overflow-hidden flex-shrink-0">
+<img alt="Cooper profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a loyal Golden Retriever named Cooper, sitting outdoors in a sun-drenched park during the golden hour. The dog has a gentle expression with soulful eyes and soft, fluffy golden fur catching the warm evening light. The style is naturalistic and heartwarming, featuring high-quality bokeh in the background to emphasize the pet's friendly personality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfAw3kDrGvrO69xqup8pMgethiu1g8E6qK2dA-DmmYW63dx2rCHkT0q40aXNT1AVqVRk4ze6bDsvF2CmEWLFhBMNvws98h6s5yY6pfL5ZjhEGvtcbOa4T8JFLJtAs_fO-MDZRIbqZzfao-cFIjBy2SH23vKG6i0JIoTu51VfBE056YF1-2-qxypKXo1-gH4ZNoH4vZqwViCSoRiOjV2FOdcB63Et6LoOaolrPwz_hlOPFMtYgbigDf6wQ4xAPg2Fimnxl33pRBfL3E"/>
+</div>
+<div class="flex flex-col justify-center gap-xs">
+<h2 class="font-title-lg text-title-lg text-on-surface">Cooper</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Golden Retriever • 4 Years</p>
+<div class="flex flex-wrap gap-xs mt-xs">
+<span class="bg-primary-container/20 text-primary font-label-md text-[10px] px-sm py-[2px] rounded-full border border-primary/20">Healthy</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-md text-[10px] px-sm py-[2px] rounded-full">Training Active</span>
+</div>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg active:scale-95 transition-transform duration-200">Manage</button>
+<button class="p-sm rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+</div>
+</div>
+<!-- Card: Bella -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col gap-md hover:bg-surface-container-high transition-colors">
+<div class="flex gap-md">
+<div class="w-20 h-20 rounded-full border-2 border-primary-container overflow-hidden flex-shrink-0">
+<img alt="Bella profile" class="w-full h-full object-cover" data-alt="A high-resolution photograph of a playful Beagle named Bella, tilting her head curiously in a bright, modern living room setting. The interior has white walls and light wood floors, creating a clean, airy, light-mode aesthetic. The dog's tricolor coat is vibrant, and the lighting is soft and even, highlighting her expressive face and drooping ears." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAwbZwItpjQpm4YlYqGQBRS1HLUegrOwn4cJVTQUbkSxLAB621a8KedmaO6vuXJSWskJ3nU80Rw2hst5uR2N0jFLiCearh1J14nnUzG7q1HizgRA0XSbQDKFNN--0TXZza_iVeW_r76RCN6jJ8oAtz60gMNoOc_dbgvTQMgIirWdAAeyf8XgABU4UQIeYHMGUjNAi6I31PemoYGhkPCrUNIxE9aQwteuJjNarDWcTRhEw9FwN8OV9bc4RlElij1Z4UY7frFzA-2iK5"/>
+</div>
+<div class="flex flex-col justify-center gap-xs">
+<h2 class="font-title-lg text-title-lg text-on-surface">Bella</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Beagle • 2 Years</p>
+<div class="flex flex-wrap gap-xs mt-xs">
+<span class="bg-primary-container/20 text-primary font-label-md text-[10px] px-sm py-[2px] rounded-full border border-primary/20">Healthy</span>
+<span class="bg-error-container text-on-error-container font-label-md text-[10px] px-sm py-[2px] rounded-full">Vet Visit Soon</span>
+</div>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg active:scale-95 transition-transform duration-200">Manage</button>
+<button class="p-sm rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+</div>
+</div>
+<!-- Card: Charlie -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col gap-md hover:bg-surface-container-high transition-colors">
+<div class="flex gap-md">
+<div class="w-20 h-20 rounded-full border-2 border-primary-container overflow-hidden flex-shrink-0">
+<img alt="Charlie profile" class="w-full h-full object-cover" data-alt="A portrait of a regal Siberian Husky named Charlie, with striking blue eyes and a thick black and white coat. He is sitting attentively against a soft-focus background of a snowy pine forest. The lighting is crisp and cool, maintaining a bright and sophisticated modern aesthetic while showcasing the intricate details of the dog's fur and intense gaze." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWEOkjmjxZUAXRWZB5JVEt_B4-wwh6a-ZTwXRFPrCDAn98i3D_6uahG8ycJ1zr9ZqoaJMH70Sg5HpcSFj9SgnoOjKPIts7Dqjpq3KKTqp9fB__bDaaUBOYLOIKOuIjHEq80mxLXizyqmPizAEECzmRVjt2aJ3Pta6i010EO3iuTOAg1ps7DJikhnPMVW_YLu90Dcn_-u3sdelOxNMU4aHCs6idLDsrNm1SWgZViS29Fs3TEEKxV0p8LWZpSi7WhBcnVbs09I9hjaUW"/>
+</div>
+<div class="flex flex-col justify-center gap-xs">
+<h2 class="font-title-lg text-title-lg text-on-surface">Charlie</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Siberian Husky • 6 Years</p>
+<div class="flex flex-wrap gap-xs mt-xs">
+<span class="bg-surface-container-highest text-on-surface-variant font-label-md text-[10px] px-sm py-[2px] rounded-full border border-outline-variant">Resting</span>
+<span class="bg-primary-container/20 text-primary font-label-md text-[10px] px-sm py-[2px] rounded-full border border-primary/20">Healthy</span>
+</div>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg active:scale-95 transition-transform duration-200">Manage</button>
+<button class="p-sm rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Add New Pet Button -->
+<button class="w-full border-2 border-dashed border-outline-variant rounded-xl py-xl flex flex-col items-center justify-center gap-sm text-on-surface-variant hover:bg-surface-container transition-colors active:scale-[0.98]">
+<span class="material-symbols-outlined text-primary text-3xl">add_circle</span>
+<span class="font-label-md text-label-md">Add New Pet</span>
+</button>
+</main>
+<!-- FAB -->
+<button class="fixed right-lg bottom-24 bg-primary-container text-on-primary-container w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center active:scale-90 transition-transform duration-150 z-40">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-sm pb-safe bg-surface border-t border-outline-variant">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<!-- Health -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-md text-label-md">Health</span>
+</a>
+<!-- Training -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</a>
+<!-- Social -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Social</span>
+</a>
+</nav>
+</body></html>

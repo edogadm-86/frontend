@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Edit, Trash2, Apple, Utensils, TrendingUp, Target, Award, Calendar, Clock, FileText } from 'lucide-react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
 import { formatDate } from '../lib/utils';
@@ -39,6 +37,10 @@ interface MealPlan {
   nutrition_record_id: string;
   is_active: string;
 }
+
+const cardClass = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5 sm:p-6';
+const labelClass = 'block text-sm font-medium text-gray-700 dark:text-[#c1c7d3] mb-1';
+const inputSelectClass = 'w-full px-3 py-2 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1c1f] text-gray-900 dark:text-[#e2e2e6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005da7] dark:focus:ring-[#a4c9ff] focus:border-transparent text-sm';
 
 export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   dogId,
@@ -81,121 +83,118 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     is_active: 'true',
   });
 
-  // NEW STATE for templates modal
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
-  const normalizedTime = mealFormData.meal_time.slice(0,5); // "10:00:00" -> "10:00"
+  const normalizedTime = mealFormData.meal_time.slice(0, 5);
 
-  // Nutrition templates
   const nutritionTemplates = [
-  {
-    name: t('puppyGrowthPlan'),
-    description: t('highProteinDietGrowingPuppies'),
-    nutrition: {
-      calories_per_day: 1200,
-      protein_percentage: 28,
-      fat_percentage: 16,
-      carb_percentage: 56,
-      daily_amount: 500,
-      food_brand: "Puppy Choice",
-      food_type: t('puppyKibble'),
-      date: new Date().toISOString().split("T")[0],
-      supplements: [t('supplementOmega3')],
-      notes: t('puppyNotes'),
-      weight_at_time: 5,
+    {
+      name: t('puppyGrowthPlan'),
+      description: t('highProteinDietGrowingPuppies'),
+      nutrition: {
+        calories_per_day: 1200,
+        protein_percentage: 28,
+        fat_percentage: 16,
+        carb_percentage: 56,
+        daily_amount: 500,
+        food_brand: "Puppy Choice",
+        food_type: t('puppyKibble'),
+        date: new Date().toISOString().split("T")[0],
+        supplements: [t('supplementOmega3')],
+        notes: t('puppyNotes'),
+        weight_at_time: 5,
+      },
+      meals: [
+        { meal_time: "08:00", food_type: t('puppyKibble'), amount: 150, calories: 400 },
+        { meal_time: "13:00", food_type: t('wetFood'), amount: 200, calories: 400 },
+        { meal_time: "19:00", food_type: t('kibbleTreats'), amount: 150, calories: 400 },
+      ],
     },
-    meals: [
-      { meal_time: "08:00", food_type: t('puppyKibble'), amount: 150, calories: 400 },
-      { meal_time: "13:00", food_type: t('wetFood'), amount: 200, calories: 400 },
-      { meal_time: "19:00", food_type: t('kibbleTreats'), amount: 150, calories: 400 },
-    ],
-  },
-  {
-    name: t('adultMaintenancePlan'),
-    description: t('balancedNutritionHealthyAdults'),
-    nutrition: {
-      calories_per_day: 900,
-      protein_percentage: 24,
-      fat_percentage: 14,
-      carb_percentage: 62,
-      daily_amount: 400,
-      food_brand: "DoggoLife",
-      food_type: "Adult Dry Food",
-      date: new Date().toISOString().split("T")[0],
-      supplements: [],
-      notes: t('adultNotes'),
-      weight_at_time: 20,
+    {
+      name: t('adultMaintenancePlan'),
+      description: t('balancedNutritionHealthyAdults'),
+      nutrition: {
+        calories_per_day: 900,
+        protein_percentage: 24,
+        fat_percentage: 14,
+        carb_percentage: 62,
+        daily_amount: 400,
+        food_brand: "DoggoLife",
+        food_type: "Adult Dry Food",
+        date: new Date().toISOString().split("T")[0],
+        supplements: [],
+        notes: t('adultNotes'),
+        weight_at_time: 20,
+      },
+      meals: [
+        { meal_time: "09:00", food_type: t('dryFood'), amount: 200, calories: 450 },
+        { meal_time: "18:00", food_type: t('wetFood'), amount: 200, calories: 450 },
+      ],
     },
-    meals: [
-      { meal_time: "09:00", food_type: t('dryFood'), amount: 200, calories: 450 },
-      { meal_time: "18:00", food_type: t('wetFood'), amount: 200, calories: 450 },
-    ],
-  },
-  {
-    name: t('seniorPlanName'),
-    description: t('seniorPlanDesc'),
-    nutrition: {
-      calories_per_day: 700,
-      protein_percentage: 22,
-      fat_percentage: 12,
-      carb_percentage: 66,
-      daily_amount: 350,
-      food_brand: "Golden Years",
-      food_type: "Senior Formula",
-      date: new Date().toISOString().split("T")[0],
-      supplements: ["Glucosamine", "Omega-3"],
-      notes: t('seniorNotes'),
-      weight_at_time: 18,
+    {
+      name: t('seniorPlanName'),
+      description: t('seniorPlanDesc'),
+      nutrition: {
+        calories_per_day: 700,
+        protein_percentage: 22,
+        fat_percentage: 12,
+        carb_percentage: 66,
+        daily_amount: 350,
+        food_brand: "Golden Years",
+        food_type: "Senior Formula",
+        date: new Date().toISOString().split("T")[0],
+        supplements: ["Glucosamine", "Omega-3"],
+        notes: t('seniorNotes'),
+        weight_at_time: 18,
+      },
+      meals: [
+        { meal_time: "08:30", food_type: t('dryFood'), amount: 175, calories: 350 },
+        { meal_time: "18:30", food_type: t('streemedVeggiesDryFood'), amount: 175, calories: 350 },
+      ],
     },
-    meals: [
-      { meal_time: "08:30", food_type: t('dryFood'), amount: 175, calories: 350 },
-      { meal_time: "18:30", food_type: t('streemedVeggiesDryFood') , amount: 175, calories: 350 },
-    ],
-  },
-  {
-    name: t('activePlanName'),
-    description: t('activePlanDesc'),
-    nutrition: {
-      calories_per_day: 1500,
-      protein_percentage: 30,
-      fat_percentage: 18,
-      carb_percentage: 52,
-      daily_amount: 600,
-      food_brand: "ProActive",
-      food_type: "Performance Formula",
-      date: new Date().toISOString().split("T")[0],
-      supplements: ["Electrolytes"],
-      notes: t('activeNotes'),
-      weight_at_time: 25,
+    {
+      name: t('activePlanName'),
+      description: t('activePlanDesc'),
+      nutrition: {
+        calories_per_day: 1500,
+        protein_percentage: 30,
+        fat_percentage: 18,
+        carb_percentage: 52,
+        daily_amount: 600,
+        food_brand: "ProActive",
+        food_type: "Performance Formula",
+        date: new Date().toISOString().split("T")[0],
+        supplements: ["Electrolytes"],
+        notes: t('activeNotes'),
+        weight_at_time: 25,
+      },
+      meals: [
+        { meal_time: "07:00", food_type: t('dryFood'), amount: 200, calories: 500 },
+        { meal_time: "12:00", food_type: t('proteinMix'), amount: 200, calories: 500 },
+        { meal_time: "19:00", food_type: t('dryFoodWetMix'), amount: 200, calories: 500 },
+      ],
     },
-    meals: [
-      { meal_time: "07:00", food_type: t('dryFood'), amount: 200, calories: 500 },
-      { meal_time: "12:00", food_type: t('proteinMix'), amount: 200, calories: 500 },
-      { meal_time: "19:00", food_type: t('dryFoodWetMix'), amount: 200, calories: 500 },
-    ],
-  },
-  {
-    name: t('weightPlanName'),
-    description: t('weightPlanDesc'),
-    nutrition: {
-      calories_per_day: 600,
-      protein_percentage: 26,
-      fat_percentage: 10,
-      carb_percentage: 64,
-      daily_amount: 300,
-      food_brand: "SlimPaws",
-      food_type: "Light Formula",
-      date: new Date().toISOString().split("T")[0],
-      supplements: ["L-Carnitine"],
-      notes: t('weightNotes'),
-      weight_at_time: 30,
+    {
+      name: t('weightPlanName'),
+      description: t('weightPlanDesc'),
+      nutrition: {
+        calories_per_day: 600,
+        protein_percentage: 26,
+        fat_percentage: 10,
+        carb_percentage: 64,
+        daily_amount: 300,
+        food_brand: "SlimPaws",
+        food_type: "Light Formula",
+        date: new Date().toISOString().split("T")[0],
+        supplements: ["L-Carnitine"],
+        notes: t('weightNotes'),
+        weight_at_time: 30,
+      },
+      meals: [
+        { meal_time: "09:00", food_type: t('lightKibble'), amount: 150, calories: 300 },
+        { meal_time: "18:00", food_type: t('lightWetFood'), amount: 150, calories: 300 },
+      ],
     },
-    meals: [
-      { meal_time: "09:00", food_type: t('lightKibble'), amount: 150, calories: 300 },
-      { meal_time: "18:00", food_type: t('lightWetFood'), amount: 150, calories: 300 },
-    ],
-  },
-];
-
+  ];
 
   useEffect(() => {
     loadNutritionData();
@@ -207,7 +206,6 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         apiClient.getNutritionRecords(dogId),
         apiClient.getNutritionStats(dogId),
       ]);
-      
       setNutritionRecords(recordsRes.nutritionRecords);
       setNutritionStats(statsRes);
       setMealPlan(statsRes.mealPlan || []);
@@ -216,29 +214,23 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     }
   };
 
-  // NEW applyTemplate function
   const applyTemplate = async (template: any) => {
-  try {
-    setLoading(true);
-    const recordRes = await apiClient.createNutritionRecord(dogId, template.nutrition);
-    const recordId = recordRes.nutritionRecord.id;
-
-    // Use updateEntireMealPlan so it clears old and sets new
-    await apiClient.updateEntireMealPlan(dogId, {
-      mealPlan: template.meals,
-      nutrition_record_id: recordId,
-    });
-
-    await loadNutritionData();
-    setShowTemplatesModal(false);
-  } catch (error) {
-    console.error("Error applying template:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+    try {
+      setLoading(true);
+      const recordRes = await apiClient.createNutritionRecord(dogId, template.nutrition);
+      const recordId = recordRes.nutritionRecord.id;
+      await apiClient.updateEntireMealPlan(dogId, {
+        mealPlan: template.meals,
+        nutrition_record_id: recordId,
+      });
+      await loadNutritionData();
+      setShowTemplatesModal(false);
+    } catch (error) {
+      console.error("Error applying template:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCreate = () => {
     setEditingRecord(null);
@@ -266,7 +258,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       amount: '',
       calories: '',
       nutrition_record_id: '',
-      is_active:'true',
+      is_active: 'true',
     });
     setMealModalContext('normal');
     setIsMealPlanModalOpen(true);
@@ -307,7 +299,6 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const nutritionData = {
         ...formData,
@@ -320,13 +311,11 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         weight_at_time: parseFloat(formData.weight_at_time),
       };
       console.log("Desktop update payload:", nutritionData);
-
       if (editingRecord) {
         await apiClient.updateNutritionRecord(dogId, editingRecord.id, nutritionData);
       } else {
         await apiClient.createNutritionRecord(dogId, nutritionData);
       }
-      
       await loadNutritionData();
       setIsModalOpen(false);
     } catch (error) {
@@ -339,47 +328,42 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   const handleMealSubmit = async (e: React.FormEvent, isCustom?: boolean) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const mealData = {
         meal_time: normalizedTime,
         food_type: mealFormData.food_type,
         amount: parseFloat(mealFormData.amount),
         calories: parseInt(mealFormData.calories),
-        nutrition_record_id: mealFormData.nutrition_record_id, // ✅ add this
+        nutrition_record_id: mealFormData.nutrition_record_id,
         is_active: 'true',
-
       };
       console.log("Desktop update payload for meal:", mealData);
 
-    if (mealModalContext === 'wizard') {
-      // add to custom wizard meals only
-       setCustomMeals((prev) => [
-        ...prev,
-        { ...mealData, id: Date.now().toString() } as MealPlan,
-      ]);
-    } else {
-      if (editingMeal) {
-        await apiClient.updateMealPlan(dogId, editingMeal.id, {
-          ...mealData,
-          nutrition_record_id: editingMeal.nutrition_record_id,
-          is_active: true,   // ✅ force include          
-        });
-              console.log("Desktop update payload for meal:", mealData);
-
+      if (mealModalContext === 'wizard') {
+        setCustomMeals((prev) => [
+          ...prev,
+          { ...mealData, id: Date.now().toString() } as MealPlan,
+        ]);
       } else {
-        await apiClient.createMealPlan(dogId, {
-          ...mealData,
-          nutrition_record_id: editingRecord?.id,
-        });
+        if (editingMeal) {
+          await apiClient.updateMealPlan(dogId, editingMeal.id, {
+            ...mealData,
+            nutrition_record_id: editingMeal.nutrition_record_id,
+            is_active: true,
+          });
+          console.log("Desktop update payload for meal:", mealData);
+        } else {
+          await apiClient.createMealPlan(dogId, {
+            ...mealData,
+            nutrition_record_id: editingRecord?.id,
+          });
+        }
+        await loadNutritionData();
       }
-      
-      await loadNutritionData();
-    }
-    setIsMealPlanModalOpen(false);
-     if (mealModalContext === 'wizard') {
-      setShowCustomPlanModal(true);
-    }
+      setIsMealPlanModalOpen(false);
+      if (mealModalContext === 'wizard') {
+        setShowCustomPlanModal(true);
+      }
     } catch (error) {
       console.error('Error saving meal plan:', error);
     } finally {
@@ -413,31 +397,30 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   const totalCalories = nutritionStats?.dailyTotals?.calories || mealPlan.reduce((sum, meal) => sum + meal.calories, 0);
   const totalAmount = nutritionStats?.dailyTotals?.amount || mealPlan.reduce((sum, meal) => sum + meal.amount, 0);
 
+  const tabs = [
+    { id: 'overview', icon: Target, label: t('overview') },
+    { id: 'records', icon: FileText, label: t('nutritionRecords') },
+    { id: 'meal-plan', icon: Utensils, label: t('mealPlan') },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Navigation Tabs */}
-      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30 p-2">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {[
-            { id: 'overview', icon: Target, label: t('overview') },
-            { id: 'records', icon: FileText, label: t('nutritionRecords') },
-            { id: 'meal-plan', icon: Utensils, label: t('mealPlan') },
-          ].map((tab) => {
+      <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-1.5">
+        <div className="flex gap-1 overflow-x-auto no-scrollbar">
+          {tabs.map((tab) => {
             const active = activeView === tab.id;
             const Icon = tab.icon;
-
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveView(tab.id as any)}
                 className={[
-                  "shrink-0",
-                  "flex items-center gap-2 px-3 py-2 rounded-xl",
-                  "text-sm font-medium transition",
+                  'shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all',
                   active
-                    ? "bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow"
-                    : "text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/40",
-                ].join(" ")}
+                    ? 'bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d]'
+                    : 'text-gray-600 dark:text-[#c1c7d3] hover:bg-gray-100 dark:hover:bg-[#282a2d]',
+                ].join(' ')}
               >
                 <Icon size={16} />
                 <span className="whitespace-nowrap">{tab.label}</span>
@@ -447,269 +430,275 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         </div>
       </div>
 
-
       {activeView === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Current Nutrition Stats */}
-          <Card variant="gradient">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <Apple className="mr-2 text-orange-500" />
+          <div className={cardClass}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#e2e2e6] flex items-center gap-2">
+                <Apple size={20} className="text-orange-500" />
                 {t('currentNutritionProfile')}
               </h3>
-
-              <Button size="sm" variant="outline" onClick={() => setShowTemplatesModal(true)} className="w-full sm:flex-1">
+              <button
+                onClick={() => setShowTemplatesModal(true)}
+                className="px-3 py-1.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all"
+              >
                 {t('chooseTemplate')}
-              </Button>
+              </button>
             </div>
-      
 
             {currentRecord || mealPlan.length > 0 || nutritionStats?.hasData ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-center p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-[#e2e2e6]">
                       {currentRecord?.daily_amount || Math.round(totalAmount)}g
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('dailyAmount')}</div>
+                    <div className="text-sm text-gray-500 dark:text-[#8b919d]">{t('dailyAmount')}</div>
                   </div>
-                  <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-center p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-[#e2e2e6]">
                       {currentRecord?.calories_per_day || totalCalories}
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('caloriesDay')}</div>
+                    <div className="text-sm text-gray-500 dark:text-[#8b919d]">{t('caloriesDay')}</div>
                   </div>
                 </div>
-                
+
                 {currentRecord && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('protein')}</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.protein_percentage}%</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-[#c1c7d3]">{t('protein')}</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{currentRecord.protein_percentage}%</span>
                     </div>
                     <div className="progress-bar">
                       <div className="progress-fill bg-gradient-to-r from-blue-500 to-cyan-500" style={{ width: `${currentRecord.protein_percentage}%` }}></div>
                     </div>
-                    
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('fat')}</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.fat_percentage}%</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-[#c1c7d3]">{t('fat')}</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{currentRecord.fat_percentage}%</span>
                     </div>
                     <div className="progress-bar">
                       <div className="progress-fill bg-gradient-to-r from-green-500 to-emerald-500" style={{ width: `${currentRecord.fat_percentage}%` }}></div>
                     </div>
-                    
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('carbohydrates')}</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{currentRecord.carb_percentage}%</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-[#c1c7d3]">{t('carbohydrates')}</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{currentRecord.carb_percentage}%</span>
                     </div>
                     <div className="progress-bar">
                       <div className="progress-fill bg-gradient-to-r from-orange-500 to-amber-500" style={{ width: `${currentRecord.carb_percentage}%` }}></div>
                     </div>
                   </div>
                 )}
-                
+
                 {currentRecord && (
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('currentFood')}</div>
-                    <div className="text-gray-900 dark:text-white font-semibold">{currentRecord.food_brand}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{currentRecord.food_type}</div>
+                  <div className="pt-4 border-t border-gray-100 dark:border-white/5">
+                    <div className="text-sm font-medium text-gray-500 dark:text-[#8b919d] mb-1">{t('currentFood')}</div>
+                    <div className="text-gray-900 dark:text-[#e2e2e6] font-semibold">{currentRecord.food_brand}</div>
+                    <div className="text-sm text-gray-500 dark:text-[#8b919d]">{currentRecord.food_type}</div>
                   </div>
                 )}
-                
               </div>
             ) : (
               <div className="text-center py-8">
-                <Apple size={32} className="mx-auto mb-2 text-gray-300" />
-                <p className="text-gray-500 dark:text-gray-400">{t('noNutritionData')}</p>
+                <Apple size={32} className="mx-auto mb-2 text-gray-300 dark:text-[#414751]" />
+                <p className="text-gray-500 dark:text-[#8b919d]">{t('noNutritionData')}</p>
               </div>
             )}
-          </Card>
+          </div>
 
           {/* Daily Meal Plan */}
-          <Card variant="gradient">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <Utensils className="mr-2 text-green-500" />
+          <div className={cardClass}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#e2e2e6] flex items-center gap-2">
+                <Utensils size={20} className="text-green-500" />
                 {t('todaysMealPlan')}
               </h3>
-              <Button size="sm" variant="outline" onClick={() => setActiveView('meal-plan')}>
+              <button
+                onClick={() => setActiveView('meal-plan')}
+                className="px-3 py-1.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all"
+              >
                 {t('editPlan')}
-              </Button>
+              </button>
             </div>
             <div className="space-y-3">
               {mealPlan.map((meal) => (
-                <div key={meal.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl group">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                      <Utensils size={16} className="text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 dark:text-white truncate">{meal.food_type}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">{meal.meal_time}</div>
-                    </div>
+                <div key={meal.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl group">
+                  <div className="w-9 h-9 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Utensils size={15} className="text-green-600 dark:text-green-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-900 dark:text-[#e2e2e6] truncate text-sm">{meal.food_type}</div>
+                    <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.meal_time}</div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-semibold text-gray-900 dark:text-white">{meal.amount}g</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{meal.calories} cal</div>
+                    <div className="font-semibold text-gray-900 dark:text-[#e2e2e6] text-sm">{meal.amount}g</div>
+                    <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.calories} cal</div>
                   </div>
                   <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleEditMeal(meal)}
-                      className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] hover:bg-gray-100 dark:hover:bg-[#1e2023] transition-all"
                     >
-                      <Edit size={14} />
+                      <Edit size={13} />
                     </button>
                     <button
                       onClick={() => handleDeleteMeal(meal.id)}
-                      className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded"
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
               ))}
               {mealPlan.length === 0 && (
                 <div className="text-center py-8">
-                  <Utensils size={32} className="mx-auto mb-2 text-gray-300" />
-                  <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noMealPlan')}</p>
-                  <Button size="sm" onClick={handleCreateMeal}>
+                  <Utensils size={32} className="mx-auto mb-2 text-gray-300 dark:text-[#414751]" />
+                  <p className="text-gray-500 dark:text-[#8b919d] mb-4 text-sm">{t('noMealPlan')}</p>
+                  <button
+                    onClick={handleCreateMeal}
+                    className="px-3 py-1.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                  >
                     Add First Meal
-                  </Button>
+                  </button>
                 </div>
               )}
-              <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-3 border-t border-gray-100 dark:border-white/5">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">{t('totalDailyCalories')}</span>
-                  <span className="text-xl font-bold text-gray-900 dark:text-white">{totalCalories}</span>
+                  <span className="font-medium text-gray-700 dark:text-[#c1c7d3] text-sm">{t('totalDailyCalories')}</span>
+                  <span className="text-xl font-bold text-gray-900 dark:text-[#e2e2e6]">{totalCalories}</span>
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
       )}
 
       {activeView === 'records' && (
-        <div className="space-y-6">
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {t('nutritionRecords')} - {dogName}
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#e2e2e6]">
+                {t('nutritionRecords')} — {dogName}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">{t('trackNutritionHistory')}</p>
+              <p className="text-sm text-gray-500 dark:text-[#8b919d]">{t('trackNutritionHistory')}</p>
             </div>
-            <Button onClick={handleCreate}  className="w-full sm:w-auto"
-                      icon={<Plus size={20} />}>
+            <button
+              onClick={handleCreate}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Plus size={16} />
               {t('addNutritionRecord')}
-            </Button>
+            </button>
           </div>
 
           {nutritionRecords.length === 0 ? (
-            <Card className="text-center py-16">
-              <Apple size={48} className="mx-auto mb-4 text-gray-300" />
-              <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noRecordsFound')}</p>
-              <Button onClick={handleCreate}>
+            <div className={`${cardClass} text-center py-16`}>
+              <Apple size={48} className="mx-auto mb-4 text-gray-300 dark:text-[#414751]" />
+              <p className="text-gray-500 dark:text-[#8b919d] mb-4">{t('noRecordsFound')}</p>
+              <button
+                onClick={handleCreate}
+                className="px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+              >
                 {t('addFirstRecord')}
-              </Button>
-            </Card>
+              </button>
+            </div>
           ) : (
             <div className="grid gap-4">
               {nutritionRecords.map((record) => (
-                <Card key={record.id} variant="gradient">
+                <div key={record.id} className={cardClass}>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex items-start gap-4 flex-1 min-w-0">
-                      <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                        <Apple size={24} className="text-orange-600" />
+                      <div className="w-11 h-11 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Apple size={20} className="text-orange-600 dark:text-orange-400" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <h4 className="font-semibold text-gray-900 dark:text-white truncate max-w-full">{record.food_brand}</h4>
-                          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
+                          <h4 className="font-semibold text-gray-900 dark:text-[#e2e2e6] truncate max-w-full">{record.food_brand}</h4>
+                          <span className="px-2 py-0.5 bg-gray-100 dark:bg-[#282a2d] text-gray-600 dark:text-[#c1c7d3] text-xs rounded-full">
                             {record.food_type}
                           </span>
                         </div>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-sm mb-3">
-                          <div className="flex items-center text-gray-600 dark:text-gray-400">
-                            <Calendar size={16} className="mr-2" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm mb-3">
+                          <div className="flex items-center text-gray-500 dark:text-[#8b919d] gap-1.5">
+                            <Calendar size={13} />
                             {formatDate(record.date)}
                           </div>
-                          <div className="text-gray-600 dark:text-gray-400">
+                          <div className="text-gray-500 dark:text-[#8b919d]">
                             {t('amountGrams')}: {record.daily_amount} {t('gram')}/{t('day')}
                           </div>
-                          <div className="text-gray-600 dark:text-gray-400">
+                          <div className="text-gray-500 dark:text-[#8b919d]">
                             {t('calories')}: {record.calories_per_day}/{t('day')}
                           </div>
-                          <div className="text-gray-600 dark:text-gray-400">
+                          <div className="text-gray-500 dark:text-[#8b919d]">
                             {t('weight')}: {record.weight_at_time}{t('kg')}
                           </div>
                         </div>
-                        
-                        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-3">
+
+                        <div className="grid grid-cols-3 gap-2 mb-3">
                           <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                            <div className="text-sm font-bold text-blue-600">{record.protein_percentage}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">{t('protein')}</div>
+                            <div className="text-sm font-bold text-blue-600 dark:text-blue-400">{record.protein_percentage}%</div>
+                            <div className="text-xs text-gray-500 dark:text-[#8b919d]">{t('protein')}</div>
                           </div>
                           <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                            <div className="text-sm font-bold text-green-600">{record.fat_percentage}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">{t('fat')}</div>
+                            <div className="text-sm font-bold text-green-600 dark:text-green-400">{record.fat_percentage}%</div>
+                            <div className="text-xs text-gray-500 dark:text-[#8b919d]">{t('fat')}</div>
                           </div>
                           <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                            <div className="text-sm font-bold text-orange-600">{record.carb_percentage}%</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">{t('carbs')}</div>
+                            <div className="text-sm font-bold text-orange-600 dark:text-orange-400">{record.carb_percentage}%</div>
+                            <div className="text-xs text-gray-500 dark:text-[#8b919d]">{t('carbs')}</div>
                           </div>
                         </div>
-                        
+
                         {record.supplements.length > 0 && (
                           <div className="mb-2">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('supplements')}: </span>
+                            <span className="text-sm font-medium text-gray-700 dark:text-[#c1c7d3]">{t('supplements')}: </span>
                             <div className="flex flex-wrap gap-1 mt-1">
                               {record.supplements.map((supplement, index) => (
-                                <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                                <span key={index} className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded-full">
                                   {supplement}
                                 </span>
                               ))}
                             </div>
                           </div>
                         )}
-                        
+
                         {record.notes && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 sm:line-clamp-none">
+                          <p className="text-sm text-gray-500 dark:text-[#8b919d] line-clamp-3 sm:line-clamp-none">
                             {record.notes}
                           </p>
                         )}
                         {record.meals && record.meals.length > 0 && (
-                        <div className="mt-3">
-                          <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            {t('meals')}:
-                          </h5>
-                          <ul className="space-y-1">
-                            {record.meals.map((meal: any) => (
-                              <li key={meal.id} className="text-sm text-gray-600 dark:text-gray-400">
-                                🍽 {meal.meal_time} — {meal.food_type} ({meal.amount}{t('gram')}, {meal.calories} {t('cal')})
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
+                          <div className="mt-3">
+                            <h5 className="text-sm font-medium text-gray-700 dark:text-[#c1c7d3] mb-2">
+                              {t('meals')}:
+                            </h5>
+                            <ul className="space-y-1">
+                              {record.meals.map((meal: any) => (
+                                <li key={meal.id} className="text-sm text-gray-500 dark:text-[#8b919d]">
+                                  🍽 {meal.meal_time} — {meal.food_type} ({meal.amount}{t('gram')}, {meal.calories} {t('cal')})
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
+                    <div className="flex gap-1 sm:items-start">
                       <button
                         onClick={() => handleEdit(record)}
-                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="p-2 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-all"
                       >
                         <Edit size={16} />
                       </button>
                       <button
                         onClick={() => handleDeleteRecord(record.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="p-2 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                       >
                         <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           )}
@@ -717,87 +706,93 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
       )}
 
       {activeView === 'meal-plan' && (
-        <div className="space-y-6">
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {t('mealPlan')} - {dogName}
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#e2e2e6]">
+                {t('mealPlan')} — {dogName}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">{t('manageDailyFeedingSchedule')}</p>
+              <p className="text-sm text-gray-500 dark:text-[#8b919d]">{t('manageDailyFeedingSchedule')}</p>
             </div>
-            <Button onClick={() => setIsMealPlanModalOpen(true)}  className="w-full sm:w-auto"
-                      icon={<Plus size={20} />}>
+            <button
+              onClick={() => setIsMealPlanModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Plus size={16} />
               {t('addMeal')}
-            </Button>
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div className="lg:col-span-2">
-              <Card variant="gradient">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">{t('dailySchedule')}</h4>
+              <div className={cardClass}>
+                <h4 className="font-semibold text-gray-900 dark:text-[#e2e2e6] mb-4">{t('dailySchedule')}</h4>
                 <div className="space-y-3">
                   {mealPlan.map((meal) => (
-                    <div key={meal.id} className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl group">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                          <Utensils size={20} className="text-white" />
+                    <div key={meal.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#282a2d] rounded-xl group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Utensils size={18} className="text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900 dark:text-white">{meal.food_type}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{meal.meal_time}</div>
+                          <div className="font-medium text-gray-900 dark:text-[#e2e2e6] text-sm">{meal.food_type}</div>
+                          <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.meal_time}</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold text-gray-900 dark:text-white">{meal.amount}g</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">{meal.calories} cal</div>
+                        <div className="font-semibold text-gray-900 dark:text-[#e2e2e6] text-sm">{meal.amount}g</div>
+                        <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.calories} cal</div>
                       </div>
-                      <div className="flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleEditMeal(meal)}
-                          className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                          className="p-2 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] hover:bg-gray-100 dark:hover:bg-[#1e2023] transition-all"
                         >
-                          <Edit size={16} />
+                          <Edit size={15} />
                         </button>
                         <button
                           onClick={() => handleDeleteMeal(meal.id)}
-                          className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                          className="p-2 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>
                   ))}
                   {mealPlan.length === 0 && (
                     <div className="text-center py-8">
-                      <Utensils size={32} className="mx-auto mb-2 text-gray-300" />
-                      <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noMealsScheduled')}</p>
-                      <Button onClick={handleCreateMeal}>
+                      <Utensils size={32} className="mx-auto mb-2 text-gray-300 dark:text-[#414751]" />
+                      <p className="text-gray-500 dark:text-[#8b919d] mb-4 text-sm">{t('noMealsScheduled')}</p>
+                      <button
+                        onClick={handleCreateMeal}
+                        className="px-4 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                      >
                         {t('addFirstMeal')}
-                      </Button>
+                      </button>
                     </div>
                   )}
                 </div>
-              </Card>
+              </div>
             </div>
 
             <div>
-              <Card variant="gradient">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-4">{t('dailySummary')}</h4>
-                <div className="space-y-4">
-                  <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl">
-                    <div className="text-2xl font-bold text-blue-600">{totalCalories}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('totalCalories')}</div>
+              <div className={cardClass}>
+                <h4 className="font-semibold text-gray-900 dark:text-[#e2e2e6] mb-4">{t('dailySummary')}</h4>
+                <div className="space-y-3">
+                  <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                    <div className="text-2xl font-bold text-[#005da7] dark:text-[#a4c9ff]">{totalCalories}</div>
+                    <div className="text-sm text-gray-500 dark:text-[#8b919d]">{t('totalCalories')}</div>
                   </div>
-                  <div className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl">
-                    <div className="text-2xl font-bold text-green-600">{mealPlan.length}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('mealsPerDay')}</div>
+                  <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">{mealPlan.length}</div>
+                    <div className="text-sm text-gray-500 dark:text-[#8b919d]">{t('mealsPerDay')}</div>
                   </div>
-                  <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl">
-                    <div className="text-2xl font-bold text-purple-600">{t('optimal')}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('feedingSchedule')}</div>
+                  <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{t('optimal')}</div>
+                    <div className="text-sm text-gray-500 dark:text-[#8b919d]">{t('feedingSchedule')}</div>
                   </div>
                 </div>
-              </Card>
+              </div>
             </div>
           </div>
         </div>
@@ -811,7 +806,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('date')}
               type="date"
@@ -828,7 +823,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
-          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('foodBrand')}
               value={formData.food_brand}
@@ -842,7 +837,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
-          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('dailyAmountGrams')}
               type="number"
@@ -891,24 +886,30 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             placeholder="Omega-3, Glucosamine, Multivitamin"
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {t('notes')}
-            </label>
+            <label className={labelClass}>{t('notes')}</label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="input-field"
+              className={inputSelectClass}
               rows={3}
               placeholder={t('notesPlaceholder')}
             />
           </div>
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all"
+            >
               {t('cancel')}
-            </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
               {loading ? t('saving') : t('saveRecord')}
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>
@@ -918,15 +919,14 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         isOpen={isMealPlanModalOpen}
         onClose={() => {
           setIsMealPlanModalOpen(false);
-          if (mealModalContext  === 'wizard') {
-            // reopen wizard if we came from custom plan
+          if (mealModalContext === 'wizard') {
             setShowCustomPlanModal(true);
           }
         }}
-        title={editingMeal ? t('editMeal') :t('addMealModal')}
+        title={editingMeal ? t('editMeal') : t('addMealModal')}
         size="md"
       >
-        <form onSubmit={(e) => handleMealSubmit(e, !showCustomPlanModal)} className="space-y-4">          
+        <form onSubmit={(e) => handleMealSubmit(e, !showCustomPlanModal)} className="space-y-4">
           <Input
             label={t('mealTime')}
             type="time"
@@ -941,7 +941,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             placeholder="Dry Food, Wet Food, Treats, etc."
             required
           />
-          <div className="grid grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label={t('amountGrams')}
               type="number"
@@ -958,18 +958,26 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button type="button" variant="outline"onClick={() => {
-            setIsMealPlanModalOpen(false);
-            if (mealModalContext === 'wizard') {
-              setShowCustomPlanModal(true);
-            }
-            }}>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsMealPlanModalOpen(false);
+                if (mealModalContext === 'wizard') {
+                  setShowCustomPlanModal(true);
+                }
+              }}
+              className="px-4 py-2.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all"
+            >
               {t('cancel')}
-            </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
               {loading ? t('saving') : t('saveMeal')}
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>
@@ -982,50 +990,47 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         size="lg"
       >
         <div className="space-y-4">
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-500 dark:text-[#8b919d] mb-4 text-sm">
             {t('choosePreDesignedPlan')}
           </p>
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {nutritionTemplates.map((template, index) => (
-              <Card key={index} variant="gradient" className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{template.name}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{template.description}</p>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div key={index} className="bg-gray-50 dark:bg-[#282a2d] border border-gray-100 dark:border-white/5 rounded-xl p-4 hover:border-[#005da7] dark:hover:border-[#a4c9ff] transition-colors">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-900 dark:text-[#e2e2e6] mb-1">{template.name}</h4>
+                    <p className="text-sm text-gray-500 dark:text-[#8b919d] mb-3">{template.description}</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('dailyCalories')}</span>
-                        <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.calories_per_day}</span>
+                        <span className="font-medium text-gray-700 dark:text-[#c1c7d3]">{t('dailyCalories')}: </span>
+                        <span className="text-gray-900 dark:text-[#e2e2e6]">{template.nutrition.calories_per_day}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('meals')}:</span>
-                        <span className="ml-1 text-gray-900 dark:text-white">{template.meals.length}/{t('day')}</span>
+                        <span className="font-medium text-gray-700 dark:text-[#c1c7d3]">{t('meals')}: </span>
+                        <span className="text-gray-900 dark:text-[#e2e2e6]">{template.meals.length}/{t('day')}</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('protein')}:</span>
-                        <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.protein_percentage}%</span>
+                        <span className="font-medium text-gray-700 dark:text-[#c1c7d3]">{t('protein')}: </span>
+                        <span className="text-gray-900 dark:text-[#e2e2e6]">{template.nutrition.protein_percentage}%</span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{t('fat')}:</span>
-                        <span className="ml-1 text-gray-900 dark:text-white">{template.nutrition.fat_percentage}%</span>
+                        <span className="font-medium text-gray-700 dark:text-[#c1c7d3]">{t('fat')}: </span>
+                        <span className="text-gray-900 dark:text-[#e2e2e6]">{template.nutrition.fat_percentage}%</span>
                       </div>
                     </div>
                   </div>
-                  <Button 
-                    size="sm" 
+                  <button
                     onClick={() => applyTemplate(template)}
                     disabled={loading}
+                    className="px-3 py-1.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex-shrink-0"
                   >
-                    {loading ? t('applying'): t('apply')}
-                  </Button>
+                    {loading ? t('applying') : t('apply')}
+                  </button>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
-          <Card
-            variant="gradient"
-            className="p-4 cursor-pointer hover:shadow-lg transition-all duration-200"
+          <button
             onClick={() => {
               setShowTemplatesModal(false);
               setShowCustomPlanModal(true);
@@ -1044,225 +1049,223 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                 weight_at_time: "",
               });
             }}
+            className="w-full border-2 border-dashed border-gray-200 dark:border-white/10 rounded-xl p-6 text-center text-gray-500 dark:text-[#8b919d] hover:border-[#005da7] dark:hover:border-[#a4c9ff] hover:text-[#005da7] dark:hover:text-[#a4c9ff] transition-all flex items-center justify-center gap-2"
           >
-            <div className="flex items-center justify-center h-32 text-center">
-              <Plus size={20} className="mr-2" />
-              <span>{t('createCustomPlan')}</span>
-            </div>
-          </Card>
-          <div className="flex justify-end pt-4">
-            <Button variant="outline" onClick={() => setShowTemplatesModal(false)}>
+            <Plus size={18} />
+            <span className="font-medium">{t('createCustomPlan')}</span>
+          </button>
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={() => setShowTemplatesModal(false)}
+              className="px-4 py-2.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all"
+            >
               {t('close')}
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
+
+      {/* Custom Plan Modal */}
       <Modal
-  isOpen={showCustomPlanModal}
-  onClose={() => setShowCustomPlanModal(false)}
-  title={t('createCustomNutritionPlan')}
-  size="lg"
->
-  <form
-    onSubmit={async (e) => {
-      e.preventDefault();
-        //Validate required fields
-          if (!formData.food_brand.trim() || !formData.food_type.trim()) {
-            alert("Please fill in Food Brand and Food Type");
-            return;
-          }
-          if (!formData.calories_per_day || parseInt(formData.calories_per_day) <= 0) {
-            alert("Calories per Day must be greater than 0");
-            return;
-          }
-          if (!formData.daily_amount || parseFloat(formData.daily_amount) <= 0) {
-            alert("Daily Amount must be greater than 0");
-            return;
-          }
-      setLoading(true);
-      try {
-        // Save the nutrition record
-        const nutritionData = {
-          date: formData.date || new Date().toISOString().split("T")[0],
-          food_brand: formData.food_brand.trim(),
-          food_type: formData.food_type.trim(),
-          daily_amount: parseFloat(formData.daily_amount) || 0,
-          calories_per_day: parseInt(formData.calories_per_day) || 0,
-          protein_percentage: parseFloat(formData.protein_percentage) || 0,
-          fat_percentage: parseFloat(formData.fat_percentage) || 0,
-          carb_percentage: parseFloat(formData.carb_percentage) || 0,
-          supplements: formData.supplements
-            ? formData.supplements.split(",").map(s => s.trim()).filter(Boolean)
-            : [],
-          notes: formData.notes || "",
-          weight_at_time: parseFloat(formData.weight_at_time) || 0,
-        };
-        console.log("Submitting nutritionData:", nutritionData);
-
-        const createdRecord = await apiClient.createNutritionRecord(dogId, nutritionData);
-        const recordId = createdRecord.nutritionRecord.id;
-
-        // Save all custom meals
-       for (const meal of customMeals) {
-          await apiClient.createMealPlan(dogId, {
-            ...meal,
-            nutrition_record_id: recordId,   // ✅ ensure meals point to this record
-          });
-}
-
-        await loadNutritionData();
-        setShowCustomPlanModal(false);
-      } catch (err) {
-        console.error("Error creating custom plan:", err);
-      } finally {
-        setLoading(false);
-      }
-    }}
-    className="space-y-4"
-  >
-    {/* Reuse the same nutrition record fields */}
-    <div className="grid  grid-cols-1 sm:grid-cols-2 gap-4">
-      <Input
-        label={t('date')}
-        type="date"
-        value={formData.date}
-        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-        required
-      />
-      <Input
-        label={t('weightAtTime')}
-        type="number"
-        value={formData.weight_at_time}
-        onChange={(e) => setFormData({ ...formData, weight_at_time: e.target.value })}
-        required
-      />
-    </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <Input
-        label={t('foodBrand')}
-        value={formData.food_brand}
-        onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })}
-        required
-      />
-      <Input
-        label={t('foodType')}
-        value={formData.food_type}
-        onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <Input
-        label={t('dailyAmountGrams')}
-        type="number"
-        value={formData.daily_amount}
-        onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })}
-        required
-      />
-      <Input
-        label={t('caloriesPerDay')}
-        type="number"
-        value={formData.calories_per_day}
-        onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <Input
-        label={t('proteinPercent')}
-        type="number"
-        step="0.1"
-        value={formData.protein_percentage}
-        onChange={(e) => setFormData({ ...formData, protein_percentage: e.target.value })}
-      />
-      <Input
-        label={t('fatPercent')}
-        type="number"
-        step="0.1"
-        value={formData.fat_percentage}
-        onChange={(e) => setFormData({ ...formData, fat_percentage: e.target.value })}
-      />
-      <Input
-        label={t('carbsPercent')}
-        type="number"
-        step="0.1"
-        value={formData.carb_percentage}
-        onChange={(e) => setFormData({ ...formData, carb_percentage: e.target.value })}
-      />
-    </div>
-
-    <Input   
-      label={t('supplementsPlaceholder')}
-      value={formData.supplements}
-      onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
-      placeholder="Omega-3, Glucosamine, Multivitamin"
-    />
-
-    <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        {t('notes')}
-      </label>
-      <textarea
-        value={formData.notes}
-        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-        className="input-field"
-        rows={3}
-        placeholder={t('notesPlaceholder')}
-      />
-    </div>
-
-    {/* Custom Meals section */}
-    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Meals</h4>
-      {customMeals.map((meal, i) => (
-        <Card key={i} className="flex justify-between items-center p-3">
-          <div>
-            <div className="font-medium">{meal.food_type}</div>
-            <div className="text-sm text-gray-500">{meal.meal_time}</div>
-          </div>
-          <div>{meal.amount}g • {meal.calories} cal</div>
-          <button
-            type="button"
-            onClick={() => setCustomMeals(customMeals.filter((_, idx) => idx !== i))}
-            className="text-red-500"
-          >
-            {t('remove')}
-          </button>
-        </Card>
-        ))}
-
-
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        className="mt-3"
-        onClick={() => {
-          setShowCustomPlanModal(false);   // close custom plan modal
-          setEditingMeal(null);
-          setMealModalContext('wizard');          //  mark as wizard mode
-          setMealFormData({ meal_time: '', food_type: '', amount: '', calories: '', nutrition_record_id: '', is_active: '' });
-          setIsMealPlanModalOpen(true);    // open meal modal
-        }}
+        isOpen={showCustomPlanModal}
+        onClose={() => setShowCustomPlanModal(false)}
+        title={t('createCustomNutritionPlan')}
+        size="lg"
       >
-        <Plus size={16} className="mr-1" /> {t('addMeal')}
-      </Button>
-    </div>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!formData.food_brand.trim() || !formData.food_type.trim()) {
+              alert("Please fill in Food Brand and Food Type");
+              return;
+            }
+            if (!formData.calories_per_day || parseInt(formData.calories_per_day) <= 0) {
+              alert("Calories per Day must be greater than 0");
+              return;
+            }
+            if (!formData.daily_amount || parseFloat(formData.daily_amount) <= 0) {
+              alert("Daily Amount must be greater than 0");
+              return;
+            }
+            setLoading(true);
+            try {
+              const nutritionData = {
+                date: formData.date || new Date().toISOString().split("T")[0],
+                food_brand: formData.food_brand.trim(),
+                food_type: formData.food_type.trim(),
+                daily_amount: parseFloat(formData.daily_amount) || 0,
+                calories_per_day: parseInt(formData.calories_per_day) || 0,
+                protein_percentage: parseFloat(formData.protein_percentage) || 0,
+                fat_percentage: parseFloat(formData.fat_percentage) || 0,
+                carb_percentage: parseFloat(formData.carb_percentage) || 0,
+                supplements: formData.supplements
+                  ? formData.supplements.split(",").map(s => s.trim()).filter(Boolean)
+                  : [],
+                notes: formData.notes || "",
+                weight_at_time: parseFloat(formData.weight_at_time) || 0,
+              };
+              console.log("Submitting nutritionData:", nutritionData);
 
-    <div className="flex space-x-3 pt-4">
-      <Button type="button" variant="outline" onClick={() => setShowCustomPlanModal(false)}>
-        {t('cancel')}
-      </Button>
-      <Button type="submit" className="flex-1" disabled={loading}>
-        {loading ? t('saving') : t('saveCustomPlan')}
-      </Button>
-    </div>
-  </form>
-</Modal>
+              const createdRecord = await apiClient.createNutritionRecord(dogId, nutritionData);
+              const recordId = createdRecord.nutritionRecord.id;
 
+              for (const meal of customMeals) {
+                await apiClient.createMealPlan(dogId, {
+                  ...meal,
+                  nutrition_record_id: recordId,
+                });
+              }
+
+              await loadNutritionData();
+              setShowCustomPlanModal(false);
+            } catch (err) {
+              console.error("Error creating custom plan:", err);
+            } finally {
+              setLoading(false);
+            }
+          }}
+          className="space-y-4"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label={t('date')}
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              required
+            />
+            <Input
+              label={t('weightAtTime')}
+              type="number"
+              value={formData.weight_at_time}
+              onChange={(e) => setFormData({ ...formData, weight_at_time: e.target.value })}
+              required
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label={t('foodBrand')}
+              value={formData.food_brand}
+              onChange={(e) => setFormData({ ...formData, food_brand: e.target.value })}
+              required
+            />
+            <Input
+              label={t('foodType')}
+              value={formData.food_type}
+              onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
+              required
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label={t('dailyAmountGrams')}
+              type="number"
+              value={formData.daily_amount}
+              onChange={(e) => setFormData({ ...formData, daily_amount: e.target.value })}
+              required
+            />
+            <Input
+              label={t('caloriesPerDay')}
+              type="number"
+              value={formData.calories_per_day}
+              onChange={(e) => setFormData({ ...formData, calories_per_day: e.target.value })}
+              required
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Input
+              label={t('proteinPercent')}
+              type="number"
+              step="0.1"
+              value={formData.protein_percentage}
+              onChange={(e) => setFormData({ ...formData, protein_percentage: e.target.value })}
+            />
+            <Input
+              label={t('fatPercent')}
+              type="number"
+              step="0.1"
+              value={formData.fat_percentage}
+              onChange={(e) => setFormData({ ...formData, fat_percentage: e.target.value })}
+            />
+            <Input
+              label={t('carbsPercent')}
+              type="number"
+              step="0.1"
+              value={formData.carb_percentage}
+              onChange={(e) => setFormData({ ...formData, carb_percentage: e.target.value })}
+            />
+          </div>
+          <Input
+            label={t('supplementsPlaceholder')}
+            value={formData.supplements}
+            onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
+            placeholder="Omega-3, Glucosamine, Multivitamin"
+          />
+          <div>
+            <label className={labelClass}>{t('notes')}</label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              className={inputSelectClass}
+              rows={3}
+              placeholder={t('notesPlaceholder')}
+            />
+          </div>
+
+          {/* Custom Meals section */}
+          <div className="pt-4 border-t border-gray-100 dark:border-white/5">
+            <h4 className="font-semibold text-gray-900 dark:text-[#e2e2e6] mb-3">Meals</h4>
+            <div className="space-y-2">
+              {customMeals.map((meal, i) => (
+                <div key={i} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl">
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-[#e2e2e6] text-sm">{meal.food_type}</div>
+                    <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.meal_time}</div>
+                  </div>
+                  <div className="text-sm text-gray-700 dark:text-[#c1c7d3]">{meal.amount}g · {meal.calories} cal</div>
+                  <button
+                    type="button"
+                    onClick={() => setCustomMeals(customMeals.filter((_, idx) => idx !== i))}
+                    className="text-red-500 hover:text-red-700 text-sm ml-2"
+                  >
+                    {t('remove')}
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCustomPlanModal(false);
+                setEditingMeal(null);
+                setMealModalContext('wizard');
+                setMealFormData({ meal_time: '', food_type: '', amount: '', calories: '', nutrition_record_id: '', is_active: '' });
+                setIsMealPlanModalOpen(true);
+              }}
+              className="mt-3 flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all"
+            >
+              <Plus size={15} /> {t('addMeal')}
+            </button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowCustomPlanModal(false)}
+              className="px-4 py-2.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all"
+            >
+              {t('cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {loading ? t('saving') : t('saveCustomPlan')}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

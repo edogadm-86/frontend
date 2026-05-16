@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -208,43 +222,11 @@
     background: linear-gradient(to right, rgb(17 24 39), rgb(15 23 42)) !important;
   }
 
-  /* Fix any remaining white backgrounds */
-  .dark [class*="bg-white"] {
-    @apply bg-gray-800;
-  }
+  /* Removed broad bg-white override — explicit dark: utilities handle per-component */
 
-  .dark [class*="bg-gray-50"] {
-    @apply bg-gray-900;
-  }
+  /* Per-component dark: utilities handle these — removed broad overrides */
 
-  .dark [class*="bg-gray-100"] {
-    @apply bg-gray-800;
-  }
-
-  .dark [class*="bg-gray-200"] {
-    @apply bg-gray-700;
-  }
-
-  /* Ensure text is readable in dark mode */
-  .dark [class*="text-gray-900"] {
-    @apply text-white;
-  }
-
-  .dark [class*="text-gray-800"] {
-    @apply text-gray-100;
-  }
-
-  .dark [class*="text-gray-700"] {
-    @apply text-gray-200;
-  }
-
-  .dark [class*="text-gray-600"] {
-    @apply text-gray-300;
-  }
-
-  .dark [class*="text-gray-500"] {
-    @apply text-gray-400;
-  }
+  /* Explicit dark: utilities in components handle text colors per-component */
 }
 
 @layer components {
@@ -301,19 +283,21 @@
   }
   
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200;
+    @apply w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-sm text-gray-900 transition-all;
   }
 
   .dark .input-field {
-    @apply bg-gray-800/80 border-gray-600 text-white placeholder-gray-400;
+    background: #1a1c1f;
+    border-color: rgba(255,255,255,0.1);
+    color: #e2e2e6;
   }
-  
-  .input-field:focus {
-    @apply shadow-lg bg-white;
+
+  .dark .input-field::placeholder {
+    color: #414751;
   }
 
   .dark .input-field:focus {
-    @apply bg-gray-800;
+    background: #1a1c1f;
   }
   
   .stat-card {
@@ -381,11 +365,13 @@
   }
   
   .modal-content {
-    @apply bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+    @apply rounded-2xl shadow-2xl border border-gray-100 max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+    background: #ffffff;
   }
 
   .dark .modal-content {
-    @apply bg-gray-800/95 border-gray-700/30;
+    background: #1e2023;
+    border-color: rgba(255,255,255,0.05);
   }
   
   .settings-section {
@@ -475,25 +461,39 @@
     @apply bg-gray-800/80 border-gray-600 text-white;
   }
 
-/* Custom scrollbar - Dark theme support */
-::-webkit-scrollbar {
-  width: 8px;
+/* Custom scrollbar — hidden on mobile, subtle on desktop */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #414751;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
 }
 
-::-webkit-scrollbar-track {
-  @apply bg-gray-100 rounded-full;
-}
-
-.dark ::-webkit-scrollbar-track {
-  @apply bg-gray-800;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-gradient-to-b from-primary-400 to-blue-400 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply from-primary-500 to-blue-500;
+@media (pointer: coarse) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Animations */

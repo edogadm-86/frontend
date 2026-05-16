@@ -1,38 +1,15 @@
-import React, { useState, useEffect  } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
 import { apiClient } from '../lib/api';
-import { 
-  Settings, 
-  User, 
-  Phone, 
-  ArrowLeft, 
-  Shield, 
-  Bell, 
-  Palette, 
-  Download,
-  Upload,
-  Trash2,
-  Key,
-  Globe,
-  Database,
-  HelpCircle,
-  Mail,
-  Smartphone,
-  Clock
-} from 'lucide-react';
-import { Button } from './ui/Button';
-import { Card } from './ui/Card';
-import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
+import { Input } from './ui/Input';
 import { DogManagement } from './DogManagement';
 import { EmergencyContactManagement } from './EmergencyContactManagement';
 import { Dog } from '../types';
 import { useApp } from '../context/AppContext';
-import { HelpSupportPage} from './HelpSupportPage'
+import { cn } from '../lib/utils';
 
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ');
 interface SettingsViewProps {
   currentDog: Dog | null;
   dogs: Dog[];
@@ -43,6 +20,20 @@ interface SettingsViewProps {
   onNavigate: (view: string) => void;
 }
 
+type Tab = 'dogs' | 'emergency' | 'profile' | 'preferences' | 'security';
+
+const card = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5';
+const inputCls = 'w-full px-3 py-2 text-sm bg-white dark:bg-[#1a1c1f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#414751] focus:outline-none focus:ring-2 focus:ring-[#005da7]/30 dark:focus:ring-[#a4c9ff]/30 transition-colors';
+const labelCls = 'block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1.5';
+const sectionTitle = 'text-sm font-bold text-gray-900 dark:text-[#e2e2e6] mb-4 flex items-center gap-2';
+
+const navItems: { id: Tab; icon: string; label: string }[] = [
+  { id: 'dogs', icon: 'pets', label: 'myDogs' },
+  { id: 'emergency', icon: 'emergency', label: 'emergencyContacts' },
+  { id: 'profile', icon: 'person', label: 'profile' },
+  { id: 'preferences', icon: 'tune', label: 'Preferences' },
+  { id: 'security', icon: 'lock', label: 'security' },
+];
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   currentDog,
@@ -51,257 +42,158 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onUpdateDog,
   onDeleteDog,
   onSelectDog,
-  onNavigate,
 }) => {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { user } = useApp();
-  const [activeTab, setActiveTab] = useState<'dogs' | 'emergency' | 'profile' | 'preferences' | 'security' | 'support'>('dogs');
+  const [activeTab, setActiveTab] = useState<Tab>('dogs');
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [healthRecordsCount, setHealthRecordsCount] = useState(0);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmNewPassword: ''
-  });
-  const [profileData, setProfileData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-  });
-  const [notifications, setNotifications] = useState({
-    appointments: true,
-    vaccinations: true,
-    health: true,
-    training: false,
-    email: true,
-    push: true,
-  });
-  const [preferences, setPreferences] = useState({
-    language: i18n.language,
-    theme: theme,
-    dateFormat: 'MM/DD/YYYY',
-    timeFormat: '12',
-    timezone: 'Europe/Sofia',
-    autoBackup: true,
-    dataSharing: false,
-    marketingEmails: false,
-  });
+  const [saving, setSaving] = useState(false);
 
-  const tabs = [
-    { id: 'dogs', icon: User, label: t('myDogs'), color: 'from-blue-500 to-cyan-500' },
-    { id: 'emergency', icon: Phone, label: t('emergencyContacts'), color: 'from-red-500 to-pink-500' },
-    { id: 'profile', icon: User, label: t('profile'), color: 'from-green-500 to-emerald-500' },
-    { id: 'preferences', icon: Palette, label: t('Preferences'), color: 'from-purple-500 to-violet-500' },
-    { id: 'security', icon: Shield, label: t('security'), color: 'from-orange-500 to-amber-500' },
-    /*{ id: 'data', icon: Database, label: 'Data Management', color: 'from-indigo-500 to-blue-500' },
-    { id: 'support', icon: HelpCircle, label: 'Help & Support', color: 'from-gray-500 to-slate-500' },*/
-  ];
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+  const [profileData, setProfileData] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
+  const [notifications, setNotifications] = useState({ appointments: true, vaccinations: true, health: true, training: false, email: true, push: true });
+  const [preferences, setPreferences] = useState({ language: i18n.language, theme, dateFormat: 'MM/DD/YYYY', timeFormat: '12', timezone: 'Europe/Sofia' });
 
-
-
-  const handleSavePreferences = async () => {
-    try {
-      // Save language
-      if (preferences.language !== i18n.language) {
-        i18n.changeLanguage(preferences.language);
-      }
-      
-      // Save theme
-      if (preferences.theme !== theme) {
-        setTheme(preferences.theme as any);
-      }
-      
-      // Save other preferences to localStorage
-      localStorage.setItem('userPreferences', JSON.stringify(preferences));
-      localStorage.setItem('userNotifications', JSON.stringify(notifications));
-      
-      // Update profile if needed
-      if (profileData.name !== user?.name || profileData.email !== user?.email || profileData.phone !== user?.phone) {
-        await apiClient.updateProfile(profileData);
-      }
-      
-      alert(t('preferencesSavedSuc'));
-    } catch (error) {
-      console.error('Error saving preferences:', error);
-      alert(t('failedToSavePref'));
-    }
-  };
- 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      // Here you would call your API to update profile
-      await apiClient.updateProfile(profileData);
-      setShowProfileModal(false);
-      alert(t('profileUpdatedSuc'));
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      alert(t('failedUpdateProfile'));
-    }
-  };
-  // add submit handler
-
-    const handleChangePassword = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
-        alert(t('passwordsDoNotMatch'));
-        return;
-      }
-      try {
-        await apiClient.changePassword({
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword,
-        });
-        alert(t('passwordUpdatedSuccess'));
-        setShowPasswordModal(false);
-        setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
-      } catch (err) {
-        console.error('Password update failed', err);
-        alert(t('failedToUpdatePassword'));
-      }
-    };
-  // Load preferences on mount
   useEffect(() => {
     loadStatistics();
-    
-    const savedPreferences = localStorage.getItem('userPreferences');
-    if (savedPreferences) {
-      const parsed = JSON.parse(savedPreferences);
-      setPreferences({ ...preferences, ...parsed });
-    }
-    
-    const savedNotifications = localStorage.getItem('userNotifications');
-    if (savedNotifications) {
-      const parsed = JSON.parse(savedNotifications);
-      setNotifications({ ...notifications, ...parsed });
-    }
-    
-    // Load user data
-    if (user) {
-      setProfileData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-      });
-    }
+    const saved = localStorage.getItem('userPreferences');
+    if (saved) setPreferences((p) => ({ ...p, ...JSON.parse(saved) }));
+    const savedNotif = localStorage.getItem('userNotifications');
+    if (savedNotif) setNotifications((n) => ({ ...n, ...JSON.parse(savedNotif) }));
+    if (user) setProfileData({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
   }, []);
 
   const loadStatistics = async () => {
     try {
-      let totalHealthRecords = 0;
-      let totalAppointments = 0;
-      
+      let totalHealth = 0, totalAppts = 0;
       for (const dog of dogs) {
-        const [healthRes, appointmentsRes] = await Promise.all([
-          apiClient.getHealthRecords(dog.id),
-          apiClient.getAppointments(dog.id),
-        ]);
-        totalHealthRecords += healthRes.healthRecords.length;
-        totalAppointments += appointmentsRes.appointments.length;
+        const [h, a] = await Promise.all([apiClient.getHealthRecords(dog.id), apiClient.getAppointments(dog.id)]);
+        totalHealth += h.healthRecords.length;
+        totalAppts += a.appointments.length;
       }
-      
-      setHealthRecordsCount(totalHealthRecords);
-      setAppointmentsCount(totalAppointments);
-    } catch (error) {
-      console.error('Error loading statistics:', error);
+      setHealthRecordsCount(totalHealth);
+      setAppointmentsCount(totalAppts);
+    } catch {}
+  };
+
+  const handleSavePreferences = async () => {
+    setSaving(true);
+    try {
+      if (preferences.language !== i18n.language) i18n.changeLanguage(preferences.language);
+      if (preferences.theme !== theme) setTheme(preferences.theme as any);
+      localStorage.setItem('userPreferences', JSON.stringify(preferences));
+      localStorage.setItem('userNotifications', JSON.stringify(notifications));
+      if (profileData.name !== user?.name || profileData.email !== user?.email || profileData.phone !== user?.phone) {
+        await apiClient.updateProfile(profileData);
+      }
+      alert(t('preferencesSavedSuc'));
+    } catch {
+      alert(t('failedToSavePref'));
+    } finally {
+      setSaving(false);
     }
   };
 
-  const renderProfileSettings = () => (
-    <div className="space-y-6">
-      <Card variant="gradient" className="stat-card group">
-       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
-            <span className="text-3xl font-bold text-white">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
-            </span>
-          </div>
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiClient.updateProfile(profileData);
+      setShowProfileModal(false);
+      alert(t('profileUpdatedSuc'));
+    } catch {
+      alert(t('failedUpdateProfile'));
+    }
+  };
 
-          <div className="min-w-0">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
-              {user?.name || 'User'}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 truncate">
-              {user?.email || 'user@example.com'}
-            </p>
-          </div>
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordForm.newPassword !== passwordForm.confirmNewPassword) { alert(t('passwordsDoNotMatch')); return; }
+    try {
+      await apiClient.changePassword({ currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword });
+      alert(t('passwordUpdatedSuccess'));
+      setShowPasswordModal(false);
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+    } catch {
+      alert(t('failedToUpdatePassword'));
+    }
+  };
 
-          <div className="sm:ml-auto">
-            <Button onClick={() => setShowProfileModal(true)} variant="outline" className="w-full sm:w-auto">
-              {t('editProfile')}
-            </Button>
+  // ── Tab content renderers ──────────────────────────────────────────────────
+
+  const renderProfile = () => (
+    <div className="space-y-4">
+      {/* Profile hero */}
+      <div className={card}>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#005da7] to-[#0090e7] flex items-center justify-center flex-shrink-0 text-white text-2xl font-bold shadow-lg">
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-bold text-gray-900 dark:text-[#e2e2e6] truncate">{user?.name || 'User'}</p>
+            <p className="text-sm text-gray-400 dark:text-[#8b919d] truncate">{user?.email}</p>
+          </div>
+          <button
+            onClick={() => setShowProfileModal(true)}
+            className="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+          >
+            {t('editProfile')}
+          </button>
         </div>
-
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
-            <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{dogs.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('dogsRegistered')}</div>
-          </div>
-          <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{healthRecordsCount}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('healthRecords')}</div>
-          </div>
-          <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{appointmentsCount}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('appointments')}</div>
-          </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: t('dogsRegistered'), value: dogs.length, icon: 'pets' },
+            { label: t('healthRecords'), value: healthRecordsCount, icon: 'monitor_heart' },
+            { label: t('appointments'), value: appointmentsCount, icon: 'calendar_month' },
+          ].map(({ label, value, icon }) => (
+            <div key={label} className="bg-gray-50 dark:bg-[#282a2d] rounded-xl p-3 text-center">
+              <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[20px] mb-1 block">{icon}</span>
+              <p className="text-lg font-bold text-gray-900 dark:text-[#e2e2e6]">{value}</p>
+              <p className="text-[11px] text-gray-400 dark:text-[#8b919d]">{label}</p>
+            </div>
+          ))}
         </div>
-      </Card>
+      </div>
     </div>
   );
 
   const renderPreferences = () => (
-    <div className="space-y-6">
-      <Card variant="gradient" className="stat-card group">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-          <Globe className="mr-2" />
+    <div className="space-y-4">
+      {/* Language & Region */}
+      <div className={card}>
+        <h3 className={sectionTitle}>
+          <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[18px]">language</span>
           {t('languageRegion')}
         </h3>
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('language')}</label>
-            <select
-              value={preferences.language}
-              onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}
-              className="input-field"
-            >
+            <label className={labelCls}>{t('language')}</label>
+            <select className={inputCls} value={preferences.language} onChange={(e) => setPreferences({ ...preferences, language: e.target.value })}>
               <option value="en">🇺🇸 English</option>
               <option value="bg">🇧🇬 Български</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('dateFormat')}</label>
-            <select className="input-field"
-              value={preferences.dateFormat}
-              onChange={(e) => setPreferences({ ...preferences, dateFormat: e.target.value })}
-              >
+            <label className={labelCls}>{t('dateFormat')}</label>
+            <select className={inputCls} value={preferences.dateFormat} onChange={(e) => setPreferences({ ...preferences, dateFormat: e.target.value })}>
               <option value="MM/DD/YYYY">MM/DD/YYYY</option>
               <option value="DD/MM/YYYY">DD/MM/YYYY</option>
               <option value="YYYY-MM-DD">YYYY-MM-DD</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('timeFormat')}</label>
-            <select className="input-field"
-              value={preferences.timeFormat}
-              onChange={(e) => setPreferences({ ...preferences, timeFormat: e.target.value })}
-              >
-               <option value="12">12 Hour (AM/PM)</option>
-               <option value="24">24 Hour</option>
+            <label className={labelCls}>{t('timeFormat')}</label>
+            <select className={inputCls} value={preferences.timeFormat} onChange={(e) => setPreferences({ ...preferences, timeFormat: e.target.value })}>
+              <option value="12">12 Hour (AM/PM)</option>
+              <option value="24">24 Hour</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('timezone')}</label>
-            <select className="input-field"
-              value={preferences.timezone}
-              onChange={(e) => setPreferences({ ...preferences, timezone: e.target.value })}
-              >
+            <label className={labelCls}>{t('timezone')}</label>
+            <select className={inputCls} value={preferences.timezone} onChange={(e) => setPreferences({ ...preferences, timezone: e.target.value })}>
               <option value="Europe/Sofia">Europe/Sofia (GMT+2)</option>
               <option value="Europe/London">Europe/London (GMT+0)</option>
               <option value="America/New_York">America/New_York (GMT-5)</option>
@@ -309,297 +201,109 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </select>
           </div>
         </div>
-        <div className="mt-6">
-          <Button onClick={handleSavePreferences} className="w-full sm:flex-1" >
-            {t('saveLanguageRegionSettings')}
-          </Button>
-        </div>
-      </Card>
+      </div>
 
-      <Card variant="gradient" className="stat-card group">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-          <Bell className="mr-2" />
+      {/* Appearance */}
+      <div className={card}>
+        <h3 className={sectionTitle}>
+          <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[18px]">palette</span>
+          {t('appearance')}
+        </h3>
+        <label className={labelCls}>{t('theme')}</label>
+        <div className="grid grid-cols-3 gap-3">
+          {(['light', 'dark', 'system'] as const).map((th) => (
+            <button
+              key={th}
+              onClick={() => setPreferences({ ...preferences, theme: th })}
+              className={cn(
+                'p-3 rounded-xl border-2 text-center transition-all',
+                preferences.theme === th
+                  ? 'border-[#005da7] dark:border-[#a4c9ff]'
+                  : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+              )}
+            >
+              <div className={cn('w-full h-7 rounded-lg mb-2', th === 'light' ? 'bg-gradient-to-r from-blue-400 to-sky-300' : th === 'dark' ? 'bg-gradient-to-r from-gray-700 to-gray-900' : 'bg-gradient-to-r from-blue-400 to-gray-800')} />
+              <span className="text-xs font-medium text-gray-700 dark:text-[#c1c7d3]">{t(th)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div className={card}>
+        <h3 className={sectionTitle}>
+          <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[18px]">notifications</span>
           {t('notifications')}
         </h3>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {Object.entries(notifications).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
+            <div key={key} className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5 last:border-0">
               <div>
-                <div className="font-medium text-gray-900 dark:text-white capitalize">{t(`${key}Notifications`)}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {t('receiveNotificationsAbout')} {t(key.toLowerCase())}
-                </div>
+                <p className="text-sm font-medium text-gray-900 dark:text-[#e2e2e6] capitalize">{t(`${key}Notifications`)}</p>
+                <p className="text-xs text-gray-400 dark:text-[#8b919d]">{t('receiveNotificationsAbout')} {t(key.toLowerCase())}</p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-4">
                 <input
                   type="checkbox"
                   checked={value}
                   onChange={(e) => setNotifications({ ...notifications, [key]: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-10 h-6 bg-gray-200 dark:bg-[#282a2d] rounded-full peer peer-checked:bg-[#005da7] dark:peer-checked:bg-[#a4c9ff] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-4 transition-colors" />
               </label>
             </div>
           ))}
         </div>
-        <div className="mt-6">
-          <Button onClick={handleSavePreferences} className="w-full sm:flex-1" >
-            {t('saveNotificationPreferences')}
-          </Button>
-        </div>
-      </Card>
+      </div>
 
-      <Card variant="gradient"  className="stat-card group">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-          <Palette className="mr-2" />
-          {t('appearance')}
-        </h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">{t('theme')}</label>
-            <div className="grid grid-cols-3 gap-3">
-              <button 
-                onClick={() => setPreferences({ ...preferences, theme: 'light' })}
-                className={`p-3 border-2 rounded-xl bg-white text-center transition-all ${
-                  preferences.theme === 'light' ? 'border-primary-500 shadow-lg' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-
-                }`}
-              >
-                <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded mb-2"></div>
-                <div className="text-xs font-medium text-gray-900">{t('light')}</div>
-              </button>
-              <button 
-                onClick={() => setPreferences({ ...preferences, theme: 'dark' })}
-                className={`p-3 border-2 rounded-xl bg-gray-800 text-white text-center transition-all ${
-                  preferences.theme === 'dark' ? 'border-primary-500 shadow-lg' : 'border-gray-600 hover:border-gray-500'
-                }`}
-              >
-                <div className="w-full h-8 bg-gradient-to-r from-gray-700 to-gray-900 rounded mb-2"></div>
-                <div className="text-xs font-medium">{t('dark')}</div>
-              </button>
-              <button 
-                onClick={() => setPreferences({ ...preferences, theme: 'system' })}
-                className={`p-3 border-2 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 text-center transition-all ${
-                  preferences.theme === 'system' ? 'border-primary-500 shadow-lg' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-
-                }`}
-              >
-                <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded mb-2"></div>
-                <div className="text-xs font-medium text-gray-900">{t('auto')}</div>
-              </button>
-            </div>
-          </div>
-          <div className="mt-6">
-            <Button onClick={handleSavePreferences} className="w-full sm:flex-1" >
-              {t('applyThemeChanges')}
-            </Button>
-          </div>
-        </div>
-      </Card>
+      <button
+        onClick={handleSavePreferences}
+        disabled={saving}
+        className="w-full py-3 text-sm font-semibold rounded-xl bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] hover:opacity-90 disabled:opacity-50 active:scale-95 transition-all"
+      >
+        {saving ? t('loading') : t('saveLanguageRegionSettings')}
+      </button>
     </div>
   );
 
   const renderSecurity = () => (
-    <div className="space-y-6">
-      <Card variant="gradient" className="stat-card group">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-
-          <Key className="mr-2" />
+    <div className="space-y-4">
+      <div className={card}>
+        <h3 className={sectionTitle}>
+          <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[18px]">lock</span>
           {t('passwordAuthentication')}
         </h3>
-        <div className="space-y-4">
-          <Button onClick={() => setShowPasswordModal(true)} variant="outline" className="w-full">
-             {t('changePassword')}
-          </Button>
-         
-        </div>
-      </Card>
+        <p className="text-sm text-gray-400 dark:text-[#8b919d] mb-4">
+          {t('lastUpdated', 'Keep your account secure with a strong password.')}
+        </p>
+        <button
+          onClick={() => setShowPasswordModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+        >
+          <span className="material-symbols-outlined text-[16px]">key</span>
+          {t('changePassword')}
+        </button>
+      </div>
 
+      <div className={card}>
+        <h3 className={cn(sectionTitle, 'text-red-600 dark:text-red-400')}>
+          <span className="material-symbols-outlined text-[18px]">warning</span>
+          {t('dangerZone', 'Danger Zone')}
+        </h3>
+        <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
+          <p className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">{t('deleteAccount', 'Delete Account')}</p>
+          <p className="text-xs text-red-600 dark:text-red-400 mb-3">{t('deleteAccountWarning', 'Permanently delete your account and all associated data. This cannot be undone.')}</p>
+          <button className="px-4 py-2 text-xs font-semibold rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
+            {t('deleteAccount', 'Delete Account')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 
-  /*const renderDataManagement = () => (
-    <div className="space-y-6">
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Database className="mr-2" />
-          Data Export & Import
-        </h3>
-        <div className="space-y-4">
-          <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium text-blue-800">Export Your Data</div>
-                <div className="text-sm text-blue-600">Download all your dog data in JSON format</div>
-              </div>
-              <Button variant="outline" icon={<Download size={16} />}>
-                Export
-              </Button>
-            </div>
-          </div>
-          <div className="p-4 bg-green-50 rounded-xl border border-green-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium text-green-800">Import Data</div>
-                <div className="text-sm text-green-600">Import data from another eDog account</div>
-              </div>
-              <Button variant="outline" icon={<Upload size={16} />}>
-                Import
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Storage Usage</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-gray-600">Photos & Documents</span>
-            <span className="font-medium">2.4 GB / 5 GB</span>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill bg-gradient-to-r from-blue-500 to-purple-500" style={{ width: '48%' }}></div>
-          </div>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className="text-center">
-              <div className="font-medium text-gray-900">1.2 GB</div>
-              <div className="text-gray-500">Photos</div>
-            </div>
-            <div className="text-center">
-              <div className="font-medium text-gray-900">0.8 GB</div>
-              <div className="text-gray-500">Documents</div>
-            </div>
-            <div className="text-center">
-              <div className="font-medium text-gray-900">0.4 GB</div>
-              <div className="text-gray-500">Other</div>
-            </div>
-          </div>
-        </div>
-      </Card>
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Trash2 className="mr-2 text-red-500" />
-          Danger Zone
-        </h3>
-        <div className="space-y-4">
-          <div className="p-4 bg-red-50 rounded-xl border border-red-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium text-red-800">Delete Account</div>
-                <div className="text-sm text-red-600">Permanently delete your account and all data</div>
-              </div>
-              <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
-                Delete Account
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );*/
-
-  const renderSupport = () => (
-    <div className="space-y-6">
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <HelpCircle className="mr-2" />
-          Help & Support
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="p-4 text-left border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <div className="font-medium text-gray-900">📚 User Guide</div>
-            <div className="text-sm text-gray-500">Learn how to use eDog effectively</div>
-          </button>
-          <button className="p-4 text-left border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <div className="font-medium text-gray-900">❓ FAQ</div>
-            <div className="text-sm text-gray-500">Find answers to common questions</div>
-          </button>
-          <button className="p-4 text-left border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <div className="font-medium text-gray-900">💬 Contact Support</div>
-            <div className="text-sm text-gray-500">Get help from our support team</div>
-          </button>
-          <button className="p-4 text-left border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <div className="font-medium text-gray-900">🐛 Report Bug</div>
-            <div className="text-sm text-gray-500">Report issues or bugs</div>
-          </button>
-        </div>
-      </Card>
-
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-        <div className="space-y-4">
-          <div className="flex items-center space-x-3">
-            <Mail size={20} className="text-primary-500" />
-            <div>
-              <div className="font-medium text-gray-900">Email Support</div>
-              <div className="text-sm text-gray-600">support@edog.app</div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Phone size={20} className="text-primary-500" />
-            <div>
-              <div className="font-medium text-gray-900">Phone Support</div>
-              <div className="text-sm text-gray-600">+359 2 123 4567</div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Clock size={20} className="text-primary-500" />
-            <div>
-              <div className="font-medium text-gray-900">Support Hours</div>
-              <div className="text-sm text-gray-600">Mon-Fri: 9AM-6PM (GMT+2)</div>
-            </div>
-          </div>
-        </div>
-      </Card>
-      <Card variant="gradient">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">App Information</h3>
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Version</span>
-            <span className="font-medium">1.0.0</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Last Updated</span>
-            <span className="font-medium">January 15, 2024</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Platform</span>
-            <span className="font-medium">Desktop</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Build</span>
-            <span className="font-medium">#1234</span>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-
-  const renderTabContent = () => {
+  const renderContent = () => {
     switch (activeTab) {
       case 'dogs':
-        return (
-          <DogManagement
-            dogs={dogs}
-          onCreateDog={onCreateDog}
-          onUpdateDog={onUpdateDog}
-          onDeleteDog={onDeleteDog}
-          onSelectDog={onSelectDog}
-          currentDog={currentDog}
-          />
-        );
-      case 'emergency':
-        return <EmergencyContactManagement />;
-      case 'security':
-        return renderSecurity();
-      case 'profile':
-        return renderProfileSettings();
-      case 'preferences':
-        return renderPreferences();
-      case 'support':
-        return <HelpSupportPage onClose={() => {}} />;
-      default:
         return (
           <DogManagement
             dogs={dogs}
@@ -610,163 +314,116 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             currentDog={currentDog}
           />
         );
+      case 'emergency':
+        return <EmergencyContactManagement />;
+      case 'profile':
+        return renderProfile();
+      case 'preferences':
+        return renderPreferences();
+      case 'security':
+        return renderSecurity();
     }
   };
 
   return (
-     <div className="min-h-screen bg-gray-50 dark:bg-gray-900" >
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8">
+      <div className=" mx-auto">
+        {/* Page header
+        <div className="mb-6">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-[#e2e2e6]">{t('settings')}</h1>
+          <p className="text-sm text-gray-400 dark:text-[#8b919d] mt-0.5">{t('manageYourAccount', 'Manage your account and preferences')}</p>
+        </div> */}
 
-      {/* Tabs */}
-      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/30 p-2">
-      <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory sm:overflow-visible sm:flex-wrap">
-
-
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={cn(
-              // sizing
-              'shrink-0 flex items-center gap-2 rounded-xl font-medium transition',
-              // mobile compact
-              'px-2.5 py-2 text-sm',
-              // desktop/tablet
-              'sm:px-3 sm:py-2',
-              // active/inactive styles
-              activeTab === tab.id
-                ? 'bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow'
-                : 'text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/40'
-            )}
-            aria-label={tab.label} // ✅ accessibility when label is hidden on mobile
-            title={tab.label}
-          >
-            <div
-              className={cn(
-                'rounded-xl flex items-center justify-center transition-all',
-                // icon container size
-                'w-9 h-9',
-                activeTab === tab.id ? 'bg-white/20' : `bg-gradient-to-r ${tab.color} opacity-90`
-              )}
-            >
-              <tab.icon size={18} className="text-white" />
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* ── Sidebar nav (desktop) / horizontal pills (mobile) ─────────── */}
+          <aside className="lg:w-52 flex-shrink-0">
+            {/* Mobile: horizontal scroll */}
+            <div className="flex lg:hidden gap-2 overflow-x-auto no-scrollbar pb-1">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={cn(
+                      'flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all',
+                      isActive
+                        ? 'bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d]'
+                        : 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 text-gray-600 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d]'
+                    )}
+                  >
+                    <span className="material-symbols-outlined text-[18px] leading-none">{item.icon}</span>
+                    <span className="whitespace-nowrap">{t(item.label)}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Label hidden on xs, visible on sm+ */}
-            <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
-          </button>
-        ))}
+            {/* Desktop: vertical list */}
+            <nav className="hidden lg:flex flex-col gap-1 bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-2">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={cn(
+                      'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left',
+                      isActive
+                        ? 'bg-[#005da7] dark:bg-[#a4c9ff]/15 text-white dark:text-[#a4c9ff]'
+                        : 'text-gray-600 dark:text-[#c1c7d3] hover:bg-gray-100 dark:hover:bg-[#282a2d] hover:text-gray-900 dark:hover:text-[#e2e2e6]'
+                    )}
+                  >
+                    <span className={cn('material-symbols-outlined text-[18px] leading-none flex-shrink-0', isActive ? 'text-white dark:text-[#a4c9ff]' : 'text-gray-400 dark:text-[#8b919d]')}>
+                      {item.icon}
+                    </span>
+                    {t(item.label)}
+                  </button>
+                );
+              })}
+            </nav>
+          </aside>
+
+          {/* ── Content area ──────────────────────────────────────────────── */}
+          <div className="flex-1 min-w-0">
+            {renderContent()}
+          </div>
         </div>
       </div>
 
-      {/* Tab Content */}
-     <div className="mt-4 sm:mt-6 min-w-0">
-        {renderTabContent()}
-      </div>
-
-      {/* Modals */}
-      <Modal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-        title={t('editProfile')}
-        size="md"
-        className="w-[95vw] sm:w-auto max-h-[90vh] overflow-y-auto"
-      >
+      {/* Edit Profile Modal */}
+      <Modal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} title={t('editProfile')} size="md">
         <form onSubmit={handleUpdateProfile} className="space-y-4">
-          <Input 
-            label={t('name')}
-            value={profileData.name}
-            onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-            required
-          />
-          <Input 
-            label={t('email')} 
-            type="email" 
-            value={profileData.email}
-            onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-            required
-          />
-          <Input 
-            label={t('phone')}
-            type="tel" 
-            value={profileData.phone}
-            onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-          />
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setShowProfileModal(false)}>
+          <Input label={t('name')} value={profileData.name} onChange={(e) => setProfileData({ ...profileData, name: e.target.value })} required />
+          <Input label={t('email')} type="email" value={profileData.email} onChange={(e) => setProfileData({ ...profileData, email: e.target.value })} required />
+          <Input label={t('phone')} type="tel" value={profileData.phone} onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })} />
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setShowProfileModal(false)} className="flex-1 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors">
               {t('cancel')}
-            </Button>
-            <Button type="submit" className="flex-1">{t('save')}</Button>
+            </button>
+            <button type="submit" className="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] hover:opacity-90 active:scale-95 transition-all">
+              {t('save')}
+            </button>
           </div>
         </form>
       </Modal>
-      <Modal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        title={t('changePassword')}
-        size="md"
-        className="w-[95vw] sm:w-auto max-h-[90vh] overflow-y-auto"
-      >
-          <form onSubmit={handleChangePassword} className="space-y-4">
-        <Input
-          label={t('currentPassword')}
-          type="password"
-          value={passwordForm.currentPassword}
-          onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-          required
-        />
-        <Input
-          label={t('newPassword')}
-          type="password"
-          value={passwordForm.newPassword}
-          onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-          required
-        />
-        <Input
-          label={t('confirmNewPassword')}
-          type="password"
-          value={passwordForm.confirmNewPassword}
-          onChange={(e) => setPasswordForm({ ...passwordForm, confirmNewPassword: e.target.value })}
-          required
-        />
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
-            {t('cancel')}
-          </Button>
-          <Button type="submit" className="flex-1">{t('updatePassword')}</Button>
-        </div>
-      </form>
-    </Modal>
-      <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        title="Delete Account"
-        size="md"
-        className="w-[95vw] sm:w-auto max-h-[90vh] overflow-y-auto"
-      >
-        <form className="space-y-4">
-          <div className="p-4 bg-red-50 rounded-xl border border-red-200">
-            <p className="text-red-800 font-medium">⚠️ This action cannot be undone!</p>
-            <p className="text-red-600 text-sm mt-1">
-              All your data, including dog profiles, health records, and appointments will be permanently deleted.
-            </p>
-          </div>
-          <Input 
-            label="Type 'DELETE' to confirm" 
-            placeholder="DELETE"
-            required
-          />
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setShowDeleteModal(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="danger" className="flex-1">
-              Delete My Account
-            </Button>
+
+      {/* Change Password Modal */}
+      <Modal isOpen={showPasswordModal} onClose={() => setShowPasswordModal(false)} title={t('changePassword')} size="md">
+        <form onSubmit={handleChangePassword} className="space-y-4">
+          <Input label={t('currentPassword')} type="password" value={passwordForm.currentPassword} onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })} required />
+          <Input label={t('newPassword')} type="password" value={passwordForm.newPassword} onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })} required />
+          <Input label={t('confirmNewPassword')} type="password" value={passwordForm.confirmNewPassword} onChange={(e) => setPasswordForm({ ...passwordForm, confirmNewPassword: e.target.value })} required />
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setShowPasswordModal(false)} className="flex-1 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors">
+              {t('cancel')}
+            </button>
+            <button type="submit" className="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] hover:opacity-90 active:scale-95 transition-all">
+              {t('updatePassword')}
+            </button>
           </div>
         </form>
       </Modal>
-    </div>
     </div>
   );
 };
