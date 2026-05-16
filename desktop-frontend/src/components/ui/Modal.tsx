@@ -41,12 +41,12 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-center justify-center p-4 pb-24 md:pb-4"
       onClick={onClose}
     >
       <div
         className={cn(
-          'font-jakarta bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-2xl shadow-2xl w-full max-h-[90vh] overflow-y-auto',
+          'font-jakarta bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-2xl shadow-2xl w-full max-h-[calc(100vh-7rem)] md:max-h-[90vh] overflow-y-auto no-scrollbar',
           sizes[size],
           className
         )}
