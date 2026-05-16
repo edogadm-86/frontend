@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog Platform - Dog Management Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#6f787d",
+                        "on-surface-variant": "#3f484c",
+                        "tertiary-fixed-dim": "#d6bee4",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#86d0ef",
+                        "secondary-container": "#d7e3f8",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#4a90e2",
+                        "on-surface-variant": "#3f484c",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary-fixed": "#f3daff",
+                        "surface-dim": "#dbdada",
+                        "tertiary-container": "#6b5778",
+                        "primary-fixed-dim": "#86d0ef",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#52405f",
+                        "on-secondary-fixed-variant": "#3c4858",
+                        "secondary-fixed": "#d7e3f8",
+                        "on-primary-fixed": "#001f29",
+                        "secondary-fixed-dim": "#bbc7db",
+                        "outline-variant": "#bfc8cd",
+                        "on-secondary-container": "#596576",
+                        "primary-container": "#4a90e2",
+                        "on-background": "#1b1c1c",
+                        "surface": "#faf9f9",
+                        "background": "#faf9f9",
+                        "primary": "#4a90e2",
+                        "on-tertiary-fixed": "#251431",
+                        "on-surface": "#1b1c1c",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-highest": "#e3e2e2",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-container": "#efeded",
+                        "on-primary-container": "#ffffff",
+                        "secondary": "#535f70",
+                        "primary-fixed": "#baeaff",
+                        "on-secondary-fixed": "#101c2b",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f4f3f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "margin-desktop": "48px",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-md gap-sm h-screen w-64 hidden lg:flex bg-surface-container border-r border-outline-variant">
+<div class="mb-xl px-lg pt-lg">
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">eDog Platform</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Pet Management</p>
+</div>
+<nav class="flex flex-col gap-sm flex-grow">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-md px-lg py-md bg-primary text-on-primary rounded-xl font-bold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-surface-bright transition-all duration-200 hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-label-md text-label-md">Health</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-surface-bright transition-all duration-200 hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-surface-bright transition-all duration-200 hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md text-label-md">Community</span>
+</a>
+</nav>
+<button class="mb-lg mx-md bg-primary text-on-primary rounded-xl py-md px-lg font-bold flex items-center justify-center gap-sm active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+            Add New Pet
+        </button>
+<div class="mt-auto flex flex-col gap-sm">
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-surface-bright transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-md px-lg py-md text-on-surface-variant hover:bg-surface-bright transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 sticky top-0 z-50 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-lg">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary w-64 font-body-md text-body-md" placeholder="Search pets..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm rounded-full hover:bg-surface-container transition-colors active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</button>
+<button class="p-sm rounded-full hover:bg-surface-container transition-colors active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a friendly man in his early 30s with a warm smile, set against a blurred, high-key office background. The lighting is bright and clean, characteristic of a premium corporate dashboard. The image is circular and framed with a subtle border to match a modern UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbQDyb5UYvcb5DWzyRs_l_fpteJVu7lnfAbd_cOl7pDpL1F-nwlGzwjXy2xUlpkdBxJij9g8pQYbTfgqBAiPCuhU2V0h2YbLQ2urd0OXdrrKEGlk3xxuv4OhFThSBc6ZpykJ3z2tj0XMN9fVbLWE2tLr-bPQpFRnKokCmsIsj4-vuIcIobhqJIADtE6rYah9IXyXgPp3CRYfSwDisZBOM28ec9y-3gjPWKEmh8R0f4gHFDOfzvh_6zjOZHtzY0wLqdH2RYCkEPO5F1"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<section class="p-margin-desktop flex flex-col gap-xl">
+<!-- Header Section -->
+<div class="flex justify-between items-end">
+<div class="space-y-xs">
+<h2 class="font-headline-lg text-headline-lg text-primary">Your Dog Pack</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Managing 3 active profiles</p>
+</div>
+<button class="bg-primary text-on-primary font-bold px-xl py-md rounded-xl flex items-center gap-sm active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                    Add New Pet
+                </button>
+</div>
+<!-- Pet Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-lg">
+<!-- Pet Card 1: Bella -->
+<article class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
+<div class="h-64 overflow-hidden relative">
+<img alt="Golden Retriever Bella" class="w-full h-full object-cover" data-alt="A professional portrait of a beautiful Golden Retriever named Bella sitting in a sun-drenched, airy modern living room. The lighting is soft and golden, highlighting her clean, silky coat. The composition is a close-up portrait with a shallow depth of field, emphasizing her gentle expression. The overall style is high-end, clean, and warm, fitting for a premium pet management platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCadTuuod2Wj7JyRJ8cl63GEyKw7Z_kJOZRk9kbOVfD1brqF9WY3d-8yjK2zfmw5fmIV6pWyOx7l6syIni9SsTp0A9kLh_sCdo0nxGv8V0jF5UG8QZrbyZrl_Rjk1Rn5dfGqcr9zV73kdpDZ69dwaudGspl8HkMRZMPZy4xdNLEDvqFmeSsAXmWdtYB0OBofGaraTlWIXxNprPW6N3J0g0I4HXbzeJFUTCJl1Tf8LqhkhUT9Auks4502LxvVf9mh_A6HaCVAq3xyzJi"/>
+<div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded-full font-label-md text-label-md">
+                            Active
+                        </div>
+</div>
+<div class="p-lg flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Bella</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Golden Retriever • 3 years</p>
+</div>
+<div class="text-right">
+<span class="font-title-lg text-title-lg text-primary">28.5 kg</span>
+<p class="font-label-md text-label-md text-on-surface-variant">Ideal Weight</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-sm text-primary mb-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="medical_information">medical_information</span>
+<span class="font-label-md text-label-md font-bold uppercase">Health</span>
+</div>
+<p class="font-body-md text-body-md">Vaccinated</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Next: June 12</p>
+</div>
+<div class="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-sm text-tertiary mb-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="school">school</span>
+<span class="font-label-md text-label-md font-bold uppercase">Training</span>
+</div>
+<p class="font-body-md text-body-md">Advanced Obedience</p>
+<p class="font-label-md text-label-md text-on-surface-variant">85% Complete</p>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-bold py-md rounded-xl hover:bg-primary/5 transition-colors">
+                            View Full Medical History
+                        </button>
+</div>
+</article>
+<!-- Pet Card 2: Cooper -->
+<article class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
+<div class="h-64 overflow-hidden relative">
+<img alt="Beagle Cooper" class="w-full h-full object-cover" data-alt="A striking portrait of a tricolor Beagle named Cooper standing on a minimalist wooden floor. The setting is a bright, modern studio with clean white walls and soft overhead lighting. Cooper is alert and looking slightly off-camera with soulful eyes. The image is sharp and high-contrast, maintaining a professional and reliable tone for a dog management dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH0z4CEliFs8fFGlh7jDKsZfdNBAdn620qd9ykojEjIe1H9EKKC0FgzJ-A9Zit10a-Ew1QvDiLjXR5tFzJQgslWm42JudCPIqjBan0rLVtEGzAPKhC_j_j3Ap1Dl39U-Y96hG4DGk8irbQaKcDWvXvmaoKdbAQqDwbdI8I_LTlehB3cLvXXdS3BOSiAAfaboxzdDvsykaHNi3ODfk1j0KEVl8UM5RP07Z0BF1esOh97UWecvEcGmGMVagzCib4DTfvxOKp0g1itZtu"/>
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary px-3 py-1 rounded-full font-label-md text-label-md">
+                            Needs Update
+                        </div>
+</div>
+<div class="p-lg flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Cooper</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Beagle • 1.5 years</p>
+</div>
+<div class="text-right">
+<span class="font-title-lg text-title-lg text-primary">12.2 kg</span>
+<p class="font-label-md text-label-md text-on-surface-variant">Healthy Range</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-error-container p-md rounded-lg border border-error">
+<div class="flex items-center gap-sm text-error mb-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="warning">warning</span>
+<span class="font-label-md text-label-md font-bold uppercase">Health</span>
+</div>
+<p class="font-body-md text-body-md text-on-error-container">Check-up Overdue</p>
+<p class="font-label-md text-label-md text-on-error-container opacity-80">Last: Jan 2023</p>
+</div>
+<div class="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-sm text-tertiary mb-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="sports_soccer">sports_soccer</span>
+<span class="font-label-md text-label-md font-bold uppercase">Activity</span>
+</div>
+<p class="font-body-md text-body-md">Active Explorer</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Daily: 5.4 km</p>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-bold py-md rounded-xl hover:bg-primary/5 transition-colors">
+                            Schedule Appointment
+                        </button>
+</div>
+</article>
+<!-- Pet Card 3: Luna -->
+<article class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
+<div class="h-64 overflow-hidden relative">
+<img alt="French Bulldog Luna" class="w-full h-full object-cover" data-alt="A charming portrait of a small French Bulldog named Luna, wearing a stylish teal harness, sitting on a clean white rug in a high-end minimalist apartment. Soft daylight spills through a large window, creating a serene and warm mood. The visual style is crisp, clean, and highly aesthetic, focused on the textures of her coat and the modern environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsXUC6CylzGbwhYzjLLgBWLbMs2l42_I134EeqmUi2YuQklL6RO42zs2WOkV8ORw3CpT2isanuYFZJg6LuwWetdOT9LPEuMw8RObtAAjxHcswCIGQkmC3DRyanVb6LftAy5NXCMrqdVMUg0ttMF4ctqaUZDaTVtFfsmVdHhR2rYOShS9QTYEC2NOS_BbTJO1Wk6L3Ns4xqz3d_pjhRHEspBocvSXXPx7wkcCs5teeqABvfYVDW_3U2a304kp_Wte_gQ_6Gmd3_e-Ei"/>
+</div>
+<div class="p-lg flex flex-col gap-md">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Luna</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">French Bulldog • 5 years</p>
+</div>
+<div class="text-right">
+<span class="font-title-lg text-title-lg text-primary">11.8 kg</span>
+<p class="font-label-md text-label-md text-on-surface-variant">Monitoring</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-sm text-primary mb-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="monitor_heart">monitor_heart</span>
+<span class="font-label-md text-label-md font-bold uppercase">Health</span>
+</div>
+<p class="font-body-md text-body-md">Chronic Mgmt</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Medication: Daily</p>
+</div>
+<div class="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<div class="flex items-center gap-sm text-tertiary mb-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="restaurant">restaurant</span>
+<span class="font-label-md text-label-md font-bold uppercase">Diet</span>
+</div>
+<p class="font-body-md text-body-md">Prescription Kibble</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Weight Control</p>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-bold py-md rounded-xl hover:bg-primary/5 transition-colors">
+                            Manage Medications
+                        </button>
+</div>
+</article>
+</div>
+<!-- Bento Grid Section: Insights & Schedule -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="md:col-span-2 bg-surface-container p-xl rounded-xl border border-outline-variant flex flex-col gap-md">
+<div class="flex justify-between items-center">
+<h4 class="font-title-lg text-title-lg text-primary">Weekly Health Trends</h4>
+<div class="flex gap-sm">
+<span class="px-3 py-1 rounded-full bg-primary text-on-primary font-label-md text-label-md">Bella</span>
+<span class="px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant font-label-md text-label-md">Cooper</span>
+</div>
+</div>
+<div class="h-48 w-full bg-surface-bright rounded-lg flex items-center justify-center border border-outline-variant overflow-hidden relative">
+<!-- Chart Mockup -->
+<div class="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent"></div>
+<div class="flex items-end gap-md h-32">
+<div class="w-8 bg-primary/20 h-1/2 rounded-t"></div>
+<div class="w-8 bg-primary/40 h-2/3 rounded-t"></div>
+<div class="w-8 bg-primary/60 h-3/4 rounded-t"></div>
+<div class="w-8 bg-primary/80 h-1/2 rounded-t"></div>
+<div class="w-8 bg-primary h-full rounded-t"></div>
+<div class="w-8 bg-primary/40 h-2/3 rounded-t"></div>
+<div class="w-8 bg-primary/60 h-4/5 rounded-t"></div>
+</div>
+<p class="absolute bottom-4 font-label-md text-label-md text-on-surface-variant">Activity levels normalized over 7 days</p>
+</div>
+</div>
+<div class="bg-tertiary-container text-on-tertiary-container p-xl rounded-xl flex flex-col gap-md justify-between">
+<div>
+<h4 class="font-title-lg text-title-lg">Upcoming Tasks</h4>
+<p class="font-body-md text-body-md opacity-80">Next 24 hours</p>
+</div>
+<div class="space-y-md">
+<div class="flex items-start gap-md">
+<div class="p-xs bg-on-tertiary-container rounded-full text-tertiary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="check">check</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold">Luna's Heart Pill</p>
+<p class="font-label-md text-label-md opacity-70">08:00 AM • Daily</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="p-xs bg-on-tertiary-container/20 border border-on-tertiary-container/30 rounded-full text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="timer">timer</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold">Bella's Training</p>
+<p class="font-label-md text-label-md opacity-70">04:30 PM • 30 mins</p>
+</div>
+</div>
+</div>
+<button class="w-full bg-on-tertiary-container text-tertiary-container font-bold py-md rounded-xl active:scale-95 transition-transform">
+                        View Schedule
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-sm pb-safe bg-surface border-t border-outline-variant lg:hidden">
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full px-6 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-label-md text-label-md">Health</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md text-label-md">Social</span>
+</a>
+</nav>
+</body></html>

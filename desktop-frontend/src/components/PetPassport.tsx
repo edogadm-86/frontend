@@ -108,11 +108,11 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
 
   return (
     <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8">
-      <div id="passport-content" className="max-w-[1280px] mx-auto space-y-5 lg:space-y-6">
+      <div id="passport-content" className=" mx-auto space-y-5 lg:space-y-6">
 
         {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
+          {/* <div>
             <button
               onClick={() => onNavigate('dashboard')}
               className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] mb-3 transition-colors"
@@ -126,7 +126,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
             <p className="text-gray-500 dark:text-[#8b919d] mt-1 text-sm">
               {dog.breed}{dog.age ? ` • ${dog.age} ${t('yearsOld')}` : ''}{dog.passportNumber ? ` • ID: #${dog.passportNumber}` : ''}
             </p>
-          </div>
+          </div> */}
           <div className="flex gap-2 flex-shrink-0 no-print">
             <button
               onClick={handlePrint}

@@ -37,7 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     // { id: 'apk', icon: 'download', label: t('downloadApp'), href: '/apk/edog-1.0.0.apk' },
   ];
 
-  const expanded = isHovered;
+  const expanded = true;
 
   return (
     <div
@@ -175,21 +175,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
               : 'text-gray-500 dark:text-[#8b919d] hover:bg-gray-100 dark:hover:bg-[#282a2d] hover:text-gray-700 dark:hover:text-[#c1c7d3]'
           );
 
-          if (item.href) {
-            return (
-              <a
-                key={item.id}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={!expanded ? item.label : undefined}
-                className={cls}
-              >
-                <span className="material-symbols-outlined text-[18px] leading-none flex-shrink-0">{item.icon}</span>
-                {expanded && <span className="text-xs font-medium truncate">{item.label}</span>}
-              </a>
-            );
-          }
+          // if (item.href) {
+          //   return (
+          //     <a
+          //       key={item.id}
+          //       href={item.href}
+          //       target="_blank"
+          //       rel="noopener noreferrer"
+          //       title={!expanded ? item.label : undefined}
+          //       className={cls}
+          //     >
+          //       <span className="material-symbols-outlined text-[18px] leading-none flex-shrink-0">{item.icon}</span>
+          //       {expanded && <span className="text-xs font-medium truncate">{item.label}</span>}
+          //     </a>
+          //   );
+          // }
 
           return (
             <button

@@ -12,7 +12,6 @@ import { CalendarManagement } from './components/CalendarManagement';
 import { TrainingView } from './components/TrainingView';
 import { SettingsView } from './components/SettingsView';
 import { CommunityView } from './components/CommunityView';
-import { ShopView } from './components/ShopView';
 import { PublicDogProfile } from './components/PublicDogProfile';
 import { PetPassport } from './components/PetPassport';
 import { MobileBottomNav } from './components/MobileBottomNav';
@@ -107,10 +106,6 @@ const AppContent: React.FC = () => {
       case 'community':
         return (
           <CommunityView onNavigate={setCurrentView} />
-        );
-      case 'shop':
-        return (
-          <ShopView onNavigate={setCurrentView} />
         );
       case 'settings':
         return (

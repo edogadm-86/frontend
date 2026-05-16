@@ -192,7 +192,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 
       {/* Bento Grid */}
-      <div className="grid grid-cols-12 gap-4 lg:gap-6 max-w-[1400px] mx-auto">
+      <div className="grid grid-cols-12 gap-4 lg:gap-6 mx-auto">
 
         {/* Pet Hero */}
         <section className="col-span-12 lg:col-span-8 relative rounded-xl overflow-hidden h-[400px] shadow-sm bg-[#1a1c1f]">
