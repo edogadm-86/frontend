@@ -14,20 +14,19 @@ import { useNotifications } from './hooks/useNotifications';
 import { Health } from './components/Health';
 import { LocalNotifications } from "@capacitor/local-notifications";
 
+const NOTIF_PERM_ASKED_KEY = 'notif_permission_asked';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout } = useApp();
   const [currentView, setCurrentView] = useState('home');
   const [showSplash, setShowSplash] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
+  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const { t } = useTranslation();
   const { requestPermission } = useNotifications();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
-
+    const timer = setTimeout(() => setShowSplash(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -36,19 +35,42 @@ const AppContent: React.FC = () => {
       setShowAuth(true);
     } else if (user) {
       setShowAuth(false);
-      // Request notification permission when user logs in
-      requestPermission();
     }
-  }, [user, loading, showSplash, requestPermission]);
-    useEffect(() => {
-      const initNotifications = async () => {
-        const perm = await LocalNotifications.checkPermissions();
-        if (perm.display !== 'granted') {
-          await LocalNotifications.requestPermissions();
-        }
-      };
-      initNotifications();
-    }, []);
+  }, [user, loading, showSplash]);
+
+  // Ask for notification permission once per install, after the user is logged in
+  useEffect(() => {
+    if (!user || showSplash) return;
+
+    const alreadyAsked = localStorage.getItem(NOTIF_PERM_ASKED_KEY);
+    if (alreadyAsked) return;
+
+    const askPermission = async () => {
+      const perm = await LocalNotifications.checkPermissions();
+      if (perm.display !== 'granted') {
+        // Show our friendly prompt first, then the OS dialog
+        setShowNotifPrompt(true);
+      } else {
+        localStorage.setItem(NOTIF_PERM_ASKED_KEY, '1');
+      }
+    };
+
+    // Small delay so the main UI is visible before the prompt appears
+    const timer = setTimeout(askPermission, 1500);
+    return () => clearTimeout(timer);
+  }, [user, showSplash]);
+
+  const handleAllowNotifications = async () => {
+    setShowNotifPrompt(false);
+    localStorage.setItem(NOTIF_PERM_ASKED_KEY, '1');
+    await LocalNotifications.requestPermissions();
+    requestPermission(); // also request web Notification API permission
+  };
+
+  const handleDenyNotifications = () => {
+    setShowNotifPrompt(false);
+    localStorage.setItem(NOTIF_PERM_ASKED_KEY, '1');
+  };
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -154,6 +176,48 @@ const AppContent: React.FC = () => {
           <Navigation currentView={currentView} onViewChange={setCurrentView} />
         </div>
       </div>
+
+      {/* Notification permission prompt overlay */}
+      {showNotifPrompt && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm px-4 pb-8">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <span className="text-2xl">🔔</span>
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">Stay on top of your dog's health</p>
+                <p className="text-xs text-gray-500">eDog notifications</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-600">
+              Allow notifications to receive timely reminders for:
+            </p>
+            <ul className="text-sm text-gray-600 space-y-1.5">
+              <li className="flex items-center gap-2"><span>💉</span> Upcoming vaccinations</li>
+              <li className="flex items-center gap-2"><span>📅</span> Scheduled appointments</li>
+              <li className="flex items-center gap-2"><span>💊</span> Medication reminders</li>
+              <li className="flex items-center gap-2"><span>🔍</span> Lost dog alerts in your area</li>
+            </ul>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleDenyNotifications}
+                className="flex-1 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Not now
+              </button>
+              <button
+                onClick={handleAllowNotifications}
+                className="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all"
+              >
+                Allow notifications
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -430,6 +430,50 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     return this.request(`/auth/notifications/${notificationId}/read`, { method: 'PUT' });
   }
 
+  // Push notification endpoints
+  async getPushVapidKey() {
+    return this.request<{ vapidPublicKey: string }>('/push/vapid-public-key');
+  }
+
+  async subscribePush(endpoint: string, keys: { p256dh: string; auth: string }) {
+    return this.request('/push/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ endpoint, keys }),
+    });
+  }
+
+  async unsubscribePush(endpoint: string) {
+    return this.request('/push/unsubscribe', {
+      method: 'POST',
+      body: JSON.stringify({ endpoint }),
+    });
+  }
+
+  async getPushPrefs() {
+    return this.request<{
+      prefs: {
+        push_enabled: boolean;
+        vaccinations: boolean;
+        appointments: boolean;
+        medications: boolean;
+        lost_dog_alerts: boolean;
+      };
+    }>('/push/prefs');
+  }
+
+  async updatePushPrefs(prefs: {
+    push_enabled: boolean;
+    vaccinations: boolean;
+    appointments: boolean;
+    medications: boolean;
+    lost_dog_alerts: boolean;
+  }) {
+    return this.request('/push/prefs', {
+      method: 'PUT',
+      body: JSON.stringify(prefs),
+    });
+  }
+
   // Health status endpoint
   async getDogHealthStatus(dogId: string) {
     return this.request<{

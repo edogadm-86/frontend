@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 import { apiClient } from '../lib/api';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
@@ -46,6 +47,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { user } = useApp();
+  const push = usePushNotifications();
   const [activeTab, setActiveTab] = useState<Tab>('dogs');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -55,15 +57,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
   const [profileData, setProfileData] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
-  const [notifications, setNotifications] = useState({ appointments: true, vaccinations: true, health: true, training: false, email: true, push: true });
   const [preferences, setPreferences] = useState({ language: i18n.language, theme, dateFormat: 'MM/DD/YYYY', timeFormat: '12', timezone: 'Europe/Sofia' });
 
   useEffect(() => {
     loadStatistics();
     const saved = localStorage.getItem('userPreferences');
     if (saved) setPreferences((p) => ({ ...p, ...JSON.parse(saved) }));
-    const savedNotif = localStorage.getItem('userNotifications');
-    if (savedNotif) setNotifications((n) => ({ ...n, ...JSON.parse(savedNotif) }));
     if (user) setProfileData({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
   }, []);
 
@@ -86,7 +85,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       if (preferences.language !== i18n.language) i18n.changeLanguage(preferences.language);
       if (preferences.theme !== theme) setTheme(preferences.theme as any);
       localStorage.setItem('userPreferences', JSON.stringify(preferences));
-      localStorage.setItem('userNotifications', JSON.stringify(notifications));
       if (profileData.name !== user?.name || profileData.email !== user?.email || profileData.phone !== user?.phone) {
         await apiClient.updateProfile(profileData);
       }
@@ -229,31 +227,90 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </div>
 
-      {/* Notifications */}
+      {/* Push Notifications */}
       <div className={card}>
         <h3 className={sectionTitle}>
-          <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[18px]">notifications</span>
-          {t('notifications')}
+          <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[18px]">notifications_active</span>
+          {t('pushNotificationsTitle')}
         </h3>
-        <div className="space-y-3">
-          {Object.entries(notifications).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5 last:border-0">
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-[#e2e2e6] capitalize">{t(`${key}Notifications`)}</p>
-                <p className="text-xs text-gray-400 dark:text-[#8b919d]">{t('receiveNotificationsAbout')} {t(key.toLowerCase())}</p>
+
+        {!push.isSupported ? (
+          <p className="text-sm text-gray-400 dark:text-[#8b919d]">{t('pushNotificationsNotSupported')}</p>
+        ) : push.permission === 'denied' ? (
+          <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl text-sm text-red-700 dark:text-red-300">
+            {t('pushNotificationsBlocked')}
+          </div>
+        ) : (
+          <>
+            {/* Error banner */}
+            {push.error && (
+              <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-xl text-sm text-amber-700 dark:text-amber-300">
+                {t(`pushError${push.error.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('')}`)}
               </div>
-              <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-4">
+            )}
+
+            {/* Master enable / subscribe toggle */}
+            <div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5">
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-[#e2e2e6]">{t('pushEnableLabel')}</p>
+                <p className="text-xs text-gray-400 dark:text-[#8b919d]">
+                  {push.isSubscribed ? t('pushSubscribedStatus') : t('pushNotSubscribedStatus')}
+                </p>
+              </div>
+              <label className={cn('relative inline-flex items-center flex-shrink-0 ml-4', push.loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer')}>
                 <input
                   type="checkbox"
-                  checked={value}
-                  onChange={(e) => setNotifications({ ...notifications, [key]: e.target.checked })}
+                  checked={push.isSubscribed}
+                  disabled={push.loading}
+                  onChange={async (e) => {
+                    if (e.target.checked) {
+                      await push.subscribe();
+                    } else {
+                      await push.unsubscribe();
+                    }
+                  }}
                   className="sr-only peer"
                 />
                 <div className="w-10 h-6 bg-gray-200 dark:bg-[#282a2d] rounded-full peer peer-checked:bg-[#005da7] dark:peer-checked:bg-[#a4c9ff] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-4 transition-colors" />
               </label>
             </div>
-          ))}
-        </div>
+
+            {/* Per-category toggles — always visible, disabled when not subscribed */}
+            <div className={cn('mt-3 space-y-1', !push.isSubscribed && 'opacity-40 pointer-events-none')}>
+              <p className="text-xs font-semibold text-gray-400 dark:text-[#8b919d] uppercase tracking-wide mb-2">
+                {t('pushNotifyAbout')}
+              </p>
+
+              {(
+                [
+                  { key: 'vaccinations' as const,    icon: 'vaccines',       labelKey: 'pushCategoryVaccinations', descKey: 'pushCategoryVaccinationsDesc' },
+                  { key: 'appointments' as const,    icon: 'calendar_month', labelKey: 'pushCategoryAppointments', descKey: 'pushCategoryAppointmentsDesc' },
+                  { key: 'medications' as const,     icon: 'medication',     labelKey: 'pushCategoryMedications',  descKey: 'pushCategoryMedicationsDesc' },
+                  { key: 'lost_dog_alerts' as const, icon: 'search',         labelKey: 'pushCategoryLostDog',      descKey: 'pushCategoryLostDogDesc' },
+                ]
+              ).map(({ key, icon, labelKey, descKey }) => (
+                <div key={key} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-white/5 last:border-0">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[16px]">{icon}</span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-[#e2e2e6]">{t(labelKey)}</p>
+                      <p className="text-xs text-gray-400 dark:text-[#8b919d]">{t(descKey)}</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-4">
+                    <input
+                      type="checkbox"
+                      checked={push.prefs[key]}
+                      onChange={(e) => push.savePrefs({ ...push.prefs, [key]: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-6 bg-gray-200 dark:bg-[#282a2d] rounded-full peer peer-checked:bg-[#005da7] dark:peer-checked:bg-[#a4c9ff] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-4 transition-colors" />
+                  </label>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <button

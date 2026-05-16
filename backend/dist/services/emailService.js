@@ -3,33 +3,48 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.triggerVaccinationReminders = exports.triggerAppointmentReminders = exports.startEmailScheduler = exports.sendVaccinationReminders = exports.sendAppointmentReminders = void 0;
+exports.triggerVaccinationReminders = exports.triggerAppointmentReminders = exports.startEmailScheduler = exports.sendMedicationPush = exports.sendVaccinationReminders = exports.sendAppointmentReminders = void 0;
 const node_cron_1 = __importDefault(require("node-cron"));
 const database_1 = __importDefault(require("../config/database"));
 const email_1 = require("../config/email");
 const date_fns_1 = require("date-fns");
+const pushService_1 = require("./pushService");
 // Send appointment reminders
 const sendAppointmentReminders = async () => {
     try {
         console.log('Checking for appointment reminders...');
-        // Get appointments that need reminders (1 hour before by default)
         const result = await database_1.default.query(`
-      SELECT 
+      SELECT
         a.id, a.title, a.date, a.time, a.reminder_time,
         d.name as dog_name,
-        u.email, u.name as user_name, u.language
+        u.id as user_id, u.email, u.name as user_name, u.language
       FROM appointments a
       JOIN dogs d ON a.dog_id = d.id
       JOIN users u ON d.user_id = u.id
-      WHERE a.reminder = true 
+      WHERE a.reminder = true
         AND a.date = CURRENT_DATE
         AND EXTRACT(EPOCH FROM (a.time::time - CURRENT_TIME)) / 60 <= a.reminder_time
         AND EXTRACT(EPOCH FROM (a.time::time - CURRENT_TIME)) / 60 > 0
     `);
         for (const appointment of result.rows) {
-            const reminderTemplate = email_1.emailTemplates.appointmentReminder(appointment.dog_name, appointment.title, (0, date_fns_1.format)(new Date(appointment.date), 'MMM dd, yyyy'), appointment.time, appointment.language || 'en');
+            const lang = appointment.language || 'en';
+            // Email reminder
+            const reminderTemplate = email_1.emailTemplates.appointmentReminder(appointment.dog_name, appointment.title, (0, date_fns_1.format)(new Date(appointment.date), 'MMM dd, yyyy'), appointment.time, lang);
             await (0, email_1.sendEmail)(appointment.email, reminderTemplate);
             console.log(`Sent appointment reminder to ${appointment.email} for ${appointment.dog_name}`);
+            // Push notification
+            await (0, pushService_1.sendPushToUser)(appointment.user_id, 'appointments', {
+                title: lang === 'bg'
+                    ? `Напомняне за среща - ${appointment.dog_name}`
+                    : `Appointment Reminder - ${appointment.dog_name}`,
+                body: lang === 'bg'
+                    ? `${appointment.title} в ${appointment.time}`
+                    : `${appointment.title} at ${appointment.time}`,
+                icon: '/pwa-192x192.png',
+                badge: '/pwa-192x192.png',
+                tag: `appointment-${appointment.id}`,
+                url: '/appointments',
+            });
         }
     }
     catch (error) {
@@ -41,12 +56,11 @@ exports.sendAppointmentReminders = sendAppointmentReminders;
 const sendVaccinationReminders = async () => {
     try {
         console.log('Checking for vaccination reminders...');
-        // Get vaccinations due in the next 30 days
         const result = await database_1.default.query(`
-      SELECT 
+      SELECT
         v.id, v.vaccine_name, v.next_due_date,
         d.name as dog_name,
-        u.email, u.name as user_name, u.language
+        u.id as user_id, u.email, u.name as user_name, u.language
       FROM vaccinations v
       JOIN dogs d ON v.dog_id = d.id
       JOIN users u ON d.user_id = u.id
@@ -55,9 +69,30 @@ const sendVaccinationReminders = async () => {
         AND v.next_due_date >= CURRENT_DATE
     `);
         for (const vaccination of result.rows) {
-            const reminderTemplate = email_1.emailTemplates.vaccinationReminder(vaccination.dog_name, vaccination.vaccine_name, (0, date_fns_1.format)(new Date(vaccination.next_due_date), 'MMM dd, yyyy'), vaccination.language || 'en');
+            const lang = vaccination.language || 'en';
+            const daysUntilDue = Math.ceil((new Date(vaccination.next_due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            // Email reminder (existing behaviour — sent every day if within 30 days)
+            const reminderTemplate = email_1.emailTemplates.vaccinationReminder(vaccination.dog_name, vaccination.vaccine_name, (0, date_fns_1.format)(new Date(vaccination.next_due_date), 'MMM dd, yyyy'), lang);
             await (0, email_1.sendEmail)(vaccination.email, reminderTemplate);
             console.log(`Sent vaccination reminder to ${vaccination.email} for ${vaccination.dog_name}`);
+            // Push only on meaningful milestones: 30, 7, or 1 day(s) before
+            if ([30, 7, 1].includes(daysUntilDue)) {
+                const dayLabel = daysUntilDue === 1
+                    ? (lang === 'bg' ? 'утре' : 'tomorrow')
+                    : (lang === 'bg' ? `след ${daysUntilDue} дни` : `in ${daysUntilDue} days`);
+                await (0, pushService_1.sendPushToUser)(vaccination.user_id, 'vaccinations', {
+                    title: lang === 'bg'
+                        ? `Ваксинация скоро - ${vaccination.dog_name}`
+                        : `Vaccination Due Soon - ${vaccination.dog_name}`,
+                    body: lang === 'bg'
+                        ? `${vaccination.vaccine_name} е дължима ${dayLabel}.`
+                        : `${vaccination.vaccine_name} is due ${dayLabel}.`,
+                    icon: '/pwa-192x192.png',
+                    badge: '/pwa-192x192.png',
+                    tag: `vaccination-${vaccination.id}`,
+                    url: '/vaccinations',
+                });
+            }
         }
     }
     catch (error) {
@@ -65,6 +100,23 @@ const sendVaccinationReminders = async () => {
     }
 };
 exports.sendVaccinationReminders = sendVaccinationReminders;
+// Send push notifications for new medication health records (called by health route)
+const sendMedicationPush = async (userId, dogName, medication, dosage, language = 'en') => {
+    const lang = language;
+    await (0, pushService_1.sendPushToUser)(userId, 'medications', {
+        title: lang === 'bg'
+            ? `Нова медикация за ${dogName}`
+            : `New Medication for ${dogName}`,
+        body: lang === 'bg'
+            ? `${medication}${dosage ? ' - ' + dosage : ''}`
+            : `${medication}${dosage ? ' — ' + dosage : ''}`,
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-192x192.png',
+        tag: `medication-${Date.now()}`,
+        url: '/health',
+    });
+};
+exports.sendMedicationPush = sendMedicationPush;
 // Schedule cron jobs
 const startEmailScheduler = () => {
     // Check for appointment reminders every 15 minutes
