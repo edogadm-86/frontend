@@ -34,7 +34,7 @@ const runMigrations = async () => {
         passport_number VARCHAR(50),
         sex VARCHAR(10),
         colour VARCHAR(50),
-        features TEXT;
+        features TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
@@ -245,7 +245,7 @@ const runMigrations = async () => {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         
       );
-    ALTER TABLE meal_plans ADD COLUMN nutrition_record_id UUID REFERENCES nutrition_records(id);
+    ALTER TABLE meal_plans ADD COLUMN IF NOT EXISTS nutrition_record_id UUID REFERENCES nutrition_records(id);
 
       -- Create trigger function for updating updated_at timestamp
       CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -294,6 +294,30 @@ const runMigrations = async () => {
 
     CREATE INDEX IF NOT EXISTS idx_user_read_notifications_user
     ON user_read_notifications(user_id);
+
+      -- Push notification subscriptions (one per browser/device)
+      CREATE TABLE IF NOT EXISTS push_subscriptions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        endpoint TEXT NOT NULL,
+        p256dh TEXT NOT NULL,
+        auth TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(endpoint)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
+
+      -- Per-user push notification category preferences
+      CREATE TABLE IF NOT EXISTS user_notification_prefs (
+        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        push_enabled BOOLEAN DEFAULT true,
+        vaccinations BOOLEAN DEFAULT true,
+        appointments BOOLEAN DEFAULT true,
+        medications BOOLEAN DEFAULT true,
+        lost_dog_alerts BOOLEAN DEFAULT true,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `;
 
     await pool.query(migrationSQL);
