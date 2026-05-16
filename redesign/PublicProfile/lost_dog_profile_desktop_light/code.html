@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#e41d27",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "inverse-surface": "#2f3133",
+                    "on-primary-fixed-variant": "#004883",
+                    "on-tertiary-container": "#fffbff",
+                    "inverse-primary": "#a4c9ff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#001c39",
+                    "primary": "#005da7",
+                    "on-background": "#1a1c1e",
+                    "on-surface": "#1a1c1e",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#0060ac",
+                    "surface-container": "#eeeef0",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#93000f",
+                    "primary-container": "#2976c7",
+                    "secondary-fixed-dim": "#ffb955",
+                    "tertiary": "#bb0017",
+                    "surface-bright": "#f9f9fc",
+                    "surface-container-highest": "#e2e2e5",
+                    "surface-dim": "#dadadc",
+                    "on-tertiary-fixed": "#410003",
+                    "surface-container-low": "#f3f3f6",
+                    "outline-variant": "#c1c7d3",
+                    "on-primary-container": "#fdfcff",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#633f00",
+                    "secondary": "#835500",
+                    "tertiary-fixed-dim": "#ffb3ac",
+                    "background": "#f9f9fc",
+                    "outline": "#717783",
+                    "surface": "#f9f9fc",
+                    "on-surface-variant": "#414751",
+                    "on-secondary-container": "#6b4500",
+                    "primary-fixed": "#d4e3ff",
+                    "tertiary-fixed": "#ffdad6",
+                    "secondary-container": "#feae2c",
+                    "surface-container-high": "#e8e8ea",
+                    "inverse-on-surface": "#f0f0f3",
+                    "surface-variant": "#e2e2e5",
+                    "primary-fixed-dim": "#a4c9ff",
+                    "secondary-fixed": "#ffddb4",
+                    "on-secondary-fixed": "#291800",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-margin-desktop": "40px",
+                    "stack-md": "24px",
+                    "stack-lg": "48px",
+                    "gutter": "16px",
+                    "base": "8px",
+                    "container-margin-mobile": "16px",
+                    "stack-sm": "12px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "status-badge": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "status-badge": ["12px", {"lineHeight": "16px", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-10 h-16 bg-surface shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Buddy's Profile" class="w-full h-full object-cover" data-alt="A close-up, high-resolution studio portrait of a friendly Golden Retriever face. The lighting is bright and clear, emphasizing the dog's warm brown eyes and soft golden fur. The background is a clean, minimalist off-white, maintaining a high-contrast modern aesthetic. This professional pet photography captures a sense of dependability and approachability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQ6ZyPURGc8jOnv1Lft0el2ZRTOGey_IqvWrwujLlBDLXcVOa_sAPRhtRCufDD_9yrzVYJRXPYkXJ6V0qNyVpFlswNI9lLSX2k5BqOq2DjMcuYHQgCdvdCpRLG6c5QqOquN830SNxk2wX6WPD3U8YDLwwUNThRMtNZk09yP-uFb9o6avzr06ekWG_aZAgbzSHIX1WGePAqpNjOaiaD33q3ilzIsB2HQedaTpF7y6U38gT0GFrh3Cj4_eIKINBOXClWv9AcREyusYQd"/>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Buddy's Profile</h1>
+</div>
+<nav class="hidden md:flex gap-6">
+<a class="text-primary font-bold transition-opacity duration-200 hover:opacity-80" href="#">Profile</a>
+<a class="text-on-surface-variant transition-opacity duration-200 hover:opacity-80" href="#">History</a>
+<a class="text-on-surface-variant transition-opacity duration-200 hover:opacity-80" href="#">Settings</a>
+</nav>
+<div class="md:hidden">
+<span class="material-symbols-outlined text-primary">menu</span>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-12 px-4 md:px-0">
+<div class="max-w-[720px] mx-auto space-y-12">
+<!-- High-Visibility Lost Pet Banner -->
+<div class="bg-tertiary-container text-on-tertiary-container p-6 rounded-xl flex items-center justify-between shadow-md">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-4xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">error</span>
+<div>
+<h2 class="font-headline-md text-headline-md leading-none">LOST PET ALERT</h2>
+<p class="font-body-md text-body-md opacity-90">Cooper was last seen in North Hills area.</p>
+</div>
+</div>
+<div class="hidden sm:block px-4 py-2 bg-white/20 rounded-full font-status-badge text-status-badge uppercase tracking-wider">
+                    Urgent
+                </div>
+</div>
+<!-- Profile Content Grid -->
+<div class="grid grid-cols-1 md:grid-cols-1 gap-12">
+<!-- Hero Section: Photo & Identity -->
+<section class="space-y-6">
+<div class="aspect-square w-full bg-surface-container-highest rounded-xl overflow-hidden border border-outline-variant">
+<img alt="Cooper the Golden Retriever" class="w-full h-full object-cover" data-alt="A large, full-body high-resolution photograph of a Golden Retriever standing in a sun-drenched suburban park. The dog has a bright, friendly expression and a glossy golden coat. The sunlight creates sharp, high-contrast highlights and deep, clean shadows, reflecting a vital and modern visual style. The background features soft-focus green foliage under a clear blue sky." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlkGU3sq2l-v0QxvYaud9TIECjAaeDCwcc3Y_nE8N0siTizBfH6SJFdiWzbfx0wO1Gcb3f2O-ARcRxuEMxoqsN79M1loV93Gn37I3YQVfBpsus1Te7Yg_F2WVf4lmeD-ZiAuUk8VXumTgxGzH4RSHfD-OCrehY5cel_pVv9R4lXvO5m_nfMwzKBtlrsZZhHVayOICcouaWKxBKD0UQV8Kuf3WhUSGk431trsBeMatBt9Wi63beQLVTQXjJ6ERUl10rqQIlbSJCfvqL"/>
+</div>
+<div class="flex items-end justify-between border-b border-outline-variant pb-4">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Cooper</h2>
+<div class="flex gap-2 mt-2">
+<span class="bg-primary-container/10 text-primary px-3 py-1 rounded-full font-status-badge text-status-badge uppercase">Golden Retriever</span>
+<span class="bg-secondary-container/10 text-secondary px-3 py-1 rounded-full font-status-badge text-status-badge uppercase">Male • 3 Years</span>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant px-4 py-2 rounded-lg text-center">
+<p class="font-label-md text-label-md text-on-surface-variant">WEIGHT</p>
+<p class="font-body-lg text-body-lg text-on-surface">72 lbs</p>
+</div>
+</div>
+</section>
+<!-- Emergency Contact Card (High Priority) -->
+<section class="bg-[#F0F7FF] border-2 border-primary/20 p-8 rounded-xl space-y-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">contact_emergency</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Emergency Contact</h3>
+</div>
+<div class="flex items-center gap-4 p-4 bg-white rounded-lg border border-outline-variant">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed text-3xl">person</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Owner</p>
+<p class="font-headline-md text-headline-md text-on-surface">Alex Thorne</p>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 h-14 bg-primary text-on-primary rounded-lg font-headline-md text-headline-md hover:opacity-90 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">call</span>
+                            Call Owner
+                        </button>
+<button class="flex items-center justify-center gap-2 h-14 bg-surface-container-lowest text-primary border-2 border-primary rounded-lg font-headline-md text-headline-md hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined">mail</span>
+                            Email Owner
+                        </button>
+</div>
+<p class="text-center font-body-md text-body-md text-on-surface-variant pt-2">
+                        Primary Phone: <span class="font-bold text-on-surface">+1 (555) 012-3456</span>
+</p>
+</section>
+<!-- Important Notes Section -->
+<section class="space-y-6 pt-4">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">assignment</span>
+                        Important Notes
+                    </h3>
+<div class="grid grid-cols-1 gap-6">
+<div class="p-6 bg-surface-container rounded-xl border border-outline-variant">
+<p class="font-label-md text-label-md text-on-secondary-fixed-variant uppercase mb-2">Temperament</p>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-status-badge text-status-badge uppercase">Friendly</span>
+<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-status-badge text-status-badge uppercase">Good with Kids</span>
+<span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-status-badge text-status-badge uppercase">Food Motivated</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Cooper is very social and will likely approach strangers if they have a treat. He is not aggressive but may be anxious in heavy traffic.</p>
+</div>
+<div class="p-6 bg-error-container/30 border border-error/20 rounded-xl">
+<p class="font-label-md text-label-md text-on-error-container uppercase mb-2">Medical &amp; Allergies</p>
+<ul class="space-y-2">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-xl">warning</span>
+<p class="font-body-md text-body-md text-on-surface-variant"><span class="font-bold text-on-surface">Severe Chicken Allergy:</span> Do not feed any poultry-based snacks.</p>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-xl">medication</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Requires daily hip &amp; joint supplement (Cosequin).</p>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Microchip / ID Section -->
+<section class="border-t border-outline-variant pt-12 text-center">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Microchip ID</p>
+<p class="font-headline-md text-headline-md text-on-surface tracking-widest mt-1">9851 1234 5678 901</p>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 flex flex-col items-center justify-center gap-4 px-4 mt-auto bg-surface-container-lowest border-t border-outline-variant">
+<div class="font-label-md text-label-md font-bold text-primary">eDog</div>
+<div class="flex gap-6">
+<a class="font-label-sm text-label-sm text-on-secondary-fixed-variant hover:text-primary transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-secondary-fixed-variant hover:text-primary transition-colors cursor-pointer" href="#">Help Center</a>
+</div>
+<p class="font-label-sm text-label-sm text-secondary">© 2024 eDog • Vital Utility for Pet Safety</p>
+</footer>
+<!-- Bottom Navigation (Mobile Only) -->
+<div class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant flex justify-around py-3 z-50">
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="font-status-badge text-[10px] uppercase">Profile</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">map</span>
+<span class="font-status-badge text-[10px] uppercase">Last Seen</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-status-badge text-[10px] uppercase">Options</span>
+</div>
+</div>
+</body></html>

@@ -14,8 +14,8 @@ import { SettingsView } from './components/SettingsView';
 import { CommunityView } from './components/CommunityView';
 import { ShopView } from './components/ShopView';
 import { PublicDogProfile } from './components/PublicDogProfile';
+import { PetPassport } from './components/PetPassport';
 import { MobileBottomNav } from './components/MobileBottomNav';
-import { ChatBot } from './components/ChatBot';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 
 const AppContent: React.FC = () => {
@@ -97,6 +97,13 @@ const AppContent: React.FC = () => {
             onNavigate={setCurrentView}
           />
         );
+      case 'passport':
+        return (
+          <PetPassport
+            dog={currentDog}
+            onNavigate={setCurrentView}
+          />
+        );
       case 'community':
         return (
           <CommunityView onNavigate={setCurrentView} />
@@ -148,28 +155,26 @@ const AppContent: React.FC = () => {
   }
 
  return (
-  <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 dark:bg-gray-900 flex">
-    {/* Sidebar only for non-touch AND md+ */}
-   {showSidebar && (
-      <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        dogs={dogs}
-        currentDog={currentDog}
-        onDogSelect={setCurrentDog}
-        onAddDog={handleAddDog}
-      />
-     )}
+  <div className="h-screen w-full overflow-hidden bg-[#fbf9f8] dark:bg-[#111316] flex flex-col">
+    <Header user={user} onLogout={logout} currentView={currentView} />
 
-    <div className="flex-1 min-w-0 flex flex-col">
-      <Header user={user} onLogout={logout} currentView={currentView} />
+    <div className="flex flex-1 min-h-0 overflow-hidden">
+      {showSidebar && (
+        <Sidebar
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          dogs={dogs}
+          currentDog={currentDog}
+          onDogSelect={setCurrentDog}
+          onAddDog={handleAddDog}
+        />
+      )}
       <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pb-20 md:pb-0">
         {renderCurrentView()}
       </main>
     </div>
 
-    {/* Bottom nav for touch devices OR small screens */}
-   {showBottomNav && (
+    {showBottomNav && (
       <div className="md:hidden">
         <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} />
       </div>

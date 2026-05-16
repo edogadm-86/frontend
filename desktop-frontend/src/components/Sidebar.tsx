@@ -1,18 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  Home, 
-  Heart, 
-  Calendar, 
-  Award, 
-  Users, 
-  Settings,
-  PlusCircle,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  ShoppingBag
-} from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface SidebarProps {
@@ -33,258 +21,188 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onAddDog,
 }) => {
   const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = React.useState(true);
   const [isHovered, setIsHovered] = React.useState(false);
 
-  const navigationItems = [
-    { id: 'dashboard', icon: Home, label: t('dashboard'), gradient: 'from-blue-500 to-cyan-500' },
-    { id: 'health', icon: Heart, label: t('health'), gradient: 'from-red-500 to-pink-500' },
-    { id: 'calendar', icon: Calendar, label: t('calendar1'), gradient: 'from-green-500 to-emerald-500' },
-    { id: 'training', icon: Award, label: t('training'), gradient: 'from-purple-500 to-violet-500' },
-    { id: 'settings', icon: Settings, label: t('settings'), gradient: 'from-gray-500 to-slate-500' },
-    { 
-    id: 'apk', 
-    icon: ShoppingBag, 
-    label: t('downloadApp'), 
-    gradient: 'from-orange-500 to-yellow-500', 
-    href: '/apk/edog-1.0.0.apk' // 👈 where your APK is served from backend
-  },
+  const mainNavItems = [
+    { id: 'dashboard', icon: 'dashboard', label: t('dashboard') },
+    { id: 'health', icon: 'monitor_heart', label: t('health') },
+    { id: 'passport', icon: 'badge', label: t('petPassport') },
+    { id: 'calendar', icon: 'calendar_month', label: t('calendar1') },
+    { id: 'training', icon: 'fitness_center', label: t('training') },
+    // { id: 'community', icon: 'groups', label: t('community') },
   ];
 
-  const shouldShowExpanded = isExpanded || isHovered;
+  const bottomNavItems = [
+    { id: 'settings', icon: 'settings', label: t('settings') },
+    // { id: 'apk', icon: 'download', label: t('downloadApp'), href: '/apk/edog-1.0.0.apk' },
+  ];
+
+  const expanded = isHovered;
 
   return (
-    <div 
+    <div
       className={cn(
-        "bg-white/60 dark:bg-gray-900/60 backdrop-blur-md border-r border-white/20 dark:border-gray-700/20 flex flex-col h-full shadow-2xl transition-all duration-300 relative z-40",
-        shouldShowExpanded ? "w-80" : "w-20"
+        'font-jakarta bg-[#fbf9f8] dark:bg-[#111316] border-r border-gray-200/60 dark:border-white/5 flex flex-col flex-shrink-0 transition-all duration-300 relative z-40',
+        expanded ? 'w-64' : 'w-[72px]'
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Logo */}
-      <div className={cn("border-b border-white/20 dark:border-gray-700/20 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
-        <div className="flex items-center space-x-3 group">
-          <div className={cn(
-            "bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110",
-            shouldShowExpanded ? "w-12 h-12" : "w-10 h-10"
-          )}>
-            <img
-              src="/logo.png"
-              alt="eDog Logo"
-              className={shouldShowExpanded ? "w-8 h-8" : "w-6 h-6"}
-            />
-          </div>
-          {shouldShowExpanded && (
-            <div className="overflow-hidden">
-              <h1 className="text-2xl font-bold gradient-text">eDog</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                <Sparkles size={12} className="mr-1" />
-                Desktop
-              </p>
-            </div>
-          )}
-        </div>
-        {/* Toggle Button */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute right-3 top-6 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
-                    rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200"
-        >
-          {isExpanded ? (
-            <ChevronLeft size={18} className="text-primary-500" />
-          ) : (
-            <ChevronRight size={18} className="text-primary-500" />
-          )}
-        </button>
-      </div>
+      {/* Dog card */}
+      <div className={cn('flex-shrink-0 transition-all duration-300', expanded ? 'p-3' : 'p-2')}>
+        <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl">
+          {currentDog ? (
+            <div className={cn('transition-all duration-300', expanded ? 'p-3' : 'p-2')}>
+              {dogs.length > 1 && expanded && (
+                <div className="flex gap-1.5 mb-3 overflow-x-auto no-scrollbar">
+                  {dogs.map(dog => (
+                    <button
+                      key={dog.id}
+                      onClick={() => onDogSelect(dog)}
+                      className={cn(
+                        'flex-shrink-0 w-6 h-6 rounded-full overflow-hidden border-2 transition-all',
+                        currentDog.id === dog.id
+                          ? 'border-[#005da7] dark:border-[#a4c9ff]'
+                          : 'border-transparent opacity-50 hover:opacity-100'
+                      )}
+                    >
+                      {dog.profilePicture ? (
+                        <img src={dog.profilePicture} alt={dog.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-[#005da7] dark:bg-[#a4c9ff] flex items-center justify-center text-white dark:text-[#00315d] text-[9px] font-bold">
+                          {dog.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-      {/* Dogs Section */}
-      <div className={cn("border-b border-white/20 dark:border-gray-700/20 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
-        {shouldShowExpanded ? (
-          <>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center">
-                <Heart size={14} className="mr-2 text-primary-500" />
-                {t('myDogs')}
-              </h2>
-              <button
-                onClick={onAddDog}
-                className="p-2 text-primary-500 hover:text-primary-600 rounded-xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 hover:scale-110"
-              >
-                <PlusCircle size={16} />
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex justify-center mb-4">
-            <button
-              onClick={onAddDog}
-              className="p-2 text-primary-500 hover:text-primary-600 rounded-xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200 hover:scale-110"
-              title={t('addDog')}
-            >
-              <PlusCircle size={16} />
-            </button>
-          </div>
-        )}
-        
-        {dogs.length === 0 ? (
-          <div className={cn("text-center", shouldShowExpanded ? "py-6" : "py-2")}>
-            <div className={cn(
-              "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full mx-auto mb-3 flex items-center justify-center",
-              shouldShowExpanded ? "w-16 h-16" : "w-8 h-8"
-            )}>
-              <Heart size={shouldShowExpanded ? 24 : 16} className="text-gray-400 dark:text-gray-500" />
-            </div>
-            {shouldShowExpanded && (
-              <>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{t('noData')}</p>
-                <button
-                  onClick={onAddDog}
-                  className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-semibold bg-primary-50 dark:bg-primary-900/20 px-3 py-1.5 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-200"
-                >
-                  {t('addDog')}
-                </button>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className={cn("space-y-3", !shouldShowExpanded && "space-y-2")}>
-            {dogs.map((dog) => (
-              <div
-                key={dog.id}
-                onClick={() => onDogSelect(dog)}
-                className={cn(
-                  'flex items-center rounded-2xl cursor-pointer transition-all duration-300 group',
-                  shouldShowExpanded ? 'p-4' : 'p-2 justify-center',
-                  currentDog?.id === dog.id
-                    ? 'bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow-lg transform scale-105'
-                    : 'hover:bg-white/80 hover:shadow-lg hover:transform hover:scale-105'
-                )}
-                title={!shouldShowExpanded ? dog.name : undefined}
-              >
+              <div className={cn('flex items-center', expanded ? 'gap-3' : 'justify-center')}>
                 <div className={cn(
-                  'rounded-2xl flex items-center justify-center shadow-md transition-all duration-300',
-                  shouldShowExpanded ? 'w-12 h-12 mr-4' : 'w-8 h-8',
-                  currentDog?.id === dog.id
-                    ? 'bg-white/20 backdrop-blur-sm'
-                    : 'bg-gradient-to-r from-gray-200 to-gray-300 group-hover:from-primary-100 group-hover:to-blue-100'
+                  'rounded-full overflow-hidden flex-shrink-0 ring-2 ring-[#005da7]/20 dark:ring-[#a4c9ff]/20',
+                  expanded ? 'w-11 h-11' : 'w-9 h-9'
                 )}>
-                  {dog.profilePicture ? (
-                    <img
-                      src={dog.profilePicture}
-                      alt={dog.name}
-                      className={cn("rounded-2xl object-cover", shouldShowExpanded ? "w-12 h-12" : "w-8 h-8")}
-                    />
+                  {currentDog.profilePicture ? (
+                    <img src={currentDog.profilePicture} alt={currentDog.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span className={cn(
-                      'font-bold',
-                      shouldShowExpanded ? 'text-lg' : 'text-sm',
-                      currentDog?.id === dog.id ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'
-                    )}>
-                      {dog.name.charAt(0).toUpperCase()}
-                    </span>
+                    <div className="w-full h-full bg-gradient-to-br from-[#005da7] to-[#0090e7] flex items-center justify-center text-white font-bold text-sm">
+                      {currentDog.name.charAt(0).toUpperCase()}
+                    </div>
                   )}
                 </div>
-                {shouldShowExpanded && (
+                {expanded && (
                   <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      'font-semibold truncate transition-colors',
-                      currentDog?.id === dog.id ? 'text-white' : 'text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-300'
-                    )}>
-                      {dog.name}
-                    </p>
-                    <p className={cn(
-                      'text-sm truncate transition-colors',
-                      currentDog?.id === dog.id ? 'text-white/80' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary-500 dark:group-hover:text-primary-400'
-                    )}>
-                      {dog.breed}
-                    </p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-[#e2e2e6] truncate">{currentDog.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-[#8b919d] truncate">{currentDog.breed || '—'}</p>
                   </div>
                 )}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ) : (
+            <div className={cn(
+              'flex items-center justify-center text-gray-300 dark:text-[#414751]',
+              expanded ? 'p-4 gap-2' : 'p-3'
+            )}>
+              <span className="material-symbols-outlined text-[20px]">pets</span>
+              {expanded && <span className="text-xs text-gray-400 dark:text-[#8b919d]">{t('addDog')}</span>}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Navigation */}
-      <div className={cn("flex-1 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
-        <nav className="space-y-2">
-          {navigationItems.map((item) => 
-          item.href ? (
-                <a
-                  key={item.id}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    'w-full group flex items-center rounded-xl transition-all duration-200 cursor-pointer',
-                    shouldShowExpanded ? 'px-4 py-3' : 'px-2 py-3 justify-center',
-                    'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-blue-50 ' +
-                    'dark:hover:from-primary-900/30 dark:hover:to-blue-900/30 hover:text-primary-700 dark:hover:text-primary-300 ' +
-                    'hover:shadow-md hover:transform hover:translate-x-1'
-                  )}
-                  title={!shouldShowExpanded ? item.label : undefined}
-                >
-                  <div className={cn(
-                    'rounded-xl flex items-center justify-center transition-all duration-300',
-                    shouldShowExpanded ? 'w-10 h-10 mr-3' : 'w-8 h-8',
-                    `bg-gradient-to-r ${item.gradient} opacity-80 group-hover:opacity-100`
-                  )}>
-                    <item.icon size={shouldShowExpanded ? 20 : 16} className="text-white group-hover:scale-110" />
-                  </div>
-                  {shouldShowExpanded && (
-                    <span className="font-medium overflow-hidden">{item.label}</span>
-                  )}
-                </a>
-              ) : (
-
-
+      {/* Main navigation */}
+      <nav className={cn(
+        'flex-1 py-1 space-y-0.5 min-h-0 overflow-y-auto transition-all duration-300',
+        expanded ? 'px-3' : 'px-2'
+      )}>
+        {mainNavItems.map(item => {
+          const isActive = currentView === item.id;
+          return (
             <button
               key={item.id}
               onClick={() => onViewChange(item.id)}
+              title={!expanded ? item.label : undefined}
               className={cn(
-                'w-full group flex items-center rounded-xl transition-all duration-200 cursor-pointer',
-                shouldShowExpanded ? 'px-4 py-3' : 'px-2 py-3 justify-center',
-                currentView === item.id 
-                  ? 'bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow-lg transform scale-105'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-primary-50 hover:to-blue-50 dark:hover:from-primary-900/30 dark:hover:to-blue-900/30 hover:text-primary-700 dark:hover:text-primary-300 hover:shadow-md hover:transform hover:translate-x-1',
-                currentView === item.id && 'active'
+                'w-full flex items-center rounded-xl transition-all duration-150',
+                expanded ? 'gap-3 px-3 py-2.5' : 'justify-center py-2.5',
+                isActive
+                  ? 'bg-[#005da7] dark:bg-[#a4c9ff]/15 text-white dark:text-[#a4c9ff]'
+                  : 'text-gray-600 dark:text-[#c1c7d3] hover:bg-gray-100 dark:hover:bg-[#282a2d] hover:text-gray-900 dark:hover:text-[#e2e2e6]'
               )}
-              title={!shouldShowExpanded ? item.label : undefined}
             >
-              <div className={cn(
-                'rounded-xl flex items-center justify-center transition-all duration-300',
-                shouldShowExpanded ? 'w-10 h-10 mr-3' : 'w-8 h-8',
-                currentView === item.id 
-                  ? 'bg-white/20 backdrop-blur-sm' 
-                  : `bg-gradient-to-r ${item.gradient} opacity-80 group-hover:opacity-100`
+              <span className={cn(
+                'material-symbols-outlined text-[20px] leading-none flex-shrink-0',
+                isActive ? 'text-white dark:text-[#a4c9ff]' : 'text-gray-500 dark:text-[#8b919d]'
               )}>
-                <item.icon size={shouldShowExpanded ? 20 : 16} className={cn(
-                  'transition-all duration-300',
-                  currentView === item.id ? 'text-white' : 'text-white group-hover:scale-110'
-                )} />
-              </div>
-              {shouldShowExpanded && (
-                <span className="font-medium overflow-hidden">{item.label}</span>
+                {item.icon}
+              </span>
+              {expanded && (
+                <span className="text-sm font-medium truncate">{item.label}</span>
               )}
             </button>
-          ))}
-        </nav>
+          );
+        })}
+      </nav>
+
+      {/* Add New Pet */}
+      <div className={cn('flex-shrink-0 transition-all duration-300', expanded ? 'px-3 py-3' : 'px-2 py-2')}>
+        <button
+          onClick={onAddDog}
+          title={!expanded ? t('addDog') : undefined}
+          className={cn(
+            'w-full flex items-center justify-center gap-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-95',
+            expanded ? 'py-2.5' : 'py-2'
+          )}
+        >
+          <PlusCircle size={16} className="flex-shrink-0" />
+          {expanded && <span>{t('addDog')}</span>}
+        </button>
       </div>
 
-      {/* Footer */}
-      <div className={cn("border-t border-white/20 dark:border-gray-700/20 transition-all duration-300", shouldShowExpanded ? "p-6" : "p-4")}>
-        <div className="text-center">
-          {shouldShowExpanded ? (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {t('madeWithLove')}<Heart size={12} className="inline text-red-500" /> {t('forDogs')}
-            </p>
-          ) : (
-            <Heart size={16} className="text-red-500 mx-auto" />
-          )}
-        </div>
+      {/* Bottom: Settings + Download */}
+      <div className={cn(
+        'flex-shrink-0 border-t border-gray-100 dark:border-white/5 py-2 space-y-0.5 transition-all duration-300',
+        expanded ? 'px-3' : 'px-2'
+      )}>
+        {bottomNavItems.map(item => {
+          const isActive = currentView === item.id;
+          const cls = cn(
+            'w-full flex items-center rounded-xl transition-all duration-150',
+            expanded ? 'gap-3 px-3 py-2' : 'justify-center py-2',
+            isActive
+              ? 'bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 text-[#005da7] dark:text-[#a4c9ff]'
+              : 'text-gray-500 dark:text-[#8b919d] hover:bg-gray-100 dark:hover:bg-[#282a2d] hover:text-gray-700 dark:hover:text-[#c1c7d3]'
+          );
+
+          if (item.href) {
+            return (
+              <a
+                key={item.id}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={!expanded ? item.label : undefined}
+                className={cls}
+              >
+                <span className="material-symbols-outlined text-[18px] leading-none flex-shrink-0">{item.icon}</span>
+                {expanded && <span className="text-xs font-medium truncate">{item.label}</span>}
+              </a>
+            );
+          }
+
+          return (
+            <button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              title={!expanded ? item.label : undefined}
+              className={cls}
+            >
+              <span className="material-symbols-outlined text-[18px] leading-none flex-shrink-0">{item.icon}</span>
+              {expanded && <span className="text-xs font-medium truncate">{item.label}</span>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

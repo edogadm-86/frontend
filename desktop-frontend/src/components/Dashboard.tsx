@@ -1,38 +1,28 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  Heart, 
-  Calendar, 
-  Shield, 
-  Award, 
+import {
+  Heart,
+  Calendar,
+  Shield,
+  Award,
   Plus,
-  TrendingUp,
-  AlertCircle,
   Clock,
   Sparkles,
   Activity,
-  Target,
-  FileText,
-  Bot,
-  Download
+  Download,
+  QrCode
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
-import { QrCode } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Modal } from './ui/Modal';
-import { PetPassport } from './PetPassport';
-import { API_BASE_URL } from '../config';
 import {
   statusKeyFromBackend,
   statusKeyFromScore,
-  actionKeyFromBackend,
-  factorKeyFromBackend
 } from '../utils/healthI18n';
-import { ChatBot } from './ChatBot';
 import { usePwaInstall } from '../hooks/usePwaInstall';
 
 interface DashboardProps {
@@ -57,22 +47,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const { t } = useTranslation();
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
-  const [showPassport, setShowPassport] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const rawStatus = healthStatus?.status;
-  // Public profile URL (adjust to your domain)
-  const { canPromptInstall, showInstallPrompt, isIOS, isStandalone } = usePwaInstall();
   const [showIosHelp, setShowIosHelp] = useState(false);
-// frontend route (served by React Router)
-const publicUrl = `/public/dog/${currentDog?.id}`;
-  
+  const { canPromptInstall, showInstallPrompt, isIOS, isStandalone } = usePwaInstall();
+  const publicUrl = `/public/dog/${currentDog?.id}`;
+
+  const rawStatus = healthStatus?.status;
   let statusKey = statusKeyFromBackend(rawStatus);
   if (statusKey === 'unknown') {
     const fromScore = statusKeyFromScore(healthStatus?.score);
     if (fromScore) statusKey = fromScore;
   }
-  useEffect(() => {
 
+  useEffect(() => {
     if (currentDog?.id) {
       loadHealthStatus();
     }
@@ -80,7 +67,6 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
 
   const loadHealthStatus = async () => {
     if (!currentDog?.id) return;
-    
     setLoadingHealth(true);
     try {
       const response = await apiClient.getDogHealthStatus(currentDog.id);
@@ -94,20 +80,20 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
 
   if (!currentDog) {
     return (
-      <div className="p-4 lg:p-8 min-h-screen">
+      <div className="font-jakarta p-4 lg:p-8 min-h-screen bg-[#fbf9f8] dark:bg-[#111316] flex items-center justify-center">
         <div className="text-center py-20">
           <div className="relative mb-8">
-            <div className="w-32 h-32 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full mx-auto flex items-center justify-center shadow-2xl float-animation">
+            <div className="w-32 h-32 bg-gradient-to-r from-[#005da7] to-[#0090e7] rounded-full mx-auto flex items-center justify-center shadow-2xl">
               <Heart size={48} className="text-white" />
             </div>
             <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
               <Sparkles size={16} className="text-white" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold gradient-text mb-4">
-            {t('welcome')} to eDog Desktop
+          <h2 className="text-3xl font-bold text-[#005da7] dark:text-[#a4c9ff] mb-4">
+            {t('welcome')} to eDog
           </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
+          <p className="text-xl text-gray-600 dark:text-[#8b919d] mb-8 max-w-md mx-auto">
             {t('addFirstDog')}
           </p>
           <Button onClick={() => onNavigate('settings')} size="lg" icon={<Plus size={20} />}>
@@ -134,7 +120,6 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
       label: t('vaccinations'),
       value: dogVaccinations.length,
       color: 'from-blue-500 to-cyan-500',
-      bgColor: 'from-blue-50 to-cyan-50',
       onClick: () => onNavigate('health'),
     },
     {
@@ -142,7 +127,6 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
       label: t('healthRecords'),
       value: dogHealthRecords.length,
       color: 'from-red-500 to-pink-500',
-      bgColor: 'from-red-50 to-pink-50',
       onClick: () => onNavigate('health'),
     },
     {
@@ -150,7 +134,6 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
       label: t('appointments'),
       value: upcomingAppointments.length,
       color: 'from-green-500 to-emerald-500',
-      bgColor: 'from-green-50 to-emerald-50',
       onClick: () => onNavigate('calendar'),
     },
     {
@@ -158,465 +141,332 @@ const publicUrl = `/public/dog/${currentDog?.id}`;
       label: t('trainingSessions'),
       value: dogTrainingSessions.length,
       color: 'from-purple-500 to-violet-500',
-      bgColor: 'from-purple-50 to-violet-50',
       onClick: () => onNavigate('training'),
     },
   ];
 
-  const getHealthStatusColor = (status: string) => {
-    switch (status) {
-      case 'Excellent': return 'from-green-500 to-emerald-500';
-      case 'Good': return 'from-blue-500 to-cyan-500';
-      case 'Fair': return 'from-yellow-500 to-orange-500';
-      case 'Needs Attention': return 'from-orange-500 to-red-500';
-      case 'Poor': return 'from-red-500 to-pink-500';
-      default: return 'from-gray-500 to-slate-500';
-    }
-  };
-
-  // Calculate days since last vet visit
   const lastVetVisit = dogHealthRecords
     .filter(record => record.type === 'vet-visit')
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-  
-  const daysSinceLastVet = lastVetVisit 
+
+  const daysSinceLastVet = lastVetVisit
     ? Math.floor((new Date().getTime() - new Date(lastVetVisit.date).getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
+  const handleInstall = () => {
+    if (canPromptInstall) showInstallPrompt();
+    else if (isIOS) setShowIosHelp(true);
+    else alert('To install: use your browser menu → Add to Home screen / Install app.');
+  };
+
+  const cardClass = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 shadow-sm rounded-xl';
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 lg:space-y-8">
-      {/* Dog Profile Header */}
-      <Card variant="gradient" className="stat-card group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-200/30 to-blue-200/30 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-          <div className="flex items-center space-x-6">
-            <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-r from-primary-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl">
-                {currentDog.profilePicture ? (
-                  <img
-                    src={currentDog.profilePicture}
-                    alt={currentDog.name}
-                    className="w-24 h-24 rounded-3xl object-cover"
-                  />
-                ) : (
-                  <span className="text-3xl font-bold text-white">
-                    {currentDog.name.charAt(0).toUpperCase()}
+    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8">
+      {/* Modals */}
+      <Modal isOpen={showQR} onClose={() => setShowQR(false)} title={t('qrCode')}>
+        <div className="flex flex-col items-center gap-2 p-2">
+          <h2 className="text-lg font-bold">{currentDog.name}</h2>
+          <QRCodeCanvas value={window.location.origin + publicUrl} size={250} />
+          <br />
+          <p className="text-m text-gray-500 text-center">
+            {t('scanCodeToView')} {currentDog.name}.
+          </p>
+          <Button onClick={() => window.open(publicUrl, '_blank')}>
+            {t('previewPublicProfile')}
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={showIosHelp} onClose={() => setShowIosHelp(false)} title={t('downloadApp')}>
+        <div className="space-y-3 text-sm">
+          <p>
+            On iPhone/iPad: open this site in <b>Safari</b>, tap <b>Share</b>, then choose{' '}
+            <b>Add to Home Screen</b>.
+          </p>
+          <p className="text-gray-500">
+            (iOS doesn't allow an automatic install popup like Android.)
+          </p>
+        </div>
+      </Modal>
+
+
+      {/* Bento Grid */}
+      <div className="grid grid-cols-12 gap-4 lg:gap-6 max-w-[1400px] mx-auto">
+
+        {/* Pet Hero */}
+        <section className="col-span-12 lg:col-span-8 relative rounded-xl overflow-hidden h-[400px] shadow-sm bg-[#1a1c1f]">
+          {currentDog.profilePicture ? (
+            <img
+              src={currentDog.profilePicture}
+              alt={currentDog.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#005da7] via-[#004f91] to-[#003870]" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-6 lg:p-8 z-10 w-full flex flex-col sm:flex-row justify-between items-end gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-1 bg-[#a4c9ff] text-[#00315d] rounded-full text-xs font-semibold">
+                  {t('active')}
+                </span>
+                {currentDog.age && (
+                  <span className="px-2 py-1 bg-white/10 text-white rounded text-xs font-medium backdrop-blur-md border border-white/10">
+                    {currentDog.age} {t('yearsOld')}
                   </span>
                 )}
               </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center border-4 border-white">
-                <Activity size={12} className="text-white" />
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-1">
                 {currentDog.name}
-              </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-2">
-                {currentDog.breed}
-              </p>
-              <div className="flex items-center space-x-6 text-sm text-gray-500">
-                <div className="flex items-center space-x-1">
-                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-                  <span>{currentDog.age} years old</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                  <span>{currentDog.weight} kg</span>
-                </div>
-                {currentDog.microchip_id && (
-                  <div className="flex items-center space-x-1">
-                    <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-                    <span>Microchip: {currentDog.microchip_id}</span>
-                  </div>
-                )}
-              </div>
+              </h1>
+              <p className="text-[#a4c9ff] text-base lg:text-lg">{currentDog.breed}</p>
             </div>
-          </div>
-         <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-               <Button
-                 className="w-full sm:w-auto"
-                 onClick={() => setShowPassport(true)}
-                 variant="glass"
-                 icon={<FileText size={16} />}
-               >
-                 {t('petPassport')}
-               </Button>
-               <Button
-                 className="w-full sm:w-auto"  
-                 onClick={() => onNavigate('settings')}
-                 variant="glass"
-                 icon={<Plus size={16} />}
-               >
-                 {t('edit')} {t('profile')}
-               </Button>
-               <Button
-                className="w-full sm:w-auto"
-                onClick={() => setShowQR(true)}
-                variant="glass"
-                icon={<QrCode size={16} />}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => onNavigate('passport')}
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium border border-white/10"
               >
-                {t('qrCode')}
-              </Button>
-              {!isStandalone && (
-                <Button
-                  className="w-full sm:w-auto"
-                  variant="glass"
-                  icon={<Download size={16} />}
-                  onClick={() => {
-                    if (canPromptInstall) showInstallPrompt();
-                    else if (isIOS) setShowIosHelp(true);
-                    else {
-                      // fallback message for browsers that don't support the prompt
-                      alert("To install: use your browser menu → Add to Home screen / Install app.");
-                    }
-                  }}
-                >
-                  {t("downloadApp") ?? "Install app"}
-                </Button>
-              )}
-            
+                <span className="material-symbols-outlined text-base leading-none">badge</span>{t('petPassport')}
+              </button>
+              <button
+                onClick={() => onNavigate('settings')}
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium border border-white/10"
+              >
+                <span className="material-symbols-outlined text-base leading-none">edit</span>
+                {t('edit')}
+              </button>
+              <button
+                onClick={() => setShowQR(true)}
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium border border-white/10"
+              >
+                <QrCode size={15} />{t('qrCode')}
+              </button>
             </div>
-        </div>
-      </Card>
+          </div>
+        </section>
 
-      {/* Health Status Banner */}
-        {healthStatus?.hasEnoughData && (() => {
-
-          // Map backend strings → i18n keys (with score fallback)
-          const rawStatus = healthStatus?.status;
-          let statusKey = statusKeyFromBackend(rawStatus);
-          if (statusKey === 'unknown') {
-            const fromScore = statusKeyFromScore(healthStatus?.score);
-            if (fromScore) statusKey = fromScore;
-          }
-
-          const nextActionKey = actionKeyFromBackend(healthStatus?.nextAction);
-
-          // Factor translation helper
-          const renderFactor = (factor: string) => {
-            const k = factorKeyFromBackend(factor);
-            return k ? t(k) : factor; // fallback to raw if unmapped
-          };
-
-          // Keep your existing gradient/color logic driven by statusColor
-          const borderBg =
-            healthStatus.statusColor === 'green'  ? 'from-green-50 to-emerald-50 border-green-200'  :
-            healthStatus.statusColor === 'blue'   ? 'from-blue-50 to-cyan-50 border-blue-200'       :
-            healthStatus.statusColor === 'yellow' ? 'from-yellow-50 to-orange-50 border-yellow-200' :
-            healthStatus.statusColor === 'orange' ? 'from-orange-50 to-red-50 border-orange-200'    :
-            healthStatus.statusColor === 'red'    ? 'from-red-50 to-pink-50 border-red-200'         :
-                                                    'from-gray-50 to-slate-50 border-gray-200';
-
-          const titleColor =
-            healthStatus.statusColor === 'green'  ? 'text-green-800'  :
-            healthStatus.statusColor === 'blue'   ? 'text-blue-800'   :
-            healthStatus.statusColor === 'yellow' ? 'text-yellow-800' :
-            healthStatus.statusColor === 'orange' ? 'text-orange-800' :
-            healthStatus.statusColor === 'red'    ? 'text-red-800'    :
-                                                    'text-gray-800';
-
-          const textColor =
-            healthStatus.statusColor === 'green'  ? 'text-green-600'  :
-            healthStatus.statusColor === 'blue'   ? 'text-blue-600'   :
-            healthStatus.statusColor === 'yellow' ? 'text-yellow-600' :
-            healthStatus.statusColor === 'orange' ? 'text-orange-600' :
-            healthStatus.statusColor === 'red'    ? 'text-red-600'    :
-                                                    'text-gray-600';
-
-          const subTextColor =
-            healthStatus.statusColor === 'green'  ? 'text-green-500'  :
-            healthStatus.statusColor === 'blue'   ? 'text-blue-500'   :
-            healthStatus.statusColor === 'yellow' ? 'text-yellow-500' :
-            healthStatus.statusColor === 'orange' ? 'text-orange-500' :
-            healthStatus.statusColor === 'red'    ? 'text-red-500'    :
-                                                    'text-gray-500';
-
-          return (
-            <Card className="stat-card group">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                <div className="flex items-center space-x-4">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${getHealthStatusColor(healthStatus.status)} rounded-2xl flex items-center justify-center shadow-lg`}>
-                    <Target size={24} className="text-white" />
-                  </div>
-                  <div>
-                    <h3 className={`text-xl font-bold ${titleColor}`}>
-                      {t('healthStatus')}: {t(statusKey)}
-                    </h3>
-
-                    <p className={textColor}>
-                      {nextActionKey ? t(nextActionKey) : t('maintainingGoodHealth', { dogName: currentDog.name })}
-                    </p>
-
-                    {!!healthStatus?.factors?.length && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {healthStatus.factors.slice(0, 3).map((factor: string, i: number) => (
-                          <span key={i} className="px-2 py-1 bg-white/50 text-xs rounded-full">
-                            {renderFactor(factor)}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+        {/* Health Summary */}
+        <section className="col-span-12 lg:col-span-4">
+          <div className={`${cardClass} p-6 h-full flex flex-col`}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-[#005da7] dark:text-[#a4c9ff]">
+                {t('healthSummary')}
+              </h2>
+              <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff]">analytics</span>
+            </div>
+            <div className="space-y-4 flex-1">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff]">weight</span>
                 </div>
+                <div>
+                  <p className="text-gray-500 dark:text-[#8b919d] text-xs">{t('weight')}</p>
+                  <p className="text-xl font-semibold text-gray-900 dark:text-[#e2e2e6]">
+                    {currentDog.weight} <span className="text-sm font-normal">{t('kg')}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400">event</span>
+                </div>
+                <div>
+                  <p className="text-gray-500 dark:text-[#8b919d] text-xs">{t('sinceLastVetVisit')}</p>
+                  <p className="text-xl font-semibold text-gray-900 dark:text-[#e2e2e6]">
+                    {daysSinceLastVet !== null
+                      ? t('daysSinceLastVet_plural', { count: daysSinceLastVet })
+                      : t('noData')}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-                <div className="text-right">
-                  <div className={`text-3xl font-bold ${textColor}`}>
+            {healthStatus?.hasEnoughData && (
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-500 dark:text-[#8b919d]">{t('weeklyVitalScore')}</span>
+                  <span className="text-sm text-[#005da7] dark:text-[#a4c9ff] font-bold">
                     {healthStatus.score}%
-                  </div>
-                  <div className={`text-sm ${subTextColor}`}>
-                    {t('healthScore')}
-                  </div>
+                  </span>
                 </div>
+                <div className="h-2 bg-gray-100 dark:bg-[#333538] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[#005da7] dark:bg-[#a4c9ff] rounded-full transition-all duration-500"
+                    style={{ width: `${healthStatus.score}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-[#8b919d] mt-2">
+                  {t('healthStatus')}:{' '}
+                  <span className="text-[#005da7] dark:text-[#a4c9ff] font-medium">{t(statusKey)}</span>
+                </p>
               </div>
-            </Card>
-          );
-        })()}
-      {/* QR Code Modal */}
-        <Modal
-          isOpen={showQR}
-          onClose={() => setShowQR(false)}
-          title={t('qrCode')}
-        >
-          <div className="flex flex-col items-center gap-2 p-2">
-            <h2 className="text-lg font-bold">{currentDog.name}</h2>
-            
-            <QRCodeCanvas value={window.location.origin + publicUrl} size={250} />
-            <br></br>
-            <p className="text-m text-gray text-center">
-              {t('scanCodeToView')} {currentDog.name}.
-            </p>
-            <Button onClick={() => window.open(publicUrl, '_blank')}>
-                {t('previewPublicProfile')}
-            </Button>
-          </div>
-        </Modal>
+            )}
 
-        <Modal
-          isOpen={showIosHelp}
-          onClose={() => setShowIosHelp(false)}
-          title={t("downloadApp") ?? "Install app"}
-        >
-          <div className="space-y-3 text-sm">
-            <p>
-              On iPhone/iPad: open this site in <b>Safari</b>, tap <b>Share</b>, then choose{" "}
-              <b>Add to Home Screen</b>.
-            </p>
-            <p className="text-gray-500">
-              (iOS doesn’t allow an automatic install popup like Android.)
-            </p>
+            {!isStandalone && (
+              <button
+                onClick={handleInstall}
+                className="w-full mt-4 py-2 border border-gray-200 dark:border-white/10 rounded-lg text-sm text-gray-500 dark:text-[#8b919d] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all flex items-center justify-center gap-2"
+              >
+                <Download size={14} />{t('downloadApp')}
+              </button>
+            )}
           </div>
-        </Modal>
+        </section>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Stats row */}
         {stats.map((stat, index) => (
-          <Card key={index} onClick={stat.onClick} className="stat-card group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-14 h-14 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
-                <stat.icon size={24} className="text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-sm text-gray-500">{stat.label}</div>
-              </div>
+          <div
+            key={index}
+            onClick={stat.onClick}
+            className={`col-span-6 lg:col-span-3 ${cardClass} p-4 lg:p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+          >
+            <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center mb-3 shadow-sm`}>
+              <stat.icon size={20} className="text-white" />
             </div>
-            <div className="progress-bar">
-              <div 
-                className={`progress-fill bg-gradient-to-r ${stat.color}`}
-                style={{ width: `${Math.min(stat.value * 10, 100)}%` }}
-              ></div>
-            </div>
-          </Card>
+            <div className="text-2xl font-bold text-gray-900 dark:text-[#e2e2e6]">{stat.value}</div>
+            <div className="text-sm text-gray-500 dark:text-[#8b919d]">{stat.label}</div>
+          </div>
         ))}
-      </div>
 
-      {/* Quick Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card variant="glass" className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <TrendingUp size={20} className="text-white" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">
-            {daysSinceLastVet !== null
-              ? t('daysSinceLastVet_plural', { count: daysSinceLastVet })
-              : t('noData')}
-          </div>
-          <div className="text-sm text-gray-600">{t('sinceLastVetVisit')}</div>
-        </Card>
-        
-        <Card variant="glass" className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Activity size={20} className="text-white" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">{dogVaccinations.length}</div>
-          <div className="text-sm text-gray-600">{t('totalVaccinations')}</div>
-        </Card>
-        
-         <Card variant="glass" className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Heart size={20} className="text-white" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">
-            {t(statusKey)} {/* now translatable */}
-          </div>
-          <div className="text-sm text-gray-600">{t('healthStatus')}</div>
-        </Card>
-      </div>
-          
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Upcoming Appointments */}
-        <Card variant="gradient" className="stat-card group">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary-200/20 to-blue-200/20 rounded-full -translate-y-10 translate-x-10"></div>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900 flex items-center">
-              <Calendar className="mr-2 text-primary-500" />
+        {/* Upcoming Appointments + ChatBot */}
+        <section className={`col-span-12 md:col-span-6 lg:col-span-5 ${cardClass} p-6`}>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-semibold text-amber-600 dark:text-[#ffd798]">
               {t('upcomingAppointments')}
-            </h3>
-            <Button variant="ghost" size="sm" onClick={() => onNavigate('calendar')}>
-              {t('viewAll')}
-            </Button>
-          </div>
-          <ChatBot dogName={currentDog.name} />
-          <MiniCalendar appointments={dogAppointments} onNavigate={onNavigate} />
-        </Card>
-
-        {/* Quick Actions */}
-        <Card variant="gradient" className="stat-card group">
-          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-            <Sparkles className="mr-2 text-primary-500" />
-            {t('quickActions')}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <button
-              onClick={() => onNavigate('health')}
-              className="group p-4 sm:p-6  text-left border-2 border-blue-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Shield className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('addVaccination')}</p>
-              <p className="text-sm text-gray-500">{t('trackVaccinationRecords')}</p>
-            </button>
-            
-            <button
-              onClick={() => onNavigate('health')}
-              className="group p-4 sm:p-6  text-left border-2 border-red-200 rounded-2xl hover:border-red-300 hover:bg-red-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Heart className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('addHealthRecord')}</p>
-              <p className="text-sm text-gray-500">{t('logHealthInformation')}</p>
-            </button>
-            
+            </h2>
             <button
               onClick={() => onNavigate('calendar')}
-              className="group p-4 sm:p-6 text-left border-2 border-green-200 rounded-2xl hover:border-green-300 hover:bg-green-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="text-sm text-[#005da7] dark:text-[#a4c9ff] font-medium hover:opacity-80"
             >
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Calendar className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('scheduleAppointment')}</p>
-              <p className="text-sm text-gray-500">{t('bookVetVisits')}</p>
-            </button>
-            
-            <button
-              onClick={() => onNavigate('training')}
-              className="group p-4 sm:p-6 text-left border-2 border-purple-200 rounded-2xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Award className="text-white" size={20} />
-              </div>
-              <p className="font-semibold text-gray-900">{t('addTrainingSession')}</p>
-              <p className="text-sm text-gray-500">{t('trackProgress')}</p>
+              {t('viewAll')}
             </button>
           </div>
-        </Card>
-      </div>
+          <MiniCalendar appointments={dogAppointments} onNavigate={onNavigate} />
+        </section>
 
-      {/* Pet Passport Modal */}
-      {showPassport && (
-        <PetPassport dog={currentDog} onClose={() => setShowPassport(false)} />
-      )}
-
-      {/* Recent Activity */}
-      <Card variant="gradient" className="stat-card group">
-        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-          <Clock className="mr-2 text-primary-500" />
-          {t('recentActivity')}
-        </h3>
-        <div className="space-y-4">
-          {dogHealthRecords
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 5)
-            .map((record) => (
-              <div key={record.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30">
-                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart size={16} className="text-white" />
+        {/* Recent Activity + Quick Actions */}
+        <section className={`col-span-12 md:col-span-6 lg:col-span-7 ${cardClass} p-6`}>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#e2e2e6]">
+              {t('recentActivity')}
+            </h2>
+            <button
+              onClick={() => onNavigate('health')}
+              className="text-sm text-[#005da7] dark:text-[#a4c9ff] font-bold hover:opacity-80"
+            >
+              {t('viewAll')}
+            </button>
+          </div>
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Activity items */}
+            <div className="flex-1 space-y-3">
+              {dogHealthRecords
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .slice(0, 4)
+                .map(record => (
+                  <div
+                    key={record.id}
+                    className="p-3 rounded-xl bg-gray-50 dark:bg-[#1a1c1f] border border-gray-100 dark:border-white/5 flex items-start gap-3"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 flex items-center justify-center flex-shrink-0">
+                      <Heart size={15} className="text-[#005da7] dark:text-[#a4c9ff]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 dark:text-[#e2e2e6] text-sm truncate">
+                        {record.title}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-[#8b919d]">{formatDate(record.date)}</p>
+                    </div>
+                    <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-[#333538] text-gray-500 dark:text-[#c1c7d3] rounded-full flex-shrink-0">
+                      {record.type}
+                    </span>
+                  </div>
+                ))}
+              {dogHealthRecords.length === 0 && (
+                <div className="text-center py-8">
+                  <Clock size={32} className="mx-auto mb-2 text-gray-300 dark:text-[#414751]" />
+                  <p className="text-gray-500 dark:text-[#8b919d] text-sm">{t('noData')}</p>
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900">{record.title}</p>
-                  <p className="text-sm text-gray-500">{formatDate(record.date)}</p>
-                </div>
-                <span className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 text-xs rounded-full font-medium">
-                  {record.type}
-                </span>
-              </div>
-            ))}
-          
-          {dogHealthRecords.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <Clock size={32} className="text-gray-400" />
-              </div>
-              <p className="text-gray-500">{t('noData')}</p>
+              )}
             </div>
-          )}
-        </div>
-      </Card>
+
+            {/* Quick Actions */}
+            <div className="lg:w-5/12 grid grid-cols-2 gap-2 content-start">
+              <button
+                onClick={() => onNavigate('health')}
+                className="p-3 text-left border border-gray-200 dark:border-white/5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all group"
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <Shield className="text-white" size={16} />
+                </div>
+                <p className="font-medium text-gray-900 dark:text-[#e2e2e6] text-xs leading-tight">
+                  {t('addVaccination')}
+                </p>
+              </button>
+              <button
+                onClick={() => onNavigate('health')}
+                className="p-3 text-left border border-gray-200 dark:border-white/5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all group"
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <Heart className="text-white" size={16} />
+                </div>
+                <p className="font-medium text-gray-900 dark:text-[#e2e2e6] text-xs leading-tight">
+                  {t('addHealthRecord')}
+                </p>
+              </button>
+              <button
+                onClick={() => onNavigate('calendar')}
+                className="p-3 text-left border border-gray-200 dark:border-white/5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all group"
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <Calendar className="text-white" size={16} />
+                </div>
+                <p className="font-medium text-gray-900 dark:text-[#e2e2e6] text-xs leading-tight">
+                  {t('scheduleAppointment')}
+                </p>
+              </button>
+              <button
+                onClick={() => onNavigate('training')}
+                className="p-3 text-left border border-gray-200 dark:border-white/5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all group"
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-violet-500 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <Award className="text-white" size={16} />
+                </div>
+                <p className="font-medium text-gray-900 dark:text-[#e2e2e6] text-xs leading-tight">
+                  {t('addTrainingSession')}
+                </p>
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
     </div>
   );
 };
 
 // Mini Calendar Component for Dashboard
-const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) => void }> = ({ 
-  appointments, 
-  onNavigate 
+const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) => void }> = ({
+  appointments,
+  onNavigate,
 }) => {
   const { t } = useTranslation();
   const today = new Date();
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
-  const calculateAge = (dateOfBirth: Date): number => {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
-    return age;
-  };
-  
-  // Get this week's dates
+
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
-  
+
   const weekDates = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(startOfWeek);
     date.setDate(startOfWeek.getDate() + i);
     return date;
   });
 
-  const getAppointmentsForDate = (date: Date) => {
-    return appointments.filter(apt => 
-      new Date(apt.date).toDateString() === date.toDateString()
-    );
-  };
+  const getAppointmentsForDate = (date: Date) =>
+    appointments.filter(apt => new Date(apt.date).toDateString() === date.toDateString());
 
   const upcomingAppointments = appointments
     .filter(apt => new Date(apt.date) >= today)
@@ -624,45 +474,52 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
     .slice(0, 3);
 
   return (
-    <div className="space-y-4">
-      {/* Week View */}
-      <div className="grid grid-cols-7 gap-2">
+    <div className="space-y-4 mt-4">
+      {/* Week strip */}
+      <div className="grid grid-cols-7 gap-1">
         {weekDays.map((day, index) => {
           const date = weekDates[index];
           const dayAppointments = getAppointmentsForDate(date);
           const isToday = date.toDateString() === today.toDateString();
-          
+
           return (
             <div key={index} className="text-center">
-              <div className="text-xs font-medium text-gray-500 mb-1">{day}</div>
-              <div className={`
-                w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mx-auto mb-2
-                ${isToday ? 'bg-primary-500 text-white' : 'text-gray-700 hover:bg-gray-100'}
-                ${dayAppointments.length > 0 ? 'ring-2 ring-blue-300' : ''}
-              `}>
+              <div className="text-xs font-medium text-gray-400 dark:text-[#8b919d] mb-1">{day}</div>
+              <div
+                className={`
+                  w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mx-auto mb-1
+                  ${isToday
+                    ? 'bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d]'
+                    : 'text-gray-700 dark:text-[#c1c7d3] hover:bg-gray-100 dark:hover:bg-[#282a2d]'}
+                  ${dayAppointments.length > 0 && !isToday ? 'ring-2 ring-[#005da7]/40 dark:ring-[#a4c9ff]/40' : ''}
+                `}
+              >
                 {date.getDate()}
               </div>
               {dayAppointments.length > 0 && (
-                <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto"></div>
+                <div className="w-1.5 h-1.5 bg-[#005da7] dark:bg-[#a4c9ff] rounded-full mx-auto" />
               )}
             </div>
           );
         })}
       </div>
-       
 
-      {/* Upcoming Appointments List */}
-      <div className="space-y-3">
-        <h4 className="font-medium text-gray-900 dark:text-white">{t('upcomingAppointments')}</h4>
+      {/* Upcoming list */}
+      <div className="space-y-2">
         {upcomingAppointments.length > 0 ? (
-          upcomingAppointments.map((appointment) => (
-            <div key={appointment.id} className="flex items-center space-x-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <Calendar size={14} className="text-blue-600" />
+          upcomingAppointments.map(appointment => (
+            <div
+              key={appointment.id}
+              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#1a1c1f] rounded-xl border border-gray-100 dark:border-white/5"
+            >
+              <div className="w-8 h-8 bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Calendar size={14} className="text-[#005da7] dark:text-[#a4c9ff]" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-gray-900 dark:text-white truncate">{appointment.title}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="font-medium text-gray-900 dark:text-[#e2e2e6] text-sm truncate">
+                  {appointment.title}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-[#8b919d]">
                   {formatDate(appointment.date)} at {appointment.time}
                 </div>
               </div>
@@ -670,19 +527,17 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
           ))
         ) : (
           <div className="text-center py-4">
-            <Calendar size={24} className="mx-auto mb-2 text-gray-300" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">{t('noUpcomingAppointments')}</p>
+            <Calendar size={24} className="mx-auto mb-2 text-gray-300 dark:text-[#414751]" />
+            <p className="text-sm text-gray-500 dark:text-[#8b919d]">{t('noUpcomingAppointments')}</p>
             <button
               onClick={() => onNavigate('calendar')}
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+              className="text-sm text-[#005da7] dark:text-[#a4c9ff] hover:opacity-80 font-medium mt-1"
             >
               {t('scheduleOneNow')}
             </button>
           </div>
         )}
       </div>
-      
     </div>
-    
   );
 };

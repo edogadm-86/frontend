@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#6a4800",
+                    "tertiary-container": "#c58305",
+                    "surface-container-low": "#1a1c1f",
+                    "on-secondary-fixed-variant": "#5f4100",
+                    "inverse-surface": "#e2e2e6",
+                    "inverse-on-surface": "#2f3034",
+                    "tertiary-fixed": "#ffddb4",
+                    "surface-variant": "#333538",
+                    "secondary-container": "#feb300",
+                    "outline": "#8b919d",
+                    "primary-fixed": "#d4e3ff",
+                    "on-primary-fixed-variant": "#004883",
+                    "on-tertiary": "#452b00",
+                    "primary": "#a4c9ff",
+                    "surface-bright": "#37393d",
+                    "outline-variant": "#414751",
+                    "background": "#111316",
+                    "secondary": "#ffd798",
+                    "surface": "#111316",
+                    "secondary-fixed": "#ffdeac",
+                    "secondary-fixed-dim": "#ffba35",
+                    "on-secondary-fixed": "#281900",
+                    "error": "#ffb4ab",
+                    "surface-container-highest": "#333538",
+                    "on-primary-fixed": "#001c39",
+                    "on-primary": "#00315d",
+                    "surface-container-high": "#282a2d",
+                    "tertiary": "#ffb953",
+                    "on-surface": "#e2e2e6",
+                    "surface-dim": "#111316",
+                    "on-secondary": "#422c00",
+                    "on-background": "#e2e2e6",
+                    "primary-container": "#4d93e5",
+                    "surface-container-lowest": "#0c0e11",
+                    "primary-fixed-dim": "#a4c9ff",
+                    "tertiary-fixed-dim": "#ffb953",
+                    "inverse-primary": "#0060ac",
+                    "on-error": "#690005",
+                    "on-tertiary-container": "#3c2500",
+                    "surface-container": "#1e2023",
+                    "on-primary-container": "#002a51",
+                    "on-tertiary-fixed-variant": "#633f00",
+                    "on-tertiary-fixed": "#291800",
+                    "on-surface-variant": "#c1c7d3",
+                    "surface-tint": "#a4c9ff",
+                    "error-container": "#93000a",
+                    "on-error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "margin-desktop": "48px",
+                    "md": "16px",
+                    "margin-mobile": "16px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "label-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #111316;
+        color: #e2e2e6;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .custom-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- Top App Bar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-background dark:bg-background">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-primary font-headline-md text-headline-md" data-icon="paws_claws">pets</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">eDog</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-highest transition-colors text-on-surface-variant" data-icon="notifications">notifications</button>
+<div class="w-8 h-8 rounded-full border-2 border-primary overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a professional woman in her early 30s with a warm, friendly smile, set against a blurred modern office background with soft lighting. The image captures a clean, corporate aesthetic with high-quality focus on her expression, reinforcing the brand's tone of trust and precision. The lighting is high-key and soft, perfectly complementing the sophisticated dark theme of the eDog interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDqjUM9b_dzoM3_MLv9vZ3nf_J4rXkuHgmqbagS8Wr7Ibb29UoRPLi5z8UniHEABInp5xHD09G6oMjgbmUCUIMHpq8xnoNbQCTVPrtGFNNFYr8qsjStIZ-vhCi2NM-_OGSKIxWs8u2akFqpPR2nzhBrzhNoY0eyB4mYRUC9ssnr9iHwR3XaG9vd7wyCR2K71d7IteB2BfftqdP_xeOoxZh2R094Ri09QjojjSh54csXFA1xo8U-uMg5JTwH-2Su-s9aNidXUkPp2_W"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-20 px-4 space-y-6 max-w-2xl mx-auto">
+<!-- Profile Card: Cooper -->
+<section class="bg-surface-container border border-white/10 rounded-xl p-lg relative overflow-hidden shadow-lg">
+<div class="absolute top-0 right-0 p-4">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-primary/20 text-primary rounded-full text-label-sm font-label-sm">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                    Active Now
+                </span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-20 h-20 rounded-full border-2 border-primary p-0.5">
+<img alt="Cooper" class="w-full h-full object-cover rounded-full" data-alt="A beautiful Golden Retriever named Cooper, sitting gracefully in a sun-drenched living room with high-quality textures of soft golden fur. The lighting is cinematic and warm, highlighting his gentle expression and deep, soulful eyes. The background is a minimalist, modern apartment with subtle bokeh, aligning with the eDog digital concierge aesthetic and corporate modern visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF0UMBf31jnsOZcObjEzj7gyEsTWOo3ROBaBiZR2INd8ZSD_TDIdpXtv_vVr04StXv5oH7fRT8b53h6TPXG3WrLU3cQgIqu9w9Ti2PD2EXO_1VrR0w7z6-Wdxpj30OY86zWitGca6lOvb-exIi-xRXQGOEQk1WgA7b4h7FJkXOX0tOes5KtrrBDZ-n5WsWZkMq-CdRfKFhxmvLgK6gzpjIacMxx1Q9Ew2ZSG0xMtXxon0QLVxo_EfRUFB0VClmarWk_YyGhOG7Jcl0"/>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Cooper</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Golden Retriever • 3 yrs</p>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 bg-primary-container text-on-primary-container font-label-md text-label-md py-3 rounded-xl transition-all active:scale-95 shadow-inner">
+                    Health Checkup
+                </button>
+<button class="px-4 border border-primary text-primary font-label-md text-label-md py-3 rounded-xl hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+</button>
+</div>
+</section>
+<!-- Key Metrics: Bento Grid Layout -->
+<section class="grid grid-cols-2 gap-4">
+<!-- Weight Card -->
+<div class="bg-surface-container border border-white/10 rounded-xl p-md flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-secondary-container/20 rounded-lg">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="monitor_weight">monitor_weight</span>
+</div>
+<span class="text-label-sm font-label-sm text-secondary-fixed">+0.4kg</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Weight</p>
+<h3 class="font-headline-md text-headline-md text-on-surface">32.4 <span class="text-body-md">kg</span></h3>
+</div>
+</div>
+<!-- Heart Rate Card -->
+<div class="bg-surface-container border border-white/10 rounded-xl p-md flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-error-container/20 rounded-lg">
+<span class="material-symbols-outlined text-error" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Avg</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Heart Rate</p>
+<h3 class="font-headline-md text-headline-md text-on-surface">78 <span class="text-body-md">bpm</span></h3>
+</div>
+</div>
+</section>
+<!-- Daily Routine Section -->
+<section class="space-y-4">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-md text-headline-md text-on-surface">Daily Routine</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">65% Completed</p>
+</div>
+<div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] rounded-full shadow-[0_0_8px_rgba(164,201,255,0.4)]"></div>
+</div>
+<div class="space-y-3">
+<!-- Routine Item 1 -->
+<div class="flex items-center justify-between p-md bg-surface-container-high rounded-xl border border-white/5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 flex items-center justify-center bg-tertiary-container/20 text-tertiary rounded-full">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Morning Meal</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">08:00 AM</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Routine Item 2 -->
+<div class="flex items-center justify-between p-md bg-surface-container-high rounded-xl border border-white/5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 flex items-center justify-center bg-secondary-container/20 text-secondary rounded-full">
+<span class="material-symbols-outlined" data-icon="medication">medication</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Heartworm Pill</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">09:30 AM</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Routine Item 3 -->
+<div class="flex items-center justify-between p-md bg-surface-container-high rounded-xl border border-white/5 opacity-70">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 flex items-center justify-center bg-outline-variant/20 text-outline rounded-full">
+<span class="material-symbols-outlined" data-icon="park">park</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Afternoon Walk</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">05:00 PM</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline/30"></div>
+</div>
+</div>
+</section>
+<!-- Activity Log (Scrollable) -->
+<section class="space-y-4">
+<h3 class="font-headline-md text-headline-md text-on-surface px-1">Activity Log</h3>
+<div class="flex gap-4 overflow-x-auto custom-scrollbar pb-2">
+<!-- Log Card 1 -->
+<div class="min-w-[280px] bg-surface-container-low border border-white/5 rounded-xl overflow-hidden shadow-md">
+<div class="h-32 bg-surface-variant">
+<img alt="Walk Map" class="w-full h-full object-cover" data-alt="A stylized digital map interface showing a walking route through a lush green park in London. The path is traced with a glowing neon blue line, highlighting distance and pace. The visual style is clean and high-tech, using the eDog dark theme colors, with subtle UI overlays indicating time and duration. The lighting is crisp, morning sunlight filtering through trees." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXohFe69matjDeXGgwy5Tk39SEBLQc0eobPXtX7DOT3N1RPVQ729fYKesZyi6vnyHGLG1ehF4s4eOw16WpscgoYTieVdmwXv8CSSq0AOdchCwkJC54tRhBaIh-3lK95aiBVAnTGPdwoAxJFGWn_91-KPllf_oYcrscMvAEZADA1q369UbmNaP8XwcfCum5wemtFdt-Bxo-2J88co2Ys67tGwg2NWXKqJWfRu6SwPQCkXWMZFZi67p-EG3POcu741sERJlIWJgQbFar"/>
+</div>
+<div class="p-md space-y-2">
+<div class="flex justify-between items-center">
+<p class="font-label-md text-label-md text-on-surface">Park Walk</p>
+<span class="text-label-sm font-label-sm text-on-surface-variant">2h ago</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">3.2 km • 45 mins • Hyde Park</p>
+</div>
+</div>
+<!-- Log Card 2 -->
+<div class="min-w-[280px] bg-surface-container-low border border-white/5 rounded-xl overflow-hidden shadow-md">
+<div class="h-32 bg-surface-variant">
+<img alt="Training" class="w-full h-full object-cover" data-alt="A close-up photographic shot of a dog's paw performing a 'high five' gesture with a human hand in a modern, dark-toned interior space. The lighting is dramatic, coming from the side to emphasize the textures of fur and skin. The atmosphere is warm and high-fidelity, conveying the bond of training and companionship, perfectly aligned with the eDog corporate modern design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9zw_6CoHg29Ol9XLrKkqLesZcxp_5Sp0tFQJ5uk8UcbNb0Mvn-mM12K-DmsI91AiJIJOBg2iQIg1bwbsrc4XkeGrOn7xK9k4922ZbeZT2mFXiK0iYYx8dNKDRFu0NsJkTJBJRsW4jEEpx8Q21uw865OJTcj16SHQV8fq2psEsEXlGUDY2o_ebgCT8WcY_Spu4n4Ks1Er8vs0O5TRu08OhH0ItKpYM4tR-BDebwOv3FMZnmtNuDBOtDGfgek0eQneN28_8d97mdoo5"/>
+</div>
+<div class="p-md space-y-2">
+<div class="flex justify-between items-center">
+<p class="font-label-md text-label-md text-on-surface">Training Session</p>
+<span class="text-label-sm font-label-sm text-on-surface-variant">5h ago</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Obedience • 20 mins • Indoor</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Nav Bar (Shared Component) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-20 bg-surface-container dark:bg-surface-container shadow-[0_-4px_12px_0_rgba(0,0,0,0.4)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container rounded-full px-4 py-1 Active: scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:text-primary dark:hover:text-primary Active: scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-label-sm text-label-sm">Health</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:text-primary dark:hover:text-primary Active: scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+<span class="font-label-sm text-label-sm">Activity</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:text-primary dark:hover:text-primary Active: scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<!-- Contextual FAB -->
+<div class="fixed bottom-24 right-6 z-40">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-2xl flex items-center justify-center shadow-2xl active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+</div>
+</body></html>

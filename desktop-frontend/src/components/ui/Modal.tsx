@@ -25,7 +25,6 @@ export const Modal: React.FC<ModalProps> = ({
     } else {
       document.body.style.overflow = 'unset';
     }
-    
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -41,22 +40,25 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div 
+    <div
+      className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
         className={cn(
-          'modal-content',
+          'font-jakarta bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-2xl shadow-2xl w-full max-h-[90vh] overflow-y-auto',
           sizes[size],
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200/50 bg-gradient-to-r from-primary-50 to-blue-50 rounded-t-2xl">
-          <h2 className="text-xl font-bold gradient-text">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/5">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-[#e2e2e6]">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white/50 rounded-xl transition-all duration-200"
+            className="p-1.5 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-gray-700 dark:hover:text-[#e2e2e6] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-all"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
         <div className="p-6">

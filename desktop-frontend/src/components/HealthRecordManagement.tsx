@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Edit, Trash2, Heart, Calendar, User, Pill, Paperclip } from 'lucide-react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
@@ -11,13 +9,14 @@ import { apiClient } from '../lib/api';
 import { API_BASE_URL } from '../config';
 import { HealthRecord } from '../types';
 
-
 interface HealthRecordManagementProps {
   dogId: string;
   dogName: string;
 }
 
-
+const cardClass = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5';
+const labelClass = 'block text-sm font-medium text-gray-700 dark:text-[#c1c7d3] mb-1';
+const inputSelectClass = 'w-full px-3 py-2 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1c1f] text-gray-900 dark:text-[#e2e2e6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005da7] dark:focus:ring-[#a4c9ff] focus:border-transparent text-sm';
 
 export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   dogId,
@@ -44,44 +43,45 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   }, [dogId]);
 
   const loadHealthRecords = async () => {
-  try {
-    const [recordsRes, documentsRes] = await Promise.all([
-      apiClient.getHealthRecords(dogId),
-      apiClient.getDocuments(dogId),
-    ]);
+    try {
+      const [recordsRes, documentsRes] = await Promise.all([
+        apiClient.getHealthRecords(dogId),
+        apiClient.getDocuments(dogId),
+      ]);
 
-    const documentsByRecord: Record<string, any[]> = {};
-    documentsRes.documents.forEach((doc: any) => {
-      if (doc.health_record_id) {
-        if (!documentsByRecord[doc.health_record_id]) {
-          documentsByRecord[doc.health_record_id] = [];
+      const documentsByRecord: Record<string, any[]> = {};
+      documentsRes.documents.forEach((doc: any) => {
+        if (doc.health_record_id) {
+          if (!documentsByRecord[doc.health_record_id]) {
+            documentsByRecord[doc.health_record_id] = [];
+          }
+          documentsByRecord[doc.health_record_id].push({
+            id: doc.id,
+            url: `${API_BASE_URL}/uploads/file/${doc.filename}`,
+            name: doc.name || doc.originalName || "Attachment",
+          });
         }
-        documentsByRecord[doc.health_record_id].push({
-          id: doc.id,
-          url: `${API_BASE_URL}/uploads/file/${doc.filename}`,
-          name: doc.name || doc.originalName || "Attachment",
-        });
-      }
-    });
+      });
 
-    const normalized = recordsRes.healthRecords.map((r: any) => ({
-      id: r.id,
-      dogId: r.dog_id,
-      date: r.date,
-      type: r.type,
-      title: r.title,
-      description: r.description,
-      veterinarian: r.veterinarian,
-      medication: r.medication,
-      dosage: r.dosage,
-      documents: documentsByRecord[r.id] || [],
-    }));
+      const normalized = recordsRes.healthRecords.map((r: any) => ({
+        id: r.id,
+        dogId: r.dog_id,
+        date: r.date,
+        type: r.type,
+        title: r.title,
+        description: r.description,
+        veterinarian: r.veterinarian,
+        medication: r.medication,
+        dosage: r.dosage,
+        documents: documentsByRecord[r.id] || [],
+      }));
 
-    setHealthRecords(normalized);
-  } catch (error) {
-    console.error("Error loading health records:", error);
-  }
-};
+      setHealthRecords(normalized);
+    } catch (error) {
+      console.error("Error loading health records:", error);
+    }
+  };
+
   const handleCreate = () => {
     setEditingRecord(null);
     setUploadedFiles([]);
@@ -115,7 +115,6 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       if (editingRecord) {
         await apiClient.updateHealthRecord(dogId, editingRecord.id, formData);
@@ -146,147 +145,146 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
   const handleFileUploaded = (fileUrl: string, fileName: string) => {
     setUploadedFiles(prev => [...prev, fileUrl]);
   };
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'vet-visit': return <User size={24} className="text-blue-600" />;
-      case 'medication': return <Pill size={24} className="text-green-600" />;
-      case 'illness': return <Heart size={24} className="text-red-600" />;
-      case 'injury': return <Heart size={24} className="text-orange-600" />;
-      default: return <Heart size={24} className="text-gray-600" />;
-    }
-  };
 
-  const getTypeColor = (type: string) => {
+  const getTypeConfig = (type: string) => {
     switch (type) {
-      case 'vet-visit': return 'bg-blue-100';
-      case 'medication': return 'bg-green-100';
-      case 'illness': return 'bg-red-100';
-      case 'injury': return 'bg-orange-100';
-      default: return 'bg-gray-100';
+      case 'vet-visit': return { icon: <User size={20} className="text-blue-600 dark:text-blue-400" />, bg: 'bg-blue-100 dark:bg-blue-900/30', badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' };
+      case 'medication': return { icon: <Pill size={20} className="text-green-600 dark:text-green-400" />, bg: 'bg-green-100 dark:bg-green-900/30', badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' };
+      case 'illness': return { icon: <Heart size={20} className="text-red-600 dark:text-red-400" />, bg: 'bg-red-100 dark:bg-red-900/30', badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' };
+      case 'injury': return { icon: <Heart size={20} className="text-orange-600 dark:text-orange-400" />, bg: 'bg-orange-100 dark:bg-orange-900/30', badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' };
+      default: return { icon: <Heart size={20} className="text-gray-500 dark:text-[#8b919d]" />, bg: 'bg-gray-100 dark:bg-[#282a2d]', badge: 'bg-gray-100 dark:bg-[#282a2d] text-gray-600 dark:text-[#c1c7d3]' };
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            {t('healthRecords')} - {dogName}
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-[#e2e2e6]">
+            {t('healthRecords')} — {dogName}
           </h3>
-          <p className="text-gray-600">{t('trackMedicalHistoryAndHealthInformation')}</p>
+          <p className="text-sm text-gray-500 dark:text-[#8b919d]">{t('trackMedicalHistoryAndHealthInformation')}</p>
         </div>
-        <Button onClick={handleCreate}  className="w-full sm:w-auto"
-                              icon={<Plus size={20} />}>
+        <button
+          onClick={handleCreate}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity w-full sm:w-auto justify-center"
+        >
+          <Plus size={16} />
           {t('addHealthRecord')}
-        </Button>
+        </button>
       </div>
 
       {healthRecords.length === 0 ? (
-        <Card className="text-center py-16">
-          <Heart size={48} className="mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500 mb-4">No health records found</p>
-          <Button onClick={handleCreate}>
+        <div className={`${cardClass} text-center py-16`}>
+          <Heart size={48} className="mx-auto mb-4 text-gray-300 dark:text-[#414751]" />
+          <p className="text-gray-500 dark:text-[#8b919d] mb-4">No health records found</p>
+          <button
+            onClick={handleCreate}
+            className="px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+          >
             {t('addHealthRecord')}
-          </Button>
-        </Card>
+          </button>
+        </div>
       ) : (
-        <div className="grid gap-4">
-          {healthRecords.map((record) => (
-            <Card key={record.id}>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div className={`w-12 h-12 ${getTypeColor(record.type)} rounded-lg flex items-center justify-center`}>
-                    {getTypeIcon(record.type)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h4 className="font-semibold text-gray-900 dark:text-white truncate max-w-full">
-                        {record.title}
-                      </h4>
-                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded-full whitespace-nowrap">
-                        {record.type}
-                      </span>
+        <div className="grid gap-3">
+          {healthRecords.map((record) => {
+            const typeConfig = getTypeConfig(record.type);
+            return (
+              <div key={record.id} className={cardClass}>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div className={`w-11 h-11 ${typeConfig.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                      {typeConfig.icon}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-3 sm:line-clamp-none">
-                      {record.description}
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Calendar size={16} className="mr-2" />
-                        {formatDate(record.date)}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h4 className="font-semibold text-gray-900 dark:text-[#e2e2e6] truncate max-w-full">
+                          {record.title}
+                        </h4>
+                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${typeConfig.badge}`}>
+                          {record.type}
+                        </span>
                       </div>
-                      {record.veterinarian && (
-                        <div className="flex items-center text-gray-600">
-                          <User size={16} className="mr-2" />
-                          {record.veterinarian}
+                      <p className="text-sm text-gray-600 dark:text-[#8b919d] mb-3 line-clamp-3 sm:line-clamp-none">
+                        {record.description}
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                        <div className="flex items-center text-gray-500 dark:text-[#8b919d] gap-1.5">
+                          <Calendar size={14} />
+                          {formatDate(record.date)}
                         </div>
-                      )}
-                      {record.medication && (
-                        <div className="flex items-center text-gray-600">
-                          <Pill size={16} className="mr-2" />
-                          {record.medication}
-                          {record.dosage && ` - ${record.dosage}`}
-                        </div>
-                      )}
-                     {record.documents && record.documents.length > 0 && (
-                      <div> 
-                        <p className="text-sm font-medium text-gray-700 flex items-center">
-                          <Paperclip size={14} className="mr-1" />
-                          {t('attachedDocuments')}
-                        </p>
-                        <ul className="mt-2 space-y-1 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
-                          {record.documents.map((doc, i) => (
-                            <li key={doc.id || i} className="flex items-center justify-between">
-                              <a
-                                href={doc.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline text-sm"
-                              >
-                                {doc.name || `Document ${i + 1}`}
-                              </a>
-                              <button
-                                onClick={async (e) => {
-                                  e.preventDefault();
-                                  if (window.confirm('Delete this attachment?')) {
-                                    try {
-                                      await apiClient.deleteDocument(doc.id);
-                                      await loadHealthRecords();
-                                    } catch (err) {
-                                      console.error('Error deleting document:', err);
-                                    }
-                                  }
-                                }}
-                                className="ml-2 text-red-600 hover:text-red-800 text-sm"
-                              >
-                                {t('delete')} {t('attachedDocuments')}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
+                        {record.veterinarian && (
+                          <div className="flex items-center text-gray-500 dark:text-[#8b919d] gap-1.5">
+                            <User size={14} />
+                            {record.veterinarian}
+                          </div>
+                        )}
+                        {record.medication && (
+                          <div className="flex items-center text-gray-500 dark:text-[#8b919d] gap-1.5">
+                            <Pill size={14} />
+                            {record.medication}
+                            {record.dosage && ` — ${record.dosage}`}
+                          </div>
+                        )}
+                        {record.documents && record.documents.length > 0 && (
+                          <div className="sm:col-span-2 mt-1">
+                            <p className="text-sm font-medium text-gray-700 dark:text-[#c1c7d3] flex items-center gap-1.5 mb-1">
+                              <Paperclip size={13} />
+                              {t('attachedDocuments')}
+                            </p>
+                            <ul className="space-y-1">
+                              {record.documents.map((doc, i) => (
+                                <li key={doc.id || i} className="flex items-center justify-between">
+                                  <a
+                                    href={doc.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#005da7] dark:text-[#a4c9ff] hover:underline text-sm"
+                                  >
+                                    {doc.name || `Document ${i + 1}`}
+                                  </a>
+                                  <button
+                                    onClick={async (e) => {
+                                      e.preventDefault();
+                                      if (window.confirm('Delete this attachment?')) {
+                                        try {
+                                          await apiClient.deleteDocument(doc.id);
+                                          await loadHealthRecords();
+                                        } catch (err) {
+                                          console.error('Error deleting document:', err);
+                                        }
+                                      }
+                                    }}
+                                    className="ml-2 text-red-500 hover:text-red-700 text-xs"
+                                  >
+                                    {t('delete')}
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
-                    )}
                     </div>
-                     
                   </div>
-                </div>
-                <div className="flex gap-2 sm:justify-end">
-                  <button
-                    onClick={() => handleEdit(record)}
-                    className="flex-1 sm:flex-none  p-2 text-gray-400 hover:text-blue-600 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(record.id)}
-                    className="flex-1 sm:flex-none  p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex gap-1 sm:justify-end sm:items-start">
+                    <button
+                      onClick={() => handleEdit(record)}
+                      className="p-2 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-all"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(record.id)}
+                      className="p-2 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -306,13 +304,11 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
               required
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('type')}
-              </label>
+              <label className={labelClass}>{t('type')}</label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value as HealthRecord['type'] })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className={inputSelectClass}
                 required
               >
                 <option value="vet-visit">{t('vetVisit')}</option>
@@ -330,13 +326,11 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
             required
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('description')}
-            </label>
+            <label className={labelClass}>{t('description')}</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className={inputSelectClass}
               rows={3}
               required
             />
@@ -358,13 +352,10 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
               onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
             />
           </div>
-          
-          {/* File Upload */}
-         {editingRecord && (
+
+          {editingRecord && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-               {t('attachedDocuments')}
-              </label>
+              <label className={labelClass}>{t('attachedDocuments')}</label>
               <FileUpload
                 acceptedTypes="image/*,.pdf,.doc,.docx"
                 maxSize={10}
@@ -375,19 +366,28 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                 multiple={true}
               />
               {uploadedFiles.length > 0 && (
-                <div className="mt-2 text-sm text-green-600">
+                <div className="mt-2 text-sm text-green-600 dark:text-green-400">
                   {uploadedFiles.length} {t('filesUploaded')}
                 </div>
               )}
             </div>
           )}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => setIsModalOpen(false)}>
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all w-full sm:w-auto"
+            >
               {t('cancel')}
-            </Button>
-            <Button type="submit" className="w-full sm:flex-1" disabled={loading}>
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
               {loading ? t('loading') : t('save')}
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

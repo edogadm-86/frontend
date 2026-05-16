@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#474747",
+                    "on-primary-container": "#556d00",
+                    "on-secondary": "#303030",
+                    "background": "#131313",
+                    "secondary-fixed": "#e4e2e1",
+                    "on-surface-variant": "#c4c9ac",
+                    "primary-fixed": "#c3f400",
+                    "on-tertiary": "#690003",
+                    "error": "#ffb4ab",
+                    "primary-container": "#c3f400",
+                    "on-surface": "#e5e2e1",
+                    "tertiary-container": "#ffdad5",
+                    "surface-bright": "#393939",
+                    "tertiary": "#ffffff",
+                    "inverse-on-surface": "#313030",
+                    "tertiary-fixed": "#ffdad5",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-low": "#1c1b1b",
+                    "secondary": "#c8c6c6",
+                    "outline-variant": "#444933",
+                    "surface-dim": "#131313",
+                    "on-secondary-fixed": "#1b1c1c",
+                    "surface-container-highest": "#353534",
+                    "tertiary-fixed-dim": "#ffb4aa",
+                    "surface-container": "#201f1f",
+                    "on-tertiary-container": "#ca0a0f",
+                    "on-secondary-container": "#b6b5b4",
+                    "surface-container-high": "#2a2a2a",
+                    "on-tertiary-fixed-variant": "#930005",
+                    "secondary-container": "#474747",
+                    "on-error": "#690005",
+                    "surface-container-lowest": "#0e0e0e",
+                    "primary-fixed-dim": "#abd600",
+                    "on-tertiary-fixed": "#410001",
+                    "surface": "#131313",
+                    "surface-tint": "#abd600",
+                    "error-container": "#93000a",
+                    "on-primary-fixed": "#161e00",
+                    "on-background": "#e5e2e1",
+                    "primary": "#ffffff",
+                    "inverse-primary": "#506600",
+                    "outline": "#8e9379",
+                    "on-primary-fixed-variant": "#3c4d00",
+                    "secondary-fixed-dim": "#c8c6c6",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-variant": "#353534",
+                    "on-primary": "#283500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "margin-desktop": "40px",
+                    "video-control-padding": "24px",
+                    "touch-target-min": "48px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "video-timestamp": ["JetBrains Mono"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "label-caps": ["JetBrains Mono"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "video-timestamp": ["14px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                    "headline-lg": ["40px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.1", "fontWeight": "800"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #121212;
+            color: #e5e2e1;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md">
+<!-- Global Layout Wrapper -->
+<div class="flex min-h-screen bg-background overflow-hidden">
+<!-- Sidebar Navigation (SideNavBar JSON implementation) -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col border-r border-outline-variant py-margin-desktop bg-surface-container-low z-40">
+<div class="px-6 mb-10">
+<span class="text-headline-md font-headline-md text-primary-fixed tracking-tight">K9 COMMAND</span>
+<p class="text-label-caps font-label-caps text-on-surface-variant mt-1">Trainer Hub</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard -->
+<a class="flex items-center gap-4 text-on-surface-variant hover:text-on-surface px-4 py-3 mx-2 hover:bg-surface-container-highest rounded-full transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<!-- Video Library -->
+<a class="flex items-center gap-4 text-on-surface-variant hover:text-on-surface px-4 py-3 mx-2 hover:bg-surface-container-highest rounded-full transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+<span class="font-label-caps text-label-caps">Video Library</span>
+</a>
+<!-- Training History (Active) -->
+<a class="flex items-center gap-4 bg-primary-fixed text-on-primary-fixed rounded-full px-4 py-3 mx-2 scale-98 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="history" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-label-caps text-label-caps">Training History</span>
+</a>
+<!-- Dog Profile -->
+<a class="flex items-center gap-4 text-on-surface-variant hover:text-on-surface px-4 py-3 mx-2 hover:bg-surface-container-highest rounded-full transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+<span class="font-label-caps text-label-caps">Dog Profile</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-4 text-on-surface-variant hover:text-on-surface px-4 py-3 mx-2 hover:bg-surface-container-highest rounded-full transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full bg-primary-fixed text-on-primary-fixed font-label-caps text-label-caps py-4 rounded-full font-bold tracking-widest hover:opacity-90 transition-opacity">
+                    START DRILL
+                </button>
+<div class="mt-6 px-2 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">account_circle</span>
+</div>
+<div>
+<p class="text-xs font-bold">Trainer Alex</p>
+<p class="text-[10px] text-on-surface-variant">Active Session: 42m</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 mr-80 w-full min-h-screen p-margin-desktop space-y-8">
+<!-- Top App Bar (Simplified internal variant) -->
+<header class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface">Training Progress</h1>
+<p class="text-body-md font-body-md text-on-surface-variant">Performance metrics for Commander (Belgian Malinois)</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-high text-on-surface px-6 py-3 rounded-lg border border-outline-variant flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined" data-icon="upload">upload</span>
+<span class="text-label-caps font-label-caps">Upload Training Video</span>
+</button>
+<button class="bg-primary-fixed text-on-primary-fixed px-6 py-3 rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'FILL' 1;">add</span>
+<span class="text-label-caps font-label-caps">Start New Session</span>
+</button>
+</div>
+</header>
+<!-- Hero: Line Graph Mockup -->
+<section class="bg-surface-container rounded-xl p-8 relative overflow-hidden h-[320px] border border-outline-variant">
+<div class="flex justify-between items-start mb-12">
+<div>
+<span class="text-label-caps font-label-caps text-primary-fixed">CONSISTENCY SCORE</span>
+<h2 class="text-headline-md font-headline-md text-white mt-1">94% Retention Rate</h2>
+</div>
+<div class="flex gap-2">
+<div class="bg-primary-fixed w-2 h-2 rounded-full"></div>
+<span class="text-[10px] font-label-caps">ACTIVE SESSION</span>
+</div>
+</div>
+<!-- Abstract Data Visualization -->
+<div class="absolute bottom-0 left-0 w-full h-48 px-8">
+<div class="flex items-end justify-between h-full gap-2 pb-8">
+<div class="w-full bg-primary-fixed opacity-10 rounded-t-sm h-[30%]"></div>
+<div class="w-full bg-primary-fixed opacity-20 rounded-t-sm h-[45%]"></div>
+<div class="w-full bg-primary-fixed opacity-30 rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-primary-fixed opacity-50 rounded-t-sm h-[55%]"></div>
+<div class="w-full bg-primary-fixed opacity-70 rounded-t-sm h-[80%]"></div>
+<div class="w-full bg-primary-fixed opacity-90 rounded-t-sm h-[95%]"></div>
+<div class="w-full bg-primary-fixed rounded-t-sm h-[90%]"></div>
+</div>
+<!-- Ticks for data -->
+<div class="absolute bottom-4 left-8 right-8 flex justify-between border-t border-outline-variant pt-2 text-label-caps font-label-caps text-on-surface-variant">
+<span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+</div>
+</div>
+</section>
+<!-- Video Library Section -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-headline-md font-headline-md">Featured Tutorials</h3>
+<button class="text-primary-fixed font-label-caps text-label-caps hover:underline">VIEW ALL LIBRARY</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Video Card 1 -->
+<div class="bg-surface-container rounded-lg overflow-hidden border border-outline-variant hover:border-primary-fixed transition-all group">
+<div class="aspect-video relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A focused Belgian Malinois dog performing a loose leash walking drill on a concrete path during the golden hour. The lighting is dramatic with deep shadows and high-contrast highlights, reflecting a professional training atmosphere. The dog is looking directly at the handler with intense focus and discipline, set against a blurred urban background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbiNnDAW72vNZ8q5TwN4WR2ZKzKLkgqdDlilnNXU9HXFRkg6SNZGH_3aiKKFBLz4I6YIxRTfxvnU7ouEZ2c0tb41pREzWd5chjJkgJhmyrbXw3eWdGk7mZB_lGBbOZoSYpU3dSvlZp70vuzmpM2kdJgoGPtKAOivTtzA-O0nChcY_Km4wIXYx7hyBYhv6Nv-oEkjYGSjdGUnBbUE6aFwJ7VdZoLH6kn-jp3jazu8Z6HCy4ZPb243eDvs-adT9Npt6iWaPEWvE57qsn"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-5xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded">
+<span class="font-video-timestamp text-video-timestamp text-white">08:42</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="border border-outline px-2 py-0.5 text-[10px] font-label-caps rounded">OBEDIENCE</span>
+<span class="text-[10px] font-label-caps text-primary-fixed">ADVANCED</span>
+</div>
+<h4 class="font-headline-md text-body-lg text-on-surface">Loose Leash Walking</h4>
+</div>
+</div>
+<!-- Video Card 2 -->
+<div class="bg-surface-container rounded-lg overflow-hidden border border-outline-variant hover:border-primary-fixed transition-all group">
+<div class="aspect-video relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional dog trainer using a high-visibility lime green whistle in an open field under a cloudy, dramatic sky. The trainer's hands are in sharp focus, capturing the tension and precision of a recall command. The environment is rugged and outdoorsy, with a cool, desaturated color palette and deep charcoal textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBunX_V0Nw-p8VJk2EhFHFHkn3OV1W1BnMAcKzuLoeyYBS3hwxr8PF3Lxxl_XP_knpqnBEsrsrlyzjTv4UM-m2NaaoQxZ5Rng27Q5JJXjaWGi9gAIGvu1VfWBl3RWatfAbkt3LGOwneIMFM0iNVKT9PW3ep61Y2LUF1EZ3RFnCljjFNtDu9m7AnHr5VgmkO_RcObGQqlIGcVJ4YJkabiHrLdF7gcnCCV49nZbNlvkUP-kwolXr-lTPdEGer65P6aFEmL84Nk89WUxUG"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-5xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded">
+<span class="font-video-timestamp text-video-timestamp text-white">12:15</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="border border-outline px-2 py-0.5 text-[10px] font-label-caps rounded">RECALL</span>
+<span class="text-[10px] font-label-caps text-primary-fixed">ESSENTIAL</span>
+</div>
+<h4 class="font-headline-md text-body-lg text-on-surface">Emergency Recall</h4>
+</div>
+</div>
+<!-- Video Card 3 -->
+<div class="bg-surface-container rounded-lg overflow-hidden border border-outline-variant hover:border-primary-fixed transition-all group">
+<div class="aspect-video relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close-up shot of a high-tech tactical dog collar with a matte black finish and metallic hardware. The collar is worn by a sleek dark-furred dog, and the background is a blurred training facility with neon light accents. The image conveys a sense of high-performance gear and professional k9 equipment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDl8zQjq75j8JFbPeAvNsQhvfsR3TAkQ7YL4v0V670Bs8lhI-x3ZCcF_BOix0qO6cu53QCUrb257hNrx9Yq3XSWwcuivHAWw-Y0gkfzcuK4yJnKA9kuXtxx6C-JlQoXw2SCRVyGRI5kBt1gvlzcwCy521kcQREMOchai_N6BMvA0BFLhHoO-Qc-nBj85r4hQKjQAGo4au7KUwmd5MI2Ue_aYKcodw7y9Ady58g21RlXZSLxktGdLl9BRJHwdYJiuSksub-8kpCvXIfE"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-5xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded">
+<span class="font-video-timestamp text-video-timestamp text-white">05:30</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="border border-outline px-2 py-0.5 text-[10px] font-label-caps rounded">GEAR</span>
+<span class="text-[10px] font-label-caps text-primary-fixed">MAINTENANCE</span>
+</div>
+<h4 class="font-headline-md text-body-lg text-on-surface">Equipment Selection</h4>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="pt-12 border-t border-outline-variant flex justify-between items-center text-on-surface-variant">
+<p class="font-label-caps text-[10px]">© 2024 K9 COMMAND SYSTEMS. ALL RIGHTS RESERVED.</p>
+<div class="flex gap-6">
+<a class="font-label-caps text-[10px] hover:text-primary-fixed" href="#">PRIVACY POLICY</a>
+<a class="font-label-caps text-[10px] hover:text-primary-fixed" href="#">SUPPORT</a>
+<a class="font-label-caps text-[10px] hover:text-primary-fixed" href="#">TRAINING MANUAL</a>
+</div>
+</footer>
+</main>
+<!-- Insights Panel (Right Column) -->
+<aside class="w-80 h-screen fixed right-0 top-0 bg-surface-container-low border-l border-outline-variant p-6 space-y-8 overflow-y-auto">
+<!-- Training Streak Section -->
+<div class="bg-primary-fixed rounded-xl p-6 text-on-primary-fixed shadow-xl">
+<div class="flex items-center justify-between mb-2">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-headline-lg text-headline-lg">5</span>
+</div>
+<h3 class="font-headline-md text-headline-md leading-tight">Training Streak (Days)</h3>
+<p class="font-body-md text-sm mt-2 opacity-80">Don't break the chain! You're in the top 5% of trainers this week.</p>
+</div>
+<!-- Top Skills -->
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-4">TOP SKILLS</h3>
+<div class="space-y-4">
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="font-bold">Heeling</span>
+<span class="text-primary-fixed">92%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full">
+<div class="h-full bg-primary-fixed w-[92%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="font-bold">Scent Work</span>
+<span class="text-primary-fixed">78%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full">
+<div class="h-full bg-primary-fixed w-[78%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="font-bold">Agility</span>
+<span class="text-primary-fixed">65%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full">
+<div class="h-full bg-primary-fixed w-[65%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Upcoming Milestones -->
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-4">UPCOMING MILESTONES</h3>
+<div class="space-y-3">
+<div class="bg-surface-container p-4 rounded-lg border-l-4 border-primary-fixed">
+<p class="text-[10px] font-label-caps text-on-surface-variant">TARGET: 48 HOURS</p>
+<h4 class="text-sm font-bold mt-1">CGC Certification Prep</h4>
+<div class="mt-2 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed border-2 border-surface-container"></div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface-container"></div>
+</div>
+</div>
+<div class="bg-surface-container p-4 rounded-lg border-l-4 border-outline">
+<p class="text-[10px] font-label-caps text-on-surface-variant">TARGET: 12 DAYS</p>
+<h4 class="text-sm font-bold mt-1">Off-Leash Reliability</h4>
+<div class="mt-2 h-1 bg-surface-container-highest w-full rounded-full">
+<div class="h-full bg-outline w-[30%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Training Chips HUD -->
+<div class="pt-6 border-t border-outline-variant space-y-4">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant">DOG STATS</h3>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container border border-outline px-3 py-1 rounded-sm text-[10px] font-label-caps">DRIVE: HIGH</span>
+<span class="bg-surface-container border border-outline px-3 py-1 rounded-sm text-[10px] font-label-caps">FOCUS: STEADY</span>
+<span class="bg-surface-container border border-primary-fixed text-primary-fixed px-3 py-1 rounded-sm text-[10px] font-label-caps">MODE: TACTICAL</span>
+</div>
+</div>
+<!-- Live HUD Card -->
+<div class="bg-surface-container-highest/50 p-4 rounded-lg backdrop-blur-md border border-outline-variant">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-sm animate-pulse" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+<span class="text-[10px] font-label-caps text-tertiary-fixed-dim">BIOMETRIC SYNCED</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] font-label-caps text-on-surface-variant">HEART RATE</p>
+<p class="font-video-timestamp text-lg">112 BPM</p>
+</div>
+<div>
+<p class="text-[10px] font-label-caps text-on-surface-variant">CALORIES</p>
+<p class="font-video-timestamp text-lg">420 KCAL</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</body></html>

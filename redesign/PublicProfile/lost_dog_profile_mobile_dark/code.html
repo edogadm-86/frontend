@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#e41d27",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "inverse-surface": "#2f3133",
+                    "on-primary-fixed-variant": "#004883",
+                    "on-tertiary-container": "#fffbff",
+                    "inverse-primary": "#a4c9ff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#001c39",
+                    "primary": "#005da7",
+                    "on-background": "#1a1c1e",
+                    "on-surface": "#1a1c1e",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#0060ac",
+                    "surface-container": "#eeeef0",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#93000f",
+                    "primary-container": "#2976c7",
+                    "secondary-fixed-dim": "#ffb955",
+                    "tertiary": "#bb0017",
+                    "surface-bright": "#f9f9fc",
+                    "surface-container-highest": "#e2e2e5",
+                    "surface-dim": "#dadadc",
+                    "on-tertiary-fixed": "#410003",
+                    "surface-container-low": "#f3f3f6",
+                    "outline-variant": "#c1c7d3",
+                    "on-primary-container": "#fdfcff",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#633f00",
+                    "secondary": "#835500",
+                    "tertiary-fixed-dim": "#ffb3ac",
+                    "background": "#f9f9fc",
+                    "outline": "#717783",
+                    "surface": "#f9f9fc",
+                    "on-surface-variant": "#414751",
+                    "on-secondary-container": "#6b4500",
+                    "primary-fixed": "#d4e3ff",
+                    "tertiary-fixed": "#ffdad6",
+                    "secondary-container": "#feae2c",
+                    "surface-container-high": "#e8e8ea",
+                    "inverse-on-surface": "#f0f0f3",
+                    "surface-variant": "#e2e2e5",
+                    "primary-fixed-dim": "#a4c9ff",
+                    "secondary-fixed": "#ffddb4",
+                    "on-secondary-fixed": "#291800",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-margin-desktop": "40px",
+                    "stack-md": "24px",
+                    "stack-lg": "48px",
+                    "gutter": "16px",
+                    "base": "8px",
+                    "container-margin-mobile": "16px",
+                    "stack-sm": "12px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "status-badge": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "status-badge": ["12px", {"lineHeight": "16px", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #1a1c1e; /* Dark Mode Overrides */
+            color: #f9f9fc;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .urgent-banner {
+            background: linear-gradient(90deg, #bb0017 0%, #e41d27 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface bg-background">
+<!-- Top AppBar -->
+<header class="w-full sticky top-0 bg-surface dark:bg-surface shadow-sm z-50">
+<div class="flex items-center justify-center px-margin-mobile w-full py-sm">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary" data-icon="paws">Rows</span>
+<h1 class="font-headline-md text-headline-md-mobile font-bold text-primary">eDog Finder</h1>
+</div>
+</div>
+</header>
+<!-- Urgent Lost Banner -->
+<div class="urgent-banner py-base px-gutter text-center sticky top-[56px] z-40">
+<p class="font-label-md text-label-md text-on-tertiary-container flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+            URGENT: THIS PET IS CURRENTLY LOST
+        </p>
+</div>
+<!-- Main Content Pillar -->
+<main class="max-w-[720px] mx-auto px-margin-mobile py-stack-md flex flex-col gap-stack-lg">
+<!-- Profile Hero Section -->
+<section class="flex flex-col gap-stack-sm">
+<div class="relative group">
+<img alt="Golden Retriever named Cooper" class="w-full aspect-square object-cover rounded-xl border border-outline-variant shadow-lg" data-alt="A high-resolution, soulful portrait of a friendly Golden Retriever with warm amber eyes and a rich, honey-colored coat. The dog is positioned centrally in a bright, outdoor setting with soft-focus greenery in the background, creating a high-contrast and professional medical-style profile image. The lighting is natural and clear, emphasizing the pet's gentle demeanor. The overall aesthetic is clean and modern, consistent with a vital utility interface design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQC4MJBi6CClfpKFDy-C44eWWQL6zvGWuJeHLGFI9TDLqwMkGcXRhwjirBKQwqs7qxb-El5d3v3Uk9XYPlZjB3xvt4Z2M86JoXyt7aYhWbZSZ0sa1b_wlAM8ZRClpwtFakPdeRACzAO9mk2FBMbJJ-Pj6aMfxtoVDzPd3j8KeI3cTEDv39SQL_WKY-kwAZFooNZhXwn0mszpCbi62xkePuel53xjPvMrNG2vC0nTej9Ldijp8a7yqPV0S2b9jBR4xC70MN-anfrgRW"/>
+<div class="absolute bottom-4 left-4">
+<span class="bg-tertiary text-on-tertiary px-base py-xs rounded-lg font-status-badge text-status-badge shadow-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]" data-icon="error" style="font-variation-settings: 'FILL' 1;">error</span>
+                        LOST
+                    </span>
+</div>
+</div>
+<div class="flex flex-col">
+<h2 class="font-display-lg text-display-lg text-on-background">Cooper</h2>
+<div class="flex gap-base flex-wrap mt-base">
+<span class="bg-primary-container/10 border border-primary-container text-primary px-base py-xs rounded-full font-label-md text-label-md">Golden Retriever</span>
+<span class="bg-secondary-container/10 border border-secondary text-secondary px-base py-xs rounded-full font-label-md text-label-md">Male</span>
+<span class="bg-outline-variant/20 border border-outline-variant text-on-surface-variant px-base py-xs rounded-full font-label-md text-label-md">Adult</span>
+</div>
+</div>
+</section>
+<!-- Found This Dog: Actions -->
+<section class="bg-primary-container p-gutter rounded-xl shadow-lg flex flex-col gap-gutter">
+<div class="text-center">
+<h3 class="font-headline-md text-headline-md text-on-primary-container">I Found Cooper</h3>
+<p class="font-body-md text-on-primary-container/80">Please contact the owner immediately to reunite them.</p>
+</div>
+<div class="flex flex-col md:flex-row gap-gutter">
+<a class="flex-1 bg-white text-primary flex items-center justify-center gap-base py-gutter rounded-lg font-headline-md text-headline-md hover:bg-surface-bright transition-all" href="tel:+15550123456">
+<span class="material-symbols-outlined" data-icon="call" style="font-variation-settings: 'FILL' 1;">call</span>
+                    Call Owner
+                </a>
+<a class="flex-1 bg-surface-container-lowest text-primary flex items-center justify-center gap-base py-gutter rounded-lg font-headline-md text-headline-md hover:bg-surface-bright transition-all" href="sms:+15550123456">
+<span class="material-symbols-outlined" data-icon="chat" style="font-variation-settings: 'FILL' 1;">chat</span>
+                    SMS Owner
+                </a>
+</div>
+</section>
+<!-- Vital Info Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="bg-surface-container border border-outline-variant p-gutter rounded-xl flex flex-col gap-stack-sm">
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-label-md text-label-md uppercase">Temperament</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface">Friendly but anxious around loud noises</p>
+</div>
+<div class="bg-surface-container border border-outline-variant p-gutter rounded-xl flex flex-col gap-stack-sm">
+<div class="flex items-center gap-xs text-tertiary">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-label-md text-label-md uppercase">Medical Needs</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface">Requires daily medication for joints</p>
+</div>
+</section>
+<!-- Owner Details Card -->
+<section class="bg-surface-container-low border border-outline-variant p-gutter rounded-xl flex flex-col gap-gutter">
+<h3 class="font-headline-md text-headline-md text-on-surface">Owner Details</h3>
+<div class="flex flex-col gap-stack-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Name</span>
+<span class="font-body-lg text-body-lg text-on-surface">Alex Thorne</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Home Address</span>
+<span class="font-body-lg text-body-lg text-on-surface">123 Paws Lane, San Francisco, CA</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Phone</span>
+<span class="font-body-lg text-body-lg text-on-surface">+1 (555) 012-3456</span>
+</div>
+</div>
+<!-- Map Placeholder -->
+<div class="w-full h-[200px] rounded-lg overflow-hidden border border-outline-variant relative">
+<img class="w-full h-full object-cover" data-alt="A clean, high-contrast digital map rendering of a San Francisco residential neighborhood, designed in a dark-mode cartographic style. The map features simplified road networks, subtle elevation shading, and a prominent blue location pin marking a specific street. The aesthetic is professional and utilitarian, using a palette of deep blues and greys to ensure clarity for high-stress search scenarios. The lighting is simulated as bright and even, mimicking a digital display in daylight." data-location="San Francisco" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrV0EAxwJDotFn5uV0Ed35GKxNygwjTI7rE1a4MLrswrMk9Rrp7rnjbQZdY7hKAHebh9CUxe6bWq8qFf9gFyaX4VkIuoe43sEfI8V4NUn2twnxbLMG85iGJUf8EQ3V3hYNWTE-lDSmlHweYgAOFBww7YgrM7nyRT0Yq1EBmUMxkvy9hKcEC3HUmOTbpPN7mjnBoat8P0irAWSH5nQumUpIpmCZMN2zgNn_k-ny98qZ0ijJzsrU_M3QCciGrVsmIEyMrV9c8IcRdpio"/>
+<div class="absolute inset-0 bg-primary/10 flex items-center justify-center">
+<span class="bg-white/90 text-primary px-base py-xs rounded-full shadow-md font-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                        Last Known Area
+                    </span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-xl bg-surface-dim dark:bg-surface-dim border-t border-white/10">
+<div class="flex flex-col items-center gap-xs py-lg px-margin-mobile w-full text-center">
+<p class="font-label-md text-label-md font-bold text-on-surface">eDog Finder</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Powered by eDog</p>
+<div class="flex gap-gutter mt-base">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Report Issue</a>
+</div>
+</div>
+</footer>
+</body></html>

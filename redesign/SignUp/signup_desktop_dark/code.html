@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog | Join the Premium Pack</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#feb300",
+                        "on-secondary": "#422c00",
+                        "on-secondary-fixed-variant": "#5f4100",
+                        "on-primary-container": "#002a51",
+                        "secondary-fixed": "#ffdeac",
+                        "on-primary": "#00315d",
+                        "surface-tint": "#a4c9ff",
+                        "surface-container": "#1e2023",
+                        "tertiary": "#ffb953",
+                        "tertiary-fixed": "#ffddb4",
+                        "on-surface-variant": "#c1c7d3",
+                        "on-secondary-fixed": "#281900",
+                        "outline": "#8b919d",
+                        "surface-dim": "#111316",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#0c0e11",
+                        "error": "#ffb4ab",
+                        "surface-container-high": "#282a2d",
+                        "tertiary-fixed-dim": "#ffb953",
+                        "surface-variant": "#333538",
+                        "surface": "#111316",
+                        "on-background": "#e2e2e6",
+                        "tertiary-container": "#c58305",
+                        "secondary-fixed-dim": "#ffba35",
+                        "primary-fixed": "#d4e3ff",
+                        "inverse-surface": "#e2e2e6",
+                        "on-tertiary": "#452b00",
+                        "on-secondary-container": "#6a4800",
+                        "on-tertiary-container": "#3c2500",
+                        "inverse-primary": "#0060ac",
+                        "on-tertiary-fixed": "#291800",
+                        "surface-container-highest": "#333538",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "on-tertiary-fixed-variant": "#633f00",
+                        "surface-bright": "#37393d",
+                        "inverse-on-surface": "#2f3034",
+                        "on-surface": "#e2e2e6",
+                        "outline-variant": "#414751",
+                        "surface-container-low": "#1a1c1f",
+                        "on-primary-fixed-variant": "#004883",
+                        "background": "#111316",
+                        "on-error-container": "#ffdad6",
+                        "secondary": "#ffd798",
+                        "primary-container": "#4d93e5",
+                        "primary": "#a4c9ff",
+                        "on-primary-fixed": "#001c39",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #111316;
+            color: #e2e2e6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-effect {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tactile-button {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+<main class="flex min-h-screen">
+<!-- Image Side (Visual Anchor) -->
+<section class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-surface-container-lowest">
+<div class="absolute inset-0 z-0">
+<img alt="Premium Golden Retriever in Nature" class="w-full h-full object-cover opacity-80" data-alt="A majestic, well-groomed Golden Retriever standing on a mossy rock in a serene, misty forest at dawn. The lighting is soft and ethereal, with cool blue tones filtering through the trees, complementing the eDog dark mode palette. The composition is professional and cinematic, emphasizing a sense of health, precision, and deep connection between nature and premium pet care. The atmosphere is quiet, sophisticated, and tranquil." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyjawrlHcuo2wFXALTTMQEZR9yeLB0KMlpkiKL6ISi2b8rEy8mRX4zeHz7He--zGBIIlth4cCAdpAWnz4tEYyweGaRrJ4gAhcWE0EIv3nD7E-j8d4671Km59tYGnFa0HVi6W-dwPkpmKhU8sTWvGdbgikOzt-Yt1F5zBEz6Hx2lYYNQsixEW53U81uVBviNhx2Y51GSqOnzFBch5h6S9ZMvGNS1Oqc5OE5bflgIJOmTBsABBKp7PzDSAT3Q0PXIB04ZiEIsuUv2h2y"/>
+</div>
+<!-- Overlay Gradient -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-transparent to-transparent z-10"></div>
+<div class="absolute inset-0 bg-surface-dim/20 z-10"></div>
+<!-- Brand Content -->
+<div class="relative z-20 flex flex-col justify-between p-margin-desktop w-full">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="pets" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="font-display-lg text-headline-md text-primary font-bold tracking-tight">eDog</span>
+</div>
+<div class="max-w-md">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-lg">
+                        Premium care starts here.
+                    </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                        Join the elite circle of pet owners using precision technology to ensure a longer, healthier life for their companions.
+                    </p>
+</div>
+<div class="flex gap-md">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-primary">15k+</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Active Pets</span>
+</div>
+<div class="w-px h-12 bg-outline-variant/30"></div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-primary">4.9/5</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">User Rating</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Form Side (Content Canvas) -->
+<section class="w-full lg:w-1/2 bg-surface flex flex-col items-center justify-center p-margin-mobile md:p-margin-desktop relative">
+<!-- Mobile Brand Header -->
+<div class="lg:hidden absolute top-8 left-8 flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="pets" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="font-display-lg text-headline-md text-primary font-bold">eDog</span>
+</div>
+<div class="w-full max-w-md space-y-xl">
+<!-- Header Text -->
+<div class="space-y-sm text-center lg:text-left">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Create an account</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Already have an account? 
+                        <a class="text-primary font-label-md hover:underline transition-all" href="#">Sign In</a>
+</p>
+</div>
+<!-- Signup Options -->
+<div class="grid grid-cols-2 gap-md">
+<button class="flex items-center justify-center gap-sm bg-surface-container-low border border-outline-variant/20 py-md px-lg rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<img alt="Google Logo" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3aWRvYwsp8wyf7FgvuCg62T-nab_-fvcZUKh7SRC73KWrRuJWN6_EZm0lG9Bh_ty3W_mTKhRmTxdCYhM2kUsMqmM69qa6dNtolUMh3AgwRA9Veyt1SYwIiw5TjPrbhKpq9dBzBJlCHwqKWQFQpZLDzIMI7QyQuV5OJLp6s7Znh6MloxKsgP7gXe_89OHxO2KoICPIIBodz7PPIZhIUgCuUjXdgMJr2_q84HhvdWGOPjY9Jui9IzGeIr6aG-2eiGAp0q2Ifc118sXv"/>
+<span class="font-label-md text-label-md text-on-surface">Google</span>
+</button>
+<button class="flex items-center justify-center gap-sm bg-surface-container-low border border-outline-variant/20 py-md px-lg rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface text-xl" data-icon="apple" style="font-variation-settings: 'FILL' 1;">File</span>
+<span class="font-label-md text-label-md text-on-surface">Apple</span>
+</button>
+</div>
+<div class="relative flex items-center py-sm">
+<div class="flex-grow border-t border-outline-variant/20"></div>
+<span class="flex-shrink mx-4 text-on-surface-variant font-label-sm uppercase tracking-widest">or continue with</span>
+<div class="flex-grow border-t border-outline-variant/20"></div>
+</div>
+<!-- Form -->
+<form class="space-y-lg">
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="name">Full Name</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" data-icon="person">person</span>
+<input class="w-full bg-surface-container-low border-transparent focus:border-primary focus:ring-0 rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all" id="name" placeholder="Enter your full name" type="text"/>
+</div>
+</div>
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="email">Email Address</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" data-icon="mail">mail</span>
+<input class="w-full bg-surface-container-low border-transparent focus:border-primary focus:ring-0 rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all" id="email" placeholder="example@email.com" type="email"/>
+</div>
+</div>
+<div class="space-y-sm">
+<div class="flex justify-between items-center px-1">
+<label class="font-label-md text-label-md text-on-surface-variant" for="password">Password</label>
+<span class="text-on-surface-variant font-label-sm cursor-pointer hover:text-primary">Show</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" data-icon="lock">lock</span>
+<input class="w-full bg-surface-container-low border-transparent focus:border-primary focus:ring-0 rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all" id="password" placeholder="••••••••" type="password"/>
+</div>
+<p class="text-label-sm font-label-sm text-outline/60 mt-1 ml-1">Must be at least 8 characters long.</p>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md py-4 rounded-xl shadow-lg shadow-primary/20 tactile-button hover:brightness-110 active:scale-[0.98] transition-all duration-200" type="submit">
+                        Create Account
+                    </button>
+</form>
+<!-- Terms -->
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant">
+                    By signing up, you agree to eDog's 
+                    <a class="text-primary hover:underline" href="#">Terms of Service</a> and 
+                    <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+                </p>
+</div>
+<!-- Support Footer -->
+<footer class="absolute bottom-margin-desktop flex gap-lg text-on-surface-variant font-label-sm">
+<a class="hover:text-primary transition-colors" href="#">Help Center</a>
+<a class="hover:text-primary transition-colors" href="#">Contact Support</a>
+<a class="hover:text-primary transition-colors" href="#">English (US)</a>
+</footer>
+</section>
+</main>
+<!-- Decoration element for depth -->
+<div class="fixed top-0 right-0 w-1/2 h-1/2 bg-primary/5 blur-[120px] pointer-events-none -z-10"></div>
+<div class="fixed bottom-0 left-0 w-1/2 h-1/2 bg-secondary/5 blur-[120px] pointer-events-none -z-10"></div>
+</body></html>

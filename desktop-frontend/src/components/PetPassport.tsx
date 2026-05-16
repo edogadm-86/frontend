@@ -2,511 +2,426 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { 
-  Shield, 
-  Calendar, 
-  User, 
-  MapPin, 
-  Phone,
-  FileText,
-  Download,
-  Printer as Print, 
-  Star,
-  Heart,
-  Award
-} from 'lucide-react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
+import { Download, Printer as Print, ArrowLeft, Heart } from 'lucide-react';
 import { formatDate } from '../lib/utils';
 import { apiClient } from '../lib/api';
 import { useApp } from '../context/AppContext';
 
-
 interface PetPassportProps {
   dog: any;
-  user?: { name: string; email: string }; // add user here
-  onClose: () => void;
+  onNavigate: (view: string) => void;
 }
 
-export const PetPassport: React.FC<PetPassportProps> = ({ dog,  onClose }) => {
+export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => {
   const { t } = useTranslation();
   const { user } = useApp();
   const [vaccinations, setVaccinations] = useState<any[]>([]);
   const [healthRecords, setHealthRecords] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadPassportData();
-  }, [dog.id]);
+  }, [dog?.id]);
 
   const loadPassportData = async () => {
+    if (!dog?.id) return;
     try {
-      const [vaccinationsRes, healthRes] = await Promise.all([
+      const [vacRes, healthRes] = await Promise.all([
         apiClient.getVaccinations(dog.id),
         apiClient.getHealthRecords(dog.id),
       ]);
-      setVaccinations(vaccinationsRes.vaccinations);
+      setVaccinations(vacRes.vaccinations);
       setHealthRecords(healthRes.healthRecords);
-    } catch (error) {
-      console.error('Error loading passport data:', error);
+    } catch (err) {
+      console.error('Error loading passport data:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePrint = () => {
-    const printContent = document.getElementById('passport-content');
-    if (printContent) {
-      const originalContents = document.body.innerHTML;
-      const printContents = printContent.innerHTML;
-      
-      document.body.innerHTML = `
-        <html>
-          <head>
-            <title>Pet Passport - ${dog.name}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .passport-page { background: white; border: 2px solid #2563eb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-              .passport-header { background: linear-gradient(to right, #2563eb, #4f46e5); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-              .passport-field { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
-              .passport-photo { width: 128px; height: 128px; border: 4px solid white; border-radius: 8px; object-fit: cover; }
-              @media print { body { margin: 0; } .no-print { display: none; } }
-            </style>
-          </head>
-          <body>${printContents}</body>
-        </html>
-      `;
-      
-      window.print();
-      document.body.innerHTML = originalContents;
-      window.location.reload();
-    }
-  };
+  const handlePrint = () => window.print();
 
   const handleDownload = async () => {
-    const passportElement = document.getElementById('passport-content');
-    if (!passportElement) return;
-
+    const el = document.getElementById('passport-content');
+    if (!el) return;
     try {
-      // Show loading state
-      const originalText = document.querySelector('[data-download-btn]')?.textContent;
-      const downloadBtn = document.querySelector('[data-download-btn]') as HTMLElement;
-      if (downloadBtn) downloadBtn.textContent = 'Generating...';
-
-      // Create canvas from the passport content
-      const canvas = await html2canvas(passportElement, {
+      const canvas = await html2canvas(el, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        onclone: (clonedDoc) => {
-          // Ensure all images are loaded in the cloned document
-          const images = clonedDoc.querySelectorAll('img');
-          images.forEach(img => {
-            img.style.maxWidth = '100%';
-            img.style.height = 'auto';
-          });
-        }
       });
-
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
-      });
-      
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
       const imgData = canvas.toDataURL('image/png');
-      
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Calculate dimensions to fit the page with margins
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
       const margin = 10;
-      const maxWidth = pdfWidth - (margin * 2);
-      const maxHeight = pdfHeight - (margin * 2);
-      
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
-      
-      const scaledWidth = imgWidth * ratio;
-      const scaledHeight = imgHeight * ratio;
-      
-      const imgX = (pdfWidth - scaledWidth) / 2;
-      const imgY = margin;
-
-      // Add title
-      pdf.setFontSize(16);
-      pdf.setTextColor(37, 99, 235); // Blue color
-      pdf.text(`Pet Passport - ${dog.name}`, pdfWidth / 2, margin / 2, { align: 'center' });
-      
-      // Add image
-      pdf.addImage(imgData, 'PNG', imgX, imgY + 5, scaledWidth, scaledHeight);
-      
-      // Add footer
+      const ratio = Math.min((pw - margin * 2) / canvas.width, (ph - margin * 2) / canvas.height);
+      const sw = canvas.width * ratio;
+      const sh = canvas.height * ratio;
+      pdf.addImage(imgData, 'PNG', (pw - sw) / 2, margin, sw, sh);
       pdf.setFontSize(8);
       pdf.setTextColor(100, 100, 100);
-      pdf.text(`Generated by eDog on ${new Date().toLocaleDateString()}`, pdfWidth / 2, pdfHeight - 5, { align: 'center' });
-      
-      pdf.save(`${dog.name}-pet-passport.pdf`);
-      
-      // Restore button text
-      if (downloadBtn && originalText) downloadBtn.textContent = originalText;
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
-      
-      // Restore button text on error
-      const downloadBtn = document.querySelector('[data-download-btn]') as HTMLElement;
-      if (downloadBtn) downloadBtn.textContent = 'Download';
+      pdf.text(`Generated by eDog • ${new Date().toLocaleDateString()}`, pw / 2, ph - 5, { align: 'center' });
+      pdf.save(`${dog.name}-passport.pdf`);
+    } catch (err) {
+      console.error('PDF error:', err);
     }
   };
 
+  if (!dog) {
+    return (
+      <div className="font-jakarta p-8 text-center">
+        <p className="text-gray-500 dark:text-[#8b919d]">{t('noData')}</p>
+        <button onClick={() => onNavigate('dashboard')} className="mt-4 text-[#005da7] dark:text-[#a4c9ff] text-sm font-medium">
+          ← {t('dashboard')}
+        </button>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <p>Loading passport data...</p>
+      <div className="font-jakarta min-h-screen bg-[#fbf9f8] dark:bg-[#111316] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-2 border-[#005da7] dark:border-[#a4c9ff] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-[#8b919d] text-sm">{t('loading')}</p>
         </div>
       </div>
     );
   }
 
+  const rabiesVacs = vaccinations.filter(v => v.vaccine_name?.toLowerCase().includes('rabies'));
+  const otherVacs = vaccinations.filter(v => !v.vaccine_name?.toLowerCase().includes('rabies'));
+
+  // Next upcoming vaccination expiry for reminders
+  const expiringSoon = vaccinations
+    .filter(v => v.next_due_date)
+    .sort((a, b) => new Date(a.next_due_date).getTime() - new Date(b.next_due_date).getTime())
+    .slice(0, 2);
+
+  const cardClass = 'bg-white dark:bg-[#1d2026] border border-gray-100 dark:border-[#2d3540] rounded-xl';
+  const labelClass = 'text-xs font-semibold text-gray-500 dark:text-[#8b919d] uppercase tracking-wide mb-0.5';
+  const valueClass = 'text-sm font-medium text-gray-900 dark:text-[#e1e2eb]';
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-900 max-w-4xl w-full max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl">
-        {/* Passport Header */}
-        <div className="passport-header relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                <img src="/logo.png" alt="EU Logo" className="w-12 h-12" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">{t('europeanUnion')}</h1>
-                <p className="text-blue-100">{t('petPassport')}</p>
-                <p className="text-xs text-blue-200">{t('regulation')} (EU) No 576/2013</p>
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
-              <Button variant="glass" size="sm" onClick={handlePrint} icon={<Print size={16} />} className="w-full sm:w-auto">
-                {t('print')}
-              </Button>
-              <Button
-                variant="glass"
-                size="sm"
-                onClick={handleDownload}
-                icon={<Download size={16} />}
-                className="w-full sm:w-auto"
-                data-download-btn
-              >
-                {t('download')}
-              </Button>
-              <Button variant="glass" size="sm" onClick={onClose} className="w-full sm:w-auto">
-                {t('close')}
-              </Button>
-            </div>
+    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8">
+      <div id="passport-content" className="max-w-[1280px] mx-auto space-y-5 lg:space-y-6">
+
+        {/* Page header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <button
+              onClick={() => onNavigate('dashboard')}
+              className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] mb-3 transition-colors"
+            >
+              <ArrowLeft size={15} />
+              {t('dashboard')}
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#005da7] dark:text-[#a4c9ff]">
+              {dog.name}'s {t('petPassport')}
+            </h1>
+            <p className="text-gray-500 dark:text-[#8b919d] mt-1 text-sm">
+              {dog.breed}{dog.age ? ` • ${dog.age} ${t('yearsOld')}` : ''}{dog.passportNumber ? ` • ID: #${dog.passportNumber}` : ''}
+            </p>
+          </div>
+          <div className="flex gap-2 flex-shrink-0 no-print">
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-[#414751] rounded-xl text-sm font-medium text-gray-700 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+            >
+              <Print size={15} />{t('print')}
+            </button>
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 px-4 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <span className="material-symbols-outlined text-base leading-none">picture_as_pdf</span>
+              {t('download')}
+            </button>
           </div>
         </div>
 
-        <div id="passport-content" className="p-4 sm:p-8 space-y-6 sm:space-y-8">
-          {/* Section I: Details of the pet */}
-          <div className="passport-page p-6">
-            <h2 className="text-xl font-bold text-blue-800 mb-6 flex items-center">
-              <FileText className="mr-2" />
-              I. {t('petDetails')}
-            </h2>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('name')}</label>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">{dog.name}</p>
-                  </div>
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('species')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">{t('Dog')}</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('breed')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">{dog.breed}</p>
-                  </div>
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('sex')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">{dog.sex}</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('dateOfBirth')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">
-                      {dog.dateOfBirth ? formatDate(dog.dateOfBirth) : t('notSpecified')}
-                    </p>
-                  </div>
+        {/* Bento grid */}
+        <div className="grid grid-cols-12 gap-4 lg:gap-6">
 
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('colour')}</label>
-                    <p className="text-lg text-gray-900 dark:text-white">{dog.colour || 'N/A'}</p>
-                  </div>
-                </div>
+          {/* ── LEFT COLUMN ── */}
+          <div className="col-span-12 md:col-span-8 space-y-4 lg:space-y-6">
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('notableFeatures')}</label>
-                    <p className="text-gray-900 dark:text-white">{dog.features || 'N/A'}</p>
-                  </div>
+            {/* Hero card */}
+            <div className={`${cardClass} p-5 sm:p-6 relative overflow-hidden`}>
+              {/* Ambient glow */}
+              <div className="absolute -top-20 -right-20 w-56 h-56 bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 blur-[80px] rounded-full pointer-events-none" />
 
-                  <div className="passport-field">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('weight')}</label>
-                    <p className="text-gray-900 dark:text-white">{dog.weight ? `${dog.weight} kg` : 'N/A'}</p>
-                  </div>
-                </div>
-
-              </div>
-              
-              <div className="flex flex-col items-center">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('petPhotograph')}</label>
-                <div className="passport-photo bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <div className="flex flex-col sm:flex-row gap-5 relative z-10">
+                {/* Dog photo */}
+                <div className="w-full sm:w-36 h-44 sm:h-36 rounded-xl overflow-hidden border-2 border-[#005da7]/20 dark:border-[#a4c9ff]/20 flex-shrink-0 shadow-lg">
                   {dog.profilePicture ? (
-                    <img src={dog.profilePicture} alt={dog.name} className="passport-photo" />
+                    <img src={dog.profilePicture} alt={dog.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="text-center text-gray-500 dark:text-gray-400">
-                      <Heart size={32} className="mx-auto mb-2" />
-                      <p className="text-sm">{t('noPhoto')}</p>
+                    <div className="w-full h-full bg-gradient-to-br from-[#005da7]/20 to-[#0090e7]/20 dark:from-[#a4c9ff]/10 dark:to-[#005da7]/10 flex items-center justify-center">
+                      <Heart size={40} className="text-[#005da7]/40 dark:text-[#a4c9ff]/40" />
                     </div>
                   )}
                 </div>
-                <br></br>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('passportNumber')}</label>
-                  <p><strong>{dog.passportNumber}</strong></p>
-              </div>
-            </div>
-          </div>
 
-          {/* Section II: Marking of the pet */}
-          <div className="passport-page p-6">
-            <h2 className="text-xl font-bold text-blue-800 mb-6 flex items-center">
-              <Shield className="mr-2" />
-              II. {t('petMarking')}
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="passport-field">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('microchipCode')}
-                </label>
-                <p className="text-xl font-mono font-bold text-gray-900">
-                  {dog.microchipId || t('notRegistered')}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">ISO 11784/11785 compliant</p>
-              </div>
-              
-              <div className="passport-field">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('microchipLocation')}
-                </label>
-                <p className="text-gray-900 dark:text-white">{t('microchipLocationStandard')}</p>
-              </div>
-              
-              <div className="passport-field">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('microchipDate')}
-                </label>
-                <p className="text-gray-900 dark:text-white">{formatDate(dog.createdAt)}</p>
-              </div>
-              
-              <div className="passport-field">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  {t('tattoo')}
-                </label>
-                <p className="text-gray-900 dark:text-white">N/A</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Section III: Rabies vaccination */}
-          <div className="passport-page p-6">
-            <h2 className="text-xl font-bold text-blue-800 mb-6 flex items-center">
-              <Shield className="mr-2" />
-              III. {t('rabiesVaccination')}
-            </h2>
-            
-            {vaccinations.filter(v => v.vaccine_name.toLowerCase().includes('rabies')).length > 0 ? (
-              <div className="space-y-4">
-                {vaccinations
-                  .filter(v => v.vaccine_name.toLowerCase().includes('rabies'))
-                  .map((vaccination, index) => (
-                    <div key={vaccination.id} className="passport-field">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('vaccine')}</label>
-                          <p className="text-gray-900 dark:text-white">{vaccination.vaccine_name}</p>
-                        </div>
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('date')}</label>
-                          <p className="text-gray-900 dark:text-white">{formatDate(vaccination.date_given)}</p>
-                        </div>
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('validUntil')}</label>
-                          <p className="text-gray-900 dark:text-white">
-                            {vaccination.next_due_date ? formatDate(vaccination.next_due_date) : t('notApplicable')}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('veterinarian')}</label>
-                          <p className="text-gray-900 dark:text-white">{vaccination.veterinarian}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            ) : (
-              <div className="passport-field text-center py-8">
-                <Shield size={32} className="mx-auto mb-2 text-gray-400" />
-                <p className="text-gray-500 dark:text-gray-400">{t('noRabiesVaccination')}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Section IV: Other vaccinations */}
-          <div className="passport-page p-6">
-            <h2 className="text-xl font-bold text-blue-800 mb-6 flex items-center">
-              <Heart className="mr-2" />
-              IV. {t('otherVaccinations')}
-            </h2>
-            
-            {vaccinations.filter(v => !v.vaccine_name.toLowerCase().includes('rabies')).length > 0 ? (
-              <div className="space-y-3">
-                {vaccinations
-                  .filter(v => !v.vaccine_name.toLowerCase().includes('rabies'))
-                  .map((vaccination) => (
-                    <div key={vaccination.id} className="passport-field">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('vaccine')}</label>
-                          <p className="text-gray-900 dark:text-white">{vaccination.vaccine_name}</p>
-                        </div>
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('date')}</label>
-                          <p className="text-gray-900 dark:text-white">{formatDate(vaccination.date_given)}</p>
-                        </div>
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('validUntil')}</label>
-                          <p className="text-gray-900 dark:text-white">
-                            {vaccination.next_due_date ? formatDate(vaccination.next_due_date) : t('notApplicable')}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('veterinarian')}</label>
-                          <p className="text-gray-900 dark:text-white">{vaccination.veterinarian}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            ) : (
-              <div className="passport-field text-center py-8">
-                <Heart size={32} className="mx-auto mb-2 text-gray-400" />
-                <p className="text-gray-500 dark:text-gray-400">{t('noOtherVaccinations')}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Section V: Health information */}
-          <div className="passport-page p-6">
-            <h2 className="text-xl font-bold text-blue-800 mb-6 flex items-center">
-              <User className="mr-2" />
-              V. {t('healthInformation')}
-            </h2>
-            
-            {healthRecords.length > 0 ? (
-              <div className="space-y-3">
-                {healthRecords.slice(0, 5).map((record) => (
-                  <div key={record.id} className="passport-field">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('date')}</label>
-                        <p className="text-gray-900 dark:text-white">{formatDate(record.date)}</p>
-                      </div>
-                      <div>
-                        <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('type')}</label>
-                        <p className="text-gray-900 dark:text-white capitalize">{record.type.replace('-', ' ')}</p>
-                      </div>
-                      <div>
-                        <label className="block font-semibold text-gray-700 dark:text-gray-300">{t('details')}</label>
-                        <p className="text-gray-900 dark:text-white">{record.title}</p>
-                      </div>
-                    </div>
-                    {record.veterinarian && (
-                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                        {t('veterinarian')}: {record.veterinarian}
-                      </div>
+                {/* Info */}
+                <div className="flex-1">
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className="px-2.5 py-1 bg-[#005da7]/10 dark:bg-[#a4c9ff]/20 text-[#005da7] dark:text-[#a4c9ff] rounded-full text-xs font-semibold border border-[#005da7]/20 dark:border-[#a4c9ff]/30">
+                      {t('active')}
+                    </span>
+                    {vaccinations.length > 0 && (
+                      <span className="px-2.5 py-1 bg-gray-100 dark:bg-[#32353c] text-gray-600 dark:text-[#c1c7d3] rounded-full text-xs font-medium">
+                        Travel Ready
+                      </span>
                     )}
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#e1e2eb] mb-1">{t('healthSummary')}</h3>
+                  <p className="text-sm text-gray-500 dark:text-[#8b919d] leading-relaxed mb-4">
+                    {dog.name} {vaccinations.length > 0
+                      ? `has ${vaccinations.length} vaccination${vaccinations.length !== 1 ? 's' : ''} on record.`
+                      : 'has no vaccinations recorded yet.'}{' '}
+                    {healthRecords.length > 0
+                      ? `${healthRecords.length} health record${healthRecords.length !== 1 ? 's' : ''} available.`
+                      : ''}
+                  </p>
+
+                  {/* Quick stats row */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: t('weight'), value: dog.weight ? `${dog.weight} kg` : '—' },
+                      { label: t('breed'), value: dog.breed || '—' },
+                      { label: t('sex'), value: dog.sex || '—' },
+                      { label: t('microchip'), value: dog.microchipId ? dog.microchipId.slice(0, 8) + '…' : t('notRegistered') },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="bg-gray-50 dark:bg-[#191c22] rounded-lg p-2.5">
+                        <p className={labelClass}>{label}</p>
+                        <p className={`${valueClass} truncate`}>{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Medical History */}
+            <div className={`${cardClass} p-5 sm:p-6`}>
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-[#e1e2eb] flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[20px]">history</span>
+                  {t('healthTimeline')}
+                </h3>
+                <button
+                  onClick={() => onNavigate('health')}
+                  className="text-xs text-[#005da7] dark:text-[#a4c9ff] font-semibold hover:opacity-80"
+                >
+                  {t('viewAll')}
+                </button>
+              </div>
+
+              {healthRecords.length > 0 ? (
+                <div className="space-y-3">
+                  {healthRecords
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                    .slice(0, 5)
+                    .map(record => (
+                      <div
+                        key={record.id}
+                        className="flex gap-3 p-3 bg-gray-50 dark:bg-[#191c22] rounded-xl border border-gray-100 dark:border-[#414751]/30"
+                      >
+                        <div className="w-9 h-9 bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[18px]">health_and_safety</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-medium text-gray-900 dark:text-[#e1e2eb] truncate">{record.title}</p>
+                            <span className="text-xs text-gray-400 dark:text-[#8b919d] flex-shrink-0">{formatDate(record.date)}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-[#8b919d] mt-0.5 capitalize">
+                            {record.type?.replace('-', ' ')}
+                            {record.veterinarian ? ` • ${record.veterinarian}` : ''}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <span className="material-symbols-outlined text-gray-300 dark:text-[#414751] text-4xl">health_and_safety</span>
+                  <p className="text-sm text-gray-500 dark:text-[#8b919d] mt-2">{t('noHealthRecords')}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Pet Details section (for PDF / print) */}
+            <div className={`${cardClass} p-5 sm:p-6`}>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-[#e1e2eb] flex items-center gap-2 mb-5">
+                <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[20px]">pets</span>
+                {t('petDetails')}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { label: t('name'), value: dog.name },
+                  { label: t('species'), value: 'Dog' },
+                  { label: t('breed'), value: dog.breed },
+                  { label: t('sex'), value: dog.sex },
+                  { label: t('dateOfBirth'), value: dog.dateOfBirth ? formatDate(dog.dateOfBirth) : t('notSpecified') },
+                  { label: t('colour'), value: dog.colour || '—' },
+                  { label: t('weight'), value: dog.weight ? `${dog.weight} kg` : '—' },
+                  { label: t('passportNumber'), value: dog.passportNumber || '—' },
+                  { label: t('notableFeatures'), value: dog.features || '—' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-gray-50 dark:bg-[#191c22] rounded-lg p-3">
+                    <p className={labelClass}>{label}</p>
+                    <p className={valueClass}>{value}</p>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="passport-field text-center py-8">
-                <User size={32} className="mx-auto mb-2 text-gray-400" />
-                <p className="text-gray-500 dark:text-gray-400">{t('noHealthRecords')}</p>
-              </div>
-            )}
+            </div>
+
           </div>
 
-          {/* Section VI: Owner details */}
-          <div className="passport-page p-6">
-            <h2 className="text-xl font-bold text-blue-800 mb-6 flex items-center">
-              <User className="mr-2" />
-              VI. {t('ownerDetails')}
-            </h2>
-            
-            <div className="passport-field">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('name')}</label>
-                  <p className="text-lg text-gray-900 dark:text-white">{user?.name || 'Owner Name'}</p>
+          {/* ── RIGHT COLUMN ── */}
+          <div className="col-span-12 md:col-span-4 space-y-4 lg:space-y-6">
+
+            {/* Vaccinations */}
+            <div className={`${cardClass} p-5`}>
+              <div className="flex items-center gap-2 mb-5">
+                <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[20px]">vaccines</span>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-[#e1e2eb]">{t('vaccinations')}</h3>
+              </div>
+
+              {vaccinations.length === 0 ? (
+                <p className="text-sm text-gray-500 dark:text-[#8b919d] text-center py-4">{t('noOtherVaccinations')}</p>
+              ) : (
+                <div className="space-y-4">
+                  {vaccinations.map(v => {
+                    const isExpired = v.next_due_date && new Date(v.next_due_date) < new Date();
+                    const isDueSoon = v.next_due_date && !isExpired &&
+                      (new Date(v.next_due_date).getTime() - Date.now()) < 30 * 24 * 60 * 60 * 1000;
+                    const accentColor = isExpired
+                      ? 'bg-red-500'
+                      : isDueSoon
+                      ? 'bg-amber-400'
+                      : 'bg-[#005da7] dark:bg-[#a4c9ff]';
+
+                    return (
+                      <div key={v.id} className="relative pl-3">
+                        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${accentColor}`} />
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-[#e1e2eb]">{v.vaccine_name}</p>
+                            <p className="text-xs text-gray-400 dark:text-[#8b919d]">
+                              {t('dateGiven')}: {formatDate(v.date_given)}
+                            </p>
+                          </div>
+                          <div className="text-right flex-shrink-0 ml-2">
+                            <p className={`text-xs font-bold ${
+                              isExpired ? 'text-red-500' :
+                              isDueSoon ? 'text-amber-500' :
+                              'text-[#005da7] dark:text-[#a4c9ff]'
+                            }`}>
+                              {isExpired ? 'Expired' : isDueSoon ? 'Due soon' : t('validUntil')}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-[#8b919d]">
+                              {v.next_due_date ? formatDate(v.next_due_date) : '—'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('address')}</label>
-                  <p className="text-gray-900 dark:text-white">Sofia, Bulgaria</p>
+              )}
+
+              <button
+                onClick={() => onNavigate('health')}
+                className="w-full mt-5 py-2 border border-gray-200 dark:border-[#414751] rounded-xl text-xs font-medium text-gray-600 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+              >
+                {t('addVaccination')}
+              </button>
+            </div>
+
+            {/* Owner details */}
+            <div className={`${cardClass} p-5`}>
+              <div className="flex items-center gap-2 mb-5">
+                <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[20px]">person</span>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-[#e1e2eb]">{t('ownerDetails')}</h3>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { label: t('name'), value: user?.name || '—' },
+                  { label: t('email'), value: user?.email || '—' },
+                  { label: t('telephone'), value: (user as any)?.phone || '—' },
+                  { label: t('issuedBy'), value: t('bulgarianFoodSafetyAgency') },
+                  { label: t('dateOfIssue'), value: formatDate(dog.createdAt) },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-gray-50 dark:bg-[#191c22] rounded-lg p-3">
+                    <p className={labelClass}>{label}</p>
+                    <p className={`${valueClass} break-all`}>{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Microchip */}
+            <div className={`${cardClass} p-5`}>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-[#005da7] dark:text-[#a4c9ff] text-[20px]">memory</span>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-[#e1e2eb]">{t('petMarking')}</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="bg-gray-50 dark:bg-[#191c22] rounded-lg p-3">
+                  <p className={labelClass}>{t('microchipCode')}</p>
+                  <p className="font-mono text-sm font-bold text-gray-900 dark:text-[#e1e2eb]">
+                    {dog.microchipId || t('notRegistered')}
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-[#8b919d] mt-0.5">ISO 11784/11785</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('telephone')}</label>
-                  <p className="text-gray-900 dark:text-white">{user?.phone || '+359 XXX XXX XXX'}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('email')}</label>
-                  <p className="text-gray-900 dark:text-white">{user?.email || 'owner@example.com'}</p>
+                <div className="bg-gray-50 dark:bg-[#191c22] rounded-lg p-3">
+                  <p className={labelClass}>{t('microchipLocation')}</p>
+                  <p className={valueClass}>{t('microchipLocationStandard')}</p>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Passport Footer */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-b-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm opacity-90">{t('issuedBy')}: {t('bulgarianFoodSafetyAgency')}</p>
-                <p className="text-xs opacity-75">{t('dateOfIssue')}: {formatDate(dog.createdAt)}</p>
-              </div>
-             
-          {/* <div className="flex items-center space-x-2">
-                <Star className="text-yellow-300" size={16} />
-                <span className="text-sm">{t('validForEUTravel')}</span>
-              </div>*/}
-            </div>
           </div>
         </div>
+
+        {/* Reminders strip */}
+        {expiringSoon.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {expiringSoon.map((v, i) => {
+              const isExpired = new Date(v.next_due_date) < new Date();
+              return (
+                <div
+                  key={v.id}
+                  className={`${cardClass} p-4 flex items-center gap-3 ${
+                    isExpired ? 'border-l-4 border-l-red-500' :
+                    i === 0 ? 'border-l-4 border-l-[#005da7] dark:border-l-[#a4c9ff]' : ''
+                  }`}
+                >
+                  <span className={`material-symbols-outlined text-2xl flex-shrink-0 ${
+                    isExpired ? 'text-red-500' : 'text-[#005da7] dark:text-[#a4c9ff]'
+                  }`}>
+                    {isExpired ? 'priority_high' : 'event_note'}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-[#e1e2eb]">{v.vaccine_name}</p>
+                    <p className={`text-xs ${isExpired ? 'text-red-500' : 'text-gray-500 dark:text-[#8b919d]'}`}>
+                      {isExpired ? 'Expired' : t('validUntil')}: {formatDate(v.next_due_date)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
       </div>
     </div>
   );

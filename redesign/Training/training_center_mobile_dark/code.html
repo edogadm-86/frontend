@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #121212;
+            color: #e5e2e1;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#474747",
+                        "on-primary-container": "#556d00",
+                        "on-secondary": "#303030",
+                        "background": "#131313",
+                        "secondary-fixed": "#e4e2e1",
+                        "on-surface-variant": "#c4c9ac",
+                        "primary-fixed": "#c3f400",
+                        "on-tertiary": "#690003",
+                        "error": "#ffb4ab",
+                        "primary-container": "#c3f400",
+                        "on-surface": "#e5e2e1",
+                        "tertiary-container": "#ffdad5",
+                        "surface-bright": "#393939",
+                        "tertiary": "#ffffff",
+                        "inverse-on-surface": "#313030",
+                        "tertiary-fixed": "#ffdad5",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#1c1b1b",
+                        "secondary": "#c8c6c6",
+                        "outline-variant": "#444933",
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "surface-container-highest": "#353534",
+                        "tertiary-fixed-dim": "#ffb4aa",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-container": "#ca0a0f",
+                        "on-secondary-container": "#b6b5b4",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed-variant": "#930005",
+                        "secondary-container": "#474747",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary-fixed-dim": "#abd600",
+                        "on-tertiary-fixed": "#410001",
+                        "surface": "#131313",
+                        "surface-tint": "#abd600",
+                        "error-container": "#93000a",
+                        "on-primary-fixed": "#161e00",
+                        "on-background": "#e5e2e1",
+                        "primary": "#ffffff",
+                        "inverse-primary": "#506600",
+                        "outline": "#8e9379",
+                        "on-primary-fixed-variant": "#3c4d00",
+                        "secondary-fixed-dim": "#c8c6c6",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-variant": "#353534",
+                        "on-primary": "#283500"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "margin-desktop": "40px",
+                        "video-control-padding": "24px",
+                        "touch-target-min": "48px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "video-timestamp": ["JetBrains Mono"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "video-timestamp": ["14px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                        "headline-lg": ["40px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg-mobile": ["32px", {"lineHeight": "1.1", "fontWeight": "800"}],
+                        "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 bg-surface flex justify-between items-center w-full px-margin-mobile h-touch-target-min">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed">menu</span>
+<h1 class="font-label-caps text-label-caps tracking-widest text-primary-fixed">K9 TACTICAL</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="transition-all duration-200 active:scale-95 text-on-surface-variant">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="transition-all duration-200 active:scale-95 text-on-surface-variant relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-on-tertiary-container rounded-full"></span>
+</button>
+</div>
+</header>
+<main class="px-margin-mobile pt-6 space-y-8">
+<!-- Summary Cards Section: Bento Layout -->
+<section class="grid grid-cols-2 gap-3">
+<div class="col-span-2 bg-surface-container-high p-4 rounded-xl flex flex-col justify-between h-32 border-l-4 border-primary-fixed">
+<span class="font-label-caps text-label-caps text-on-surface-variant">TOTAL SESSIONS</span>
+<div class="flex items-end justify-between">
+<span class="font-headline-lg-mobile text-headline-lg-mobile">24</span>
+<span class="font-video-timestamp text-video-timestamp text-primary-fixed">+12% THIS WEEK</span>
+</div>
+</div>
+<div class="bg-surface-container p-4 rounded-xl flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">SKILLS MASTERED</span>
+<span class="font-headline-md text-headline-md">8</span>
+</div>
+<div class="bg-surface-container p-4 rounded-xl flex flex-col gap-1 border-t-2 border-outline-variant">
+<span class="font-label-caps text-label-caps text-on-surface-variant">NEXT GOAL</span>
+<span class="font-headline-md text-headline-md text-primary-fixed">STAY</span>
+</div>
+</section>
+<!-- Video Section: Horizontal Scroll -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">VIDEO LIBRARY</h2>
+<span class="font-label-caps text-label-caps text-primary-fixed">VIEW ALL</span>
+</div>
+<div class="flex overflow-x-auto gap-4 pb-4 no-scrollbar -mx-margin-mobile px-margin-mobile">
+<!-- Video Item 1 -->
+<div class="flex-none w-64 space-y-2">
+<div class="relative aspect-video bg-surface-container-highest rounded-lg overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover opacity-80" data-alt="A cinematic, high-contrast close-up of a professional Belgian Malinois focus-training in a dark, atmospheric hangar. The dog is looking intently at a trainer who is partially visible. The lighting is dramatic, with cold blue highlights and warm, tactical accents, emphasizing the dog's muscles and alertness. The overall style is professional, high-performance, and moody." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCunGmfzZqmxIchjcDZr8hqaBGiTWks1Qwxy5fasPDHv6xEszTTF4bluRoSqejB_HrERlmTCUs8rzNS25bZta_kADhW7kkyp4EvCj1VrUtvz59Bmiw6_3x42udBRNYmf-OR7Op2SYRsy9W5eNXUNIDdAtrvwc4K6ytUKe6RA-zLeL5PEExK_bTB_5d5q2G9gg0GpE631GzFLV9qxrnrPceqXUSKXXlQCawlUMLL5NefH1qCcmkuSTCFzYR4imuO4E9-pfKxtUyXhfOc"/>
+<span class="absolute bottom-2 right-2 bg-background/80 px-2 py-1 rounded font-video-timestamp text-video-timestamp">08:45</span>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl opacity-90">play_circle</span>
+</div>
+</div>
+<h3 class="font-body-md text-body-md font-bold truncate">ADVANCED FOCUS DRILLS</h3>
+<div class="flex gap-2">
+<span class="font-label-caps text-[10px] px-2 py-0.5 border border-outline rounded text-on-surface-variant">DRIVE: HIGH</span>
+</div>
+</div>
+<!-- Video Item 2 -->
+<div class="flex-none w-64 space-y-2">
+<div class="relative aspect-video bg-surface-container-highest rounded-lg overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover opacity-80" data-alt="A professional Golden Retriever performing a perfect 'Stay' command in a high-tech training facility. The background features blurred digital displays and sleek metallic surfaces. The lighting is focused and overhead, creating a clean, tactical laboratory-like aesthetic with deep blacks and high-intensity signal highlights in Electric Lime." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDehRTPy6Kb_UKy0PraX7iquLdGkXIMgjpRSnmuN8VbuMMdMm_rQIyjmdcOws_MpVorI41gTy10-meyoz4z1o4n6025YSc1ZKsTObcLL4BrtqO_l7E5VDbgwaGFBtNy6zXPtc-wosxv0h36oR325GKM5BxqDVK7Cu0a2bB0c4rEZsxmZjZ3myOqiTvsDiti7ASvudsK9Yb7UptmI87tZ6-rbO1qHa4HEk5zh5yw7NkuAcZl6q4VRrruJLGp_-L-7RSCZCACOZozqnRk"/>
+<span class="absolute bottom-2 right-2 bg-background/80 px-2 py-1 rounded font-video-timestamp text-video-timestamp">12:20</span>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl opacity-90">play_circle</span>
+</div>
+</div>
+<h3 class="font-body-md text-body-md font-bold truncate">RECALL UNDER PRESSURE</h3>
+<div class="flex gap-2">
+<span class="font-label-caps text-[10px] px-2 py-0.5 border border-outline rounded text-on-surface-variant">LEVEL 2</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Training Section -->
+<section class="space-y-4">
+<h2 class="font-headline-md text-headline-md uppercase">RECENT LOGS</h2>
+<div class="space-y-3">
+<!-- Card 1 -->
+<div class="bg-surface-container p-4 rounded-xl flex items-center justify-between border-l-2 border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-fixed">timer</span>
+</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">STAY</h4>
+<p class="font-label-caps text-label-caps text-on-surface-variant">10M SESSION • 4.8/5.0</p>
+</div>
+</div>
+<div class="h-8 w-1 bg-primary-fixed rounded-full"></div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container p-4 rounded-xl flex items-center justify-between border-l-2 border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-fixed">fitness_center</span>
+</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">SIT</h4>
+<p class="font-label-caps text-label-caps text-on-surface-variant">5M SESSION • 5.0/5.0</p>
+</div>
+</div>
+<div class="h-8 w-1 bg-primary-fixed rounded-full"></div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container p-4 rounded-xl flex items-center justify-between border-l-2 border-outline-variant opacity-70">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">psychology</span>
+</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">HEEL</h4>
+<p class="font-label-caps text-label-caps text-on-surface-variant">15M SESSION • 3.2/5.0</p>
+</div>
+</div>
+<div class="h-8 w-1 bg-on-tertiary-container rounded-full"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary-fixed text-on-primary-fixed rounded-full shadow-2xl flex items-center justify-center transition-transform duration-150 active:scale-90 z-50">
+<span class="material-symbols-outlined font-bold text-3xl">add</span>
+</button>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-150 active:scale-90">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps mt-1">HOME</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-150 active:scale-90">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-caps text-label-caps mt-1">HEALTH</span>
+</button>
+<!-- ACTIVE TAB -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 transition-transform duration-150 active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<span class="font-label-caps text-label-caps">TRAINING</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-150 active:scale-90">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-caps text-label-caps mt-1">COMMUNITY</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-150 active:scale-90">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps mt-1">PROFILE</span>
+</button>
+</nav>
+</body></html>

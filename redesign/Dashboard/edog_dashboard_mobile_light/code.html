@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Cooper's Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#e2e2e5",
+                        "outline": "#717783",
+                        "primary-fixed": "#d4e3ff",
+                        "on-primary-fixed-variant": "#004883",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#005da7",
+                        "surface-bright": "#fbf9f8",
+                        "on-secondary-container": "#636467",
+                        "tertiary-container": "#757473",
+                        "surface-container-low": "#f5f3f2",
+                        "on-secondary-fixed-variant": "#454749",
+                        "inverse-surface": "#303030",
+                        "inverse-on-surface": "#f2f0ef",
+                        "tertiary-fixed": "#e5e2e0",
+                        "surface-variant": "#e4e2e1",
+                        "secondary-fixed-dim": "#c6c6c9",
+                        "on-secondary-fixed": "#1a1c1e",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-primary-fixed": "#001c39",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e9e8e7",
+                        "tertiary": "#5d5c5a",
+                        "on-surface": "#1b1c1b",
+                        "outline-variant": "#c1c7d3",
+                        "background": "#fbf9f8",
+                        "secondary": "#5d5e61",
+                        "surface": "#fbf9f8",
+                        "secondary-fixed": "#e2e2e5",
+                        "primary-container": "#2976c7",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "tertiary-fixed-dim": "#c8c6c4",
+                        "inverse-primary": "#a4c9ff",
+                        "surface-dim": "#dbdad9",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1b1c1b",
+                        "on-primary-container": "#fdfcff",
+                        "on-tertiary-fixed-variant": "#474745",
+                        "on-tertiary-fixed": "#1c1c1b",
+                        "on-surface-variant": "#414751",
+                        "surface-tint": "#0060ac",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#f7fff1",
+                        "surface-container": "#efedec"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "xs": "0.5rem",
+                        "sm": "1rem",
+                        "gutter": "24px",
+                        "md": "1.5rem",
+                        "margin-mobile": "16px",
+                        "lg": "2rem",
+                        "base": "4px",
+                        "xl": "3rem"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbf9f8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .bento-card {
+            background: white;
+            box-shadow: 0px 4px 20px rgba(26, 28, 30, 0.04);
+            border-radius: 1.25rem;
+            transition: transform 0.2s ease;
+        }
+        .bento-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim shadow-sm fixed top-0 left-0 right-0 z-40">
+<div class="flex justify-between items-center w-full px-margin-mobile h-16 max-w-[1280px] mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a friendly young man with a warm smile, wearing casual clean attire. The background is a soft off-white gradient, reflecting a modern light-mode aesthetic. The lighting is high-key and diffused, highlighting the clean and professional personality of the eDog pet care application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQSTKM077k-ZLt0bh_M3_B8LPgyvqPoEctpmdknc7Q3CfKSJc8oRlz5URyJLJi0Hl_aFu0sfhnDN1W3WKsUVS7jDb1u0o_Y52x2aWW7kuhvJsHmYf-TCHwE4rvI0_Zds9DFaD2CCE0DdGk6rPotc1U79bkmqTJVDmwl5hhzwY8vAfncEVG8pyfM0J5nwGk5sGhIyV_I6UJ6WaKCQDTaqZbl4XGLYjxYU31s_-1uXZ-1towJbdvSdtAHAQFswmt-LHJUVJSEllS0JfU"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">eDog</h1>
+</div>
+<button class="material-symbols-outlined text-primary dark:text-primary-fixed-dim p-2 hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors rounded-full active:scale-95">
+                notifications
+            </button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="mt-20 mb-24 px-margin-mobile max-w-[1280px] mx-auto space-y-6">
+<!-- Profile Summary Section -->
+<section class="relative overflow-hidden bento-card p-6 bg-primary-container text-on-primary-container">
+<div class="flex items-center gap-4">
+<div class="relative">
+<div class="w-20 h-20 rounded-full border-4 border-white/20 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A joyful Golden Retriever named Cooper sitting in a sun-drenched park with lush green grass. The lighting is soft morning sunlight, creating a warm and trustworthy atmosphere. The image style is clean and professional, using a soft color palette that aligns with the eDog brand's minimalist and caring aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqU8_rDktOh8pmIelVYWSpx3gjIJIkLsIwla3mu_hOSRWVvzjX0v-YdhkFJjtgxppgOqptDiBVDk5eba1nbeZ7lKUhPEcf2L2U-BD2yrVCbiBSunZujuxNkH5PpNIDhTry3KFlQrx0XbP_vmIhxt2TgqbgiZh3HJ8dAYIQ0Dnbh4a1VlHPzU_4Xf1MV4EQlsFxPUg5ePoY2FvYOhRA7vUtSo4mgwxWRVOPtHRy1UfuBNOtOYrVobXH_PrO48XTgykIRXlVRr3nIMG8"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-white p-1 rounded-full text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-white">Cooper</h2>
+<p class="font-label-md text-label-md text-white/80">Golden Retriever • 3 years old</p>
+</div>
+</div>
+</section>
+<!-- Vital Stats - Grid -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bento-card p-5">
+<div class="flex items-center justify-between mb-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">monitor_weight</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Ideal</span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface">32.4<span class="text-label-md font-label-md ml-1 text-on-surface-variant">kg</span></div>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">Weight</div>
+</div>
+<div class="bento-card p-5">
+<div class="flex items-center justify-between mb-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Resting</span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface">72<span class="text-label-md font-label-md ml-1 text-on-surface-variant">bpm</span></div>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">Heart Rate</div>
+</div>
+</section>
+<!-- Daily Routine Checklist -->
+<section class="bento-card p-6">
+<h3 class="font-headline-md text-headline-md mb-4 text-on-surface">Daily Routine</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-3 bg-surface-container-low rounded-xl">
+<div class="w-6 h-6 border-2 border-primary rounded-lg flex items-center justify-center bg-primary text-white">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface line-through decoration-on-surface-variant opacity-60">Morning Walk</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">07:30 AM • Completed</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-3 bg-surface-container-low rounded-xl">
+<div class="w-6 h-6 border-2 border-primary rounded-lg flex items-center justify-center bg-primary text-white">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface line-through decoration-on-surface-variant opacity-60">Morning Meal</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">08:00 AM • Completed</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-3 border border-outline-variant/30 rounded-xl">
+<div class="w-6 h-6 border-2 border-outline rounded-lg"></div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface">Afternoon Play</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">03:00 PM • Upcoming</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Activity Log -->
+<section class="bento-card p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface">Activity Log</h3>
+<button class="text-primary font-label-md text-label-md hover:underline transition-all">View All</button>
+</div>
+<div class="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30">
+<div class="relative flex gap-4 pl-8">
+<div class="absolute left-0 top-1 w-6 h-6 bg-white border-2 border-primary rounded-full flex items-center justify-center z-10">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Park Visit &amp; Fetch</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Today, 07:30 AM • 45 mins • 2.4 km</p>
+</div>
+</div>
+<div class="relative flex gap-4 pl-8">
+<div class="absolute left-0 top-1 w-6 h-6 bg-white border-2 border-outline-variant rounded-full flex items-center justify-center z-10">
+<div class="w-2 h-2 bg-outline-variant rounded-full"></div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Vet Checkup (Annual)</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Yesterday, 11:00 AM • Healthy Progress</p>
+</div>
+</div>
+<div class="relative flex gap-4 pl-8">
+<div class="absolute left-0 top-1 w-6 h-6 bg-white border-2 border-outline-variant rounded-full flex items-center justify-center z-10">
+<div class="w-2 h-2 bg-outline-variant rounded-full"></div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Evening Grooming</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">2 days ago • Coat Shine: Excellent</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 bg-surface-container-lowest dark:bg-surface-container-low pb-safe rounded-t-xl shadow-[0px_-4px_20px_rgba(26,28,30,0.04)] border-t border-outline-variant dark:border-outline">
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-primary-fixed-variant text-primary dark:text-primary-fixed rounded-full px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-fixed-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-sm text-label-sm">Health</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-fixed-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">contact_page</span>
+<span class="font-label-sm text-label-sm">Passport</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-fixed-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-fixed-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-sm text-label-sm">AI</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cooper - Lost Dog Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#e41d27",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2f3133",
+                        "on-primary-fixed-variant": "#004883",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-primary": "#a4c9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#001c39",
+                        "primary": "#005da7",
+                        "on-background": "#1a1c1e",
+                        "on-surface": "#1a1c1e",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#0060ac",
+                        "surface-container": "#eeeef0",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#93000f",
+                        "primary-container": "#2976c7",
+                        "secondary-fixed-dim": "#ffb955",
+                        "tertiary": "#bb0017",
+                        "surface-bright": "#f9f9fc",
+                        "surface-container-highest": "#e2e2e5",
+                        "surface-dim": "#dadadc",
+                        "on-tertiary-fixed": "#410003",
+                        "surface-container-low": "#f3f3f6",
+                        "outline-variant": "#c1c7d3",
+                        "on-primary-container": "#fdfcff",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#633f00",
+                        "secondary": "#835500",
+                        "tertiary-fixed-dim": "#ffb3ac",
+                        "background": "#f9f9fc",
+                        "outline": "#717783",
+                        "surface": "#f9f9fc",
+                        "on-surface-variant": "#414751",
+                        "on-secondary-container": "#6b4500",
+                        "primary-fixed": "#d4e3ff",
+                        "tertiary-fixed": "#ffdad6",
+                        "secondary-container": "#feae2c",
+                        "surface-container-high": "#e8e8ea",
+                        "inverse-on-surface": "#f0f0f3",
+                        "surface-variant": "#e2e2e5",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "secondary-fixed": "#ffddb4",
+                        "on-secondary-fixed": "#291800",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-margin-desktop": "40px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "16px",
+                        "base": "8px",
+                        "container-margin-mobile": "16px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "status-badge": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "status-badge": ["12px", {"lineHeight": "16px", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9fc;
+            color: #1a1c1e;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md antialiased">
+<!-- Top Navigation Bar (Shared Component Strategy) -->
+<header class="bg-surface dark:bg-surface shadow-sm w-full sticky top-0 z-50 transition-opacity duration-200">
+<div class="flex items-center justify-center px-margin-mobile md:px-container-margin-desktop w-full py-sm max-w-[720px] mx-auto">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" data-icon="paws">Rows</span>
+<h1 class="font-headline-md text-headline-md-mobile font-bold text-primary dark:text-primary">eDog Finder</h1>
+</div>
+</div>
+</header>
+<!-- Urgent Banner -->
+<div class="bg-tertiary-container w-full py-base">
+<div class="max-w-[720px] mx-auto px-margin-mobile flex items-center justify-center gap-base">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="error" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="font-status-badge text-status-badge text-on-tertiary-container">LOST PET: URGENT ASSISTANCE NEEDED</span>
+</div>
+</div>
+<!-- Main Content Pillar -->
+<main class="max-w-[720px] mx-auto px-margin-mobile md:px-0 py-stack-md flex flex-col gap-stack-lg">
+<!-- Profile Hero Section -->
+<section class="flex flex-col gap-stack-sm">
+<div class="relative w-full aspect-square md:aspect-video rounded-xl overflow-hidden border border-outline-variant shadow-sm">
+<img alt="Cooper the Golden Retriever" class="w-full h-full object-cover" data-alt="A high-resolution, heart-warming portrait of a friendly Golden Retriever dog named Cooper sitting patiently in a sun-drenched suburban park. The lighting is bright and warm, emphasizing the soft golden texture of his fur. The background features lush green grass and soft-focus trees, maintaining a clean and modern high-contrast aesthetic consistent with a premium pet safety application. Cooper looks directly at the camera with expressive, soulful eyes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL8vyrYF-uy3tCrVQxVMfBy9ztairK4gDdHTeQKRv_gTJIjmHT07HaPkTQwT2lECAbRmU-IBaYnzeH8jaoVfi9Z4NBZxEbKTYQzWY-uvjKik6ILxInT4_zoR3tBBKb8okfZtUxcIsD-gyKHWr0XafzZ75fwZGGWT4gZHZC_ZiwIFkFnVJNYxJ9-EHKhvlSkGK2j_5DZd915Cjn1T2k3_YslhyPzCSukNC5cN6jTcm9mWMguWt0y2kmejn26mnFsVLVVKmYUiM1_WAJ"/>
+<div class="absolute top-4 left-4">
+<span class="bg-tertiary text-on-tertiary font-status-badge text-status-badge px-sm py-1 rounded-full uppercase tracking-wider">Missing Since Oct 24</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 mt-base">
+<h2 class="font-display-lg text-headline-lg-mobile md:text-display-lg text-on-surface">Cooper</h2>
+<div class="flex flex-wrap gap-xs">
+<span class="bg-primary-container/10 text-primary border border-primary/20 font-status-badge text-status-badge px-3 py-1 rounded-full">GOLDEN RETRIEVER</span>
+<span class="bg-secondary-container/10 text-secondary border border-secondary/20 font-status-badge text-status-badge px-3 py-1 rounded-full">3 YEARS OLD</span>
+<span class="bg-surface-container-highest text-on-surface-variant font-status-badge text-status-badge px-3 py-1 rounded-full">MALE</span>
+</div>
+</div>
+</section>
+<!-- Found This Dog: Primary Action Card -->
+<section class="bg-[#F0F7FF] rounded-xl p-stack-md border border-primary/20 flex flex-col gap-stack-md">
+<div class="flex flex-col gap-xs text-center md:text-left">
+<h3 class="font-headline-md text-headline-md text-primary">I Found This Dog</h3>
+<p class="font-body-md text-on-surface-variant">Please contact my owner immediately. Cooper is much loved and missed.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<a class="flex items-center justify-center gap-base bg-primary text-on-primary font-label-md text-label-md py-4 rounded-lg hover:opacity-90 transition-opacity min-h-[48px]" href="tel:+15550123456">
+<span class="material-symbols-outlined" data-icon="call" style="font-variation-settings: 'FILL' 1;">call</span>
+                    CALL OWNER
+                </a>
+<a class="flex items-center justify-center gap-base bg-surface-container-lowest border-2 border-primary text-primary font-label-md text-label-md py-4 rounded-lg hover:bg-primary/5 transition-colors min-h-[48px]" href="sms:+15550123456">
+<span class="material-symbols-outlined" data-icon="chat" style="font-variation-settings: 'FILL' 1;">chat</span>
+                    SMS OWNER
+                </a>
+</div>
+</section>
+<!-- Vital Info & Details Grid -->
+<section class="grid grid-cols-1 gap-stack-md">
+<!-- Medical & Temperament -->
+<div class="border border-outline-variant rounded-xl p-stack-md bg-surface-container-lowest flex flex-col gap-stack-md">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-tertiary" data-icon="medical_services">medical_services</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Vital Info</h3>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Medical Needs</span>
+<p class="font-body-lg text-body-lg text-on-surface">Requires daily medication for joints.</p>
+</div>
+<div class="h-px bg-outline-variant/30 w-full"></div>
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Temperament</span>
+<p class="font-body-lg text-body-lg text-on-surface">Friendly but anxious around loud noises.</p>
+</div>
+</div>
+</div>
+<!-- Owner Information -->
+<div class="border border-outline-variant rounded-xl p-stack-md bg-surface-container-lowest flex flex-col gap-stack-md">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary" data-icon="person_pin_circle">person_pin_circle</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Owner Details</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-sm">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Primary Owner</span>
+<p class="font-body-lg text-body-lg text-on-surface">Alex Thorne</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Phone</span>
+<p class="font-body-lg text-body-lg text-on-surface">+1 (555) 012-3456</p>
+</div>
+<div class="flex flex-col gap-1 md:col-span-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Home Address</span>
+<p class="font-body-lg text-body-lg text-on-surface">123 Paws Lane, San Francisco, CA</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Location Context -->
+<section class="flex flex-col gap-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase">Last Reported Area</h3>
+<div class="w-full h-48 rounded-xl bg-surface-container-highest border border-outline-variant relative overflow-hidden group">
+<img alt="San Francisco Map" class="w-full h-full object-cover opacity-80" data-alt="A clean, minimalist topographical map view of a San Francisco neighborhood centered on Paws Lane. The map is presented in a modern light-mode style with soft gray streets, light blue water bodies, and subtle green park areas. A single, high-contrast blue pin marks the dog's home location. The overall aesthetic is professional, clear, and functional, avoiding clutter to ensure maximum readability for someone trying to locate the neighborhood quickly." data-location="San Francisco" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAyKZuBcfdJWDk8o6gMYojC5MV2z1iEpuc5gFd0OuJcpvk8ZjMFSE14D-Ks-ciRIoQokE_-YD8K02GbGGjWCL_yLMj6w_UhHqkZ8nVlQVqiV6X2nDpdsRc3UwwbjqYQu2wbkE-raEo-ckoAcTCzHPUGAgkScDeD4qe8vf4jPOYqyfoaI6DLBGl-gXAtDqMZ6MiMhWG5JGuk-dQxKRAm5TEZeo-uQ1pf1-t7pNaOscZhaA2bOi43V1vEk7DOobLXRd-KotUiIvlF01f"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="bg-primary text-on-primary p-3 rounded-full shadow-lg">
+<span class="material-symbols-outlined" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component Strategy) -->
+<footer class="bg-surface-dim dark:bg-surface-dim border-t border-white/10 w-full mt-xl transition-all duration-200">
+<div class="flex flex-col items-center gap-xs py-lg px-margin-mobile w-full text-center max-w-[720px] mx-auto">
+<div class="font-label-md text-label-md font-bold text-on-surface mb-xs">eDog Finder</div>
+<div class="flex gap-stack-md mb-base">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Report Issue</a>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Powered by eDog</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-sm opacity-60">© 2024 eDog Safety Systems. All Rights Reserved.</p>
+</div>
+</footer>
+</body></html>

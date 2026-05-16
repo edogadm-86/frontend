@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c8c6c4",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "background": "#fbf9f8",
+                        "surface-variant": "#e4e2e1",
+                        "tertiary-fixed": "#e5e2e0",
+                        "tertiary": "#5d5c5a",
+                        "secondary-container": "#e2e2e5",
+                        "primary-container": "#2976c7",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "on-secondary-fixed": "#1a1c1e",
+                        "tertiary-container": "#757473",
+                        "on-tertiary-fixed": "#1c1c1b",
+                        "surface-dim": "#dbdad9",
+                        "on-primary-fixed": "#001c39",
+                        "on-primary-container": "#fdfcff",
+                        "on-surface": "#1b1c1b",
+                        "surface-container": "#efedec",
+                        "secondary-fixed-dim": "#c6c6c9",
+                        "on-surface-variant": "#414751",
+                        "secondary": "#5d5e61",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c1c7d3",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e9e8e7",
+                        "surface-bright": "#fbf9f8",
+                        "surface-container-highest": "#e4e2e1",
+                        "surface": "#fbf9f8",
+                        "on-primary-fixed-variant": "#004883",
+                        "inverse-on-surface": "#f2f0ef",
+                        "on-tertiary-fixed-variant": "#474745",
+                        "inverse-primary": "#a4c9ff",
+                        "primary": "#005da7",
+                        "secondary-fixed": "#e2e2e5",
+                        "on-tertiary-container": "#f7fff1",
+                        "surface-container-low": "#f5f3f2",
+                        "primary-fixed": "#d4e3ff",
+                        "on-secondary-fixed-variant": "#454749",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#0060ac",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#636467",
+                        "on-error": "#ffffff",
+                        "outline": "#717783",
+                        "on-background": "#1b1c1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "1rem",
+                        "xl": "3rem",
+                        "lg": "2rem",
+                        "margin-desktop": "48px",
+                        "md": "1.5rem",
+                        "base": "4px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "xs": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            background-color: #fbf9f8;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col font-body-md text-on-background">
+<!-- Top Navigation Bar (Suppressed on Login according to Shell Visibility Rule, but we include identity) -->
+<header class="w-full flex justify-center py-xl">
+<div class="flex flex-col items-center">
+<div class="mb-xs text-primary">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">eDog</h1>
+</div>
+</header>
+<main class="flex-1 w-full max-w-[1280px] mx-auto px-margin-mobile flex flex-col justify-center pb-xl">
+<div class="w-full max-w-md mx-auto space-y-lg">
+<!-- Welcome Text -->
+<div class="space-y-xs text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Welcome Back</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Sign in to continue your pet's health journey.</p>
+</div>
+<!-- Login Form -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,28,30,0.04)] p-lg border border-outline-variant/30">
+<form action="#" class="space-y-md" method="POST">
+<!-- Email Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="email">Email Address</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-on-surface-variant/60">mail</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low rounded-lg border-none focus:ring-2 focus:ring-primary transition-all text-on-surface font-body-md placeholder:text-outline" id="email" name="email" placeholder="name@example.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="password">Password</label>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Forgot password?</a>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-on-surface-variant/60">lock</span>
+<input class="w-full pl-12 pr-12 py-3 bg-surface-container-low rounded-lg border-none focus:ring-2 focus:ring-primary transition-all text-on-surface font-body-md placeholder:text-outline" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 text-on-surface-variant/60 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-4 rounded-full shadow-sm hover:brightness-110 active:scale-[0.98] transition-all flex justify-center items-center gap-2" type="submit">
+                        Sign In
+                    </button>
+</form>
+</div>
+<!-- Divider -->
+<div class="relative flex py-xs items-center">
+<div class="flex-grow border-t border-outline-variant"></div>
+<span class="flex-shrink mx-4 font-label-sm text-label-sm text-on-surface-variant">or continue with</span>
+<div class="flex-grow border-t border-outline-variant"></div>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-md">
+<button class="flex items-center justify-center gap-xs py-3 px-4 bg-surface-container-lowest border border-outline-variant rounded-full hover:bg-surface-container-low transition-colors active:scale-95">
+<img alt="Apple" class="w-5 h-5" data-alt="A clean, minimalist vector of the Apple logo in solid black, centered against a transparent background to represent premium technology integration. The style is sharp and professional, fitting into a modern high-end user interface design with subtle depth and clean lines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0nBfwjSGo754u67S-rTff36ORHOSjLIHgL6ne_go-Kw3ignapGmrXdi6Tn4tjan64H2w24tsg777exwTQDcSY9bVe5VoL1g_QYkgm8WRI-7E31Z6YgkuHrvOPJh42ENkmGdE4k79PF2wilg5YHIGqAR2Os_a6_2cf3Nh3fSnr-8LGIdKka7F4c6dAmDYwRTWUXkd9J74hv_9hWmmADFbAjcP2lMhh7T4C-u1S5vVrH9OZONoC9dwlYUdH8o3oWJoQPUOT_UZs1KVT"/>
+<span class="font-label-md text-label-md text-on-surface">Apple</span>
+</button>
+<button class="flex items-center justify-center gap-xs py-3 px-4 bg-surface-container-lowest border border-outline-variant rounded-full hover:bg-surface-container-low transition-colors active:scale-95">
+<img alt="Google" class="w-5 h-5" data-alt="A high-quality rendering of the Google G icon with its signature four-color palette, displayed clearly on a neutral surface. The image represents modern connectivity and seamless web authentication within a clean-professional digital ecosystem characterized by soft lighting and professional aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtRl1qqM7zeSkvWZnTELHQuRX4yOIN1XzyUHMTcVXe7MHC_8tAIA4P06yGWoMLvoEZeMalGc0kmOfXXvJZTKizrBDO1G-q5LcgvYxHfXSnEeKI9dvAlE2IsUj1y5KoI05wPBX7i_mbJVv3oG94Aqk4aPmylMLnnRomKW6ern4TN1Nq_62XwHcvUhl8Y3ZVN0h3sWuehM6CcPwC5w2zAxYagp9vmjVgbkmj5gzPTtJ-hq4FpTQ-rdP2ca63HIGDMpE1LykNB4nPI8qk"/>
+<span class="font-label-md text-label-md text-on-surface">Google</span>
+</button>
+</div>
+<!-- Footer Link -->
+<p class="text-center font-body-md text-body-md text-on-surface-variant pt-md">
+                Don't have an account? 
+                <a class="text-primary font-label-md text-label-md hover:underline ml-1" href="#">Sign up</a>
+</p>
+</div>
+</main>
+<!-- App Decorative Imagery -->
+<div class="hidden lg:block fixed bottom-0 right-0 p-xl opacity-20 pointer-events-none">
+<img class="max-w-sm" data-alt="A sophisticated minimalist line art illustration of a friendly Golden Retriever sitting patiently. The style uses soft Puppy Blue strokes and high-quality whitespace to create a trustworthy and caring atmosphere. The lighting is bright and airy, following a modern clean-professional aesthetic for a pet health SaaS platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKhoCMqRt_5Hec8PSEa-062vKPEDVBM5WcE7esAAND1eYso0zdmBBiE-gyGFETMGarekE-aI7Cl5S75EhDZY4SFdYuggLl4M1sbUtWi737tkEg5-fcMtl-dZHCPhCmFoTS8W2ldzbpqSLDC7jytbjEoomM3WaNXAc1jFbsSJt11C4oU8FIrZqKzOJ1TIb5FgqZ2pjg2FznWUtnnBIF8CgximL6g79FScbKEoqHrbauZ5Kpz3Kv33vGWpWSBjF2l5WSv-i0aZ3PwP4A"/>
+</div>
+</body></html>

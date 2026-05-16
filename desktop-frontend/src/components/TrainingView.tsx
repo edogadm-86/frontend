@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Award, ArrowLeft, Bot } from 'lucide-react';
-import { ChatBot } from './ChatBot';
 import { Button } from './ui/Button';
 import { TrainingManagement } from './TrainingManagement';
 import { Dog } from '../types';
