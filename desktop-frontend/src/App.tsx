@@ -16,6 +16,7 @@ import { PublicDogProfile } from './components/PublicDogProfile';
 import { PetPassport } from './components/PetPassport';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { AdminApp } from './components/AdminApp';
+import { ExpensesView } from './components/ExpensesView';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 
 const AppContent: React.FC = () => {
@@ -107,6 +108,10 @@ const AppContent: React.FC = () => {
       case 'community':
         return (
           <CommunityView onNavigate={setCurrentView} />
+        );
+      case 'expenses':
+        return (
+          <ExpensesView currentDog={currentDog} />
         );
       case 'settings':
         return (

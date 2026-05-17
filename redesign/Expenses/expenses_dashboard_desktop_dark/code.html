@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Expenses Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-low": "#1a1c1f",
+                      "tertiary": "#ffb953",
+                      "on-primary-fixed-variant": "#004883",
+                      "surface-dim": "#111316",
+                      "surface-bright": "#37393d",
+                      "on-primary-container": "#002a51",
+                      "on-surface": "#e2e2e6",
+                      "surface-container-high": "#282a2d",
+                      "on-background": "#e2e2e6",
+                      "on-tertiary-container": "#3c2500",
+                      "on-tertiary": "#452b00",
+                      "secondary-container": "#feb300",
+                      "secondary": "#ffd798",
+                      "primary-fixed-dim": "#a4c9ff",
+                      "primary-container": "#4d93e5",
+                      "on-secondary-fixed": "#281900",
+                      "on-error": "#690005",
+                      "inverse-on-surface": "#2f3034",
+                      "on-secondary-fixed-variant": "#5f4100",
+                      "on-secondary-container": "#6a4800",
+                      "tertiary-fixed": "#ffddb4",
+                      "surface-variant": "#333538",
+                      "secondary-fixed-dim": "#ffba35",
+                      "outline-variant": "#414751",
+                      "on-tertiary-fixed": "#291800",
+                      "surface": "#111316",
+                      "error": "#ffb4ab",
+                      "outline": "#8b919d",
+                      "secondary-fixed": "#ffdeac",
+                      "surface-container": "#1e2023",
+                      "on-error-container": "#ffdad6",
+                      "on-primary": "#00315d",
+                      "surface-container-highest": "#333538",
+                      "tertiary-container": "#c58305",
+                      "inverse-surface": "#e2e2e6",
+                      "primary-fixed": "#d4e3ff",
+                      "error-container": "#93000a",
+                      "surface-container-lowest": "#0c0e11",
+                      "on-primary-fixed": "#001c39",
+                      "primary": "#a4c9ff",
+                      "on-surface-variant": "#c1c7d3",
+                      "inverse-primary": "#0060ac",
+                      "background": "#111316",
+                      "surface-tint": "#a4c9ff",
+                      "on-secondary": "#422c00",
+                      "tertiary-fixed-dim": "#ffb953",
+                      "on-tertiary-fixed-variant": "#633f00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "margin-desktop": "48px",
+                      "lg": "24px",
+                      "sm": "8px",
+                      "gutter": "16px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #111316;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #e2e2e6;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1a1c1f;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #414751;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 border-b border-white/10 bg-surface/80 backdrop-blur-md flex justify-between items-center h-16 px-margin-mobile md:px-margin-desktop">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">eDog</span>
+</div>
+<div class="flex items-center gap-lg">
+<div class="hidden md:flex items-center gap-xl">
+<span class="font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container-high rounded-full p-2 transition-colors">Home</span>
+<span class="font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container-high rounded-full p-2 transition-colors">Health</span>
+<span class="font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container-high rounded-full p-2 transition-colors">Training</span>
+<span class="font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container-high rounded-full p-2 transition-colors">Community</span>
+<span class="font-label-md text-label-md text-primary font-bold">Expenses</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="hover:bg-surface-container-high rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full border-2 border-primary overflow-hidden">
+<img alt="Owner Avatar" class="w-full h-full object-cover" data-alt="A professional close-up studio portrait of a friendly-looking man in his early 30s, wearing modern business-casual attire. The lighting is soft and cinematic with a cool-toned rim light that complements the deep charcoal background of the eDog corporate dark mode design. The image has a premium, high-resolution aesthetic with slight bokeh depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO0SWL6Q1tDCRCpSv49vwBr6ftDWyjH_qno6jiD_JH2VSmgjSd6BdrEWcGnQHeaMhI6-oN98AsuqR0H77ZesXgacQwgl4DICPHY03mAE1nhRDIqFeF0HG4Ofrp7ZmA-iqjTUyYEElwp4A3J5AizcAXzCc6Cb5f_Zt9Z0zRsYJTFvNFInJypO25earAuj02DiKq2nwj0slBjvXqBtyuWLLPgLkFdAZlm-m_wE4i6vHoQleB3JZs-2sKIdNdNoX1ZjutjQ0KwO1JRN0w"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex pt-16 min-h-screen">
+<!-- Navigation Drawer (Sidebar) -->
+<aside class="fixed left-0 top-0 h-screen w-72 border-r border-white/10 bg-surface-container-low hidden lg:flex flex-col p-lg gap-md mt-16 shadow-xl">
+<div class="mb-lg flex flex-col items-center p-md bg-surface-container rounded-xl">
+<div class="w-20 h-20 rounded-full border-2 border-primary p-1 mb-sm">
+<img alt="Rex Avatar" class="w-full h-full object-cover rounded-full" data-alt="A cinematic, high-detail portrait of a golden retriever dog named Rex, looking noble and healthy. The dog is positioned in a modern, brightly lit apartment with soft evening light coming through a window. The color grading is warm and sophisticated, designed to contrast beautifully against the deep blue and charcoal dark mode interface of the eDog application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx2zE97vUK5jPj6B38l17XjNzH6CPPTK8VshIkx6pwlyBYQ9PhrmzAPw4iQN9n-748awqJ1qFN0Ge-sYakxb3GdLP6-Cj4mZfDR33Ej_sVq6jIxnMLze8bdLp6aYOlCF50GQ-hSfhItXZbl5R2-_rT_RCUUutInqrZSOzRbdaTJuLkzUMam0Vph6wDsRBLv8LmJF3w0LfvXkzle05zEu66iNkSF_Y93vINFVm9a_1s4orRcvTwSu5NieGz0lA2buZanlxPKRFKeX-w"/>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Rex</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Golden Retriever • 3 yrs</p>
+</div>
+<nav class="space-y-sm">
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-md text-label-md">Health</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Community</span>
+</a>
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-lg px-md py-sm font-bold translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-md text-label-md">Expenses</span>
+</a>
+</nav>
+<div class="mt-auto p-md bg-primary-container/10 border border-primary/20 rounded-xl">
+<p class="font-label-sm text-label-sm text-primary mb-xs">Premium Support</p>
+<p class="text-[12px] text-on-surface-variant mb-sm">Chat with a pet financial advisor 24/7.</p>
+<button class="w-full py-2 bg-primary text-on-primary font-bold rounded-lg text-sm">Upgrade Plan</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 lg:ml-72 p-margin-mobile md:p-margin-desktop bg-background grid grid-cols-1 xl:grid-cols-12 gap-lg overflow-x-hidden">
+<!-- Center Column (Main Dash) -->
+<div class="xl:col-span-8 space-y-lg">
+<!-- Header Stats -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Spending Summary</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage Rex's lifestyle and medical costs.</p>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-md py-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+<span class="font-label-md text-label-md">This Month</span>
+</button>
+<button class="flex items-center gap-xs px-md py-2 bg-primary text-on-primary font-bold rounded-lg hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="font-label-md text-label-md">Add Expense</span>
+</button>
+</div>
+</div>
+<!-- Spending Charts Bento -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Bar Chart Area -->
+<div class="bg-surface-container rounded-xl p-lg border border-white/10 shadow-sm">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md">Monthly Spending</h3>
+<span class="text-primary font-bold">$1,240.00</span>
+</div>
+<div class="h-48 flex items-end justify-between gap-2 px-sm">
+<div class="w-full bg-surface-variant rounded-t-sm h-1/2 relative group">
+<div class="absolute inset-0 bg-primary opacity-20 hidden group-hover:block transition-opacity"></div>
+</div>
+<div class="w-full bg-surface-variant rounded-t-sm h-3/4"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-2/3"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-5/6"></div>
+<div class="w-full bg-primary rounded-t-sm h-[95%] shadow-[0_0_15px_rgba(164,201,255,0.3)]"></div>
+</div>
+<div class="flex justify-between mt-sm text-on-surface-variant font-label-sm text-label-sm">
+<span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span>
+</div>
+</div>
+<!-- Pie Chart Area -->
+<div class="bg-surface-container rounded-xl p-lg border border-white/10 shadow-sm flex flex-col">
+<h3 class="font-headline-md text-headline-md mb-lg">Category Split</h3>
+<div class="flex-1 flex items-center justify-center relative">
+<div class="w-40 h-40 rounded-full border-[16px] border-surface-variant flex items-center justify-center">
+<div class="absolute inset-0 border-[16px] border-primary rounded-full" style="clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 70%, 50% 50%);"></div>
+<div class="absolute inset-0 border-[16px] border-tertiary rounded-full" style="clip-path: polygon(50% 50%, 100% 70%, 100% 100%, 70% 100%, 50% 50%);"></div>
+<div class="text-center">
+<span class="block text-headline-md font-bold">45%</span>
+<span class="block text-[10px] text-on-surface-variant uppercase tracking-widest">Medical</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm mt-lg">
+<div class="flex items-center gap-sm">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="font-label-sm text-label-sm">Health</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-3 h-3 rounded-full bg-tertiary"></div>
+<span class="font-label-sm text-label-sm">Food</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Monthly Budget Progress -->
+<div class="bg-surface-container rounded-xl p-lg border border-white/10">
+<div class="flex justify-between items-center mb-md">
+<div>
+<h3 class="font-label-md text-label-md text-on-surface">Monthly Budget Progress</h3>
+<p class="text-[12px] text-on-surface-variant">Remaining: $260.00</p>
+</div>
+<span class="font-bold text-on-surface">$1,500.00 Limit</span>
+</div>
+<div class="w-full bg-surface-variant h-3 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[82%] shadow-[0_0_8px_rgba(164,201,255,0.5)]"></div>
+</div>
+<div class="mt-sm flex justify-between text-on-surface-variant text-[12px]">
+<span>82% used</span>
+<span>5 days left</span>
+</div>
+</div>
+<!-- Detailed Transaction History -->
+<div class="bg-surface-container rounded-xl border border-white/10 overflow-hidden">
+<div class="p-lg border-b border-white/10 flex flex-col md:flex-row justify-between gap-md">
+<h3 class="font-headline-md text-headline-md">Transaction History</h3>
+<div class="flex gap-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="bg-surface-container-high border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary w-full md:w-64" placeholder="Filter transactions..." type="text"/>
+</div>
+<button class="p-2 bg-surface-container-high rounded-lg hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left">
+<thead class="bg-surface-container-highest/50 text-on-surface-variant font-label-sm text-label-sm">
+<tr>
+<th class="px-lg py-md">Label</th>
+<th class="px-lg py-md">Category</th>
+<th class="px-lg py-md">Date</th>
+<th class="px-lg py-md text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-surface-container-high/50 transition-colors cursor-pointer group">
+<td class="px-lg py-lg flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">medical_services</span>
+</div>
+<span class="font-label-md text-label-md">Annual Vaccination</span>
+</td>
+<td class="px-lg py-lg">
+<span class="px-3 py-1 bg-primary/15 text-primary text-[10px] font-bold rounded-full uppercase tracking-wider">Health</span>
+</td>
+<td class="px-lg py-lg text-on-surface-variant font-label-sm text-label-sm">Jul 12, 2023</td>
+<td class="px-lg py-lg text-right font-bold text-on-surface">$145.00</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors cursor-pointer group">
+<td class="px-lg py-lg flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">shopping_basket</span>
+</div>
+<span class="font-label-md text-label-md">Premium Kibble 15kg</span>
+</td>
+<td class="px-lg py-lg">
+<span class="px-3 py-1 bg-tertiary/15 text-tertiary text-[10px] font-bold rounded-full uppercase tracking-wider">Food</span>
+</td>
+<td class="px-lg py-lg text-on-surface-variant font-label-sm text-label-sm">Jul 10, 2023</td>
+<td class="px-lg py-lg text-right font-bold text-on-surface">$89.99</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors cursor-pointer group">
+<td class="px-lg py-lg flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/10 flex items-center justify-center text-secondary-container">
+<span class="material-symbols-outlined">fitness_center</span>
+</div>
+<span class="font-label-md text-label-md">Agility Training Session</span>
+</td>
+<td class="px-lg py-lg">
+<span class="px-3 py-1 bg-secondary-container/15 text-secondary-container text-[10px] font-bold rounded-full uppercase tracking-wider">Training</span>
+</td>
+<td class="px-lg py-lg text-on-surface-variant font-label-sm text-label-sm">Jul 08, 2023</td>
+<td class="px-lg py-lg text-right font-bold text-on-surface">$65.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-md text-center border-t border-white/10">
+<button class="text-primary font-label-md text-label-md hover:underline">View All Transactions</button>
+</div>
+</div>
+</div>
+<!-- Right Column (Contextual Details) -->
+<div class="xl:col-span-4 space-y-lg">
+<!-- Recurring Expenses -->
+<div class="bg-surface-container-high rounded-xl p-lg border border-white/10 shadow-lg">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">event_repeat</span>
+<h3 class="font-headline-md text-headline-md">Upcoming</h3>
+</div>
+<div class="space-y-md">
+<div class="flex items-center justify-between p-md bg-surface-container rounded-lg border border-white/5">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+<img alt="Insurance Logo" class="w-full h-full object-cover" data-alt="A clean, minimalist company logo for a pet insurance firm, featuring a stylized blue heart with a paw print inside. The aesthetic is modern corporate, with a soft white and primary blue color palette that conveys trust and protection, framed against a professional dark studio background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqCiUlu2ENEztLnrrXbh7X6F7GzN4B35UH21wvkYbt83v1otRkdfkNRYI1X4ihphZPTFPm6dylxgAAnUaStTl8LNCIjMzkog9ah2Bj_0FpA1zKwOIMh-AkcuFXG6HydKoeBdz5Zml_HZZHSPCQH2x8p--ah64tsEaEjKhoMUiMEtA5frakuyD0V6oPc2WaTRWDYrP_fc8cdMtrhgRgfnTvTprNjEOkEvzzi9xnZShwzky8_WJSDAEWwR4Imsg2FBWMb7OaXtrEf2YM"/>
+</div>
+<div>
+<p class="font-label-md text-label-md">Pet Insurance</p>
+<p class="text-[12px] text-on-surface-variant">Due in 3 days</p>
+</div>
+</div>
+<span class="font-bold">$42.00</span>
+</div>
+<div class="flex items-center justify-between p-md bg-surface-container rounded-lg border border-white/5">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+<img alt="Food Subscription" class="w-full h-full object-cover" data-alt="A high-end, aesthetic macro shot of premium organic dog food kibble with fresh ingredients like peas and carrots visible. The lighting is bright and appetizing, emphasizing the health benefits. The background is a sophisticated dark grey, aligning with the eDog premium brand identity for pet wellness and subscription services." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3JRpBzDFvzQDcdngcIqbGR-kYcqq_XLCWMLHhy3kQbtL3UK6jWjFOGc8WsQsWEoNrX3BQNYCJNad0uH2q92thfbjv6hvnv7IsLXHBk9ySc35wyw7BIjIfc9aUxpkQmNAh1h9J5xtXriE0RJ0hrYiPJ9iy-TZux7l_PtQ8PivV5X-JKpeLhRpCxW8X99n7a0pB_AExGpBktMNnxo8esQas2RhpGq9F9y7hKMGF4OywaXZE1nEaoGWTWSUvam_c3pbOflB5j0EEMtd7"/>
+</div>
+<div>
+<p class="font-label-md text-label-md">Food Delivery</p>
+<p class="text-[12px] text-on-surface-variant">Monthly sub</p>
+</div>
+</div>
+<span class="font-bold">$115.00</span>
+</div>
+</div>
+<button class="w-full mt-lg py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary/5 transition-all text-sm">Manage Subscriptions</button>
+</div>
+<!-- Saving Tips Glassmorphism Card -->
+<div class="relative overflow-hidden rounded-xl bg-primary-container/20 border border-primary/20 p-lg group">
+<div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl group-hover:scale-125 transition-transform"></div>
+<div class="relative z-10">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary mb-md">
+<span class="material-symbols-outlined">lightbulb</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-sm">Saving Tips</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-lg">
+                            "Switching to the 'Healthy Paws' annual plan could save you **$120/year** on Rex's vaccinations."
+                        </p>
+<div class="space-y-md">
+<div class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+<span class="text-[13px]">Buy supplements in bulk to save 15%.</span>
+</div>
+<div class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+<span class="text-[13px]">Rex is eligible for senior discounts next year.</span>
+</div>
+</div>
+<a class="inline-flex items-center gap-xs mt-lg text-primary font-bold text-sm hover:translate-x-1 transition-transform" href="#">
+                            View all tips
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="bg-surface-container rounded-xl p-lg border border-white/10">
+<h3 class="font-label-md text-label-md mb-lg uppercase tracking-wider text-on-surface-variant">Export Reports</h3>
+<div class="grid grid-cols-2 gap-sm">
+<button class="flex flex-col items-center justify-center p-md bg-surface rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary mb-xs">picture_as_pdf</span>
+<span class="text-[12px] font-bold">PDF</span>
+</button>
+<button class="flex flex-col items-center justify-center p-md bg-surface rounded-lg border border-white/5 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-tertiary mb-xs">table_chart</span>
+<span class="text-[12px] font-bold">CSV</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Navigation Shell (Suppressed on Desktop via design rules) -->
+<footer class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl border-t border-white/10 bg-surface-container shadow-[0_-4px_12px_0_rgba(0,0,0,0.4)] flex justify-around items-center h-16 px-mobile">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-sm text-label-sm">Health</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-sm text-label-sm">Training</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-sm text-label-sm">Community</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1 transition-all">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-sm text-label-sm">Expenses</span>
+</div>
+</footer>
+</body></html>

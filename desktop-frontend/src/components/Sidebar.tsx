@@ -32,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'calendar', icon: 'calendar_month', label: t('calendar1') },
     { id: 'training', icon: 'fitness_center', label: t('training') },
     { id: 'community', icon: 'groups', label: t('community') },
+    { id: 'expenses', icon: 'receipt_long', label: t('expenses') },
   ];
 
   const bottomNavItems = [

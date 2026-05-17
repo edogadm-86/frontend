@@ -49,6 +49,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [loadingHealth, setLoadingHealth] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [showIosHelp, setShowIosHelp] = useState(false);
+  const [expenseStats, setExpenseStats] = useState<any>(null);
+  const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const { canPromptInstall, showInstallPrompt, isIOS, isStandalone } = usePwaInstall();
   const publicUrl = `/public/dog/${currentDog?.id}`;
 
@@ -62,8 +64,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     if (currentDog?.id) {
       loadHealthStatus();
+      loadExpenseStats();
     }
   }, [currentDog?.id]);
+
+  useEffect(() => {
+    loadRecentPosts();
+  }, []);
 
   const loadHealthStatus = async () => {
     if (!currentDog?.id) return;
@@ -75,6 +82,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
       console.error('Error loading health status:', error);
     } finally {
       setLoadingHealth(false);
+    }
+  };
+
+  const loadExpenseStats = async () => {
+    if (!currentDog?.id) return;
+    try {
+      const res = await apiClient.getExpenseStats(currentDog.id);
+      setExpenseStats(res);
+    } catch (e) {
+      console.error('Error loading expense stats:', e);
+    }
+  };
+
+  const loadRecentPosts = async () => {
+    try {
+      const res = await apiClient.getPosts({ limit: 3 });
+      setRecentPosts(res.posts ?? []);
+    } catch (e) {
+      console.error('Error loading posts:', e);
     }
   };
 
@@ -442,8 +468,157 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </section>
 
+        {/* Expenses Widget */}
+        <section className={`col-span-12 md:col-span-6 ${cardClass} p-6`}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-[#005da7] dark:text-[#a4c9ff] flex items-center gap-2">
+              <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+              {t('thisMonthTotal')}
+            </h2>
+            <button
+              onClick={() => onNavigate('expenses')}
+              className="text-sm text-[#005da7] dark:text-[#a4c9ff] font-medium hover:opacity-80"
+            >
+              {t('viewAll')}
+            </button>
+          </div>
+
+          <div className="flex items-end gap-3 mb-4">
+            <span className="text-3xl font-bold text-gray-900 dark:text-[#e2e2e6]">
+              {(expenseStats?.currentTotal ?? 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+            </span>
+            {expenseStats?.percentChange != null && (
+              <span className={`text-sm font-semibold mb-1 ${expenseStats.percentChange >= 0 ? 'text-red-500 dark:text-red-400' : 'text-emerald-500 dark:text-emerald-400'}`}>
+                {expenseStats.percentChange >= 0 ? '+' : ''}{Number(expenseStats.percentChange).toFixed(0)}%
+              </span>
+            )}
+          </div>
+
+          {/* Mini weekly bar chart */}
+          {expenseStats?.weeklyData && expenseStats.weeklyData.length > 0 && (
+            <MiniExpenseChart weeklyData={expenseStats.weeklyData} />
+          )}
+
+          {/* Top category */}
+          {expenseStats?.categoryBreakdown?.[0] && (
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-white/5 text-sm">
+              <span className="text-gray-400 dark:text-[#8b919d]">{t('topCategory')}:</span>
+              <span className="font-semibold text-gray-800 dark:text-[#e2e2e6] capitalize">
+                {t(`category${expenseStats.categoryBreakdown[0].category.charAt(0).toUpperCase()}${expenseStats.categoryBreakdown[0].category.slice(1)}`)}
+              </span>
+              <span className="ml-auto font-bold text-gray-900 dark:text-[#e2e2e6]">
+                {parseFloat(expenseStats.categoryBreakdown[0].total).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+              </span>
+            </div>
+          )}
+
+          <button
+            onClick={() => onNavigate('expenses')}
+            className="w-full mt-4 py-2.5 rounded-xl bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 text-[#005da7] dark:text-[#a4c9ff] font-semibold text-sm hover:bg-[#005da7]/15 dark:hover:bg-[#a4c9ff]/15 transition-all flex items-center justify-center gap-2"
+          >
+            <Plus size={16} />
+            {t('addExpense')}
+          </button>
+        </section>
+
+        {/* Community Widget */}
+        <section className={`col-span-12 md:col-span-6 ${cardClass} p-6`}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+              <span className="material-symbols-outlined text-[20px]">forum</span>
+              {t('community')}
+            </h2>
+            <button
+              onClick={() => onNavigate('community')}
+              className="text-sm text-[#005da7] dark:text-[#a4c9ff] font-medium hover:opacity-80"
+            >
+              {t('viewAll')}
+            </button>
+          </div>
+
+          {recentPosts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-gray-300 dark:text-[#414751]">
+              <span className="material-symbols-outlined text-4xl mb-2">forum</span>
+              <p className="text-sm text-gray-400 dark:text-[#8b919d]">{t('noPosts')}</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {recentPosts.map(post => (
+                <div
+                  key={post.id}
+                  className="p-3 rounded-xl bg-gray-50 dark:bg-[#1a1c1f] border border-gray-100 dark:border-white/5"
+                >
+                  <div className="flex items-start gap-2 mb-1">
+                    <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded-full font-semibold uppercase tracking-wide flex-shrink-0 mt-0.5">
+                      {post.post_type}
+                    </span>
+                    <p className="text-sm font-medium text-gray-900 dark:text-[#e2e2e6] line-clamp-1">{post.title}</p>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-[#8b919d] pl-0.5">
+                    <span>{post.user_name ?? 'User'}</span>
+                    <span className="flex items-center gap-0.5">
+                      <span className="material-symbols-outlined text-[11px]">favorite</span>
+                      {post.likes_count ?? 0}
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      <span className="material-symbols-outlined text-[11px]">chat_bubble</span>
+                      {post.comments_count ?? 0}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={() => onNavigate('community')}
+            className="w-full mt-4 py-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 font-semibold text-sm hover:bg-emerald-500/15 dark:hover:bg-emerald-400/15 transition-all flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-[16px]">forum</span>
+            {t('joinConversation')}
+          </button>
+        </section>
+
       </div>
     </div>
+  );
+};
+
+// Mini expense weekly bar chart for dashboard
+const MiniExpenseChart: React.FC<{ weeklyData: { dow: number; total: number }[] }> = ({ weeklyData }) => {
+  const today = new Date().getDay();
+  const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const bars = Array.from({ length: 7 }, (_, i) => {
+    const entry = weeklyData.find(d => d.dow === i);
+    return { dow: i, total: parseFloat(String(entry?.total ?? 0)) };
+  });
+  const max = Math.max(...bars.map(b => b.total), 1);
+  const H = 48;
+  const barW = 16;
+  const gap = 7;
+  const totalW = 7 * (barW + gap) - gap;
+
+  return (
+    <svg viewBox={`0 0 ${totalW} ${H + 16}`} className="w-full" style={{ maxHeight: 72 }}>
+      {bars.map((b, i) => {
+        const x = i * (barW + gap);
+        const barH = Math.max((b.total / max) * H, b.total > 0 ? 3 : 1.5);
+        const isToday = b.dow === today;
+        return (
+          <g key={i}>
+            <rect
+              x={x} y={H - barH} width={barW} height={barH} rx={4}
+              className={isToday ? 'fill-[#005da7] dark:fill-[#a4c9ff]' : 'fill-[#005da7]/20 dark:fill-[#a4c9ff]/20'}
+            />
+            <text x={x + barW / 2} y={H + 12} textAnchor="middle" fontSize={8}
+              className={isToday ? 'fill-[#005da7] dark:fill-[#a4c9ff] font-bold' : 'fill-gray-400 dark:fill-[#8b919d]'}
+            >
+              {DOW[i]}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
   );
 };
 
