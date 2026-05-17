@@ -141,7 +141,7 @@ const runMigrations = async () => {
         dog_id UUID REFERENCES dogs(id) ON DELETE CASCADE,
         title VARCHAR(255) NOT NULL,
         content TEXT NOT NULL,
-        post_type VARCHAR(50) NOT NULL CHECK (post_type IN ('story', 'question', 'tip', 'event', 'photo', 'video')),
+        post_type VARCHAR(50) NOT NULL CHECK (post_type IN ('story', 'question', 'tip', 'event', 'photo', 'video', 'lost_dog')),
         image_url TEXT,
         video_url TEXT,
         tags TEXT[],
@@ -309,6 +309,23 @@ const runMigrations = async () => {
 
       CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
 
+      -- Post reports (flag inappropriate content)
+      CREATE TABLE IF NOT EXISTS post_reports (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+        reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reason VARCHAR(100) NOT NULL DEFAULT 'inappropriate',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(post_id, reporter_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_post_reports_post_id ON post_reports(post_id);
+
+      -- Ensure lost_dog is allowed (alter existing constraint if table was created without it)
+      ALTER TABLE posts DROP CONSTRAINT IF EXISTS posts_post_type_check;
+      ALTER TABLE posts ADD CONSTRAINT posts_post_type_check
+        CHECK (post_type IN ('story', 'question', 'tip', 'event', 'photo', 'video', 'lost_dog'));
+
       -- Per-user push notification category preferences
       CREATE TABLE IF NOT EXISTS user_notification_prefs (
         user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -319,6 +336,40 @@ const runMigrations = async () => {
         lost_dog_alerts BOOLEAN DEFAULT true,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Weight history (time-series log per dog)
+      CREATE TABLE IF NOT EXISTS weight_history (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        weight DECIMAL(5,2) NOT NULL CHECK (weight > 0),
+        date DATE NOT NULL,
+        notes TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_weight_history_dog_id ON weight_history(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_weight_history_date ON weight_history(date);
+
+      -- Medication recurring reminders
+      CREATE TABLE IF NOT EXISTS medication_reminders (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        frequency_days INTEGER NOT NULL CHECK (frequency_days > 0),
+        last_given_date DATE,
+        next_due_date DATE NOT NULL,
+        notes TEXT,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_medication_reminders_dog_id ON medication_reminders(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_medication_reminders_next_due ON medication_reminders(next_due_date);
+
+      DROP TRIGGER IF EXISTS update_medication_reminders_updated_at ON medication_reminders;
+      CREATE TRIGGER update_medication_reminders_updated_at
+        BEFORE UPDATE ON medication_reminders
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `;
         await database_1.default.query(migrationSQL);
         console.log('Database migration completed successfully!');

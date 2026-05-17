@@ -117,6 +117,29 @@ export interface Comment {
   created_at: string;
 }
 
+export interface WeightEntry {
+  id: string;
+  dog_id: string;
+  weight: number;
+  date: string;
+  notes?: string;
+  created_at: string;
+}
+
+export interface MedicationReminder {
+  id: string;
+  dog_id: string;
+  user_id: string;
+  name: string;
+  frequency_days: number;
+  last_given_date?: string;
+  next_due_date: string;
+  notes?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CommunityEvent {
   id: string;
   user_id: string;

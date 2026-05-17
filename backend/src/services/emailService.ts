@@ -184,6 +184,46 @@ export const sendEventReminders = async () => {
   }
 };
 
+// Send push reminders for medication recurring reminders due today or tomorrow
+export const sendMedicationRecurringReminders = async () => {
+  try {
+    const result = await pool.query(`
+      SELECT mr.id, mr.name, mr.next_due_date,
+             d.name as dog_name,
+             u.id as user_id, u.language
+      FROM medication_reminders mr
+      JOIN dogs d ON mr.dog_id = d.id
+      JOIN users u ON mr.user_id = u.id
+      WHERE mr.is_active = true
+        AND mr.next_due_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '1 day'
+    `);
+
+    for (const row of result.rows) {
+      const lang = row.language || 'en';
+      const isToday = new Date(row.next_due_date).toDateString() === new Date().toDateString();
+      const dayLabel = isToday
+        ? (lang === 'bg' ? 'днес' : 'today')
+        : (lang === 'bg' ? 'утре' : 'tomorrow');
+
+      await sendPushToUser(row.user_id, 'medications', {
+        title: lang === 'bg'
+          ? `Напомняне за лекарство - ${row.dog_name}`
+          : `Medication Reminder - ${row.dog_name}`,
+        body: lang === 'bg'
+          ? `${row.name} е дължимо ${dayLabel}.`
+          : `${row.name} is due ${dayLabel}.`,
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-192x192.png',
+        tag: `med-reminder-${row.id}`,
+        url: '/health',
+      });
+    }
+    console.log(`Medication recurring reminders sent: ${result.rows.length}`);
+  } catch (error) {
+    console.error('Error sending medication recurring reminders:', error);
+  }
+};
+
 // Schedule cron jobs
 export const startEmailScheduler = () => {
   // Check for appointment reminders every 15 minutes
@@ -194,6 +234,9 @@ export const startEmailScheduler = () => {
 
   // Check for event reminders every 15 minutes
   cron.schedule('*/15 * * * *', sendEventReminders);
+
+  // Check for medication recurring reminders daily at 8 AM
+  cron.schedule('0 8 * * *', sendMedicationRecurringReminders);
 
   console.log('Email scheduler started');
 };

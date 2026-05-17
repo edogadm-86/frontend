@@ -474,8 +474,39 @@ async getNutritionStats(dogId: string) {
   }>(`/nutrition/dog/${dogId}/stats`);
 }
 
+// Weight history endpoints
+async getWeightHistory(dogId: string) {
+  return this.request<{ entries: any[] }>(`/dogs/${dogId}/weight`);
+}
+async addWeightEntry(dogId: string, data: { weight: number; date: string; notes?: string }) {
+  return this.request<{ entry: any }>(`/dogs/${dogId}/weight`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+async deleteWeightEntry(dogId: string, entryId: string) {
+  return this.request(`/dogs/${dogId}/weight/${entryId}`, { method: 'DELETE' });
+}
 
-
+// Medication reminder endpoints
+async getMedicationReminders(dogId: string) {
+  return this.request<{ reminders: any[] }>(`/dogs/${dogId}/reminders`);
+}
+async createMedicationReminder(dogId: string, data: any) {
+  return this.request<{ reminder: any }>(`/dogs/${dogId}/reminders`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+async updateMedicationReminder(dogId: string, reminderId: string, data: any) {
+  return this.request<{ reminder: any }>(`/dogs/${dogId}/reminders/${reminderId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+async deleteMedicationReminder(dogId: string, reminderId: string) {
+  return this.request(`/dogs/${dogId}/reminders/${reminderId}`, { method: 'DELETE' });
+}
 
 }
 

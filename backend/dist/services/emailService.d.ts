@@ -1,6 +1,8 @@
 export declare const sendAppointmentReminders: () => Promise<void>;
 export declare const sendVaccinationReminders: () => Promise<void>;
 export declare const sendMedicationPush: (userId: string, dogName: string, medication: string, dosage: string, language?: string) => Promise<void>;
+export declare const sendEventReminders: () => Promise<void>;
+export declare const sendMedicationRecurringReminders: () => Promise<void>;
 export declare const startEmailScheduler: () => void;
 export declare const triggerAppointmentReminders: (req: any, res: any) => Promise<void>;
 export declare const triggerVaccinationReminders: (req: any, res: any) => Promise<void>;

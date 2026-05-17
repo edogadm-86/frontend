@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
     `;
         const params = [];
         if (upcoming === 'true') {
-            query += ` AND e.start_date >= NOW()`;
+            query += ` AND e.start_date >= NOW() - INTERVAL '7 days'`;
         }
         if (type) {
             query += ` AND e.event_type = $${params.length + 1}`;

@@ -25,6 +25,7 @@ const events_1 = __importDefault(require("./routes/events"));
 const nutrition_1 = __importDefault(require("./routes/nutrition"));
 const public_1 = __importDefault(require("./routes/public"));
 const push_1 = __importDefault(require("./routes/push"));
+const medicationReminders_1 = __importDefault(require("./routes/medicationReminders"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
@@ -102,6 +103,7 @@ app.use('/api/posts', posts_1.default);
 app.use('/api/events', events_1.default);
 app.use('/api/nutrition', nutrition_1.default);
 app.use('/api/push', push_1.default);
+app.use('/api/dogs', medicationReminders_1.default);
 // Email reminder endpoints (for testing)
 app.post('/api/test/appointment-reminders', emailService_1.triggerAppointmentReminders);
 app.post('/api/test/vaccination-reminders', emailService_1.triggerVaccinationReminders);

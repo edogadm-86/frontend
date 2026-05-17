@@ -4,6 +4,8 @@ import { Shield, Heart, Apple, Activity, TrendingUp, Award } from 'lucide-react'
 import { VaccinationManagement } from './VaccinationManagement';
 import { HealthRecordManagement } from './HealthRecordManagement';
 import { NutritionManagement } from './NutritionManagement';
+import { WeightHistory } from './WeightHistory';
+import { MedicationReminders } from './MedicationReminders';
 import { Dog } from '../types';
 import { formatDate } from '../lib/utils';
 import { useApp } from '../context/AppContext';
@@ -144,6 +146,8 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
     { id: 'vaccinations', icon: 'vaccines', label: t('vaccinations') },
     { id: 'health-records', icon: 'medical_information', label: t('healthRecords') },
     { id: 'nutrition', icon: 'nutrition', label: t('nutrition') },
+    { id: 'weight', icon: 'monitor_weight', label: t('weightHistory') },
+    { id: 'reminders', icon: 'medication', label: t('medicationReminders') },
   ];
 
   return (
@@ -328,6 +332,12 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
         )}
         {activeTab === 'nutrition' && (
           <NutritionManagement dogId={currentDog.id} dogName={currentDog.name} />
+        )}
+        {activeTab === 'weight' && (
+          <WeightHistory currentDog={currentDog} />
+        )}
+        {activeTab === 'reminders' && (
+          <MedicationReminders currentDog={currentDog} />
         )}
       </div>
     </div>

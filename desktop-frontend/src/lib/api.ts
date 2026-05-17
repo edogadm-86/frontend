@@ -514,6 +514,51 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
       summary: any;
     }>(`/dogs/${dogId}/health-status`);
   }
+
+  // Weight history endpoints
+  async getWeightHistory(dogId: string) {
+    return this.request<{ entries: any[] }>(`/dogs/${dogId}/weight`);
+  }
+  async addWeightEntry(dogId: string, data: { weight: number; date: string; notes?: string }) {
+    return this.request<{ entry: any }>(`/dogs/${dogId}/weight`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteWeightEntry(dogId: string, entryId: string) {
+    return this.request(`/dogs/${dogId}/weight/${entryId}`, { method: 'DELETE' });
+  }
+
+  // Medication reminder endpoints
+  async getMedicationReminders(dogId: string) {
+    return this.request<{ reminders: any[] }>(`/dogs/${dogId}/reminders`);
+  }
+  async createMedicationReminder(dogId: string, data: any) {
+    return this.request<{ reminder: any }>(`/dogs/${dogId}/reminders`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+  async updateMedicationReminder(dogId: string, reminderId: string, data: any) {
+    return this.request<{ reminder: any }>(`/dogs/${dogId}/reminders/${reminderId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteMedicationReminder(dogId: string, reminderId: string) {
+    return this.request(`/dogs/${dogId}/reminders/${reminderId}`, { method: 'DELETE' });
+  }
+
+  // Event update/delete
+  async updateEvent(eventId: string, data: any) {
+    return this.request<{ event: any }>(`/events/${eventId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteEvent(eventId: string) {
+    return this.request(`/events/${eventId}`, { method: 'DELETE' });
+  }
 }
 
 export const apiClient = new ApiClient();
