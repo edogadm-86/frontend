@@ -408,6 +408,62 @@ async deleteMealPlan(dogId: string, mealId: string) {
 }
 
 
+// Posts endpoints
+async getPosts(params?: { page?: number; limit?: number; type?: string; userId?: string }) {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append('page', params.page.toString());
+  if (params?.limit) queryParams.append('limit', params.limit.toString());
+  if (params?.type) queryParams.append('type', params.type);
+  if (params?.userId) queryParams.append('userId', params.userId);
+  return this.request<{ posts: any[]; pagination: any }>(`/posts?${queryParams.toString()}`);
+}
+
+async createPost(postData: { title: string; content: string; post_type: string; dog_id?: string; is_public?: boolean }) {
+  return this.request<{ post: any }>('/posts', {
+    method: 'POST',
+    body: JSON.stringify(postData),
+  });
+}
+
+async likePost(postId: string) {
+  return this.request<{ liked: boolean }>(`/posts/${postId}/like`, { method: 'POST' });
+}
+
+async getPostComments(postId: string) {
+  return this.request<{ comments: any[] }>(`/posts/${postId}/comments`);
+}
+
+async addPostComment(postId: string, content: string) {
+  return this.request<{ comment: any }>(`/posts/${postId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify({ content }),
+  });
+}
+
+// Events endpoints
+async getEvents(params?: { page?: number; limit?: number; type?: string; location?: string }) {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append('page', params.page.toString());
+  if (params?.limit) queryParams.append('limit', params.limit.toString());
+  if (params?.type) queryParams.append('type', params.type);
+  if (params?.location) queryParams.append('location', params.location);
+  return this.request<{ events: any[] }>(`/events?${queryParams.toString()}`);
+}
+
+async createEvent(eventData: { title: string; description: string; event_type: string; start_date: string; location?: string; end_date?: string; max_participants?: number }) {
+  return this.request<{ event: any }>('/events', {
+    method: 'POST',
+    body: JSON.stringify(eventData),
+  });
+}
+
+async joinEvent(eventId: string, dogId?: string) {
+  return this.request(`/events/${eventId}/join`, {
+    method: 'POST',
+    body: JSON.stringify({ dog_id: dogId }),
+  });
+}
+
 async getNutritionStats(dogId: string) {
   return this.request<{
     latestRecord: any;

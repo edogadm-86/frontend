@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog Community Forums</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#a4c9ff",
+                    "primary-container": "#4d93e5",
+                    "surface": "#111316",
+                    "on-secondary-fixed-variant": "#5f4100",
+                    "on-error-container": "#ffdad6",
+                    "on-error": "#690005",
+                    "surface-container-low": "#1a1c1f",
+                    "on-primary-fixed-variant": "#004883",
+                    "primary": "#a4c9ff",
+                    "tertiary-fixed-dim": "#ffb953",
+                    "secondary-fixed-dim": "#ffba35",
+                    "surface-container-highest": "#333538",
+                    "on-secondary": "#422c00",
+                    "on-primary": "#00315d",
+                    "on-tertiary-fixed": "#291800",
+                    "on-primary-fixed": "#001c39",
+                    "inverse-primary": "#0060ac",
+                    "inverse-on-surface": "#2f3034",
+                    "error-container": "#93000a",
+                    "on-surface": "#e2e2e6",
+                    "secondary": "#ffd798",
+                    "on-secondary-fixed": "#281900",
+                    "on-secondary-container": "#6a4800",
+                    "surface-container-high": "#282a2d",
+                    "on-primary-container": "#002a51",
+                    "on-background": "#e2e2e6",
+                    "tertiary-container": "#c58305",
+                    "outline-variant": "#414751",
+                    "on-tertiary": "#452b00",
+                    "on-tertiary-container": "#3c2500",
+                    "surface-bright": "#37393d",
+                    "outline": "#8b919d",
+                    "primary-fixed": "#d4e3ff",
+                    "background": "#111316",
+                    "on-tertiary-fixed-variant": "#633f00",
+                    "inverse-surface": "#e2e2e6",
+                    "surface-container-lowest": "#0c0e11",
+                    "surface-tint": "#a4c9ff",
+                    "tertiary": "#ffb953",
+                    "tertiary-fixed": "#ffddb4",
+                    "secondary-fixed": "#ffdeac",
+                    "surface-dim": "#111316",
+                    "surface-variant": "#333538",
+                    "error": "#ffb4ab",
+                    "surface-container": "#1e2023",
+                    "on-surface-variant": "#c1c7d3",
+                    "secondary-container": "#feb300"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "margin-desktop": "48px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<header class="bg-surface border-b border-white/10 shadow-sm sticky top-0 z-50 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary">eDog Community</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high transition-colors p-sm rounded-full active:scale-95">notifications</button>
+<div class="w-10 h-10 rounded-full border-2 border-primary-container overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional portrait of a tech-savvy dog owner in a modern, brightly lit apartment setting. The lighting is soft and natural, emphasizing a high-end corporate modern aesthetic. The color palette is composed of deep charcoals and clean whites with professional blue accents. He wears a minimalist smart watch, suggesting a connection to pet health technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk6owBZmj7pszrF98zn43e21u--kVLz8lhQIAhRvKRxiDHs6W3cLHp7Its66IGSI5F1Zg-GcPMpP0DrPHeVUQeve4QkX4S57-oOuphlN3iOt_KsIlM1NywhDn46BKNhWnGT7t-2X0JfwuDMlEeoOqRN54yiRcy2w4cYQvfKUH1f-9q2jOMzPwxHLuZeocewxdnkOU4b3R17lsKMFA6QGvJTRN_pDuudEfNQcU3BtfOxikWt-HigShgsgeewUnz4EXltwVdgbzu1HqP"/>
+</div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin-desktop py-xl pb-32">
+<!-- Search & Hero Section -->
+<div class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg mb-sm">Community Forums</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg">Connect with thousands of dog enthusiasts, experts, and tech-forward pet parents.</p>
+<div class="relative max-w-2xl">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-high border-none rounded-xl py-4 pl-12 pr-md font-body-md text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary transition-all shadow-lg" placeholder="Search for health advice, training gear, or breed tips..." type="text"/>
+</div>
+</div>
+<!-- Bento Grid Categories -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-xl">
+<!-- Health & Wellness -->
+<div class="md:col-span-8 bg-surface-container border border-white/10 rounded-xl p-lg flex flex-col justify-between min-h-[280px] relative overflow-hidden group hover:border-primary/30 transition-all shadow-sm">
+<div class="absolute inset-0 bg-gradient-to-br from-primary-container/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-12 h-12 rounded-lg bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+</div>
+<span class="font-label-md text-label-md bg-primary-container/20 text-primary px-3 py-1 rounded-full">842 Active Discussions</span>
+</div>
+<h2 class="font-headline-md text-headline-md mb-xs">Health &amp; Wellness</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">Expert advice on nutrition, preventative care, and longevity tech for your canine companion.</p>
+</div>
+<div class="relative z-10 flex gap-sm mt-lg">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-lg py-sm rounded-lg hover:brightness-110 active:scale-95 transition-all">Browse Health</button>
+<button class="border border-primary text-primary font-label-md text-label-md px-lg py-sm rounded-lg hover:bg-primary/5 transition-all">New Topic</button>
+</div>
+<img alt="Dog Health" class="absolute right-0 bottom-0 w-64 h-64 object-cover opacity-20 group-hover:opacity-40 transition-opacity mask-linear-gradient" data-alt="A clean, clinical yet warm close-up of a Golden Retriever receiving a checkup in a high-tech veterinary suite. The environment uses soft Level 0 background tones and sophisticated primary blue accents. The lighting is precise and professional, evoking trust and medical excellence in pet care. The aesthetic is corporate modern with a focus on high-fidelity details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8qzcLHxe8-UO85NwH8Z4Q4_oqNl9pAESQVOGaIV66oreowVhOOGeVYpa6DqUNM38_ritjdHpf8S1ID7QZgdTWpyKUC2Z4zhMT4Zi5xCOiMbtv4UNe8YZQaE9clNSeRNinoLS9NEpahmjr1JJYbfFduJOaRqjkbKNOA2EgeS_ZsDEcKqHUiobUjtTKhtIX7rGyQN3kvawSOOe6raiLq_nYEa6Yl-M9bTnUIPD6t0TqMwl6kEBbDiLfbZmIxmaaXiWlVvisrZ8AVATS" style="mask-image: linear-gradient(to top left, black, transparent);"/>
+</div>
+<!-- Training Tips -->
+<div class="md:col-span-4 bg-surface-container border border-white/10 rounded-xl p-lg flex flex-col justify-between min-h-[280px] relative overflow-hidden group hover:border-secondary/30 transition-all shadow-sm">
+<div class="relative z-10">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<h2 class="font-headline-md text-headline-md mb-xs">Training Tips</h2>
+<p class="font-label-md text-label-md text-on-surface-variant mb-md">1.2k Active Discussions</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Behavioral science and positive reinforcement techniques.</p>
+</div>
+<div class="relative z-10 mt-lg">
+<button class="w-full bg-secondary-container/10 border border-secondary text-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary-container/20 transition-all">Explore Training</button>
+</div>
+</div>
+<!-- Product Reviews -->
+<div class="md:col-span-5 bg-surface-container border border-white/10 rounded-xl p-lg flex flex-col justify-between min-h-[260px] relative overflow-hidden group hover:border-tertiary/30 transition-all shadow-sm">
+<div class="relative z-10">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/20 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">reviews</span>
+</div>
+<h2 class="font-headline-md text-headline-md mb-xs">Product Reviews</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">516 Active Discussions</p>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant relative z-10">Unbiased community testing of smart collars, feeders, and GPS trackers.</p>
+<div class="relative z-10 mt-lg">
+<button class="w-full bg-tertiary text-on-tertiary font-label-md text-label-md py-sm rounded-lg hover:brightness-110 transition-all">View Reviews</button>
+</div>
+</div>
+<!-- Popular Tags / Community Stats -->
+<div class="md:col-span-7 bg-surface-container-low border border-white/10 rounded-xl p-lg flex items-center shadow-sm">
+<div class="grid grid-cols-2 w-full gap-lg">
+<div>
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Popular Topics</h3>
+<div class="flex flex-wrap gap-xs">
+<span class="bg-surface-container-highest px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">#SmartCollar</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">#RawFeeding</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">#PuppyBlues</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">#AITracking</span>
+<span class="bg-surface-container-highest px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">#Agility</span>
+</div>
+</div>
+<div class="border-l border-white/10 pl-lg flex flex-col justify-center">
+<div class="mb-sm">
+<p class="font-display-lg text-[32px] font-bold text-primary">42.5k</p>
+<p class="font-label-sm text-label-sm text-outline">Total Members</p>
+</div>
+<div>
+<p class="font-display-lg text-[32px] font-bold text-secondary">2.1k</p>
+<p class="font-label-sm text-label-sm text-outline">Online Now</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Threads Section -->
+<section>
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md">Recent Active Threads</h3>
+<button class="text-primary font-label-md text-label-md flex items-center gap-xs hover:underline">
+                    View all threads <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="space-y-md">
+<!-- Thread 1 -->
+<div class="bg-surface-container-low hover:bg-surface-container border border-white/10 p-md rounded-xl flex items-center gap-lg transition-colors cursor-pointer">
+<div class="hidden md:flex flex-col items-center min-w-[64px] border-r border-white/10 pr-lg">
+<span class="material-symbols-outlined text-primary">stat_1</span>
+<span class="font-label-md text-label-md">124</span>
+</div>
+<div class="flex-grow">
+<div class="flex items-center gap-sm mb-xs">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary-container/20 text-primary">Health</span>
+<span class="font-label-sm text-label-sm text-outline">Posted 2h ago by @BarkMaster</span>
+</div>
+<h4 class="font-body-lg text-body-lg font-semibold text-on-surface">New AI-driven health monitor for Labradors - Initial thoughts?</h4>
+</div>
+<div class="flex -space-x-3 overflow-hidden">
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-surface-container-low" data-alt="User avatar 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjNBWdMOZtVJ7qfaQ6a5ZxNg_bB08w8OuyrRyVRlsH7Cfgs21_1joCFY5G_82Ds2oi2ut1NwUUe2k1zGff_nAj0ErmixK-JhhasGMrwxmZt_1u6_NlZVOIYHKasdut769hk0_nmujYx1assixfHyENUi32IHltUMNcsSZp9EYMgMQMGR6_-393-ln_H5IdYtT6nqZG9AQiQwpmmwveCJ9UrDrs6QJWXCqogBE97A3RMZiZ5D_L_DSjed5hEg3TM15Y-IS_JWY0GE8v"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-surface-container-low" data-alt="User avatar 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqWzCqkHoZ7Gc7Jw1N_uB9Qu0XtYDi7JreiIXr51gGXWJ45R1CzCQ9EoWp-5FB0nNORBsi9OAnMFdiGDQg9RPiBk1zbrjOku0HJXrOkqpYiVLqsd5BxbesdhgMPkum56aF24jT5mAl5ssVLEtaTYL62xHXfiVN-rFgwcpMAE8ilfeP9Hg_0G2XpLsCRnEZ4oH4tFc33uY1yb4htM_b10vbvQsRUYlURg8u8mBsJAJW0PV6aLhfQLTbDA6E5Kcy5XcWsSRSGBf269I3"/>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] ring-2 ring-surface-container-low text-on-surface-variant font-bold">+12</div>
+</div>
+</div>
+<!-- Thread 2 -->
+<div class="bg-surface-container-low hover:bg-surface-container border border-white/10 p-md rounded-xl flex items-center gap-lg transition-colors cursor-pointer">
+<div class="hidden md:flex flex-col items-center min-w-[64px] border-r border-white/10 pr-lg">
+<span class="material-symbols-outlined text-secondary">stat_1</span>
+<span class="font-label-md text-label-md">89</span>
+</div>
+<div class="flex-grow">
+<div class="flex items-center gap-sm mb-xs">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary-container/20 text-secondary">Training</span>
+<span class="font-label-sm text-label-sm text-outline">Posted 5h ago by @GoldieTech</span>
+</div>
+<h4 class="font-body-lg text-body-lg font-semibold text-on-surface">Recall training tips for high-prey drive breeds using clicker methods</h4>
+</div>
+<div class="flex -space-x-3 overflow-hidden">
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-surface-container-low" data-alt="User avatar 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrMEL11ylNLja4Gly3WasiUvzR_vZUdszU6g_aB82JPJt_Y7O12gU5OAYUmVzvSQyzITHqqSCX93uPgGcmeJC8TcOie3qolRVq8JGLxshfO4nl-6gubH9lRWtp9FuBBEXsQhE4Lb2-0HU9czfV8x9nNw_ddbu38ZmgjIWjrLY3LwCvGT0z_FqBAqYQ3VFrqIOLZlBD28ELnJNaHVCSjkl-itsSZdvQ2X8X40dkvT23g3HdtvcwJHzczr84J2_LGs8-yXoEDVF0spvc"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-surface-container-low" data-alt="User avatar 4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKNAhli0Y5kt5C_TR6QufXCMG0v2C0bOMC3aSEs4CTfewADVdF0AT9XdRsK_q81pIYMgyCCTVhYFvYQnP_tf0bjC2HcdXZ2KhcEG5fYcc59uGAe-hwqzFPP37iiYUG-JahL4pAilONrcglHJnuT76zlB5eVG5tMBtO7QrSyEGwx-s8-txFlA_cZYHYHNuXYjNFqZhRv-QZ2uRkhUs_1XTtoXg1sLp0-azkDwgFLnpHZT_GxkTV1bFCnFvy3WbZe99Y7KtZ3fLteS4Q"/>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] ring-2 ring-surface-container-low text-on-surface-variant font-bold">+5</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-surface-container rounded-t-xl border-t border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.4)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">rss_feed</span>
+<span class="font-label-sm text-label-sm">Feed</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm">Groups</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-xl px-4 py-1 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">forum</span>
+<span class="font-label-sm text-label-sm">Forums</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<!-- Navigation Bar (Desktop) - Reusing logic for TopAppBar but as a persistent side rail/sub-nav -->
+<div class="hidden md:flex fixed left-0 top-16 h-[calc(100vh-64px)] w-20 flex-col items-center py-lg bg-surface border-r border-white/10 z-40">
+<div class="flex flex-col gap-xl">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-md rounded-xl transition-all">rss_feed</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-md rounded-xl transition-all">group</button>
+<button class="material-symbols-outlined bg-primary-container/20 text-primary p-md rounded-xl transition-all shadow-glow" style="font-variation-settings: 'FILL' 1;">forum</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-md rounded-xl transition-all">diversity_1</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-md rounded-xl transition-all mt-auto mb-lg">settings</button>
+</div>
+</div>
+</body></html>

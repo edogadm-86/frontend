@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PawsomeCare | Community Forums</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#2f3034",
+                    "surface-container-lowest": "#0c0e11",
+                    "surface-variant": "#333538",
+                    "primary-container": "#4d93e5",
+                    "on-secondary-container": "#6a4800",
+                    "on-tertiary-container": "#3c2500",
+                    "on-tertiary": "#452b00",
+                    "surface-bright": "#37393d",
+                    "on-tertiary-fixed-variant": "#633f00",
+                    "on-primary-container": "#002a51",
+                    "primary-fixed": "#d4e3ff",
+                    "on-primary": "#00315d",
+                    "secondary-container": "#feb300",
+                    "inverse-primary": "#0060ac",
+                    "on-background": "#e2e2e6",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffddb4",
+                    "secondary-fixed-dim": "#ffba35",
+                    "on-error-container": "#ffdad6",
+                    "on-error": "#690005",
+                    "tertiary": "#ffb953",
+                    "inverse-surface": "#e2e2e6",
+                    "on-secondary": "#422c00",
+                    "surface": "#111316",
+                    "outline-variant": "#414751",
+                    "tertiary-fixed-dim": "#ffb953",
+                    "primary": "#a4c9ff",
+                    "surface-container-high": "#282a2d",
+                    "surface-container": "#1e2023",
+                    "outline": "#8b919d",
+                    "tertiary-container": "#c58305",
+                    "surface-container-low": "#1a1c1f",
+                    "on-surface": "#e2e2e6",
+                    "on-secondary-fixed": "#281900",
+                    "secondary": "#ffd798",
+                    "on-secondary-fixed-variant": "#5f4100",
+                    "surface-container-highest": "#333538",
+                    "on-tertiary-fixed": "#291800",
+                    "on-primary-fixed-variant": "#004883",
+                    "error-container": "#93000a",
+                    "surface-dim": "#111316",
+                    "secondary-fixed": "#ffdeac",
+                    "on-primary-fixed": "#001c39",
+                    "primary-fixed-dim": "#a4c9ff",
+                    "surface-tint": "#a4c9ff",
+                    "background": "#111316",
+                    "on-surface-variant": "#c1c7d3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "xl": "32px",
+                    "margin-desktop": "48px",
+                    "unit": "4px",
+                    "md": "16px",
+                    "margin-mobile": "16px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #121417; /* Level 0 Background */
+            color: #e2e2e6;
+        }
+        .surface-level-1 {
+            background-color: #1E2126; /* Level 1 Surface */
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .surface-level-2 {
+            background-color: #2A2E35; /* Level 2 Elevated */
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-lg md:px-margin-desktop max-w-full bg-surface dark:bg-inverse-surface shadow-sm w-full h-16">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">PawsomeCare</span>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant dark:text-on-tertiary-fixed-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors px-sm py-xs rounded-lg" href="#">Dashboard</a>
+<a class="text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary font-label-md text-label-md px-sm py-xs" href="#">Community</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-fixed-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors px-sm py-xs rounded-lg" href="#">Health Records</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-high border-none rounded-full pl-xl pr-md py-xs text-on-surface focus:ring-2 focus:ring-primary w-64" placeholder="Search discussions..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-container-high p-sm rounded-full transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-container-high p-sm rounded-full transition-colors">settings</button>
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full border-2 border-primary" data-alt="A professional headshot of a smiling veterinarian in a clean, modern studio setting with warm lighting. The image maintains a high-end corporate feel with a blurred background of a sleek animal clinic. The lighting is soft and flattering, highlighting the friendly yet expert persona of a digital concierge pet service." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDisrW9jSLCWZ4R8oGco2brAH8nXVDLVl9KyH_-fxpuq2I_n2xrym26-L3QEJ-_ph2ZQcytoQPEKRSXbAN8MAyspnFFoeuVuR6_Y-wEZyw3z3sbfsTxjCiBFdiqT2xE8nw33ne2jBe3ZjcOFUduVrIjbPx-BeJepR1Dv5ElnofnJwdy5EC5K-x-NpzCaRsZnVMOwvpZLKun92uH-SuxGNOZfQaYIV5ey0vjYsWlF5Z5a2pZnA3wi2baF2ydYs9YY58au_oMFP_TwPsv"/>
+</div>
+</header>
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col h-full w-64 p-md gap-base sticky top-16 bg-surface-container-low dark:bg-surface-container-lowest shadow-md">
+<div class="mb-xl px-sm">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Forums</h2>
+<p class="text-label-sm text-on-surface-variant">The digital concierge for your pets</p>
+</div>
+<nav class="flex flex-col gap-sm">
+<a class="flex items-center gap-sm bg-primary-container text-on-primary-container rounded-lg p-sm font-bold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="font-label-md text-label-md">All Topics</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-md text-label-md">Health &amp; Wellness</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-md text-label-md">Behavior &amp; Training</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">star</span>
+<span class="font-label-md text-label-md">Product Reviews</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-md text-label-md">AI Support</span>
+</a>
+</nav>
+<div class="mt-auto p-lg surface-level-1 rounded-xl">
+<div class="flex items-center gap-sm mb-sm text-secondary">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-label-md">Top Contributors</span>
+</div>
+<div class="flex -space-x-2">
+<img alt="user" class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Close up profile picture of a young professional pet trainer looking confident, shot in a bright modern studio with soft cinematic lighting. High quality photography suitable for a premium dark mode UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVVygEsqQyoNDGNbBYiwtD3O_qliL8cCWRyADL78esLv5aX4x-BJanlbf6EExyUBln81h6goJo3YfokFZ0kkpj1MXPLC1-F6n_uJ0qfuS5PiUxJkfFYpCaI1_2j0fWsqHg4nh4p9ATyAM_foO9hbUpujqek4-PoREefQcyNJI2BQVQi3E_VaasqE-jXnJxVlmIR-XlGfdL0A2883xXYhC5PulXHx1b8hgs2ERQY1u1p1vZSPB6ef3cniJldTnrQVrms4k-_JbkIEGW"/>
+<img alt="user" class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Portrait of a female pet nutritionist with a warm smile, high-end professional lighting, minimalist background. The aesthetic is clean and corporate, reflecting trust and expertise in pet health management." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs-CEb1ET6NzIY22hHT3a6iXaHZehWmUhrZVWZ1jjBQdv38Dn4_GsVMr23r2MAQeEhKzDVN9X2hUc6a4qFaTJknqjXblI-4EYEKZuTHSCCvUuU5v_RxmBtsTRf3YxdRZ12oFW-Ad_Uhj1nuMIIvYLXw3c503VbtoMzjfsfT1-Jdoq6OwzCu7aXeSKvqy9gUgkpu76KOyFAAlDcjSVkt-aBTV5I4MCah55G1HOor6Cu3rX9Ryw8zVY8tMvI97Aw7PLjAneB_B_JjyQt"/>
+<img alt="user" class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Headshot of a middle-aged male veterinary surgeon, calm and professional expression, studio lighting, deep color palette suitable for a dark mode interface. High detail and resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuClRsbljY0LmLlFY_YbYrq0skNSV-9p2BZY5uOJ_HDnOnZAFlKr4WGMYXCRXwj2Y-qaayGQCPt6bZfLQkPuRJja8ZrKKOrLB_9JvnvIu1XqcY7RZwHMNcxL2dbWo8YHkD9jNIEJI0MdsSzGM_vxvqat4zamuuz0NdWCB6IwFshR2cYPeJhWMQEZQR8GMtQUZ5IGWrQ8mjspbPSpXYXc_1rulqmpuaoZmwmdMFu0-8WdTwvshbEjJ0wk6igq4f2-kwzFVALq2h5rteqS"/>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 px-lg md:px-margin-desktop py-xl">
+<!-- Header Section -->
+<div class="mb-xl">
+<div class="flex items-end justify-between gap-lg mb-lg">
+<div>
+<h1 class="font-display-lg text-display-lg mb-xs">Community Forums</h1>
+<p class="text-on-surface-variant max-w-2xl font-body-lg text-body-lg">Connect with thousands of pet owners, veterinarians, and trainers. Share knowledge and get expert advice for your furry companions.</p>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-bold px-xl py-md rounded-xl transition-all shadow-lg active:scale-98 flex items-center gap-sm">
+<span class="material-symbols-outlined">add_circle</span>
+                        Start New Thread
+                    </button>
+</div>
+<!-- Stats Overview (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
+<div class="surface-level-1 p-lg rounded-xl flex flex-col justify-center">
+<span class="text-on-surface-variant font-label-md">Total Members</span>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg">124.8k</span>
+<span class="text-primary text-label-sm font-bold">+12%</span>
+</div>
+</div>
+<div class="surface-level-1 p-lg rounded-xl flex flex-col justify-center">
+<span class="text-on-surface-variant font-label-md">Active Threads</span>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg">3,492</span>
+<span class="material-symbols-outlined text-primary text-[16px]">show_chart</span>
+</div>
+</div>
+<div class="surface-level-1 p-lg rounded-xl flex flex-col justify-center">
+<span class="text-on-surface-variant font-label-md">Expert Online</span>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg">156</span>
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse ml-xs"></div>
+</div>
+</div>
+<div class="surface-level-1 p-lg rounded-xl flex flex-col justify-center bg-gradient-to-br from-primary-container/20 to-transparent">
+<span class="text-on-surface-variant font-label-md">Weekly Contributions</span>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg">15k</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">military_tech</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Thread Directory -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-xl">
+<!-- Thread List -->
+<div class="xl:col-span-8 space-y-lg">
+<div class="flex items-center justify-between border-b border-outline-variant pb-md">
+<div class="flex gap-md">
+<button class="text-primary font-bold border-b-2 border-primary pb-sm">Recent</button>
+<button class="text-on-surface-variant hover:text-on-surface pb-sm transition-colors">Trending</button>
+<button class="text-on-surface-variant hover:text-on-surface pb-sm transition-colors">Most Liked</button>
+</div>
+<button class="flex items-center gap-xs text-on-surface-variant font-label-md hover:bg-surface-level-2 px-sm py-xs rounded-lg transition-colors">
+<span class="material-symbols-outlined">filter_list</span> Filter
+                        </button>
+</div>
+<!-- Thread Item 1 -->
+<div class="surface-level-1 p-lg rounded-xl hover:surface-level-2 transition-all cursor-pointer group">
+<div class="flex gap-lg">
+<div class="hidden sm:flex flex-col items-center justify-center bg-surface-container-high rounded-lg px-sm min-w-[60px] h-fit py-md">
+<span class="material-symbols-outlined text-primary">keyboard_arrow_up</span>
+<span class="font-bold">412</span>
+<span class="material-symbols-outlined text-on-surface-variant">keyboard_arrow_down</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-sm mb-xs">
+<span class="px-sm py-xs bg-primary-container/10 text-primary text-label-sm font-bold rounded-full">Health</span>
+<span class="text-on-surface-variant font-label-sm">Posted by <span class="text-on-surface hover:underline">Dr. Sarah White</span> • 2h ago</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-sm group-hover:text-primary transition-colors">New study suggests CBD oils for canine anxiety during fireworks</h3>
+<p class="text-on-surface-variant line-clamp-2 mb-md">Recent research published in the Veterinary Journal indicates that high-quality CBD extracts can significantly reduce stress markers in dogs during loud events...</p>
+<div class="flex items-center gap-xl text-on-surface-variant font-label-md">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span> 84 Comments
+                                    </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">visibility</span> 1.2k Views
+                                    </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">share</span> Share
+                                    </div>
+</div>
+</div>
+<div class="hidden md:block">
+<img alt="dog" class="w-24 h-24 rounded-lg object-cover" data-alt="A macro photograph of a calm Labrador dog lying in a sun-drenched living room. The focus is on the dog's expressive eyes, creating an emotional and trusting mood. High-end lighting, warm tones, and high detail to match a premium dark mode UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTzYpJ4KE-MCWfG3NgkV27DKa68At9DKJSqnGP8Dbwg_D9siH6F9B30UNfFDT08htpZitZFKakENbZjJe6gfcs0ackFKyXObukv8A9NlzrcqWrHzTlNBzOf1SpxZqQ5YnBFZbdIqo3RolnBFh6OwfXwls_XpaLS5gIWRumaZ8gVgGzG7ADiIECR7ctmqImDCejIO671C0-IpJUuGukWWHQsO3etG9aQq0HMpMaNSixhSG113LIO_Dq6kQFKuzbcWotsTDWOuLuY3ji"/>
+</div>
+</div>
+</div>
+<!-- Thread Item 2 -->
+<div class="surface-level-1 p-lg rounded-xl hover:surface-level-2 transition-all cursor-pointer group">
+<div class="flex gap-lg">
+<div class="hidden sm:flex flex-col items-center justify-center bg-surface-container-high rounded-lg px-sm min-w-[60px] h-fit py-md">
+<span class="material-symbols-outlined text-primary">keyboard_arrow_up</span>
+<span class="font-bold">128</span>
+<span class="material-symbols-outlined text-on-surface-variant">keyboard_arrow_down</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-sm mb-xs">
+<span class="px-sm py-xs bg-secondary-container/10 text-secondary text-label-sm font-bold rounded-full">Reviews</span>
+<span class="text-on-surface-variant font-label-sm">Posted by <span class="text-on-surface hover:underline">PetLover99</span> • 5h ago</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-sm group-hover:text-primary transition-colors">Comprehensive review: The Pawsome Tracker V2 vs. Competitors</h3>
+<p class="text-on-surface-variant line-clamp-2 mb-md">After testing three different GPS collars over the last month, here is my detailed breakdown of battery life, accuracy, and app integration...</p>
+<div class="flex items-center gap-xl text-on-surface-variant font-label-md">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span> 32 Comments
+                                    </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">visibility</span> 842 Views
+                                    </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">share</span> Share
+                                    </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Thread Item 3 -->
+<div class="surface-level-1 p-lg rounded-xl hover:surface-level-2 transition-all cursor-pointer group">
+<div class="flex gap-lg">
+<div class="hidden sm:flex flex-col items-center justify-center bg-surface-container-high rounded-lg px-sm min-w-[60px] h-fit py-md">
+<span class="material-symbols-outlined text-primary">keyboard_arrow_up</span>
+<span class="font-bold">56</span>
+<span class="material-symbols-outlined text-on-surface-variant">keyboard_arrow_down</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-sm mb-xs">
+<span class="px-sm py-xs bg-tertiary-container/10 text-tertiary text-label-sm font-bold rounded-full">Training</span>
+<span class="text-on-surface-variant font-label-sm">Posted by <span class="text-on-surface hover:underline">Mark Trainer</span> • 12h ago</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-sm group-hover:text-primary transition-colors">Stop your dog from pulling: The 'Anchor' method explained</h3>
+<p class="text-on-surface-variant line-clamp-2 mb-md">Is your morning walk more of a drag? I've developed a technique that focuses on spatial awareness and instant reinforcement. It works for all sizes...</p>
+<div class="flex items-center gap-xl text-on-surface-variant font-label-md">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span> 210 Comments
+                                    </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">visibility</span> 3.4k Views
+                                    </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">share</span> Share
+                                    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar Content -->
+<div class="xl:col-span-4 space-y-xl">
+<!-- Community Guidelines Box -->
+<div class="surface-level-1 p-lg rounded-xl border-l-4 border-primary">
+<h4 class="font-headline-md text-label-md mb-sm text-primary uppercase tracking-wider">Forum Mission</h4>
+<p class="text-on-surface-variant mb-md">Our community is dedicated to precision, trust, and the well-being of all pets. Please remain professional and empathetic in all discussions.</p>
+<a class="text-primary font-bold hover:underline inline-flex items-center gap-xs" href="#">
+                            Read the Guidelines <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Category Cards -->
+<div class="space-y-md">
+<h4 class="font-bold px-sm">Browse by Topic</h4>
+<div class="grid grid-cols-1 gap-sm">
+<div class="surface-level-1 p-md rounded-xl flex items-center justify-between hover:border-primary/50 transition-all cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">health_and_safety</span>
+</div>
+<div>
+<p class="font-bold">Health</p>
+<p class="text-label-sm text-on-surface-variant">12.4k threads</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="surface-level-1 p-md rounded-xl flex items-center justify-between hover:border-secondary/50 transition-all cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">fitness_center</span>
+</div>
+<div>
+<p class="font-bold">Training</p>
+<p class="text-label-sm text-on-surface-variant">8.1k threads</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<div class="surface-level-1 p-md rounded-xl flex items-center justify-between hover:border-tertiary/50 transition-all cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">inventory</span>
+</div>
+<div>
+<p class="font-bold">Reviews</p>
+<p class="text-label-sm text-on-surface-variant">4.6k threads</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Community Promo Card -->
+<div class="relative overflow-hidden rounded-xl h-64 flex flex-col justify-end p-lg group">
+<img alt="lifestyle" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A stylish, high-key photograph of a person hiking with a dog in a breathtaking mountain landscape at sunrise. The lighting is golden and premium, with high contrast. The image exudes a sense of lifestyle and quality, perfectly fitting the digital concierge theme of PawsomeCare." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNYqQz9mtTX6RhGQ-M1q5ByBLiOCJr5I0HD5EK2hQrnccKC5frZTa5PQx2h-cuzm0mCvSv4UcMGg8-a_dV80IwAKMMmPiw9qCVvYRmGisA47lc-cB5Esfx5PGx7bX2oTSs6izloYHr_NwIP4GJ4qik6iz0tkKIXpu_4CjkZ8g8qBJjT6S-uiFV1F6X_sxmPEkVNeRUhSeObsuIwmyiKRcnQgW1pcOogd6u0NIO6h49DYYKCcbD-dAVupuHY8qZtl9zaTTE_wtw3V7E"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+<div class="relative z-10">
+<h5 class="text-white font-headline-md mb-xs">Join the Experts</h5>
+<p class="text-white/80 font-label-md mb-md">Verified veterinarians get premium badges and access to exclusive medical forums.</p>
+<button class="bg-white text-black font-bold px-lg py-sm rounded-lg hover:bg-white/90 transition-all">Apply Now</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation Shell Suppression Logic: Active for top-level pages -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface-container-low flex items-center justify-around z-50 border-t border-outline-variant/30">
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px]">Dashboard</span>
+</button>
+<button class="flex flex-col items-center text-primary font-bold">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-[10px]">Community</span>
+</button>
+<div class="-mt-8 bg-primary p-md rounded-full shadow-lg border-4 border-surface-container-low">
+<span class="material-symbols-outlined text-on-primary">add</span>
+</div>
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="text-[10px]">Health</span>
+</button>
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Profile</span>
+</button>
+</nav>
+</body></html>

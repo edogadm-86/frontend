@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Home, Heart, Calendar, Award, Settings } from 'lucide-react';
+import { Home, Heart, Calendar, Award, Users, Settings } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface MobileBottomNavProps {
@@ -20,11 +20,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   const { t } = useTranslation();
 
   const items = [
-    { id: 'dashboard', icon: Home, label: t('dashboard') },
-    { id: 'health', icon: Heart, label: t('health') },
-    { id: 'calendar', icon: Calendar, label: t('calendar1') },
-    { id: 'training', icon: Award, label: t('training') },
-    { id: 'settings', icon: Settings, label: t('settings') },
+    { id: 'dashboard', icon: Home,     label: t('dashboard') },
+    { id: 'health',    icon: Heart,    label: t('health') },
+    { id: 'calendar',  icon: Calendar, label: t('calendar1') },
+    { id: 'community', icon: Users,    label: t('community') },
+    { id: 'training',  icon: Award,    label: t('training') },
+    { id: 'settings',  icon: Settings, label: t('settings') },
   ];
 
   return (
@@ -37,7 +38,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       )}
     >
       <nav className="px-2 py-2">
-        <ul className="grid grid-cols-5 gap-1">
+        <ul className="grid grid-cols-6 gap-0.5">
           {items.map((item) => {
             const active = currentView === item.id;
             const Icon = item.icon;
@@ -65,9 +66,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   />
                    <span
                       className={cn(
-                        "text-[11px] leading-none font-medium",
-                        "whitespace-nowrap overflow-hidden text-ellipsis",  //  prevents wrapping
-                        "max-w-[64px]"                                      //  consistent label width
+                        "text-[10px] leading-none font-medium",
+                        "whitespace-nowrap overflow-hidden text-ellipsis",
+                        "max-w-[52px]"
                       )}
                     >
                     {item.label}

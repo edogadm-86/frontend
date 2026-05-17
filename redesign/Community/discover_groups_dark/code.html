@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Discover Groups | PawsomeCare</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #111316;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #414751;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-on-surface": "#2f3034",
+                      "surface-container-lowest": "#0c0e11",
+                      "surface-variant": "#333538",
+                      "primary-container": "#4d93e5",
+                      "on-secondary-container": "#6a4800",
+                      "on-tertiary-container": "#3c2500",
+                      "on-tertiary": "#452b00",
+                      "surface-bright": "#37393d",
+                      "on-tertiary-fixed-variant": "#633f00",
+                      "on-primary-container": "#002a51",
+                      "primary-fixed": "#d4e3ff",
+                      "on-primary": "#00315d",
+                      "secondary-container": "#feb300",
+                      "inverse-primary": "#0060ac",
+                      "on-background": "#e2e2e6",
+                      "error": "#ffb4ab",
+                      "tertiary-fixed": "#ffddb4",
+                      "secondary-fixed-dim": "#ffba35",
+                      "on-error-container": "#ffdad6",
+                      "on-error": "#690005",
+                      "tertiary": "#ffb953",
+                      "inverse-surface": "#e2e2e6",
+                      "on-secondary": "#422c00",
+                      "surface": "#111316",
+                      "outline-variant": "#414751",
+                      "tertiary-fixed-dim": "#ffb953",
+                      "primary": "#a4c9ff",
+                      "surface-container-high": "#282a2d",
+                      "surface-container": "#1e2023",
+                      "outline": "#8b919d",
+                      "tertiary-container": "#c58305",
+                      "surface-container-low": "#1a1c1f",
+                      "on-surface": "#e2e2e6",
+                      "on-secondary-fixed": "#281900",
+                      "secondary": "#ffd798",
+                      "on-secondary-fixed-variant": "#5f4100",
+                      "surface-container-highest": "#333538",
+                      "on-tertiary-fixed": "#291800",
+                      "on-primary-fixed-variant": "#004883",
+                      "error-container": "#93000a",
+                      "surface-dim": "#111316",
+                      "secondary-fixed": "#ffdeac",
+                      "on-primary-fixed": "#001c39",
+                      "primary-fixed-dim": "#a4c9ff",
+                      "surface-tint": "#a4c9ff",
+                      "background": "#111316",
+                      "on-surface-variant": "#c1c7d3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xl": "32px",
+                      "margin-desktop": "48px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "margin-mobile": "16px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface custom-scrollbar">
+<!-- TopAppBar from JSON -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-lg md:px-margin-desktop max-w-full bg-surface dark:bg-inverse-surface shadow-sm w-full h-16">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">PawsomeCare</span>
+<div class="hidden md:flex relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-high border-none rounded-full pl-xl pr-md py-xs text-body-md focus:ring-2 focus:ring-primary w-64 text-on-surface placeholder-on-surface-variant" placeholder="Search groups..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-primary dark:text-primary-fixed-dim p-sm hover:bg-surface-container-high transition-colors rounded-full">notifications</button>
+<button class="material-symbols-outlined text-primary dark:text-primary-fixed-dim p-sm hover:bg-surface-container-high transition-colors rounded-full">settings</button>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden border border-outline-variant">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0oIAio0QhRBNh3ODPus1RAVYWXqfoL5dXZ_pW22ACJh4Qavq1yRK7sQH6kW59CHL5yfuOyetYJtGh7dg-i4R2fYhjV4DRkgzWm3vuZ9arSl40T3zOrzat79kvVyldJifHhtEHLkF_q1FszrFxo3A4jF8hMia2W8-RGrnPVGfXnFIrLmVEmZlbAem7OREc2lIGkca4U60oLQ0GsfCV0VI5SWHI_Ibpx5O4vzZAZI1F9q_ottuMna7hKrGidnM566qdN8fLUvxWiFU9"/>
+</div>
+</div>
+</header>
+<div class="flex min-h-screen">
+<!-- SideNavBar from JSON -->
+<aside class="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 pt-20 p-md gap-base bg-surface-container-low dark:bg-surface-container-lowest shadow-md z-40">
+<nav class="flex flex-col gap-sm">
+<!-- Dashboard Active State Logic -->
+<a class="flex items-center gap-sm bg-primary-container text-on-primary-container rounded-lg p-sm font-bold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-md text-label-md">Health Records</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">Prescription</span>
+<span class="font-label-md text-label-md">Pet Passport</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Logs</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-md text-label-md">AI Assistant</span>
+</a>
+</nav>
+<div class="mt-auto p-md glass-card rounded-xl">
+<p class="text-label-sm text-on-surface-variant mb-xs">Next Vet Visit</p>
+<p class="text-label-md font-bold text-primary">Dec 14, 2023</p>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 lg:ml-64 p-lg md:p-margin-desktop bg-surface">
+<div class="max-w-[1280px] mx-auto">
+<!-- Hero Section -->
+<div class="relative overflow-hidden rounded-xl h-64 mb-xl flex flex-col justify-end p-xl">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="A beautiful group of diverse dogs including a Golden Retriever and a Border Collie playing in a lush green park during the golden hour. The sunlight is warm and soft, creating a premium and welcoming atmosphere for a community of pet lovers. The image has a cinematic quality with subtle motion blur on the grass and high-fidelity textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSHOSARoVMa9sZewTXxZg4jxM5wp9dM-_KeNKLquDO3-Lly6uYfqvTDlf8ctIPtw7njnGpX_fj8qv_PNCVUQOg_YlLawvFlr4UBv-ZAgvbhVFNLoxiQisUSHNC1GpaN7rHzUp8_s_VlaG2LUYWXG9PTDbnfoZHXJPL_GKlcPStALioWr7nqyHE0cbV2tHIk39meQ7riqdg6UScO0zwzEyhIlP6uYOJEHHM7GcvgsM3PfzUhE9ap_qWWUYFxz4_ycykyI_xfiQ7-JYT"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent"></div>
+</div>
+<div class="relative z-10">
+<h1 class="font-headline-lg text-headline-lg text-white mb-xs">Find Your Pack</h1>
+<p class="font-body-md text-on-surface-variant max-w-xl">Join elite pet communities, share medical insights, and organize local meetups with certified owners.</p>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-xl">
+<!-- Sidebar Categories -->
+<aside class="col-span-12 lg:col-span-3 flex flex-col gap-lg">
+<section>
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Breed Specific</h3>
+<div class="flex flex-col gap-sm">
+<button class="flex items-center justify-between p-md glass-card rounded-lg hover:bg-primary-container/20 group transition-all">
+<span class="font-label-md text-on-surface">Golden Retrievers</span>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-md glass-card rounded-lg hover:bg-primary-container/20 group transition-all">
+<span class="font-label-md text-on-surface">French Bulldogs</span>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-md glass-card rounded-lg hover:bg-primary-container/20 group transition-all">
+<span class="font-label-md text-on-surface">German Shepherds</span>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</button>
+</div>
+</section>
+<section>
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Location Based</h3>
+<div class="flex flex-col gap-sm">
+<button class="flex items-center justify-between p-md glass-card rounded-lg hover:bg-primary-container/20 group transition-all">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+<span class="font-label-md text-on-surface">New York City</span>
+</div>
+<span class="text-label-sm text-outline">12 Groups</span>
+</button>
+<button class="flex items-center justify-between p-md glass-card rounded-lg hover:bg-primary-container/20 group transition-all">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+<span class="font-label-md text-on-surface">Los Angeles</span>
+</div>
+<span class="text-label-sm text-outline">8 Groups</span>
+</button>
+<button class="flex items-center justify-between p-md glass-card rounded-lg hover:bg-primary-container/20 group transition-all">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+<span class="font-label-md text-on-surface">Austin, TX</span>
+</div>
+<span class="text-label-sm text-outline">5 Groups</span>
+</button>
+</div>
+</section>
+</aside>
+<!-- Main Grid -->
+<div class="col-span-12 lg:col-span-9">
+<div class="flex items-center justify-between mb-lg">
+<h2 class="font-headline-md text-headline-md">Trending Groups</h2>
+<div class="flex items-center gap-sm">
+<button class="flex items-center gap-xs px-md py-xs bg-surface-container-high rounded-full text-label-sm hover:bg-surface-container-highest transition-colors">
+<span>Sort by: Most Active</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Card Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Card 1 -->
+<div class="glass-card rounded-xl overflow-hidden group hover:shadow-[0_0_20px_rgba(164,201,255,0.1)] transition-all">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A group of golden retrievers sitting together in front of the New York City skyline at dusk. The city lights are starting to twinkle, creating a sophisticated and urban backdrop. The composition is clean and professional, using a cool blue and warm orange color scheme that reflects the PawsomeCare brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADEGoPFP2VrzYcOz3e-ZqjzLh864ScLyhhUIWJSQkeiyXZBlzrYx7xYvAu7DtBxYaiTBhlwb6D9QxjspAh7-w24XLVdVgYrIn0aRzzbX6pt4NtY9Akw5SS6pp-bRN51JN7MpDhVkoTW51cc-OgCC495g2bVEMn0rhkj1LSkp_BeG0Y6CqCLC_okRzk3fdsPcITspMjL6ER0BJbzFauF7tZxlgyeUISv-_vCxuF4np2eIGD7YDWhv9A9PaJgQF08mEWB8zEYvt-ZOXX"/>
+<div class="absolute top-sm right-sm bg-primary/20 backdrop-blur-md px-sm py-xs rounded text-primary text-label-sm font-bold">1.2k Members</div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-xs">NYC Goldens</h3>
+<p class="text-label-sm text-outline">Manhattan, NY • Verified Community</p>
+</div>
+<div class="flex -space-x-2">
+<img alt="Member 1" class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiaLD75vn22yVvV5imgINQANaYvyd3XcjY_0Jw12Djlm31OrIJb_m4IKOm2XDnhw35yp7cXRBoeIIRVZEimxAqjfmPOpZ30Sap0KIhTdv6gueiBixeJlsiifIcnqSruQ-mfpLdiV0PEv-rXx8gqYMFplV5bcYaRUMdozgzH2Yg66gIO7cIV1NB5fdNW-DCjNeR7K19_GQSiPfmCi3DPHorql5ipMWUoEM_eS4vSHHIujZn-hPeSMoEDVBot5G1fKesLHra8dQR9pYH"/>
+<img alt="Member 2" class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAdmSq0_3psiyy7qEJfjAzWHXbpW-F87-ArMMEZ2fY-8wuYnlla9hUou56oM1wAWVWlN6BkKMnEwOwe3DEwaqlnIL08G25JP1VfyOndJq0LYgNQq9gUHhUH4dNnQrutt4fLEIoHYGos2mKhfmOzi9ZSTAkF6rkHwROBtUjBMbM4maM7qKM_OxSuNnqBUroH9D4AXjA3RQqz_cLiv-vn6jjTV4OdRyExKB3o1t5cXjzTpcoFP1CLHYJXZ0SIWeGFvsitbsb9uZQ1jWY"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] border-2 border-surface">+1k</div>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant mb-lg">The premier hub for Golden Retriever owners in NYC. Monthly Central Park meetups and medical advice sharing.</p>
+<button class="w-full py-md bg-primary text-on-primary font-bold rounded-lg hover:brightness-110 active:scale-98 transition-all shadow-lg">Join Group</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-card rounded-xl overflow-hidden group hover:shadow-[0_0_20px_rgba(164,201,255,0.1)] transition-all">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close-up of several French Bulldogs wearing stylish leather collars in a modern, minimalist indoor setting. The lighting is dramatic with soft shadows, highlighting the sleek coats of the dogs. The aesthetic is high-end and fashion-forward, emphasizing the precision and premium feel of the PawsomeCare platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqo_W5Ga74pH0HNpuTinfOMWi-pQ0D3IPkL60vEnz8Elg1FKxFhiJ58kCZZlr-hTqAIr3lF9X46Xb9Tq7hK3-cHe6z-G24wEQzG_9hUm4QwZERdVZSWVFhnefunugX6U5-XUFreei1CkwBBBCg3exw6mzZ0iuokEuPVCpvPvwwsmdgQ9oI591eDMHZ4bYatpqiSUm4DTwPe-udP0jxtYGcDIUj_ZmkmsJfHmL1ZC8nV4fcGND80JgQVAwUVL9XE345wOUaCK3Er0zf"/>
+<div class="absolute top-sm right-sm bg-secondary/20 backdrop-blur-md px-sm py-xs rounded text-secondary text-label-sm font-bold">850 Members</div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-xs">Frenchie Fashion</h3>
+<p class="text-label-sm text-outline">Global • Lifestyle</p>
+</div>
+<div class="flex -space-x-2">
+<img alt="Member 3" class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYNqgp1Z2z-yE5AzDKrj1Cs0pW_dl0Zmt7Rqab4WX-_FPAZwJ3kN-I-_o4eBxGHdxraIv2EIlhLwqNEMnwR92ro94OxeSzNsKyveNgnSmCVZRD45i1oPBwGuyEDAOcJ2aJ8F7bMUdJnJpXIqkKEDXOXq9ICMJ5ZaY4GmKsWaNiNkX5fliYRyTpFffq0cysjnzFydivAC_jdvZ7paZKTD-4HDGXnAa8S2M2jl445h-lQ22iFeZIwqZy8TLa7KO_39GqkkH-rXKomxEB"/>
+<img alt="Member 4" class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-tfXNkP846lWBqo1jI6EFd8TGrjWFJpb_KK-tCq3Vct-Bs6hhVCRlVkozWuB1MnMQL5KowJolozFQMlshIWlpTwpakTG05LtfZZ0uBsHt1P8g4QEoUuFVxdUiLdRuiyAG8mdw1twgBWyW5eNb7LJbI-BD7wr2GdO5YIlBoo6ZA6ID_uUGRy8C1QXZIacBTRAX8-efW7SGrJyry6cUg0ZeixXRtsZPp4PEop8hMHTpOGGQ55sUPkJxitLvZU_yjvpwFUNhiXx5dvlZ"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] border-2 border-surface">+800</div>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant mb-lg">Celebrating the unique style and care needs of French Bulldogs. Fashion tips, breeder reviews, and health tracking.</p>
+<button class="w-full py-md border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary/10 active:scale-98 transition-all">Join Group</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-card rounded-xl overflow-hidden group hover:shadow-[0_0_20px_rgba(164,201,255,0.1)] transition-all">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A lively scene of various small dog breeds running through a field of wildflowers in the Texas hill country. The sky is a deep, clear blue and the overall atmosphere is one of pure joy and energy. The image is captured with a high-speed camera to freeze the motion beautifully, maintaining a crisp and professional visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuAXKOGioPku-vTmu3ioVfiNl8-z9d0_zB5xltDGQvBvlpcIs5Hm2bAXbUBncHYFkQsmcy--rQJVd3Y49ATN7b_xFpByyQ1JonU_Fc4hXlBGhFdZ84qLr19cKCtE7jDwjGKN-Df8SZ2Rq7R8Q56ZMpOrPk5QSSFJSE8Mw_NbFC8Vy8Afp_q3yiJHhfo-WHtCJmjaLVHp_IOKijHrxPnssZiCzN4kJ_e8tdz4YhcjlwlCxpOr1uH6yKhCa_IvFbzO_mqUEK6H2eaSDU"/>
+<div class="absolute top-sm right-sm bg-primary/20 backdrop-blur-md px-sm py-xs rounded text-primary text-label-sm font-bold">420 Members</div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-xs">ATX Dog Hikes</h3>
+<p class="text-label-sm text-outline">Austin, TX • Adventure</p>
+</div>
+<div class="flex -space-x-2">
+<img alt="Member 5" class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0L5ccZHGa2mOpHZRUa_4TH93dwodAuJJQsNJJmCk5dO2b1fxk5PNgptOVO1iEOx7RWDMZ28tvJ0voUcu36Exbke9t6gyNNz_xp8kXOerUcFagrNWDvvtKTXmaLpmmnyyQ4wTKxFgDIbiIoEe2u7shawP9U80XjDhSlUC4JPPWvM4MwkDc6wJFQ6JE6_7hMk4K3zPQkIm_qJZyXCJ2quQx99WfRwe652MLY6Yb639_uL_cobuU6PBjqbnzGSWTUuLOmhs9tTNwRIUw"/>
+<img alt="Member 6" class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhvkWf4GIcJumQ9XO_oWFCoKHJvQtUJHvhAwgzcXhdRFxovp3YBFqeEZdfwsW326hEaLmI4cVbwLU5UE9fsSE1pueZktTLSwcQiui5a7p10TfDBdtsqjCAR93xsYyjjvlx16lcV-zLAaE7-pxPY8jKxO8mzPvvyCvGB9xMb_QRP_vzFLPU2NDZDTcvJbJI_mQmwpIzdowKRUj_GqmBGeJZkl5VFScu2B9KV-3VL2-ZCyJujT0cPRMP0LjDaBfvaios9slpLYZLoYJd"/>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant mb-lg">Weekend hiking group exploring the best trails in Austin. We prioritize safety and fitness for all dog sizes.</p>
+<button class="w-full py-md bg-primary text-on-primary font-bold rounded-lg hover:brightness-110 active:scale-98 transition-all shadow-lg">Join Group</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="glass-card rounded-xl overflow-hidden group hover:shadow-[0_0_20px_rgba(164,201,255,0.1)] transition-all">
+<div class="h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A focused group of professional trainers working with service dogs in a sleek, modern training facility with glass walls and dark flooring. The lighting is bright and industrial, emphasizing precision and discipline. The color palette remains consistent with the dark mode UI, using deep greys and accents of primary blue." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCETcoOP3ANO9AzXvMRsP3vC2Fi7ZPkWSfwvMOmWLx__gBzwYBZBD95iYbjwy2wh8kn4QkHi4tHeyPyY2_RM0of-I5E-czBkDmY3wG2ola_yol4-zachHfjDNV8vIety_xVpOTSQzlBPQNbxJmiJC5xGe3zHJUdZt2u33AZ_85xLt94OZ-gEaphInMegPAyUHDzEDZD49o8Hys3hZ9vCePMOx0rOt1qv6j3rFye2w88ZsMNCMQLzEzEGeZkzx25UiBlsAo5aB51m6Ty"/>
+<div class="absolute top-sm right-sm bg-tertiary/20 backdrop-blur-md px-sm py-xs rounded text-tertiary text-label-sm font-bold">Professional</div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-xs">Elite Training Elite</h3>
+<p class="text-label-sm text-outline">Global • Education</p>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant mb-lg">Connect with certified trainers and behaviorists. Specialized tracks for service training and advanced obedience.</p>
+<button class="w-full py-md border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary/10 active:scale-98 transition-all">Join Group</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Floating Action Button - Only for Home/Dash relevance -->
+<button class="fixed bottom-lg right-lg w-14 h-14 bg-secondary text-on-secondary rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined font-bold">add</span>
+</button>
+</body></html>

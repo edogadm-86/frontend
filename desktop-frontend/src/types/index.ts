@@ -90,3 +90,50 @@ export interface User {
   dogs: Dog[];
   emergencyContacts: EmergencyContact[];
 }
+
+export interface Post {
+  id: string;
+  user_id: string;
+  dog_id?: string;
+  title: string;
+  content: string;
+  post_type: 'story' | 'question' | 'tip' | 'event' | 'photo' | 'video' | 'lost_dog';
+  image_url?: string;
+  tags?: string[];
+  likes_count: number;
+  comments_count: number;
+  is_public: boolean;
+  created_at: string;
+  author_name: string;
+  dog_name?: string;
+  liked_by_user?: boolean;
+}
+
+export interface Comment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  author_name: string;
+  created_at: string;
+}
+
+export interface CommunityEvent {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  event_type: 'meetup' | 'training' | 'competition' | 'adoption' | 'fundraiser' | 'other';
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  start_date: string;
+  end_date?: string;
+  max_participants?: number;
+  current_participants: number;
+  participants_count: number;
+  image_url?: string;
+  is_public: boolean;
+  organizer_name: string;
+  created_at: string;
+}
