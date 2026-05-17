@@ -1,266 +1,216 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  HelpCircle, 
-  Mail, 
-  Phone, 
-  Clock, 
-  Book, 
-  MessageSquare, 
-  FileText, 
-  Video,
-  ArrowLeft,
-  ExternalLink,
-  Heart,
-  Shield,
-  Users,
-  Zap
-} from 'lucide-react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
+import { X, HelpCircle, Heart, Shield, Users, Book, Mail, Clock, ChevronDown, ExternalLink, Zap } from 'lucide-react';
 
 interface HelpSupportPageProps {
   onClose: () => void;
 }
 
+const FAQ_DATA = (t: (k: string) => string) => [
+  { q: t('howToAddDog'),          a: t('howToAddDogAnswer') },
+  { q: t('howToExportData'),      a: t('howToExportDataAnswer') },
+  { q: t('howToChangeLanguage'),  a: t('howToChangeLanguageAnswer') },
+  { q: t('howToSetReminders'),    a: t('howToSetRemindersAnswer') },
+  { q: t('howToGeneratePassport'),a: t('howToGeneratePassportAnswer') },
+];
+
+const FaqItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-gray-100 dark:border-white/5 rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left bg-white dark:bg-[#1e2023] hover:bg-gray-50/60 dark:hover:bg-white/[0.02] transition-colors"
+      >
+        <span className="text-sm font-semibold text-gray-800 dark:text-[#e2e2e6]">{question}</span>
+        <ChevronDown
+          size={16}
+          className={`flex-shrink-0 text-gray-400 dark:text-[#8b919d] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && (
+        <div className="px-4 py-3 bg-gray-50/60 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/5">
+          <p className="text-sm text-gray-600 dark:text-[#8b919d] leading-relaxed">{answer}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const HelpSupportPage: React.FC<HelpSupportPageProps> = ({ onClose }) => {
   const { t } = useTranslation();
 
-  const helpSections = [
+  const sections = [
     {
       title: t('gettingStarted'),
       icon: Book,
-      color: 'from-blue-500 to-cyan-500',
+      color: 'bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 text-[#005da7] dark:text-[#a4c9ff]',
       items: [
-        { title: t('addFirstDog'), description: t('addFirstDogDesc') },
-        { title: t('setupProfile'), description: t('setupProfileDesc') },
-        { title: t('recordVaccinations'), description: t('recordVaccinationsDesc') },
-        { title: t('scheduleAppointments'), description: t('scheduleAppointmentsDesc') },
-      ]
+        { title: t('addFirstDog'),          desc: t('addFirstDogDesc') },
+        { title: t('setupProfile'),          desc: t('setupProfileDesc') },
+        { title: t('recordVaccinations'),    desc: t('recordVaccinationsDesc') },
+        { title: t('scheduleAppointments'),  desc: t('scheduleAppointmentsDesc') },
+      ],
     },
     {
       title: t('healthManagement'),
       icon: Heart,
-      color: 'from-red-500 to-pink-500',
+      color: 'bg-red-50 dark:bg-red-500/10 text-red-500',
       items: [
-        { title: t('trackVaccinations'), description: t('trackVaccinationsDesc') },
-        { title: t('manageHealthRecords'), description: t('manageHealthRecordsDesc') },
-        { title: t('nutritionTracking'), description: t('nutritionTrackingDesc') },
-        { title: t('generatePassport'), description: t('generatePassportDesc') },
-      ]
+        { title: t('trackVaccinations'),    desc: t('trackVaccinationsDesc') },
+        { title: t('manageHealthRecords'),  desc: t('manageHealthRecordsDesc') },
+        { title: t('nutritionTracking'),    desc: t('nutritionTrackingDesc') },
+        { title: t('generatePassport'),     desc: t('generatePassportDesc') },
+      ],
     },
     {
       title: t('trainingFeatures'),
       icon: Shield,
-      color: 'from-green-500 to-emerald-500',
+      color: 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400',
       items: [
-        { title: t('aiTrainingAssistant'), description: t('aiTrainingAssistantDesc') },
-        { title: t('trackProgress'), description: t('trackProgressDesc') },
-        { title: t('trainingVideos'), description: t('trainingVideosDesc') },
-        { title: t('behaviorNotes'), description: t('behaviorNotesDesc') },
-      ]
+        { title: t('aiTrainingAssistant'),  desc: t('aiTrainingAssistantDesc') },
+        { title: t('trackProgress'),        desc: t('trackProgressDesc') },
+        { title: t('trainingVideos'),       desc: t('trainingVideosDesc') },
+        { title: t('behaviorNotes'),        desc: t('behaviorNotesDesc') },
+      ],
     },
     {
       title: t('communityFeatures'),
       icon: Users,
-      color: 'from-purple-500 to-violet-500',
+      color: 'bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400',
       items: [
-        { title: t('shareStories'), description: t('shareStoriesDesc') },
-        { title: t('joinEvents'), description: t('joinEventsDesc') },
-        { title: t('askQuestions'), description: t('askQuestionsDesc') },
-        { title: t('connectOwners'), description: t('connectOwnersDesc') },
-      ]
-    }
+        { title: t('shareStories'),    desc: t('shareStoriesDesc') },
+        { title: t('joinEvents'),      desc: t('joinEventsDesc') },
+        { title: t('askQuestions'),    desc: t('askQuestionsDesc') },
+        { title: t('connectOwners'),   desc: t('connectOwnersDesc') },
+      ],
+    },
   ];
 
-  const faqs = [
-    {
-      question: t('howToAddDog'),
-      answer: t('howToAddDogAnswer')
-    },
-    {
-      question: t('howToExportData'),
-      answer: t('howToExportDataAnswer')
-    },
-    {
-      question: t('howToChangeLanguage'),
-      answer: t('howToChangeLanguageAnswer')
-    },
-    {
-      question: t('howToSetReminders'),
-      answer: t('howToSetRemindersAnswer')
-    },
-    {
-      question: t('howToGeneratePassport'),
-      answer: t('howToGeneratePassportAnswer')
-    }
-  ];
+  const faqs = FAQ_DATA(t);
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-900 max-w-6xl w-full max-h-[95vh] overflow-y-auto rounded-2xl shadow-2xl">
+    <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden">
+
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary-500 to-blue-500 text-white p-6 rounded-t-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                <HelpCircle size={32} className="text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-white">{t('helpSupport')}</h1>
-                <p className="text-blue-100">{t('helpSupportSubtitle')}</p>
-              </div>
-            </div>
-            <Button variant="glass" onClick={onClose} icon={<ArrowLeft size={16} />}>
-              {t('close')}
-            </Button>
+        <div className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-white dark:bg-[#1e2023] border-b border-gray-100 dark:border-white/5">
+          <div className="w-9 h-9 bg-gradient-to-br from-[#005da7] to-[#0090e7] rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+            <HelpCircle size={18} className="text-white" />
           </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base font-bold text-gray-900 dark:text-[#e2e2e6] leading-tight">{t('helpSupport')}</h2>
+            <p className="text-xs text-gray-400 dark:text-[#8b919d]">{t('helpSupportSubtitle')}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl text-gray-400 dark:text-[#8b919d] hover:bg-gray-100 dark:hover:bg-[#282a2d] hover:text-gray-700 dark:hover:text-[#e2e2e6] transition-all flex-shrink-0"
+          >
+            <X size={18} />
+          </button>
         </div>
 
-        <div className="p-8 space-y-8">
-          {/* About eDog */}
-          <Card variant="gradient" className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-            <div className="flex items-start space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Heart size={24} className="text-white" />
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+
+          {/* About */}
+          <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Heart size={18} className="text-[#005da7] dark:text-[#a4c9ff]" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('aboutEDog')}</h2>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                  {t('aboutEDogDescription')}
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-3">
-                    <Zap size={16} className="text-primary-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('comprehensiveHealthTracking')}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Shield size={16} className="text-green-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('euCompliantPassports')}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Users size={16} className="text-purple-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('communitySupport')}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Heart size={16} className="text-red-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('aiPoweredInsights')}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Help Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {helpSections.map((section, index) => (
-              <Card key={index} variant="gradient">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className={`w-12 h-12 bg-gradient-to-r ${section.color} rounded-xl flex items-center justify-center shadow-lg`}>
-                    <section.icon size={20} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{section.title}</h3>
-                </div>
-                <div className="space-y-4">
-                  {section.items.map((item, itemIndex) => (
-                    <div key={itemIndex} className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6] mb-1">{t('aboutEDog')}</h3>
+                <p className="text-sm text-gray-500 dark:text-[#8b919d] leading-relaxed mb-3">{t('aboutEDogDescription')}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: Zap,    color: 'text-[#005da7] dark:text-[#a4c9ff]', label: t('comprehensiveHealthTracking') },
+                    { icon: Shield, color: 'text-green-500',                      label: t('euCompliantPassports') },
+                    { icon: Users,  color: 'text-purple-500',                     label: t('communitySupport') },
+                    { icon: Heart,  color: 'text-red-500',                        label: t('aiPoweredInsights') },
+                  ].map(({ icon: Icon, color, label }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <Icon size={14} className={color} />
+                      <span className="text-xs text-gray-500 dark:text-[#8b919d]">{label}</span>
                     </div>
                   ))}
                 </div>
-              </Card>
-            ))}
+              </div>
+            </div>
           </div>
 
-          {/* FAQ Section */}
-          <Card variant="gradient">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-              <MessageSquare className="mr-3 text-primary-500" />
-              {t('frequentlyAskedQuestions')}
-            </h3>
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <details key={index} className="group">
-                  <summary className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl cursor-pointer hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors">
-                    <span className="font-semibold text-gray-900 dark:text-white">{faq.question}</span>
-                    <HelpCircle size={16} className="text-gray-400 group-open:rotate-180 transition-transform" />
-                  </summary>
-                  <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                    <p className="text-gray-700 dark:text-gray-300">{faq.answer}</p>
+          {/* Feature sections */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {sections.map(section => {
+              const Icon = section.icon;
+              return (
+                <div key={section.title} className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${section.color}`}>
+                      <Icon size={17} />
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{section.title}</h3>
                   </div>
-                </details>
+                  <div className="space-y-2.5">
+                    {section.items.map(item => (
+                      <div key={item.title} className="pl-3 border-l-2 border-gray-100 dark:border-white/5">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-[#c1c7d3]">{item.title}</p>
+                        <p className="text-xs text-gray-400 dark:text-[#8b919d] mt-0.5 leading-relaxed">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* FAQ */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6] mb-3">{t('frequentlyAskedQuestions')}</h3>
+            <div className="space-y-2">
+              {faqs.map(faq => (
+                <FaqItem key={faq.q} question={faq.q} answer={faq.a} />
               ))}
             </div>
-          </Card>
+          </div>
 
-          {/* Contact Support */}
-          <Card variant="gradient" className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Mail size={24} className="text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-green-800 dark:text-green-300">{t('needMoreHelp')}</h3>
-                <p className="text-green-600 dark:text-green-400">{t('contactSupportTeam')}</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                <Mail size={32} className="mx-auto mb-3 text-green-600" />
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{t('emailSupport')}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t('emailSupportDesc')}</p>
-                <a 
+          {/* Contact */}
+          <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6] mb-4">{t('needMoreHelp')}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="flex flex-col items-center text-center p-4 bg-gray-50/60 dark:bg-white/[0.02] rounded-xl">
+                <Mail size={22} className="text-[#005da7] dark:text-[#a4c9ff] mb-2" />
+                <p className="text-xs font-semibold text-gray-700 dark:text-[#c1c7d3] mb-1">{t('emailSupport')}</p>
+                <p className="text-xs text-gray-400 dark:text-[#8b919d] mb-2">{t('emailSupportDesc')}</p>
+                <a
                   href="mailto:edog.adm@gmail.com"
-                  className="inline-flex items-center space-x-2 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 font-medium"
+                  className="inline-flex items-center gap-1 text-xs text-[#005da7] dark:text-[#a4c9ff] font-medium hover:opacity-80"
                 >
-                  <span>edog.adm@gmail.com</span>
-                  <ExternalLink size={14} />
+                  edog.adm@gmail.com <ExternalLink size={11} />
                 </a>
               </div>
-              
-              <div className="text-center p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                <Clock size={32} className="mx-auto mb-3 text-blue-600" />
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{t('responseTime')}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t('responseTimeDesc')}</p>
-                <span className="text-blue-600 dark:text-blue-400 font-medium">{t('within24Hours')}</span>
+              <div className="flex flex-col items-center text-center p-4 bg-gray-50/60 dark:bg-white/[0.02] rounded-xl">
+                <Clock size={22} className="text-[#005da7] dark:text-[#a4c9ff] mb-2" />
+                <p className="text-xs font-semibold text-gray-700 dark:text-[#c1c7d3] mb-1">{t('responseTime')}</p>
+                <p className="text-xs text-gray-400 dark:text-[#8b919d] mb-2">{t('responseTimeDesc')}</p>
+                <span className="text-xs font-semibold text-[#005da7] dark:text-[#a4c9ff]">{t('within24Hours')}</span>
               </div>
-              
-              <div className="text-center p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                <FileText size={32} className="mx-auto mb-3 text-purple-600" />
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{t('documentation')}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t('documentationDesc')}</p>
-                <Button variant="outline" size="sm" icon={<ExternalLink size={14} />}>
-                  {t('viewDocs')}
-                </Button>
+              <div className="flex flex-col items-center text-center p-4 bg-gray-50/60 dark:bg-white/[0.02] rounded-xl">
+                <HelpCircle size={22} className="text-[#005da7] dark:text-[#a4c9ff] mb-2" />
+                <p className="text-xs font-semibold text-gray-700 dark:text-[#c1c7d3] mb-1">{t('documentation')}</p>
+                <p className="text-xs text-gray-400 dark:text-[#8b919d] mb-2">{t('documentationDesc')}</p>
+                <span className="text-xs text-gray-400 dark:text-[#414751]">{t('within24Hours')}</span>
               </div>
             </div>
-          </Card>
+          </div>
 
-          {/* App Information */}
-          <Card variant="gradient">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('appInformation')}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div>
-                <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">1.0.0</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{t('version')}</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">2024</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{t('year')}</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">Desktop</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{t('platform')}</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">EU</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{t('compliance')}</div>
-              </div>
-            </div>
-          </Card>
+          {/* App info */}
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-gray-400 dark:text-[#414751]">eDog v1.0.0 · 2025 · EU</span>
+            <span className="text-xs text-gray-400 dark:text-[#414751]">edog.dogpass.net</span>
+          </div>
+
         </div>
       </div>
     </div>

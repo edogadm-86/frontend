@@ -27,7 +27,7 @@ const register = async (req, res) => {
         const passwordHash = await bcryptjs_1.default.hash(password, saltRounds);
         // Create user
         const userId = (0, uuid_1.v4)();
-        const result = await database_1.default.query('INSERT INTO users (id, name, email, password_hash, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, phone, created_at', [userId, name, email, passwordHash, phone || null]);
+        const result = await database_1.default.query('INSERT INTO users (id, name, email, password_hash, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, phone, is_admin, created_at', [userId, name, email, passwordHash, phone || null]);
         const user = result.rows[0];
         // Send welcome email
         try {
@@ -39,7 +39,7 @@ const register = async (req, res) => {
             // Don't fail registration if email fails
         }
         // Generate JWT token
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, is_admin: user.is_admin ?? false }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
         res.status(201).json({
             message: 'User created successfully',
             token,
@@ -48,6 +48,7 @@ const register = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                is_admin: user.is_admin ?? false,
                 createdAt: user.created_at
             }
         });
@@ -62,7 +63,7 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         // Find user
-        const result = await database_1.default.query('SELECT id, name, email, phone, password_hash, created_at FROM users WHERE email = $1', [email]);
+        const result = await database_1.default.query('SELECT id, name, email, phone, password_hash, is_admin, created_at FROM users WHERE email = $1', [email]);
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -72,8 +73,10 @@ const login = async (req, res) => {
         if (!isValidPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
+        // Update last_seen_at
+        await database_1.default.query('UPDATE users SET last_seen_at = NOW() WHERE id = $1', [user.id]);
         // Generate JWT token
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, is_admin: user.is_admin ?? false }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
         res.json({
             message: 'Login successful',
             token,
@@ -82,6 +85,7 @@ const login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                is_admin: user.is_admin ?? false,
                 createdAt: user.created_at
             }
         });
@@ -143,10 +147,12 @@ const resetPassword = async (req, res) => {
 exports.resetPassword = resetPassword;
 const getProfile = async (req, res) => {
     try {
-        const result = await database_1.default.query('SELECT id, name, email, phone, created_at FROM users WHERE id = $1', [req.user.id]);
+        const result = await database_1.default.query('SELECT id, name, email, phone, is_admin, created_at FROM users WHERE id = $1', [req.user.id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
+        // Bump last_seen_at on profile fetch (passive activity tracking)
+        await database_1.default.query('UPDATE users SET last_seen_at = NOW() WHERE id = $1', [req.user.id]);
         const user = result.rows[0];
         res.json({
             user: {
@@ -154,6 +160,7 @@ const getProfile = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                is_admin: user.is_admin ?? false,
                 createdAt: user.created_at
             }
         });

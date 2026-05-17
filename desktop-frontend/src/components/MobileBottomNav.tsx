@@ -1,11 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Home, Heart, Calendar, Award, Users, Settings } from 'lucide-react';
+import { Home, Heart, Calendar, Award, Users, Settings, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface MobileBottomNavProps {
   currentView: string;
   onViewChange: (view: string) => void;
+  user?: { is_admin?: boolean } | null;
 }
 
 /**
@@ -16,6 +17,7 @@ interface MobileBottomNavProps {
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentView,
   onViewChange,
+  user,
 }) => {
   const { t } = useTranslation();
 
@@ -37,6 +39,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         'pb-[env(safe-area-inset-bottom)]'
       )}
     >
+      {user?.is_admin && (
+        <a
+          href="/adminpanel"
+          className="absolute -top-10 right-3 flex items-center gap-1.5 bg-[#005da7] text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md hover:opacity-90 transition-opacity"
+        >
+          <ShieldCheck size={13} />
+          Admin
+        </a>
+      )}
       <nav className="px-2 py-2">
         <ul className="grid grid-cols-6 gap-0.5">
           {items.map((item) => {

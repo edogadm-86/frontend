@@ -17,9 +17,16 @@ const runMigrations = async () => {
         reset_token VARCHAR(255),
         reset_token_expiry TIMESTAMP WITH TIME ZONE,
         language VARCHAR(5) DEFAULT 'en',
+        is_admin BOOLEAN DEFAULT false,
+        last_seen_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Add is_admin, last_seen_at and is_active to existing users table if missing
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WITH TIME ZONE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 
       -- Create dogs table
       CREATE TABLE IF NOT EXISTS dogs (

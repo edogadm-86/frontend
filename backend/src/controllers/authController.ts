@@ -31,7 +31,7 @@ export const register = async (req: Request, res: Response) => {
     // Create user
     const userId = uuidv4();
     const result = await pool.query(
-      'INSERT INTO users (id, name, email, password_hash, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, phone, created_at',
+      'INSERT INTO users (id, name, email, password_hash, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, phone, is_admin, created_at',
       [userId, name, email, passwordHash, phone || null]
     );
 
@@ -48,7 +48,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, is_admin: user.is_admin ?? false },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN}
     );
@@ -61,6 +61,7 @@ export const register = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        is_admin: user.is_admin ?? false,
         createdAt: user.created_at
       }
     });
@@ -76,7 +77,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Find user
     const result = await pool.query(
-      'SELECT id, name, email, phone, password_hash, created_at FROM users WHERE email = $1',
+      'SELECT id, name, email, phone, password_hash, is_admin, created_at FROM users WHERE email = $1',
       [email]
     );
 
@@ -92,9 +93,12 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Update last_seen_at
+    await pool.query('UPDATE users SET last_seen_at = NOW() WHERE id = $1', [user.id]);
+
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, is_admin: user.is_admin ?? false },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -107,6 +111,7 @@ export const login = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        is_admin: user.is_admin ?? false,
         createdAt: user.created_at
       }
     });
@@ -188,13 +193,16 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, email, phone, created_at FROM users WHERE id = $1',
+      'SELECT id, name, email, phone, is_admin, created_at FROM users WHERE id = $1',
       [req.user!.id]
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    // Bump last_seen_at on profile fetch (passive activity tracking)
+    await pool.query('UPDATE users SET last_seen_at = NOW() WHERE id = $1', [req.user!.id]);
 
     const user = result.rows[0];
     res.json({
@@ -203,6 +211,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        is_admin: user.is_admin ?? false,
         createdAt: user.created_at
       }
     });

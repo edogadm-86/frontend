@@ -19,8 +19,8 @@ export const sendAppointmentReminders = async () => {
       JOIN users u ON d.user_id = u.id
       WHERE a.reminder = true
         AND a.date = CURRENT_DATE
-        AND EXTRACT(EPOCH FROM (a.time::time - CURRENT_TIME)) / 60 <= a.reminder_time
-        AND EXTRACT(EPOCH FROM (a.time::time - CURRENT_TIME)) / 60 > 0
+        AND EXTRACT(EPOCH FROM (a.time::time - LOCALTIME)) / 60 <= a.reminder_time
+        AND EXTRACT(EPOCH FROM (a.time::time - LOCALTIME)) / 60 > 0
     `);
 
     for (const appointment of result.rows) {

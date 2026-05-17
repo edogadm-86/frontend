@@ -10,6 +10,7 @@ interface SidebarProps {
   currentDog: any;
   onDogSelect: (dog: any) => void;
   onAddDog: () => void;
+  user?: { is_admin?: boolean } | null;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -19,6 +20,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentDog,
   onDogSelect,
   onAddDog,
+  user,
 }) => {
   const { t } = useTranslation();
   const [isHovered, setIsHovered] = React.useState(false);
@@ -34,7 +36,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const bottomNavItems = [
     { id: 'settings', icon: 'settings', label: t('settings') },
-    // { id: 'apk', icon: 'download', label: t('downloadApp'), href: '/apk/edog-1.0.0.apk' },
   ];
 
   const expanded = true;
@@ -175,22 +176,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               : 'text-gray-500 dark:text-[#8b919d] hover:bg-gray-100 dark:hover:bg-[#282a2d] hover:text-gray-700 dark:hover:text-[#c1c7d3]'
           );
 
-          // if (item.href) {
-          //   return (
-          //     <a
-          //       key={item.id}
-          //       href={item.href}
-          //       target="_blank"
-          //       rel="noopener noreferrer"
-          //       title={!expanded ? item.label : undefined}
-          //       className={cls}
-          //     >
-          //       <span className="material-symbols-outlined text-[18px] leading-none flex-shrink-0">{item.icon}</span>
-          //       {expanded && <span className="text-xs font-medium truncate">{item.label}</span>}
-          //     </a>
-          //   );
-          // }
-
           return (
             <button
               key={item.id}
@@ -203,6 +188,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           );
         })}
+
+        {user?.is_admin && (
+          <a
+            href="/adminpanel"
+            title={!expanded ? 'Admin Panel' : undefined}
+            className={cn(
+              'w-full flex items-center rounded-xl transition-all duration-150 text-[#005da7] dark:text-[#a4c9ff] hover:bg-[#005da7]/10 dark:hover:bg-[#a4c9ff]/10',
+              expanded ? 'gap-3 px-3 py-2' : 'justify-center py-2'
+            )}
+          >
+            <span className="material-symbols-outlined text-[18px] leading-none flex-shrink-0">admin_panel_settings</span>
+            {expanded && <span className="text-xs font-semibold truncate">Admin Panel</span>}
+          </a>
+        )}
       </div>
     </div>
   );

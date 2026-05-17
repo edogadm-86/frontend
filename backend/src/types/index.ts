@@ -6,6 +6,8 @@ export interface User {
   email: string;
   phone?: string;
   password_hash: string;
+  is_admin: boolean;
+  last_seen_at?: Date;
   created_at: Date;
   updated_at: Date;
 }
@@ -94,6 +96,7 @@ export interface AuthRequest extends ExpressRequest  {
   user?: {
     id: string;
     email: string;
+    is_admin?: boolean;
   };
 }
 

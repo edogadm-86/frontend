@@ -1,4 +1,4 @@
-import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact } from '../types';
+import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, AdminStats, AdminUserSummary, AdminDog, AdminReportedPost } from '../types';
 import { API_BASE_URL } from '../config';
 
 class ApiClient {
@@ -558,6 +558,54 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
   async deleteEvent(eventId: string) {
     return this.request(`/events/${eventId}`, { method: 'DELETE' });
+  }
+
+  // Admin endpoints
+  async getAdminStats() {
+    return this.request<{ stats: AdminStats }>('/admin/stats');
+  }
+
+  async getAdminUsers(params?: { page?: number; limit?: number; search?: string }) {
+    const q = new URLSearchParams();
+    if (params?.page) q.append('page', params.page.toString());
+    if (params?.limit) q.append('limit', params.limit.toString());
+    if (params?.search) q.append('search', params.search);
+    return this.request<{ users: AdminUserSummary[]; total: number }>(`/admin/users?${q.toString()}`);
+  }
+
+  async getAdminReportedPosts() {
+    return this.request<{ reports: AdminReportedPost[] }>('/admin/reported-posts');
+  }
+
+  async adminDeletePost(postId: string) {
+    return this.request(`/admin/posts/${postId}`, { method: 'DELETE' });
+  }
+
+  async adminDismissReport(reportId: string) {
+    return this.request(`/admin/reports/${reportId}/dismiss`, { method: 'POST' });
+  }
+
+  async getAdminDogs(params?: { page?: number; limit?: number; search?: string }) {
+    const q = new URLSearchParams();
+    if (params?.page) q.append('page', params.page.toString());
+    if (params?.limit) q.append('limit', params.limit.toString());
+    if (params?.search) q.append('search', params.search);
+    return this.request<{ dogs: AdminDog[]; total: number }>(`/admin/dogs?${q.toString()}`);
+  }
+
+  async adminDeleteDog(dogId: string) {
+    return this.request(`/admin/dogs/${dogId}`, { method: 'DELETE' });
+  }
+
+  async adminToggleUserActive(userId: string, isActive: boolean) {
+    return this.request<{ user: { id: string; is_active: boolean } }>(`/admin/users/${userId}/active`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_active: isActive }),
+    });
+  }
+
+  async adminDeleteUser(userId: string) {
+    return this.request(`/admin/users/${userId}`, { method: 'DELETE' });
   }
 }
 
