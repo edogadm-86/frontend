@@ -194,6 +194,33 @@ export interface MedicationReminder {
   updated_at: string;
 }
 
+export type ExpenseCategory = 'food' | 'medical' | 'gear' | 'training' | 'other';
+
+export interface Expense {
+  id: string;
+  dog_id: string;
+  user_id: string;
+  date: string;
+  category: ExpenseCategory;
+  description: string;
+  vendor?: string;
+  amount: number;
+  notes?: string;
+  recur_monthly?: boolean;
+  recur_source_id?: string;
+  receipt_photo?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExpenseStats {
+  currentTotal: number;
+  prevTotal: number;
+  percentChange: number | null;
+  categoryBreakdown: { category: ExpenseCategory; total: number }[];
+  weeklyData: { dow: number; total: number }[];
+}
+
 export interface CommunityEvent {
   id: string;
   user_id: string;

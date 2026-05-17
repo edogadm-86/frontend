@@ -607,6 +607,43 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   async adminDeleteUser(userId: string) {
     return this.request(`/admin/users/${userId}`, { method: 'DELETE' });
   }
+
+  // Expense endpoints
+  async getExpenses(dogId: string, params?: { month?: string; year?: number; limit?: number }) {
+    const q = new URLSearchParams();
+    if (params?.month) q.append('month', params.month);
+    if (params?.year) q.append('year', params.year.toString());
+    if (params?.limit) q.append('limit', params.limit.toString());
+    return this.request<{ expenses: any[] }>(`/expenses/dog/${dogId}?${q.toString()}`);
+  }
+
+  async getYearlyExpenseStats(dogId: string, year?: number) {
+    const q = year ? `?year=${year}` : '';
+    return this.request<any>(`/expenses/dog/${dogId}/yearly${q}`);
+  }
+
+  async getExpenseStats(dogId: string, month?: string) {
+    const q = month ? `?month=${month}` : '';
+    return this.request<any>(`/expenses/dog/${dogId}/stats${q}`);
+  }
+
+  async createExpense(dogId: string, data: any) {
+    return this.request<{ expense: any }>(`/expenses/dog/${dogId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateExpense(dogId: string, expenseId: string, data: any) {
+    return this.request<{ expense: any }>(`/expenses/dog/${dogId}/${expenseId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteExpense(dogId: string, expenseId: string) {
+    return this.request(`/expenses/dog/${dogId}/${expenseId}`, { method: 'DELETE' });
+  }
 }
 
 export const apiClient = new ApiClient();

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Expenses Tracker</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#1a1c1f",
+                        "tertiary": "#ffb953",
+                        "on-primary-fixed-variant": "#004883",
+                        "surface-dim": "#111316",
+                        "surface-bright": "#37393d",
+                        "on-primary-container": "#002a51",
+                        "on-surface": "#e2e2e6",
+                        "surface-container-high": "#282a2d",
+                        "on-background": "#e2e2e6",
+                        "on-tertiary-container": "#3c2500",
+                        "on-tertiary": "#452b00",
+                        "secondary-container": "#feb300",
+                        "secondary": "#ffd798",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "primary-container": "#4d93e5",
+                        "on-secondary-fixed": "#281900",
+                        "on-error": "#690005",
+                        "inverse-on-surface": "#2f3034",
+                        "on-secondary-fixed-variant": "#5f4100",
+                        "on-secondary-container": "#6a4800",
+                        "tertiary-fixed": "#ffddb4",
+                        "surface-variant": "#333538",
+                        "secondary-fixed-dim": "#ffba35",
+                        "outline-variant": "#414751",
+                        "on-tertiary-fixed": "#291800",
+                        "surface": "#111316",
+                        "error": "#ffb4ab",
+                        "outline": "#8b919d",
+                        "secondary-fixed": "#ffdeac",
+                        "surface-container": "#1e2023",
+                        "on-error-container": "#ffdad6",
+                        "on-primary": "#00315d",
+                        "surface-container-highest": "#333538",
+                        "tertiary-container": "#c58305",
+                        "inverse-surface": "#e2e2e6",
+                        "primary-fixed": "#d4e3ff",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0c0e11",
+                        "on-primary-fixed": "#001c39",
+                        "primary": "#a4c9ff",
+                        "on-surface-variant": "#c1c7d3",
+                        "inverse-primary": "#0060ac",
+                        "background": "#111316",
+                        "surface-tint": "#a4c9ff",
+                        "on-secondary": "#422c00",
+                        "tertiary-fixed-dim": "#ffb953",
+                        "on-tertiary-fixed-variant": "#633f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "margin-desktop": "48px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #111316;
+            color: #e2e2e6;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .chart-bar {
+            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-white/10 flex justify-between items-center h-16 px-margin-mobile">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Pet Profile" class="w-full h-full object-cover" data-alt="A professional, high-end close-up photograph of a friendly golden retriever dog looking into the camera. The lighting is warm and cinematic, emphasizing the soft texture of the fur. The background is a clean, minimalist modern home interior with deep shadows and soft highlights, matching a corporate dark mode aesthetic. The overall mood is premium, trustworthy, and heartwarming." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrHfLtUmPaUAPDZpwEplpQWWViVDNP6tTj71siocpBWST6scT6jUvIKTphlYX4CB9_XUVLp7gP0Zun15n9xX7SxskI3UGgu_CqTtl_2WOiAEf10tl-_RH0fvJEmGV71DpJ_OjoOGNoY4V2fMBrBjTzuLDWuhR17-24B4zVPoEWz9wqIkTYMakXA_YwyM_fK-lsNK0toydHhycafC_tf0Bfasxpy4qdOyVnfCBGFaCSmMD48qQocK0eTK2Ku13aCvSFclvUayfaZb7P"/>
+</div>
+<h1 class="font-headline-md-mobile text-headline-md-mobile font-bold text-primary tracking-tight">eDog</h1>
+</div>
+<button class="hover:bg-surface-container-high rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+</header>
+<main class="pt-20 px-margin-mobile flex flex-col gap-lg">
+<!-- Monthly Summary Bento Card -->
+<section class="flex flex-col gap-md">
+<div class="flex justify-between items-end">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Monthly Spending</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">$1,248.50</h2>
+</div>
+<div class="flex items-center text-primary text-label-md font-label-md bg-primary/10 px-sm py-xs rounded-lg">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+<span>12%</span>
+</div>
+</div>
+<!-- Spending Chart -->
+<div class="glass-card rounded-xl p-lg flex flex-col gap-md h-48 relative">
+<div class="flex items-end justify-between h-full gap-xs">
+<div class="flex-1 flex flex-col items-center gap-sm h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t-sm chart-bar h-[40%]"></div>
+<span class="text-[10px] text-on-surface-variant font-medium">Mon</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t-sm chart-bar h-[65%]"></div>
+<span class="text-[10px] text-on-surface-variant font-medium">Tue</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm h-full justify-end">
+<div class="w-full bg-primary-container rounded-t-sm chart-bar h-[90%]"></div>
+<span class="text-[10px] text-primary font-bold">Wed</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t-sm chart-bar h-[55%]"></div>
+<span class="text-[10px] text-on-surface-variant font-medium">Thu</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t-sm chart-bar h-[75%]"></div>
+<span class="text-[10px] text-on-surface-variant font-medium">Fri</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t-sm chart-bar h-[30%]"></div>
+<span class="text-[10px] text-on-surface-variant font-medium">Sat</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t-sm chart-bar h-[45%]"></div>
+<span class="text-[10px] text-on-surface-variant font-medium">Sun</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Categories Horizontal Scroll -->
+<section class="flex flex-col gap-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant">Top Categories</h3>
+<div class="flex gap-md overflow-x-auto pb-sm no-scrollbar">
+<!-- Food -->
+<div class="flex-shrink-0 w-32 glass-card p-md rounded-xl flex flex-col gap-sm border-l-4 border-l-primary">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Food</p>
+<p class="font-label-md text-label-md text-on-surface">$450.20</p>
+</div>
+</div>
+<!-- Medical -->
+<div class="flex-shrink-0 w-32 glass-card p-md rounded-xl flex flex-col gap-sm border-l-4 border-l-tertiary">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Medical</p>
+<p class="font-label-md text-label-md text-on-surface">$320.00</p>
+</div>
+</div>
+<!-- Gear -->
+<div class="flex-shrink-0 w-32 glass-card p-md rounded-xl flex flex-col gap-sm border-l-4 border-l-secondary-container">
+<span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Gear</p>
+<p class="font-label-md text-label-md text-on-surface">$185.30</p>
+</div>
+</div>
+<!-- Training -->
+<div class="flex-shrink-0 w-32 glass-card p-md rounded-xl flex flex-col gap-sm border-l-4 border-l-primary-fixed-dim">
+<span class="material-symbols-outlined text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Training</p>
+<p class="font-label-md text-label-md text-on-surface">$293.00</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Transactions -->
+<section class="flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface-variant">Recent Activity</h3>
+<button class="text-primary font-label-sm text-label-sm">View All</button>
+</div>
+<div class="flex flex-col gap-xs">
+<!-- Transaction Item 1 -->
+<div class="glass-card flex items-center justify-between p-md rounded-lg">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">shopping_basket</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Premium Kibble 15kg</p>
+<p class="text-[12px] text-on-surface-variant">Today, 2:45 PM • Food</p>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">-$84.99</span>
+</div>
+<!-- Transaction Item 2 -->
+<div class="glass-card flex items-center justify-between p-md rounded-lg">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">vaccines</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Annual Rabies Shot</p>
+<p class="text-[12px] text-on-surface-variant">Oct 24 • Medical</p>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">-$120.00</span>
+</div>
+<!-- Transaction Item 3 -->
+<div class="glass-card flex items-center justify-between p-md rounded-lg">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">stadium</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Agility Workshop</p>
+<p class="text-[12px] text-on-surface-variant">Oct 22 • Training</p>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">-$45.00</span>
+</div>
+<!-- Transaction Item 4 -->
+<div class="glass-card flex items-center justify-between p-md rounded-lg">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">toys</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Chew Toy Bundle</p>
+<p class="text-[12px] text-on-surface-variant">Oct 20 • Gear</p>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">-$32.50</span>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB -->
+<button class="fixed right-margin-mobile bottom-24 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl border-t border-white/10 bg-surface-container shadow-[0_-4px_12px_0_rgba(0,0,0,0.4)] flex justify-around items-center h-16 px-margin-mobile">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-bright transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-bright transition-colors" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-sm text-label-sm">Health</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-bright transition-colors" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-sm text-label-sm">Training</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-bright transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-sm text-label-sm">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-label-sm text-label-sm">Expenses</span>
+</a>
+</nav>
+</body></html>

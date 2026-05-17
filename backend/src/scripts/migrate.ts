@@ -376,6 +376,33 @@ const runMigrations = async () => {
       CREATE TRIGGER update_medication_reminders_updated_at
         BEFORE UPDATE ON medication_reminders
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      -- Expenses tracking
+      CREATE TABLE IF NOT EXISTS expenses (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        date DATE NOT NULL,
+        category VARCHAR(50) NOT NULL CHECK (category IN ('food', 'medical', 'gear', 'training', 'other')),
+        description VARCHAR(255) NOT NULL,
+        vendor VARCHAR(255),
+        amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
+        notes TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_expenses_dog_id ON expenses(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
+      CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);
+
+      ALTER TABLE expenses ADD COLUMN IF NOT EXISTS recur_monthly BOOLEAN DEFAULT FALSE;
+      ALTER TABLE expenses ADD COLUMN IF NOT EXISTS recur_source_id UUID REFERENCES expenses(id) ON DELETE SET NULL;
+      ALTER TABLE expenses ADD COLUMN IF NOT EXISTS receipt_photo TEXT;
+
+      DROP TRIGGER IF EXISTS update_expenses_updated_at ON expenses;
+      CREATE TRIGGER update_expenses_updated_at
+        BEFORE UPDATE ON expenses
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `;
 
     await pool.query(migrationSQL);

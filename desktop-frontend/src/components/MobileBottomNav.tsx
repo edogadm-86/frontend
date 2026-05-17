@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Home, Heart, Calendar, Award, Users, Settings, ShieldCheck } from 'lucide-react';
+import { Home, Heart, Wallet, Users, MoreHorizontal, Award, Calendar, Settings, X, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface MobileBottomNavProps {
@@ -9,87 +9,165 @@ interface MobileBottomNavProps {
   user?: { is_admin?: boolean } | null;
 }
 
-/**
- * Mobile-first bottom navigation for the main sections.
- * - Visible only on small screens (<md).
- * - Uses the same view IDs as Sidebar/AppContent.
- */
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentView,
   onViewChange,
   user,
 }) => {
   const { t } = useTranslation();
+  const [moreOpen, setMoreOpen] = useState(false);
 
-  const items = [
-    { id: 'dashboard', icon: Home,     label: t('dashboard') },
-    { id: 'health',    icon: Heart,    label: t('health') },
-    { id: 'calendar',  icon: Calendar, label: t('calendar1') },
-    { id: 'community', icon: Users,    label: t('community') },
+  // Primary tabs — always visible
+  const primary = [
+    { id: 'dashboard', icon: Home,    label: t('dashboard') },
+    { id: 'health',    icon: Heart,   label: t('health') },
+    { id: 'expenses',  icon: Wallet,  label: t('expenses') },
+    { id: 'community', icon: Users,   label: t('community') },
+  ];
+
+  // Secondary items — shown in the "More" drawer
+  const secondary = [
     { id: 'training',  icon: Award,    label: t('training') },
+    { id: 'calendar',  icon: Calendar, label: t('calendar1') },
     { id: 'settings',  icon: Settings, label: t('settings') },
   ];
 
+  const secondaryActive = secondary.some(s => s.id === currentView);
+
+  const handlePrimary = (id: string) => {
+    onViewChange(id);
+    setMoreOpen(false);
+  };
+
+  const handleSecondary = (id: string) => {
+    onViewChange(id);
+    setMoreOpen(false);
+  };
+
   return (
-    <div
-      className={cn(
-        'md:hidden fixed bottom-0 left-0 right-0 z-50',
-        'bg-white/70 dark:bg-gray-900/70 backdrop-blur-md',
-        'border-t border-white/20 dark:border-gray-700/30',
-        'pb-[env(safe-area-inset-bottom)]'
+    <>
+      {/* More drawer backdrop */}
+      {moreOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+          onClick={() => setMoreOpen(false)}
+        />
       )}
-    >
-      {user?.is_admin && (
-        <a
-          href="/adminpanel"
-          className="absolute -top-10 right-3 flex items-center gap-1.5 bg-[#005da7] text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md hover:opacity-90 transition-opacity"
-        >
-          <ShieldCheck size={13} />
-          Admin
-        </a>
-      )}
-      <nav className="px-2 py-2">
-        <ul className="grid grid-cols-6 gap-0.5">
-          {items.map((item) => {
-            const active = currentView === item.id;
-            const Icon = item.icon;
 
-            return (
-              <li key={item.id}>
+      {/* More drawer */}
+      {moreOpen && (
+        <div className="md:hidden fixed bottom-[72px] left-3 right-3 z-50 bg-white dark:bg-[#1e2023] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/5">
+            <span className="text-xs font-semibold text-gray-400 dark:text-[#8b919d] uppercase tracking-wider">
+              {t('more')}
+            </span>
+            <button onClick={() => setMoreOpen(false)} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282a2d]">
+              <X size={15} className="text-gray-400 dark:text-[#8b919d]" />
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-0 p-2">
+            {secondary.map(item => {
+              const active = currentView === item.id;
+              const Icon = item.icon;
+              return (
                 <button
+                  key={item.id}
                   type="button"
-                  onClick={() => onViewChange(item.id)}
+                  onClick={() => handleSecondary(item.id)}
                   className={cn(
-                    "w-full h-14",                 // fixed button height
-                    "rounded-2xl px-1",            // remove py-2 (height is fixed)
-                    "flex flex-col items-center justify-center",
-                    "transition-all duration-200",
+                    'flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all',
                     active
-                      ? "bg-gradient-to-r from-primary-500 to-blue-500 text-white shadow-lg"
-                      : "text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-800/50"
+                      ? 'bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 text-[#005da7] dark:text-[#a4c9ff]'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#282a2d]'
                   )}
-
                   aria-current={active ? 'page' : undefined}
                 >
-                  <Icon
-                    size={20}
-                    className={cn('mb-1', active ? 'text-white' : 'text-primary-500')}
-                  />
-                   <span
-                      className={cn(
-                        "text-[10px] leading-none font-medium",
-                        "whitespace-nowrap overflow-hidden text-ellipsis",
-                        "max-w-[52px]"
-                      )}
-                    >
-                    {item.label}
-                  </span>
+                  <Icon size={20} className={active ? 'text-[#005da7] dark:text-[#a4c9ff]' : 'text-gray-500 dark:text-gray-400'} />
+                  <span className="text-[10px] font-medium leading-none">{item.label}</span>
                 </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </div>
+              );
+            })}
+            {user?.is_admin && (
+              <a
+                href="/adminpanel"
+                onClick={() => setMoreOpen(false)}
+                className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl text-[#005da7] dark:text-[#a4c9ff] hover:bg-[#005da7]/10 dark:hover:bg-[#a4c9ff]/10 transition-all"
+              >
+                <ShieldCheck size={20} />
+                <span className="text-[10px] font-medium leading-none">Admin</span>
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Bottom bar */}
+      <div
+        className={cn(
+          'md:hidden fixed bottom-0 left-0 right-0 z-50',
+          'bg-white/90 dark:bg-[#111316]/90 backdrop-blur-md',
+          'border-t border-gray-200/60 dark:border-white/5',
+          'pb-[env(safe-area-inset-bottom)]'
+        )}
+      >
+        <nav className="px-2 py-2">
+          <ul className="grid grid-cols-5 gap-0.5">
+            {primary.map(item => {
+              const active = currentView === item.id;
+              const Icon = item.icon;
+              return (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => handlePrimary(item.id)}
+                    className={cn(
+                      'w-full h-14 rounded-2xl px-1',
+                      'flex flex-col items-center justify-center',
+                      'transition-all duration-200',
+                      active
+                        ? 'bg-[#005da7] dark:bg-[#a4c9ff]/15 text-white dark:text-[#a4c9ff]'
+                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d]'
+                    )}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <Icon
+                      size={20}
+                      className={cn('mb-1', active ? 'text-white dark:text-[#a4c9ff]' : 'text-gray-500 dark:text-gray-400')}
+                    />
+                    <span className="text-[10px] leading-none font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[52px]">
+                      {item.label}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+
+            {/* More button */}
+            <li>
+              <button
+                type="button"
+                onClick={() => setMoreOpen(o => !o)}
+                className={cn(
+                  'w-full h-14 rounded-2xl px-1',
+                  'flex flex-col items-center justify-center',
+                  'transition-all duration-200',
+                  (moreOpen || secondaryActive)
+                    ? 'bg-[#005da7] dark:bg-[#a4c9ff]/15 text-white dark:text-[#a4c9ff]'
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d]'
+                )}
+              >
+                <MoreHorizontal
+                  size={20}
+                  className={cn('mb-1', (moreOpen || secondaryActive) ? 'text-white dark:text-[#a4c9ff]' : 'text-gray-500 dark:text-gray-400')}
+                />
+                <span className="text-[10px] leading-none font-medium">
+                  {t('more')}
+                </span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </>
   );
 };
