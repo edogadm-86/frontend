@@ -24,6 +24,7 @@ import eventsRoutes from './routes/events';
 import nutritionRoutes from './routes/nutrition';
 import publicRoutes from './routes/public';
 import pushRoutes from './routes/push';
+import medicationReminderRoutes from './routes/medicationReminders';
 
 
 dotenv.config();
@@ -125,6 +126,7 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/nutrition', nutritionRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/dogs', medicationReminderRoutes);
 
 // Email reminder endpoints (for testing)
 app.post('/api/test/appointment-reminders', triggerAppointmentReminders);

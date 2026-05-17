@@ -81,6 +81,21 @@ router.post('/upload', auth_1.authenticateToken, upload.single('file'), async (r
         res.status(500).json({ error: 'File upload failed' });
     }
 });
+// Lightweight image upload — returns a URL without creating a documents record.
+// Used for post images, event banners, etc.
+router.post('/image', auth_1.authenticateToken, upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        const fileUrl = `${req.protocol}://${req.get('host')}/api/uploads/file/${req.file.filename}`;
+        res.json({ fileUrl });
+    }
+    catch (error) {
+        console.error('Image upload error:', error);
+        res.status(500).json({ error: 'Image upload failed' });
+    }
+});
 // Serve uploaded files
 router.get('/file/:filename', (req, res) => {
     const filename = req.params.filename;

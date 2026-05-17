@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Share2, Calendar, MapPin, Users,
   ChevronUp, ChevronDown, Image, Activity, Plus, Send,
   TrendingUp, Zap, Check, Trash2, Flag, AlertTriangle, Hash,
-  UserCircle2, X,
+  UserCircle2, Pencil,
 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { apiClient } from '../lib/api';
@@ -87,7 +87,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('inappropriate');
   const [reportSubmitted, setReportSubmitted] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { t, i18n } = useTranslation();
 
   const isOwner = currentUserId && post.user_id === currentUserId;
@@ -141,10 +141,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
     } catch { /* silent */ }
   };
 
-  const handleDelete = () => {
-    if (!confirmDelete) { setConfirmDelete(true); return; }
-    onDelete?.(post.id);
-  };
+  const handleDelete = () => setShowDeleteConfirm(true);
+  const confirmDeletePost = () => { onDelete?.(post.id); setShowDeleteConfirm(false); };
 
   return (
     <>
@@ -182,13 +180,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
             {isOwner && (
               <button
                 onClick={handleDelete}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  confirmDelete
-                    ? 'bg-red-100 dark:bg-red-500/20 text-red-500'
-                    : 'text-gray-400 dark:text-[#8b919d] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10'
-                }`}
-                title={confirmDelete ? t('confirmDeletePost') : t('deletePost')}
-                onBlur={() => setTimeout(() => setConfirmDelete(false), 200)}
+                className="p-1.5 rounded-lg transition-colors text-gray-400 dark:text-[#8b919d] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                title={t('deletePost')}
               >
                 <Trash2 size={14} />
               </button>
@@ -310,6 +303,21 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
           </div>
         )}
       </article>
+
+      {/* Delete confirmation modal */}
+      <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title={t('deletePost')}>
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-[#8b919d]">{t('confirmDeletePost')}</p>
+          <div className="flex gap-3 pt-2">
+            <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2 text-sm font-semibold text-gray-600 dark:text-[#8b919d] border border-gray-200 dark:border-[#414751]/40 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors">
+              {t('cancel')}
+            </button>
+            <button onClick={confirmDeletePost} className="flex-1 py-2 text-sm font-bold bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors">
+              {t('deletePost')}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Report modal */}
       <Modal isOpen={showReportModal} onClose={() => setShowReportModal(false)} title={t('reportPost')}>
@@ -543,16 +551,24 @@ const ComposeCard: React.FC<ComposeCardProps> = ({ onPost }) => {
 
 interface EventCardProps {
   event: CommunityEvent;
+  currentUserId?: string;
   onJoin: (eventId: string) => void;
+  onEdit: (event: CommunityEvent) => void;
+  onDelete: (eventId: string) => void;
   joining: boolean;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onJoin, joining }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, currentUserId, onJoin, onEdit, onDelete, joining }) => {
   const { t, i18n } = useTranslation();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const typeKey = (event.event_type ?? 'other') as EventType;
   const typeColor = EVENT_TYPE_COLORS[typeKey] ?? EVENT_TYPE_COLORS.other;
+  const isOwner = currentUserId && event.user_id === currentUserId;
+
+  const confirmDeleteEvent = () => { onDelete(event.id); setShowDeleteConfirm(false); };
 
   return (
+    <>
     <article className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 shadow-sm p-5 transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
@@ -563,9 +579,29 @@ const EventCard: React.FC<EventCardProps> = ({ event, onJoin, joining }) => {
           </div>
           <h3 className="font-semibold text-gray-900 dark:text-[#e2e2e6] font-jakarta text-sm leading-snug truncate">{event.title}</h3>
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-[#8b919d] flex-shrink-0">
-          <Users size={13} />
-          <span>{event.participants_count ?? event.current_participants ?? 0}</span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-[#8b919d]">
+            <Users size={13} />
+            <span>{event.participants_count ?? event.current_participants ?? 0}</span>
+          </div>
+          {isOwner && (
+            <>
+              <button
+                onClick={() => onEdit(event)}
+                className="p-1.5 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/10 transition-colors"
+                title={t('editEvent')}
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-1.5 rounded-lg transition-colors text-gray-400 dark:text-[#8b919d] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                title={t('deleteEvent')}
+              >
+                <Trash2 size={14} />
+              </button>
+            </>
+          )}
         </div>
       </div>
       <div className="flex flex-wrap gap-3 mb-3 text-xs text-gray-500 dark:text-[#8b919d]">
@@ -583,15 +619,32 @@ const EventCard: React.FC<EventCardProps> = ({ event, onJoin, joining }) => {
       <p className="text-xs text-gray-500 dark:text-[#8b919d] leading-relaxed mb-4 line-clamp-2">{event.description}</p>
       <div className="flex items-center justify-between">
         <p className="text-xs text-gray-400 dark:text-[#414751]">{t('by')} {event.organizer_name}</p>
-        <button
-          onClick={() => onJoin(event.id)}
-          disabled={joining}
-          className="px-4 py-1.5 text-xs font-bold bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-full hover:bg-blue-600 dark:hover:bg-[#d4e3ff] disabled:opacity-50 transition-colors"
-        >
-          {joining ? t('joining') : t('join')}
-        </button>
+        {!isOwner && (
+          <button
+            onClick={() => onJoin(event.id)}
+            disabled={joining}
+            className="px-4 py-1.5 text-xs font-bold bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-full hover:bg-blue-600 dark:hover:bg-[#d4e3ff] disabled:opacity-50 transition-colors"
+          >
+            {joining ? t('joining') : t('join')}
+          </button>
+        )}
       </div>
     </article>
+
+    <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title={t('deleteEvent')}>
+      <div className="space-y-4">
+        <p className="text-sm text-gray-600 dark:text-[#8b919d]">{t('confirmDeleteEvent')}</p>
+        <div className="flex gap-3 pt-2">
+          <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2 text-sm font-semibold text-gray-600 dark:text-[#8b919d] border border-gray-200 dark:border-[#414751]/40 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors">
+            {t('cancel')}
+          </button>
+          <button onClick={confirmDeleteEvent} className="flex-1 py-2 text-sm font-bold bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors">
+            {t('deleteEvent')}
+          </button>
+        </div>
+      </div>
+    </Modal>
+    </>
   );
 };
 
@@ -628,6 +681,14 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
   const [eventLocation, setEventLocation] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventSubmitting, setEventSubmitting] = useState(false);
+
+  const [editingEvent, setEditingEvent] = useState<CommunityEvent | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editType, setEditType] = useState<EventType>('meetup');
+  const [editLocation, setEditLocation] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   const fetchPosts = useCallback(async () => {
     setPostsLoading(true);
@@ -719,6 +780,39 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
       ));
     } catch { /* silent */ }
     finally { setJoiningEvent(null); }
+  };
+
+  const handleOpenEdit = (event: CommunityEvent) => {
+    setEditingEvent(event);
+    setEditTitle(event.title);
+    setEditDesc(event.description);
+    setEditType(event.event_type as EventType);
+    setEditLocation(event.location ?? '');
+    setEditDate(event.start_date ? new Date(event.start_date).toISOString().slice(0, 16) : '');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingEvent || !editTitle.trim() || !editDesc.trim() || !editDate || editSubmitting) return;
+    setEditSubmitting(true);
+    try {
+      const updated = await apiClient.updateEvent(editingEvent.id, {
+        title: editTitle.trim(),
+        description: editDesc.trim(),
+        event_type: editType,
+        start_date: new Date(editDate).toISOString(),
+        location: editLocation.trim() || undefined,
+      });
+      setEvents(prev => prev.map(e => e.id === editingEvent.id ? { ...e, ...updated.event } : e));
+      setEditingEvent(null);
+    } catch { /* silent */ }
+    finally { setEditSubmitting(false); }
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await apiClient.deleteEvent(eventId);
+      setEvents(prev => prev.filter(e => e.id !== eventId));
+    } catch { /* silent */ }
   };
 
   const handleCreateEvent = async () => {
@@ -966,7 +1060,15 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {events.map(event => (
-                <EventCard key={event.id} event={event} onJoin={handleJoinEvent} joining={joiningEvent === event.id} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  currentUserId={user?.id}
+                  onJoin={handleJoinEvent}
+                  onEdit={handleOpenEdit}
+                  onDelete={handleDeleteEvent}
+                  joining={joiningEvent === event.id}
+                />
               ))}
             </div>
           </div>
@@ -1047,6 +1149,48 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
               className="flex-1 py-2 text-sm font-bold bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl hover:bg-blue-600 dark:hover:bg-[#d4e3ff] disabled:opacity-40 transition-colors"
             >
               {eventSubmitting ? t('creating') : t('createEvent')}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Event Modal */}
+      <Modal isOpen={!!editingEvent} onClose={() => setEditingEvent(null)} title={t('editEvent')}>
+        <div className="space-y-4">
+          <div>
+            <label className={labelCls}>{t('title')}</label>
+            <input className={inputCls} value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder={t('eventNamePlaceholder')} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>{t('type')}</label>
+              <select className={inputCls} value={editType} onChange={e => setEditType(e.target.value as EventType)}>
+                {EVENT_TYPES.map(et => <option key={et} value={et}>{t(et)}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>{t('date')}</label>
+              <input type="datetime-local" className={inputCls} value={editDate} onChange={e => setEditDate(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <label className={labelCls}>{t('location')} <span className="normal-case font-normal text-gray-400">({t('optional')})</span></label>
+            <input className={inputCls} value={editLocation} onChange={e => setEditLocation(e.target.value)} placeholder={t('eventLocationPlaceholder')} />
+          </div>
+          <div>
+            <label className={labelCls}>{t('description')}</label>
+            <textarea className={`${inputCls} resize-none`} rows={3} value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder={t('eventDescriptionPlaceholder')} />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button onClick={() => setEditingEvent(null)} className="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-[#8b919d] border border-gray-200 dark:border-[#414751]/40 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors">
+              {t('cancel')}
+            </button>
+            <button
+              onClick={handleSaveEdit}
+              disabled={!editTitle.trim() || !editDesc.trim() || !editDate || editSubmitting}
+              className="flex-1 py-2 text-sm font-bold bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl hover:bg-blue-600 dark:hover:bg-[#d4e3ff] disabled:opacity-40 transition-colors"
+            >
+              {editSubmitting ? t('saving') : t('saveChanges')}
             </button>
           </div>
         </div>

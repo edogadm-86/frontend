@@ -335,6 +335,40 @@ const runMigrations = async () => {
         lost_dog_alerts BOOLEAN DEFAULT true,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Weight history (time-series log per dog)
+      CREATE TABLE IF NOT EXISTS weight_history (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        weight DECIMAL(5,2) NOT NULL CHECK (weight > 0),
+        date DATE NOT NULL,
+        notes TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_weight_history_dog_id ON weight_history(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_weight_history_date ON weight_history(date);
+
+      -- Medication recurring reminders
+      CREATE TABLE IF NOT EXISTS medication_reminders (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        frequency_days INTEGER NOT NULL CHECK (frequency_days > 0),
+        last_given_date DATE,
+        next_due_date DATE NOT NULL,
+        notes TEXT,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_medication_reminders_dog_id ON medication_reminders(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_medication_reminders_next_due ON medication_reminders(next_due_date);
+
+      DROP TRIGGER IF EXISTS update_medication_reminders_updated_at ON medication_reminders;
+      CREATE TRIGGER update_medication_reminders_updated_at
+        BEFORE UPDATE ON medication_reminders
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `;
 
     await pool.query(migrationSQL);
