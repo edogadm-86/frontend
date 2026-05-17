@@ -89,6 +89,59 @@ export interface User {
   phone?: string;
   dogs: Dog[];
   emergencyContacts: EmergencyContact[];
+  is_admin?: boolean;
+  role?: string;
+}
+
+export interface AdminUserSummary {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  created_at: string;
+  dog_count: number;
+  post_count?: number;
+  is_active: boolean;
+  recently_active?: boolean;
+  last_seen?: string;
+  is_admin?: boolean;
+}
+
+export interface AdminStats {
+  total_users: number;
+  new_users_today: number;
+  new_users_this_week: number;
+  total_dogs: number;
+  total_posts: number;
+  total_events: number;
+  active_users_today?: number;
+}
+
+export interface AdminDog {
+  id: string;
+  name: string;
+  breed: string;
+  sex?: string;
+  date_of_birth?: string;
+  weight?: number | string;
+  profile_picture?: string;
+  microchip_id?: string;
+  created_at: string;
+  owner_id: string;
+  owner_name: string;
+  owner_email: string;
+}
+
+export interface AdminReportedPost {
+  id: string;
+  post_id: string;
+  reason: string;
+  reported_at: string;
+  reporter_name: string;
+  post_title: string;
+  post_content: string;
+  post_author: string;
+  post_author_id: string;
 }
 
 export interface Post {

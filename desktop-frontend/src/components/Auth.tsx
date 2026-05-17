@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PrivacyPolicyModal } from './PrivacyPolicyModal';
+import { TermsOfServiceModal } from './TermsOfServiceModal';
 
 // Dog hero images — taken directly from the design files
 const IMG_LOGIN_LIGHT =
@@ -24,6 +26,8 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,15 +227,17 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
 
             {/* Footer */}
             <div className="mt-8 flex gap-6">
-              <a href="#" className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
+              <button type="button" onClick={() => setShowPrivacy(true)} className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
                 {t('privacyPolicy')}
-              </a>
-              <a href="#" className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
+              </button>
+              <button type="button" onClick={() => setShowTerms(true)} className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
                 {t('termsOfService')}
-              </a>
+              </button>
             </div>
           </div>
 
+          {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
+          {showTerms && <TermsOfServiceModal onClose={() => setShowTerms(false)} />}
           {ambientGlow}
         </main>
       </div>
@@ -399,26 +405,25 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
           {/* Terms */}
           <p className="mt-6 text-center text-xs text-[#717783] dark:text-[#8b919d] leading-relaxed">
             {t('bySigningUpYouAgree')}{' '}
-            <a href="#" className="text-[#005da7] dark:text-[#a4c9ff] hover:underline font-medium">
+            <button type="button" onClick={() => setShowTerms(true)} className="text-[#005da7] dark:text-[#a4c9ff] hover:underline font-medium">
               {t('termsOfService')}
-            </a>{' '}
+            </button>{' '}
             {t('termsAnd')}{' '}
-            <a href="#" className="text-[#005da7] dark:text-[#a4c9ff] hover:underline font-medium">
+            <button type="button" onClick={() => setShowPrivacy(true)} className="text-[#005da7] dark:text-[#a4c9ff] hover:underline font-medium">
               {t('privacyPolicy')}
-            </a>.
+            </button>.
           </p>
 
           {/* Footer */}
           <div className="mt-8 flex gap-6">
-            <a href="#" className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
-              {t('helpCenter')}
-            </a>
-            <a href="#" className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
+            <a href="mailto:edog.adm@gmail.com" className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
               {t('contactSupport')}
             </a>
           </div>
         </div>
 
+        {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
+        {showTerms && <TermsOfServiceModal onClose={() => setShowTerms(false)} />}
         {ambientGlow}
       </main>
     </div>

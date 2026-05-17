@@ -15,6 +15,7 @@ import { CommunityView } from './components/CommunityView';
 import { PublicDogProfile } from './components/PublicDogProfile';
 import { PetPassport } from './components/PetPassport';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { AdminApp } from './components/AdminApp';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 
 const AppContent: React.FC = () => {
@@ -162,6 +163,7 @@ const AppContent: React.FC = () => {
           currentDog={currentDog}
           onDogSelect={setCurrentDog}
           onAddDog={handleAddDog}
+          user={user}
         />
       )}
       <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pb-20 md:pb-0">
@@ -171,7 +173,7 @@ const AppContent: React.FC = () => {
 
     {showBottomNav && (
       <div className="md:hidden">
-        <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} />
+        <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} user={user} />
       </div>
     )}
   </div>
@@ -186,6 +188,9 @@ const App: React.FC = () => {
         <Routes>
           {/* Public route for QR scan */}
           <Route path="/public/dog/:id" element={<PublicDogProfile />} />
+
+          {/* Admin panel — standalone, self-authenticated */}
+          <Route path="/adminpanel" element={<AdminApp />} />
 
           {/* Default app (protected area) */}
           <Route path="/*" element={<AppContent />} />
