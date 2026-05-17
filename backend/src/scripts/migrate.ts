@@ -140,7 +140,7 @@ const runMigrations = async () => {
         dog_id UUID REFERENCES dogs(id) ON DELETE CASCADE,
         title VARCHAR(255) NOT NULL,
         content TEXT NOT NULL,
-        post_type VARCHAR(50) NOT NULL CHECK (post_type IN ('story', 'question', 'tip', 'event', 'photo', 'video')),
+        post_type VARCHAR(50) NOT NULL CHECK (post_type IN ('story', 'question', 'tip', 'event', 'photo', 'video', 'lost_dog')),
         image_url TEXT,
         video_url TEXT,
         tags TEXT[],
@@ -307,6 +307,23 @@ const runMigrations = async () => {
       );
 
       CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
+
+      -- Post reports (flag inappropriate content)
+      CREATE TABLE IF NOT EXISTS post_reports (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+        reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reason VARCHAR(100) NOT NULL DEFAULT 'inappropriate',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(post_id, reporter_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_post_reports_post_id ON post_reports(post_id);
+
+      -- Ensure lost_dog is allowed (alter existing constraint if table was created without it)
+      ALTER TABLE posts DROP CONSTRAINT IF EXISTS posts_post_type_check;
+      ALTER TABLE posts ADD CONSTRAINT posts_post_type_check
+        CHECK (post_type IN ('story', 'question', 'tip', 'event', 'photo', 'video', 'lost_dog'));
 
       -- Per-user push notification category preferences
       CREATE TABLE IF NOT EXISTS user_notification_prefs (

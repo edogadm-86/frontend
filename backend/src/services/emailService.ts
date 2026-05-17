@@ -139,6 +139,51 @@ export const sendMedicationPush = async (
   });
 };
 
+// Send push reminders for upcoming community events
+export const sendEventReminders = async () => {
+  try {
+    const { sendPushToUser } = await import('./pushService');
+
+    // 24 h window: events starting 23–25 h from now
+    const result24h = await pool.query(`
+      SELECT e.id, e.title, e.location, ep.user_id
+      FROM events e
+      JOIN event_participants ep ON ep.event_id = e.id AND ep.status = 'attending'
+      WHERE e.start_date BETWEEN NOW() + INTERVAL '23 hours' AND NOW() + INTERVAL '25 hours'
+    `);
+    for (const row of result24h.rows) {
+      await sendPushToUser(row.user_id, 'appointments', {
+        title: 'Event tomorrow!',
+        body: `"${row.title}" starts tomorrow${row.location ? ` at ${row.location}` : ''}.`,
+        icon: '/pwa-192x192.png',
+        tag: `event-24h-${row.id}`,
+        url: '/community',
+      });
+    }
+
+    // 1 h window: events starting 55–65 min from now
+    const result1h = await pool.query(`
+      SELECT e.id, e.title, e.location, ep.user_id
+      FROM events e
+      JOIN event_participants ep ON ep.event_id = e.id AND ep.status = 'attending'
+      WHERE e.start_date BETWEEN NOW() + INTERVAL '55 minutes' AND NOW() + INTERVAL '65 minutes'
+    `);
+    for (const row of result1h.rows) {
+      await sendPushToUser(row.user_id, 'appointments', {
+        title: 'Event in 1 hour!',
+        body: `"${row.title}" starts in about 1 hour${row.location ? ` at ${row.location}` : ''}.`,
+        icon: '/pwa-192x192.png',
+        tag: `event-1h-${row.id}`,
+        url: '/community',
+      });
+    }
+
+    console.log(`Event reminders sent: ${result24h.rows.length} (24h), ${result1h.rows.length} (1h)`);
+  } catch (error) {
+    console.error('Error sending event reminders:', error);
+  }
+};
+
 // Schedule cron jobs
 export const startEmailScheduler = () => {
   // Check for appointment reminders every 15 minutes
@@ -146,6 +191,9 @@ export const startEmailScheduler = () => {
 
   // Check for vaccination reminders daily at 9 AM
   cron.schedule('0 9 * * *', sendVaccinationReminders);
+
+  // Check for event reminders every 15 minutes
+  cron.schedule('*/15 * * * *', sendEventReminders);
 
   console.log('Email scheduler started');
 };

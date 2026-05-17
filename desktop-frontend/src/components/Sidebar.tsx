@@ -29,7 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'passport', icon: 'badge', label: t('petPassport') },
     { id: 'calendar', icon: 'calendar_month', label: t('calendar1') },
     { id: 'training', icon: 'fitness_center', label: t('training') },
-    // { id: 'community', icon: 'groups', label: t('community') },
+    { id: 'community', icon: 'groups', label: t('community') },
   ];
 
   const bottomNavItems = [

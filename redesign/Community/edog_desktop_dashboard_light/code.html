@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e4e2e1",
+                        "primary-container": "#2976c7",
+                        "on-secondary-container": "#636467",
+                        "on-tertiary-container": "#f7fff1",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f2f0ef",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#e2e2e5",
+                        "surface-bright": "#fbf9f8",
+                        "on-tertiary-fixed-variant": "#474745",
+                        "on-primary-container": "#fdfcff",
+                        "primary-fixed": "#d4e3ff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#e5e2e0",
+                        "secondary-fixed-dim": "#c6c6c9",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#a4c9ff",
+                        "on-background": "#1b1c1b",
+                        "surface": "#fbf9f8",
+                        "outline-variant": "#c1c7d3",
+                        "tertiary-fixed-dim": "#c8c6c4",
+                        "primary": "#005da7",
+                        "on-error": "#ffffff",
+                        "tertiary": "#5d5c5a",
+                        "inverse-surface": "#303030",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#757473",
+                        "surface-container-high": "#e9e8e7",
+                        "surface-container": "#efedec",
+                        "outline": "#717783",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-tertiary-fixed": "#1c1c1b",
+                        "on-primary-fixed-variant": "#004883",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f5f3f2",
+                        "on-surface": "#1b1c1b",
+                        "on-secondary-fixed": "#1a1c1e",
+                        "secondary": "#5d5e61",
+                        "on-secondary-fixed-variant": "#454749",
+                        "surface-dim": "#dbdad9",
+                        "secondary-fixed": "#e2e2e5",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "surface-tint": "#0060ac",
+                        "background": "#fbf9f8",
+                        "on-surface-variant": "#414751",
+                        "on-primary-fixed": "#001c39"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "base": "4px",
+                        "xs": "0.5rem",
+                        "sm": "1rem",
+                        "gutter": "24px",
+                        "md": "1.5rem",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #FBF9F8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .card-shadow {
+            box-shadow: 0px 4px 20px rgba(26, 28, 30, 0.04);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopAppBar Shell -->
+<header class="bg-background text-primary font-headline-md text-headline-md font-label-md text-label-md docked full-width top-0 bg-background flat no shadows flex justify-between items-center px-margin-desktop py-md w-full sticky top-0 z-50">
+<div class="flex items-center gap-sm">
+<span class="text-headline-md font-headline-lg text-primary">eDog</span>
+<div class="ml-xl hidden md:flex items-center gap-lg">
+<span class="text-primary font-bold">Dashboard</span>
+<span class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-sm py-xs rounded-lg cursor-pointer">Explore</span>
+<span class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-sm py-xs rounded-lg cursor-pointer">Services</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-low border-none rounded-full py-xs pl-xl pr-md text-label-md focus:ring-2 focus:ring-primary-container w-64" placeholder="Search activities..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high transition-colors p-xs rounded-full">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high transition-colors p-xs rounded-full">settings</button>
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/20">
+<img alt="User profile" data-alt="A professional studio headshot of a friendly middle-aged man with a clean-cut appearance. He is wearing a minimalist navy blue sweater against a soft, neutral off-white background. The lighting is high-key and bright, reflecting a modern, trustworthy light-mode UI aesthetic. The composition is a close-up, high-resolution portrait with natural skin textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-KkSzyhpypKqfLjK4xC4Za6cO37WDUYIn8d6bSStW0A2nSFcKVjP7h2Suk0VQ55hvAysetvMsOTinLAqMFNr9h6gDCX7UZCiLxrxJn8REOd6lkUdFiHnm__700tmGiFB8tTJqd3ErKRRavf035GOUUENrUK8SLWHh5ocKI9LgHTZA1UQOdhuubR0ffu3pj03lWJPvcGjTjluVlb4fD4UzRofV98EJFYbjJuGJ31D3rolPQ_AbrgYV1KATjHNG_PLLrlO7nnWzsV95"/>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar Shell -->
+<nav class="bg-surface-container-low text-primary font-label-md text-label-md h-screen w-64 fixed left-0 top-0 border-r border-outline-variant/10 shadow-sm flex flex-col h-full p-lg gap-sm pt-32">
+<div class="flex items-center gap-sm mb-lg px-xs">
+<div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-white overflow-hidden">
+<img alt="Selected pet avatar" data-alt="A charming close-up portrait of a Golden Retriever named Buddy, looking directly at the camera with a gentle and happy expression. The dog has soft, golden fur and bright eyes. The background is a soft-focus interior with natural morning light, maintaining a warm yet clean and professional aesthetic consistent with a premium pet care dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9iHavTvP9bsx199HTCov-iaYnuTi4NsrcwkZ0QSEfHRHGiia_Qkz7MsLcFoVkSdbivn6BAPgjincUncep6cHF_skUDAPi8p1GooOan_6LCRQXaFMoqNBN8E_wFhh0Zj_h-Zn9Nqk16iR-ZFFCIs-A5LR_Ngw-fuGaiMOAwd7QUtzqbHkBTdbiTyq35kjZjKNdH5s7YikOzvYzq1HlYAkNzMcpo2X2kAPTPfUla8whK8Ug8aqghXqEGmHRJnZ22cpeVihY-jiAyqdP"/>
+</div>
+<div>
+<div class="font-headline-md text-primary">Buddy</div>
+<div class="text-label-sm text-on-surface-variant">Golden Retriever</div>
+</div>
+</div>
+<div class="space-y-base">
+<a class="flex items-center gap-sm px-md py-sm bg-primary-container text-on-primary-container rounded-lg transition-transform active:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="monitor_heart">monitor_heart</span>
+<span>Health Tracker</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_ind">assignment_ind</span>
+<span>Pet Passport</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span>Community</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span>AI Assistant</span>
+</a>
+</div>
+<button class="mt-lg w-full bg-primary text-on-primary py-sm rounded-xl font-label-md hover:opacity-90 transition-opacity">
+                Add New Pet
+            </button>
+<div class="mt-auto space-y-base border-t border-outline-variant/10 pt-lg">
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 p-margin-desktop max-w-[1280px]">
+<!-- Hero Bento Section -->
+<div class="grid grid-cols-12 gap-gutter mb-xl">
+<!-- Pet Profile Hero -->
+<div class="col-span-8 bg-surface-container-lowest rounded-xl p-xl flex gap-xl items-center card-shadow overflow-hidden relative border border-outline-variant/10">
+<div class="relative z-10 flex-1">
+<span class="bg-primary-container/10 text-primary px-sm py-1 rounded-full text-label-sm mb-sm inline-block">Active Status</span>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Cooper</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-lg">Golden Retriever • 3 years old • Male</p>
+<div class="flex gap-md">
+<button class="bg-primary text-white px-lg py-md rounded-xl font-label-md flex items-center gap-xs active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">calendar_today</span>
+                                Schedule Vet
+                            </button>
+<button class="text-primary font-label-md flex items-center gap-xs hover:bg-surface-container-high px-lg py-md rounded-xl transition-colors">
+<span class="material-symbols-outlined">share</span>
+                                Export Records
+                            </button>
+</div>
+</div>
+<div class="w-64 h-64 rounded-2xl overflow-hidden shadow-xl border-4 border-white">
+<img alt="Cooper Golden Retriever" data-alt="A full-length, high-resolution portrait of a beautiful Cooper the Golden Retriever sitting gracefully in a bright, sun-drenched modern living room. The dog's coat is lustrous and golden, and he has a soft, attentive gaze. The environment is minimalist with light wood floors and clean white walls, perfectly reflecting a premium, light-mode lifestyle pet care brand. Lighting is soft and natural." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1SZTMWPWDIN0AVLu69M1CNJD43OTvxLfl60vFCiIcI7AZgXPxVPBjw-Tpn3JoHpljy6H3PSS13rsG-VPu_7hpurG0_FgstPEPez-ZqYo9seUIBLP-pqmjLi5NBvu6_1loGvYGqJa0XGm0rbWgPghO9chfEm-fLo3yl8B_Jds7oSG5QQfn4kjvo6n9gAljgL92CYi5-GZdjs-psSEYiBpXgWp_9KQtVwaetoWBx0hYRRh4h3X0MMsEGpovQrPTK6-mWmgmzGpL4WXZ"/>
+</div>
+</div>
+<!-- Health Summary Card -->
+<div class="col-span-4 bg-primary text-white rounded-xl p-xl card-shadow flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-lg">
+<h2 class="font-headline-md text-headline-md">Health Vitals</h2>
+<span class="material-symbols-outlined text-white/60">trending_up</span>
+</div>
+<div class="space-y-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined bg-white/10 p-xs rounded-lg">scale</span>
+<span class="text-label-md">Weight</span>
+</div>
+<span class="font-headline-md">32.4<small class="text-label-sm ml-1 opacity-80">kg</small></span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined bg-white/10 p-xs rounded-lg">favorite</span>
+<span class="text-label-md">Heart Rate</span>
+</div>
+<span class="font-headline-md">78<small class="text-label-sm ml-1 opacity-80">bpm</small></span>
+</div>
+</div>
+</div>
+<div class="pt-lg border-t border-white/10 text-label-sm text-white/80">
+                        Last synced: 14 mins ago
+                    </div>
+</div>
+</div>
+<!-- Routine & Activity Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Daily Routine Checklist -->
+<div class="col-span-4 bg-surface-container-lowest rounded-xl p-lg card-shadow border border-outline-variant/10">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md">Daily Routine</h3>
+<span class="text-primary text-label-sm font-bold">2/3 Done</span>
+</div>
+<div class="space-y-sm">
+<div class="flex items-center gap-md p-md bg-surface-container-low rounded-xl border border-primary-container/20">
+<div class="w-6 h-6 rounded bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-on-surface line-through opacity-50">Morning Meal</p>
+<p class="text-label-sm text-on-surface-variant">08:00 AM</p>
+</div>
+</div>
+<div class="flex items-center gap-md p-md bg-surface-container-low rounded-xl border border-primary-container/20">
+<div class="w-6 h-6 rounded bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-on-surface line-through opacity-50">Heartworm Pill</p>
+<p class="text-label-sm text-on-surface-variant">Monthly Dose</p>
+</div>
+</div>
+<div class="flex items-center gap-md p-md bg-white rounded-xl border border-outline-variant/20">
+<div class="w-6 h-6 rounded border-2 border-outline-variant"></div>
+<div class="flex-1">
+<p class="font-label-md text-on-surface">Afternoon Walk</p>
+<p class="text-label-sm text-on-surface-variant">04:00 PM</p>
+</div>
+<span class="material-symbols-outlined text-primary">directions_run</span>
+</div>
+</div>
+<button class="w-full mt-lg text-primary font-label-md py-sm hover:bg-surface-container transition-colors rounded-lg">View All Routine</button>
+</div>
+<!-- Recent Activity Log with Map -->
+<div class="col-span-8 bg-surface-container-lowest rounded-xl p-lg card-shadow border border-outline-variant/10">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md">Recent Activity</h3>
+<button class="text-on-surface-variant text-label-sm flex items-center gap-xs">See Full History <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+<div class="bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/10">
+<div class="flex flex-col md:flex-row">
+<div class="p-lg flex-1">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">park</span>
+</div>
+<div>
+<p class="font-label-md text-on-surface">Park Walk</p>
+<p class="text-label-sm text-on-surface-variant">Today, 10:30 AM • Central Park</p>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-md mb-lg">
+<div class="bg-white p-sm rounded-lg border border-outline-variant/10">
+<p class="text-label-sm text-on-surface-variant">Duration</p>
+<p class="font-bold text-on-surface">45 min</p>
+</div>
+<div class="bg-white p-sm rounded-lg border border-outline-variant/10">
+<p class="text-label-sm text-on-surface-variant">Distance</p>
+<p class="font-bold text-on-surface">2.4 km</p>
+</div>
+<div class="bg-white p-sm rounded-lg border border-outline-variant/10">
+<p class="text-label-sm text-on-surface-variant">Calories</p>
+<p class="font-bold text-on-surface">180 kcal</p>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant italic">"Cooper was very energetic today and made several new friends near the fountain."</p>
+</div>
+<div class="w-full md:w-64 h-48 md:h-auto overflow-hidden relative">
+<img alt="Map of walk in Central Park" class="w-full h-full object-cover" data-alt="A clean, minimalist digital map rendering of New York City's Central Park, showcasing a winding GPS track in vibrant Puppy Blue. The map features elegant, high-contrast cartography with soft grays for paths and subtle greens for lawns. The style is sophisticated and modern, reflecting a premium health tracking interface with high-key lighting and a professional, light-mode aesthetic." data-location="New York Central Park" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBioZt-5AHvEuba9YnsSn50VEeXvLKIVCAWf72jlhmgQgjLFZL4jh6eJ_HRQE6R_U6cEia_0hVC32--ngM8rFiZwul_sS8eQdKZQbrlXQBQ754EIYEM_--5WpJzlOoGGzBPvpTd38D1k_8pstRgHdmM4LJ4h3eYlO_JZVZ1Lw7v5A2LC05VlP5ujwFOUP6AmrWOuzl5lEjgg8G3wSscVg6bQ4okAvDQ_e8YyJLf4Zy6g0KoRRXkzD-o4_wKwxLjycSye4hBY4jTD0FB"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface-container-low to-transparent md:block hidden w-12"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Floating Action Button Contextual -->
+<button class="fixed bottom-xl right-xl w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center active:scale-95 group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">add</span>
+</button>
+</body></html>

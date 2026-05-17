@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog Community - Discover Groups</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#a4c9ff",
+                    "primary-container": "#4d93e5",
+                    "surface": "#111316",
+                    "on-secondary-fixed-variant": "#5f4100",
+                    "on-error-container": "#ffdad6",
+                    "on-error": "#690005",
+                    "surface-container-low": "#1a1c1f",
+                    "on-primary-fixed-variant": "#004883",
+                    "primary": "#a4c9ff",
+                    "tertiary-fixed-dim": "#ffb953",
+                    "secondary-fixed-dim": "#ffba35",
+                    "surface-container-highest": "#333538",
+                    "on-secondary": "#422c00",
+                    "on-primary": "#00315d",
+                    "on-tertiary-fixed": "#291800",
+                    "on-primary-fixed": "#001c39",
+                    "inverse-primary": "#0060ac",
+                    "inverse-on-surface": "#2f3034",
+                    "error-container": "#93000a",
+                    "on-surface": "#e2e2e6",
+                    "secondary": "#ffd798",
+                    "on-secondary-fixed": "#281900",
+                    "on-secondary-container": "#6a4800",
+                    "surface-container-high": "#282a2d",
+                    "on-primary-container": "#002a51",
+                    "on-background": "#e2e2e6",
+                    "tertiary-container": "#c58305",
+                    "outline-variant": "#414751",
+                    "on-tertiary": "#452b00",
+                    "on-tertiary-container": "#3c2500",
+                    "surface-bright": "#37393d",
+                    "outline": "#8b919d",
+                    "primary-fixed": "#d4e3ff",
+                    "background": "#111316",
+                    "on-tertiary-fixed-variant": "#633f00",
+                    "inverse-surface": "#e2e2e6",
+                    "surface-container-lowest": "#0c0e11",
+                    "surface-tint": "#a4c9ff",
+                    "tertiary": "#ffb953",
+                    "tertiary-fixed": "#ffddb4",
+                    "secondary-fixed": "#ffdeac",
+                    "surface-dim": "#111316",
+                    "surface-variant": "#333538",
+                    "error": "#ffb4ab",
+                    "surface-container": "#1e2023",
+                    "on-surface-variant": "#c1c7d3",
+                    "secondary-container": "#feb300"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "margin-desktop": "48px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #121417;
+            color: #e2e2e6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar Shell -->
+<header class="bg-surface dark:bg-surface border-b border-white/10 shadow-sm flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 sticky top-0 z-50">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center border-2 border-primary overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A professional, high-resolution portrait of a friendly Golden Retriever looking directly into the camera. The background is a soft-focus urban park in New York City with cinematic evening lighting. The image has a premium, tactile feel with deep blacks and rich golden fur textures, fitting a corporate modern dark mode interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB27L4_SsiAFsXzV4tNjNY2FJHBbCSYkAUCiVax0aseETnAYZTSSqJL1aFUma_XRtG1-5Fu-XBM7bV_G00-orTHzLbtwVKnOk-gj_r6WhyWRxqQKenZ-7AS0e487BYeYcAjohCr4twyf6OYOf5gp21Om4Bi5Rsa1PmI2cG68ZQeOYvW3j00tjhzEDrhCHCS68l2R5ncWhrzWG7LeqktWSFMoFyvt5zIjztE1zbYQHFK2MU78Q1jEhakig96T76smVHkPmwejJFv_mCv"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">eDog Community</span>
+</div>
+<button class="material-symbols-outlined text-primary dark:text-primary p-2 hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors rounded-full active:scale-95 duration-200">
+            notifications
+        </button>
+</header>
+<main class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Hero Section / Search -->
+<section class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg mb-md">Find Your Pack</h1>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container text-on-surface border-none rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary transition-all duration-300 placeholder:text-on-surface-variant/50" placeholder="Search for 'NYC Goldens' or 'Hiking'..." type="text"/>
+</div>
+</section>
+<!-- Categories Bento Grid -->
+<section class="mb-xl">
+<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-md">Discover by Category</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="glass-card p-lg rounded-xl flex items-center justify-between hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<div>
+<p class="font-label-md text-label-md">Breed Specific</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">42 Active Groups</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="glass-card p-lg rounded-xl flex items-center justify-between hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">map</span>
+</div>
+<div>
+<p class="font-label-md text-label-md">Location Based</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Nearby your area</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="glass-card p-lg rounded-xl flex items-center justify-between hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">fitness_center</span>
+</div>
+<div>
+<p class="font-label-md text-label-md">Activity Focused</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Hiking &amp; Agility</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Recommended Groups Grid -->
+<section>
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Top Local Groups</h2>
+<button class="font-label-md text-label-md text-primary flex items-center gap-xs">See All <span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Group Card 1 -->
+<div class="bg-surface-container rounded-xl overflow-hidden border border-white/10 hover:shadow-2xl transition-all group active:scale-[0.98]">
+<div class="h-40 relative overflow-hidden">
+<img alt="NYC Goldens" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="A wide panoramic shot of several happy Golden Retrievers running together through Central Park, NYC. The scene is bathed in golden hour sunlight, creating long shadows and high contrast. The image is crisp, detailed, and perfectly integrated into a dark-themed UI, focusing on the vibrant energy and bond between the dogs." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYYJgQhlEwHOqV9_sJaOUu2oHab4pSBsfiLVWUPTcrwnanIN8mIMHQGcYVfuB4U_PNXR5Eh9YxiVx0uMz1EnRYoITUnq4pgCh1Y6qL3CcnqvNdpm_HPmh0LjupAl5gFSEbCJMvxwhQxcMYlkPVpVGStNF6r_dfbrxE0q8l9EQgsDf-fNPOp7yoT1YFDBr3K7j0txicFiUHC3_l_q0EK4Dc43rpSeM9YCvPIQOmWdO_xc1elnE_1_gH0EQUyL5Ju_83bkfZUtVFMb1-"/>
+<div class="absolute top-3 left-3 bg-primary/90 text-on-primary px-3 py-1 rounded-full text-label-sm font-label-sm">Top Rated</div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-md text-headline-md mb-xs">NYC Goldens</h3>
+<div class="flex items-center gap-sm text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span class="font-label-sm text-label-sm">1.2k Members</span>
+<span class="w-1 h-1 rounded-full bg-on-surface-variant/30"></span>
+<span class="font-label-sm text-label-sm">Manhattan, NY</span>
+</div>
+<div class="flex gap-sm mb-lg">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px] font-medium">Breed Specific</span>
+<span class="bg-white/5 text-on-surface-variant px-3 py-1 rounded-full text-[12px] font-medium">Weekly Meetups</span>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all">Join Group</button>
+</div>
+</div>
+<!-- Group Card 2 -->
+<div class="bg-surface-container rounded-xl overflow-hidden border border-white/10 hover:shadow-2xl transition-all group active:scale-[0.98]">
+<div class="h-40 relative overflow-hidden">
+<img alt="Puppy Playdates" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="A group of various small breed puppies playing together in a bright, modern indoor training facility. The lighting is soft and professional, highlighting the diverse textures of their fur. The setting is clean and high-tech, reflecting a premium digital concierge service aesthetic with deep shadows and vibrant subject detail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4DEMGM9qVTSOaxyFZlfmuyO6GSDXvqwXvIqJ8eYMmwY-1aELEZlyBuhMQo-d19NJte1kizvWrgyGX9LLDLknESAJLklLqpq_JG92rpmLycTcQ7n54RhYiYDDV3yD1SehkzhwB7dWRpkgK3eeoQCgV13Jt57tEsxZ5GE6Uqz1nkfuWDZkh7AKhdh2zf3yUfRUGrK_HwlIWH4uX_o783qJca20S7tkMtFRfsoZyo105AlNGkjUjG5AVHFxQXiCyb9Z2CiMzBYzZz953"/>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-md text-headline-md mb-xs">Puppy Playdates</h3>
+<div class="flex items-center gap-sm text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span class="font-label-sm text-label-sm">840 Members</span>
+<span class="w-1 h-1 rounded-full bg-on-surface-variant/30"></span>
+<span class="font-label-sm text-label-sm">Brooklyn, NY</span>
+</div>
+<div class="flex gap-sm mb-lg">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px] font-medium">Socializing</span>
+<span class="bg-white/5 text-on-surface-variant px-3 py-1 rounded-full text-[12px] font-medium">Indoor Space</span>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all">Join Group</button>
+</div>
+</div>
+<!-- Group Card 3 -->
+<div class="bg-surface-container rounded-xl overflow-hidden border border-white/10 hover:shadow-2xl transition-all group active:scale-[0.98]">
+<div class="h-40 relative overflow-hidden">
+<img alt="Alpine Agility" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="An energetic Border Collie jumping through a hoop at an outdoor agility course during sunrise. The background features misty mountains and lush green grass. The image has a cinematic feel with high-contrast lighting, capturing water droplets and motion blur, perfectly aligned with a professional, tactile pet lifestyle brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1KGkJiS48UxwsGNjHxPB25Fm8wvDoWdCECNDJ4NYOdn3wL64YH8MGEQPXkrezUDw5zuBsbS28KYge1TtUtkcsOK6DqNvdrNFm4LaxO4bbiF8i4ooUotnHpyhr5PSU9n2v-IMLf9Nj2rM3moJKtgciiUhSdHjNcCrDn2_FsGcG9vRhQGFWVp0MtoccXgQYE_iZ5H9NgiAlci9TjHfeX5fWKHWPEWv7abfIY_a9N7cbnHMksto6v_23i9_hMhXEAegMSig2D2PWR7Qd"/>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-md text-headline-md mb-xs">Alpine Agility</h3>
+<div class="flex items-center gap-sm text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span class="font-label-sm text-label-sm">310 Members</span>
+<span class="w-1 h-1 rounded-full bg-on-surface-variant/30"></span>
+<span class="font-label-sm text-label-sm">Queens, NY</span>
+</div>
+<div class="flex gap-sm mb-lg">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px] font-medium">Activity Focused</span>
+<span class="bg-white/5 text-on-surface-variant px-3 py-1 rounded-full text-[12px] font-medium">Pro Trainers</span>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all">Join Group</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="bg-surface-container dark:bg-surface-container border-t border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.4)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined">rss_feed</span>
+<span class="font-label-sm text-label-sm">Feed</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-xl px-4 py-1 active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-sm text-label-sm">Groups</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined">forum</span>
+<span class="font-label-sm text-label-sm">Forums</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</nav>
+</body></html>

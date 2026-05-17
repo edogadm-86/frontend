@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PawsomeCare Community Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #111316;
+            color: #e2e2e6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111316;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #414751;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#2f3034",
+                        "surface-container-lowest": "#0c0e11",
+                        "surface-variant": "#333538",
+                        "primary-container": "#4d93e5",
+                        "on-secondary-container": "#6a4800",
+                        "on-tertiary-container": "#3c2500",
+                        "on-tertiary": "#452b00",
+                        "surface-bright": "#37393d",
+                        "on-tertiary-fixed-variant": "#633f00",
+                        "on-primary-container": "#002a51",
+                        "primary-fixed": "#d4e3ff",
+                        "on-primary": "#00315d",
+                        "secondary-container": "#feb300",
+                        "inverse-primary": "#0060ac",
+                        "on-background": "#e2e2e6",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed": "#ffddb4",
+                        "secondary-fixed-dim": "#ffba35",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "tertiary": "#ffb953",
+                        "inverse-surface": "#e2e2e6",
+                        "on-secondary": "#422c00",
+                        "surface": "#111316",
+                        "outline-variant": "#414751",
+                        "tertiary-fixed-dim": "#ffb953",
+                        "primary": "#a4c9ff",
+                        "surface-container-high": "#282a2d",
+                        "surface-container": "#1e2023",
+                        "outline": "#8b919d",
+                        "tertiary-container": "#c58305",
+                        "surface-container-low": "#1a1c1f",
+                        "on-surface": "#e2e2e6",
+                        "on-secondary-fixed": "#281900",
+                        "secondary": "#ffd798",
+                        "on-secondary-fixed-variant": "#5f4100",
+                        "surface-container-highest": "#333538",
+                        "on-tertiary-fixed": "#291800",
+                        "on-primary-fixed-variant": "#004883",
+                        "error-container": "#93000a",
+                        "surface-dim": "#111316",
+                        "secondary-fixed": "#ffdeac",
+                        "on-primary-fixed": "#001c39",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "surface-tint": "#a4c9ff",
+                        "background": "#111316",
+                        "on-surface-variant": "#c1c7d3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xl": "32px",
+                        "margin-desktop": "48px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen selection:bg-primary/30 selection:text-primary">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-lg md:px-margin-desktop max-w-full w-full h-16 bg-surface dark:bg-inverse-surface shadow-sm">
+<div class="flex items-center gap-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">PawsomeCare</h1>
+<div class="hidden md:flex items-center bg-surface-container rounded-full px-md py-xs border border-outline-variant/30">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md text-on-surface-variant w-64 placeholder:text-outline" placeholder="Search community..." type="text"/>
+</div>
+</div>
+<nav class="hidden md:flex gap-lg items-center">
+<a class="text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary py-sm" href="#">Feed</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-high transition-colors px-md py-sm rounded-lg" href="#">Explore</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-high transition-colors px-md py-sm rounded-lg" href="#">Clubs</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-sm rounded-full transition-all">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-sm rounded-full transition-all">settings</button>
+<img alt="User Profile Avatar" class="w-10 h-10 rounded-full border-2 border-primary object-cover" data-alt="A professional headshot of a smiling man in his early 30s with a warm expression, set against a blurred urban architectural background. The lighting is soft and cinematic, emphasizing high-end photographic quality. The overall aesthetic is clean, professional, and corporate modern, perfectly fitting a premium concierge service platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAme7oK9iwAa_96pPXR9bdYLjZVUM5uCF5X9Qnhy0_yIxpkzCkWR2KD_bXYfTyLl2nFE9Tz0v8HZL4QATSjin2hQPf4x7wD4JiZWLrrlibJsSeyEmDZXbqXDlICY1R8vOhgm1wlW0sJN7pLExnZ9R8fiqZHR0VJ32kpmpnEKYdNHNh4lasZDPR04_cincSCBosUtcjFXyn1HWzgWnSuSv37o6TVE_gzOtT0FNmFXrfrFAl5j007yVzKCTpaXsVL_LxAOER1wpGFovjf"/>
+</div>
+</header>
+<div class="flex max-w-[1440px] mx-auto min-h-[calc(100vh-64px)]">
+<!-- SideNavBar (Left) -->
+<aside class="hidden lg:flex flex-col w-64 p-md gap-base bg-surface-container-low dark:bg-surface-container-lowest sticky top-16 h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar">
+<div class="mb-lg">
+<p class="font-label-md text-label-md uppercase tracking-wider text-outline mb-sm px-sm">Primary</p>
+<nav class="flex flex-col gap-sm">
+<a class="flex items-center gap-sm bg-primary-container text-on-primary-container rounded-lg p-sm font-bold active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest dark:hover:bg-tertiary-container rounded-lg transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-md text-label-md">Health Records</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest dark:hover:bg-tertiary-container rounded-lg transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined">Prescription</span>
+<span class="font-label-md text-label-md">Pet Passport</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest dark:hover:bg-tertiary-container rounded-lg transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Logs</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant dark:text-on-tertiary-fixed-variant p-sm hover:bg-surface-container-highest dark:hover:bg-tertiary-container rounded-lg transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-md text-label-md">AI Assistant</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-md bg-surface-container-high rounded-xl border border-outline-variant/20">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md font-bold text-secondary">Premium Concierge</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Access 24/7 vet support and priority care.</p>
+<button class="mt-md w-full bg-primary text-on-primary py-sm rounded-lg font-label-md text-label-md active:scale-95 transition-transform">Upgrade Now</button>
+</div>
+</aside>
+<!-- Main Content (Feed) -->
+<main class="flex-1 px-lg py-lg bg-background">
+<div class="max-w-[720px] mx-auto space-y-lg">
+<!-- Create Post Card -->
+<div class="bg-surface-container p-lg rounded-xl border border-outline-variant/10 shadow-sm">
+<div class="flex gap-md">
+<img alt="Avatar" class="w-12 h-12 rounded-full object-cover border border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEFveHj9ns6vymPmzQTRDdxqVVoYn9v_RK35fiO4e7Re3F3EsLBL9Tg6pMFpuK9KGdL2mSg1E5vPSUAt7LsT3VDhK8HxjYttmaHMrqKBa_vtUKWDZwJI4IxjVJFbMcNzNVtiiVi04ni-Hgv-KUbcY_RQPemL4gvpBOe2KJ_h_cCySWjF1-qJiPkKlwOeJjpd2kEiQ0hxELXvujrHlyDOM_LZ_f-PLnWWKaOyHiISj3eIpIxedjq613wLQNl5toLle5uOG4H7K8CyM9"/>
+<div class="flex-1">
+<textarea class="w-full bg-surface-container-low border-none focus:ring-0 text-on-surface placeholder:text-outline rounded-lg p-md min-h-[100px] resize-none font-body-md" placeholder="Share a pup-date or ask for advice..."></textarea>
+</div>
+</div>
+<div class="flex items-center justify-between mt-md pt-md border-t border-outline-variant/10">
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-md py-sm rounded-full hover:bg-surface-container-high transition-colors text-primary">
+<span class="material-symbols-outlined text-[20px]">image</span>
+<span class="font-label-md text-label-md">Photo</span>
+</button>
+<button class="flex items-center gap-xs px-md py-sm rounded-full hover:bg-surface-container-high transition-colors text-secondary">
+<span class="material-symbols-outlined text-[20px]">location_on</span>
+<span class="font-label-md text-label-md">Check-in</span>
+</button>
+<button class="flex items-center gap-xs px-md py-sm rounded-full hover:bg-surface-container-high transition-colors text-tertiary">
+<span class="material-symbols-outlined text-[20px]">mood</span>
+<span class="font-label-md text-label-md">Activity</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary px-xl py-sm rounded-full font-label-md text-label-md font-bold shadow-lg hover:shadow-primary/20 transition-all active:scale-95">Post</button>
+</div>
+</div>
+<!-- Feed Post 1: Image Grid Layout -->
+<article class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm">
+<div class="p-lg flex items-center justify-between">
+<div class="flex items-center gap-md">
+<img alt="User" class="w-12 h-12 rounded-full object-cover border-2 border-secondary" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeLaoqwk56qp2kTa4LzSmQZHYoubRDZQOgaWkcBQDrQt7Fj6vCDmZTQlTWr8TBwPwdrVgHAyJEyQqpYvvsL9sr1zOU6_hOFFT0cpWdLjX4kQ-B7EDRheV1OA4eWT_V0ozqcS-UNRZHq712WcJ3-LdlrJyxqHrGOvC7hbaqWPDbmCGNehlf_5eHo3VQ1qFp5j1oLPg5A1n-Dn1LbyGJf5RFDtNUVv9Bs1ENgmLYgsXt37rJcfPdiuUI4SrPi0Iju_prs0M845Ndulm_"/>
+<div>
+<h3 class="font-label-md text-label-md font-bold text-on-surface">Sarah Mitchell</h3>
+<p class="text-label-sm font-label-sm text-outline flex items-center gap-xs">
+                                    2 hours ago • <span class="material-symbols-outlined text-[14px]">public</span>
+</p>
+</div>
+</div>
+<button class="material-symbols-outlined text-outline">more_horiz</button>
+</div>
+<div class="px-lg pb-md">
+<p class="font-body-md text-on-surface-variant mb-md">Cooper finally mastered the 'stay' command today! Celebration at the park this afternoon. 🎾🦴</p>
+</div>
+<div class="grid grid-cols-2 gap-xs">
+<div class="aspect-square">
+<img class="w-full h-full object-cover" data-alt="A high-resolution close-up of a happy Golden Retriever sitting patiently in a sun-drenched green meadow. The lighting is warm and golden, capturing the fine texture of its fur and the joyful glint in its eyes. The background is a soft, cinematic blur of spring flowers, maintaining a premium, high-tech aesthetic typical of a professional digital pet concierge service." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6he945zfvpXzlWu-8sDUrxHbuBEn7ylPQqBTAsHTLwJGF_VR9i-u0AUwWHWFnWITafe5HyhD-y4Ehlk261QF3fj4frlbxObl1KTdqyDyd17W0fZ0HcO72ikvXN9vBfM68Frfj8Q5l7ndH4Vez3pGEow02swlU_7S0EFsYSz7EEDIFi1-uJ6BqeEzm0Fu0xEWWQSvj8nTof4tr_heCE3v8LTtwUDmfXFls7WSkfRjhnYy_JpxllKaGPopgztSWqM9B9sauvEuy8yA4"/>
+</div>
+<div class="aspect-square">
+<img class="w-full h-full object-cover" data-alt="A candid lifestyle shot of a Golden Retriever running joyfully through a vibrant public park. The scene is captured with professional motion blur in the background and crisp focus on the dog's expressive face. The color palette is rich with natural greens and earthy tones, balanced by a clean, modern dark-mode interface aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjI_wl5A0U6eSM0eWrvkWd3saRQpHTBAryoo8400jN2Y9T7rbvOxTAZQ2_P-dmto8AsIWNwMM6kgCFaTVGjm358bhljemYDpDKAMoKMD1q7Tnh0gu-ZRU7ronnhJUQrXt114bbuU07lVvI79k6IqYWoh7ibf52hPIVP-N_7aZjYJ6yqNX_wIFXRPijVOOqdc7b1mOhhbtq2Sjuzt0OV_Ueychjcre9H9bMeJCgQGrcbqc6qFYHP9K2ARMMq7XStQW_AzelQprd9pw9"/>
+</div>
+</div>
+<div class="p-md flex items-center justify-between">
+<div class="flex items-center -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center border border-surface">
+<span class="material-symbols-outlined text-[14px] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center border border-surface">
+<span class="material-symbols-outlined text-[14px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">thumb_up</span>
+</div>
+<span class="pl-md text-label-sm font-label-sm text-outline">You, Leo and 142 others</span>
+</div>
+<div class="text-label-sm font-label-sm text-outline">24 Comments • 8 Shares</div>
+</div>
+<div class="px-md pb-md flex border-t border-outline-variant/10 pt-sm">
+<button class="flex-1 flex items-center justify-center gap-xs py-sm hover:bg-surface-container-high rounded-lg transition-colors text-outline hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+<span class="font-label-md text-label-md">Like</span>
+</button>
+<button class="flex-1 flex items-center justify-center gap-xs py-sm hover:bg-surface-container-high rounded-lg transition-colors text-outline hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="font-label-md text-label-md">Comment</span>
+</button>
+<button class="flex-1 flex items-center justify-center gap-xs py-sm hover:bg-surface-container-high rounded-lg transition-colors text-outline hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span class="font-label-md text-label-md">Share</span>
+</button>
+</div>
+</article>
+<!-- Feed Post 2: Activity Update Card -->
+<article class="bg-surface-container rounded-xl p-lg border border-outline-variant/10 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="flex items-center gap-md mb-md">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[28px]">directions_run</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md font-bold text-on-surface">Daily Goal Achieved!</h3>
+<p class="text-label-sm font-label-sm text-outline">Luna reached her 5km movement goal.</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-lg mb-md border border-outline-variant/5">
+<div class="flex items-end justify-between mb-sm">
+<span class="text-display-lg font-display-lg text-primary leading-none">5.2<span class="text-headline-md font-headline-md text-outline ml-xs">km</span></span>
+<div class="text-right">
+<p class="text-label-sm font-label-sm text-outline uppercase tracking-wider">Duration</p>
+<p class="font-label-md text-label-md text-on-surface">48 mins</p>
+</div>
+</div>
+<div class="h-2 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 104%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex gap-sm">
+<span class="bg-primary/10 text-primary px-sm py-xs rounded text-label-sm font-label-sm">High Intensity</span>
+<span class="bg-secondary/10 text-secondary px-sm py-xs rounded text-label-sm font-label-sm">Cardio</span>
+</div>
+<button class="text-primary font-label-md text-label-md hover:underline">View Map</button>
+</div>
+</article>
+</div>
+</main>
+<!-- Right Side Panel (Stats & Suggestions) -->
+<aside class="hidden xl:flex flex-col w-80 p-lg gap-lg bg-background border-l border-outline-variant/10 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar">
+<!-- Community Stats Card -->
+<section class="bg-surface-container p-lg rounded-xl border border-outline-variant/10">
+<h2 class="font-label-md text-label-md font-bold text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">analytics</span>
+                    Community Pulse
+                </h2>
+<div class="space-y-md">
+<div class="flex justify-between items-center">
+<span class="text-body-md text-on-surface-variant">Active Pawrents</span>
+<span class="font-label-md text-label-md text-primary font-bold">12.4k</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-body-md text-on-surface-variant">Ongoing Events</span>
+<span class="font-label-md text-label-md text-secondary font-bold">8</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-body-md text-on-surface-variant">Top Breed Today</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">Beagle</span>
+</div>
+</div>
+</section>
+<!-- Trending Clubs -->
+<section class="bg-surface-container p-lg rounded-xl border border-outline-variant/10">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-label-md text-label-md font-bold text-on-surface">Trending Clubs</h2>
+<button class="text-primary text-label-sm font-label-sm hover:underline">See all</button>
+</div>
+<div class="space-y-md">
+<div class="flex items-center gap-md group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container flex items-center justify-center text-on-tertiary-container group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">hiking</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">Mountain Mutts</p>
+<p class="text-label-sm font-label-sm text-outline">2.1k members</p>
+</div>
+</div>
+<div class="flex items-center gap-md group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">Raw Foodies</p>
+<p class="text-label-sm font-label-sm text-outline">840 members</p>
+</div>
+</div>
+<div class="flex items-center gap-md group cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">stadium</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">Agility Masters</p>
+<p class="text-label-sm font-label-sm text-outline">3.4k members</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Suggested Friends -->
+<section class="bg-surface-container p-lg rounded-xl border border-outline-variant/10">
+<h2 class="font-label-md text-label-md font-bold text-on-surface mb-md">Suggested for you</h2>
+<div class="space-y-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-md">
+<img alt="User" class="w-10 h-10 rounded-full object-cover" data-alt="A professional studio portrait of a middle-aged man with kind eyes and a groomed beard, lit with high-key three-point lighting. The background is a solid deep charcoal gray, emphasizing the crisp detail and premium photographic quality. The aesthetic is sophisticated, corporate, and fits perfectly into a luxury lifestyle digital ecosystem." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDs6itqIP2w5OvEFnJDopuvJzuP54bYHohjsiR7oD9Wrpzi9hu0o14mNLF-E59abgobzFy61UE4Jn7uDn1TfZE1_30KppaOvpOiBpQjFs7lWYWAyv6P2bogKXDSa7E_J2ErQ4KHQKNhsR-ohGHE2fluyfShyxa-1Rwmkmwt45Lq3BD1K79C2l41QzMHj5o28p0cmzAi5NQKCB8tgksSjroDk0NkVnQfXlKgdcuEFxTEl_zD6jvcpKYTqc_K5MFgf8qYzMXh7Onw6QWe"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Mark Davies</p>
+<p class="text-label-sm font-label-sm text-outline">Near Downtown</p>
+</div>
+</div>
+<button class="bg-primary/10 text-primary p-sm rounded-full hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-md">
+<img alt="User" class="w-10 h-10 rounded-full object-cover" data-alt="A high-end cinematic close-up of a woman with a confident, friendly smile, looking towards the camera. The lighting is bright and natural, as if taken during a clear day in a modern urban garden. The color grading is warm and polished, maintaining the professional dark-mode brand identity of the platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt-dEDIaea4Fm4V1k5ID4gfr7ml5rlW5PwnF6ngnPsqY6ySqd5D8kDYkZGkvqhpDyg9v-fhFMNTiNpxJEbI_ThVYejyRFSE8-XubzQn8lxWG91uNc86lyL-dNo9Tm7j9oD6Kj_9JE4v1GreG7f_PMIep0gvmUIVaHbXb4UhQfzN0HeGrich_ONFromLCwsO11RIdoVYRQHCRhMo-KOA3vzYXyy8uXxsFM6Mc5c_1Q0R7yT5SoMquuBCjZVt6fJteoFXH_gaMBDMOdZ"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Elena Rossi</p>
+<p class="text-label-sm font-label-sm text-outline">Poodle Owner</p>
+</div>
+</div>
+<button class="bg-primary/10 text-primary p-sm rounded-full hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+</button>
+</div>
+</div>
+</section>
+<footer class="text-label-sm font-label-sm text-outline/50 space-x-md text-center mt-auto">
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+<a class="hover:text-primary transition-colors" href="#">Cookies</a>
+<div class="mt-xs">© 2024 PawsomeCare</div>
+</footer>
+</aside>
+</div>
+</body></html>

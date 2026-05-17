@@ -295,6 +295,25 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     return this.request(`/posts/${postId}/like`, { method: 'POST' });
   }
 
+  async deletePost(postId: string) {
+    return this.request(`/posts/${postId}`, { method: 'DELETE' });
+  }
+
+  async reportPost(postId: string, reason: string) {
+    return this.request(`/posts/${postId}/report`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async getMyPosts() {
+    return this.request<{ posts: any[] }>('/posts/my-posts');
+  }
+
+  async getTrendingTags() {
+    return this.request<{ tags: { tag: string; count: number }[] }>('/posts/trending-tags');
+  }
+
   // Events endpoints
   async getEvents(params?: { page?: number; limit?: number; type?: string; location?: string }) {
     const queryParams = new URLSearchParams();
@@ -341,6 +360,15 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     if (metadata.documentType) formData.append('documentType', metadata.documentType);
 
     return this.request<{ document: any; fileUrl: string }>('/uploads/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request<{ fileUrl: string }>('/uploads/image', {
       method: 'POST',
       body: formData,
     });

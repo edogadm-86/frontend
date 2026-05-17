@@ -1,9 +1,10 @@
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../config/database';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, optionalAuth } from '../middleware/auth';
 import { AuthRequest } from '../types';
 import { body, validationResult } from 'express-validator';
+import { broadcastLostDogAlert } from '../services/pushService';
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ const router = express.Router();
 const validatePost = [
   body('title').trim().isLength({ min: 1, max: 255 }).withMessage('Title is required and must be less than 255 characters'),
   body('content').trim().isLength({ min: 1 }).withMessage('Content is required'),
-  body('post_type').isIn(['story', 'question', 'tip', 'event', 'photo', 'video']).withMessage('Invalid post type'),
+  body('post_type').isIn(['story', 'question', 'tip', 'event', 'photo', 'video', 'lost_dog']).withMessage('Invalid post type'),
 ];
 
 const validateRequest = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -22,20 +23,42 @@ const validateRequest = (req: express.Request, res: express.Response, next: expr
   next();
 };
 
+// Trending tags (must be before /:id routes)
+router.get('/trending-tags', async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT tag, COUNT(*)::int AS count
+      FROM posts, unnest(tags) AS tag
+      WHERE is_public = true AND created_at > NOW() - INTERVAL '30 days'
+      GROUP BY tag
+      ORDER BY count DESC
+      LIMIT 15
+    `);
+    res.json({ tags: result.rows });
+  } catch (error) {
+    console.error('Trending tags error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get all public posts
-router.get('/', async (req, res) => {
+router.get('/', optionalAuth, async (req: AuthRequest, res) => {
   try {
     const { page = 1, limit = 10, type, userId } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
+    const currentUserId = req.user?.id ?? null;
 
     let query = `
-      SELECT p.*, u.name as author_name, d.name as dog_name 
-      FROM posts p 
-      JOIN users u ON p.user_id = u.id 
-      LEFT JOIN dogs d ON p.dog_id = d.id 
+      SELECT p.*, u.name as author_name, d.name as dog_name,
+        ${currentUserId
+          ? `EXISTS(SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $1) as liked_by_user`
+          : `false as liked_by_user`}
+      FROM posts p
+      JOIN users u ON p.user_id = u.id
+      LEFT JOIN dogs d ON p.dog_id = d.id
       WHERE p.is_public = true
     `;
-    const params: any[] = [];
+    const params: any[] = currentUserId ? [currentUserId] : [];
 
     if (type) {
       query += ` AND p.post_type = $${params.length + 1}`;
@@ -88,10 +111,11 @@ router.get('/', async (req, res) => {
 router.get('/my-posts', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const result = await pool.query(
-      `SELECT p.*, d.name as dog_name 
-       FROM posts p 
-       LEFT JOIN dogs d ON p.dog_id = d.id 
-       WHERE p.user_id = $1 
+      `SELECT p.*, u.name as author_name, d.name as dog_name
+       FROM posts p
+       JOIN users u ON p.user_id = u.id
+       LEFT JOIN dogs d ON p.dog_id = d.id
+       WHERE p.user_id = $1
        ORDER BY p.created_at DESC`,
       [req.user!.id]
     );
@@ -115,9 +139,16 @@ router.post('/', authenticateToken, validatePost, validateRequest, async (req: A
       [postId, req.user!.id, dog_id || null, title, content, post_type, image_url || null, video_url || null, tags || [], is_public]
     );
 
+    const createdPost = result.rows[0];
+
+    // Broadcast push alert to all subscribed users when a lost dog is reported
+    if (post_type === 'lost_dog') {
+      broadcastLostDogAlert(req.user!.id, title, req.body.location).catch(console.error);
+    }
+
     res.status(201).json({
       message: 'Post created successfully',
-      post: result.rows[0]
+      post: createdPost,
     });
   } catch (error) {
     console.error('Create post error:', error);
@@ -169,6 +200,25 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res) => {
     res.json({ message: 'Post deleted successfully' });
   } catch (error) {
     console.error('Delete post error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Report post
+router.post('/:id/report', authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { reason = 'inappropriate' } = req.body;
+    const reportId = uuidv4();
+    await pool.query(
+      `INSERT INTO post_reports (id, post_id, reporter_id, reason)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (post_id, reporter_id) DO NOTHING`,
+      [reportId, id, req.user!.id, reason]
+    );
+    res.json({ message: 'Report submitted' });
+  } catch (error) {
+    console.error('Report post error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
