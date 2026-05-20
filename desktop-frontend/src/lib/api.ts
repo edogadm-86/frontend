@@ -608,6 +608,24 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     return this.request(`/admin/users/${userId}`, { method: 'DELETE' });
   }
 
+  async getAdminGrowthStats(days = 14) {
+    return this.request<{ data: { date: string; users: number }[] }>(`/admin/stats/growth?days=${days}`);
+  }
+
+  async adminSendBroadcastEmail(subject: string, body: string) {
+    return this.request<{ message: string; total: number }>('/admin/email/broadcast', {
+      method: 'POST',
+      body: JSON.stringify({ subject, body }),
+    });
+  }
+
+  async adminSendUserEmail(userId: string, subject: string, body: string) {
+    return this.request<{ message: string }>(`/admin/email/user/${userId}`, {
+      method: 'POST',
+      body: JSON.stringify({ subject, body }),
+    });
+  }
+
   // Expense endpoints
   async getExpenses(dogId: string, params?: { month?: string; year?: number; limit?: number }) {
     const q = new URLSearchParams();

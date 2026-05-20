@@ -1,6 +1,21 @@
 import { Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
+import { sendEmail } from '../config/email';
+
+const buildAdminEmailHtml = (recipientName: string, body: string) => `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background-color: #005da7; color: white; padding: 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 22px;">eDog</h1>
+    </div>
+    <div style="padding: 24px; background: #ffffff;">
+      <p style="color: #333; margin: 0 0 16px 0;">Hello ${recipientName},</p>
+      <div style="color: #333; line-height: 1.7;">${body.replace(/\n/g, '<br>')}</div>
+      <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+      <p style="color: #999; font-size: 12px; margin: 0;">You received this email as a registered eDog user.</p>
+    </div>
+  </div>
+`;
 
 export const getAdminStats = async (req: AuthRequest, res: Response) => {
   try {
@@ -68,7 +83,7 @@ export const getAdminUsers = async (req: AuthRequest, res: Response) => {
     );
 
     const countRes = await pool.query(
-      `SELECT COUNT(*) FROM users u ${whereClause}`,
+      `SELECT COUNT(*) FROM users u ${search ? 'WHERE (u.name ILIKE $1 OR u.email ILIKE $1)' : ''}`,
       search ? [`%${search}%`] : []
     );
 
@@ -215,7 +230,7 @@ export const getAdminDogs = async (req: AuthRequest, res: Response) => {
     );
 
     const countRes = await pool.query(
-      `SELECT COUNT(*) FROM dogs d JOIN users u ON u.id = d.user_id ${whereClause}`,
+      `SELECT COUNT(*) FROM dogs d JOIN users u ON u.id = d.user_id ${search ? 'WHERE (d.name ILIKE $1 OR d.breed ILIKE $1 OR u.name ILIKE $1 OR u.email ILIKE $1)' : ''}`,
       search ? [`%${search}%`] : []
     );
 
@@ -259,6 +274,95 @@ export const adminDeleteUser = async (req: AuthRequest, res: Response) => {
     res.json({ message: 'User deleted' });
   } catch (error) {
     console.error('Admin deleteUser error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getAdminGrowthStats = async (req: AuthRequest, res: Response) => {
+  try {
+    const days = Math.min(90, Math.max(7, parseInt(req.query.days as string) || 14));
+
+    const regRes = await pool.query(
+      `SELECT DATE(created_at) AS date, COUNT(*)::int AS count
+       FROM users
+       WHERE created_at >= CURRENT_DATE - ($1 * INTERVAL '1 day')
+       GROUP BY DATE(created_at)
+       ORDER BY date`,
+      [days]
+    );
+
+    const byDate: Record<string, number> = {};
+    for (const row of regRes.rows) {
+      const key = new Date(row.date).toISOString().split('T')[0];
+      byDate[key] = row.count;
+    }
+
+    const data: { date: string; users: number }[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().split('T')[0];
+      data.push({ date: key, users: byDate[key] ?? 0 });
+    }
+
+    res.json({ data });
+  } catch (error) {
+    console.error('Admin getGrowthStats error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const adminSendBroadcastEmail = async (req: AuthRequest, res: Response) => {
+  try {
+    const { subject, body } = req.body;
+    if (!subject?.trim() || !body?.trim()) {
+      return res.status(400).json({ error: 'Subject and body are required' });
+    }
+
+    const usersRes = await pool.query(
+      "SELECT id, name, email FROM users WHERE is_active = true AND email IS NOT NULL ORDER BY created_at"
+    );
+
+    const recipients = usersRes.rows;
+    res.json({ message: `Broadcast queued for ${recipients.length} users`, total: recipients.length });
+
+    (async () => {
+      let sent = 0, failed = 0;
+      for (const user of recipients) {
+        try {
+          await sendEmail(user.email, { subject, html: buildAdminEmailHtml(user.name, body) });
+          sent++;
+        } catch {
+          failed++;
+        }
+      }
+      console.log(`[Admin Broadcast] Done: ${sent}/${recipients.length} sent, ${failed} failed`);
+    })();
+  } catch (error) {
+    console.error('Admin broadcastEmail error:', error);
+    if (!res.headersSent) res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const adminSendUserEmail = async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { subject, body } = req.body;
+
+    if (!subject?.trim() || !body?.trim()) {
+      return res.status(400).json({ error: 'Subject and body are required' });
+    }
+
+    const userRes = await pool.query('SELECT id, name, email FROM users WHERE id = $1', [userId]);
+    if (userRes.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+    const user = userRes.rows[0];
+    if (!user.email) return res.status(400).json({ error: 'User has no email address' });
+
+    await sendEmail(user.email, { subject, html: buildAdminEmailHtml(user.name, body) });
+    res.json({ message: `Email sent to ${user.name}` });
+  } catch (error) {
+    console.error('Admin sendUserEmail error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

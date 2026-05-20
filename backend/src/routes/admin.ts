@@ -11,6 +11,9 @@ import {
   adminDeleteUser,
   getAdminDogs,
   adminDeleteDog,
+  getAdminGrowthStats,
+  adminSendBroadcastEmail,
+  adminSendUserEmail,
 } from '../controllers/adminController';
 
 const router = express.Router();
@@ -28,5 +31,9 @@ router.delete('/users/:userId', adminDeleteUser);
 
 router.get('/dogs', getAdminDogs);
 router.delete('/dogs/:dogId', adminDeleteDog);
+
+router.get('/stats/growth', getAdminGrowthStats);
+router.post('/email/broadcast', adminSendBroadcastEmail);
+router.post('/email/user/:userId', adminSendUserEmail);
 
 export default router;
