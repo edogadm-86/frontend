@@ -310,7 +310,6 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         supplements: formData.supplements.split(',').map(s => s.trim()).filter(s => s),
         weight_at_time: parseFloat(formData.weight_at_time),
       };
-      console.log("Desktop update payload:", nutritionData);
       if (editingRecord) {
         await apiClient.updateNutritionRecord(dogId, editingRecord.id, nutritionData);
       } else {
@@ -337,8 +336,6 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
         nutrition_record_id: mealFormData.nutrition_record_id,
         is_active: 'true',
       };
-      console.log("Desktop update payload for meal:", mealData);
-
       if (mealModalContext === 'wizard') {
         setCustomMeals((prev) => [
           ...prev,
@@ -351,7 +348,6 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             nutrition_record_id: editingMeal.nutrition_record_id,
             is_active: true,
           });
-          console.log("Desktop update payload for meal:", mealData);
         } else {
           await apiClient.createMealPlan(dogId, {
             ...mealData,
@@ -372,7 +368,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   };
 
   const handleDeleteMeal = async (mealId: string) => {
-    if (window.confirm('Are you sure you want to delete this meal?')) {
+    if (window.confirm(t('deleteMealConfirm'))) {
       try {
         await apiClient.deleteMealPlan(dogId, mealId);
         await loadNutritionData();
@@ -383,7 +379,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
   };
 
   const handleDeleteRecord = async (recordId: string) => {
-    if (window.confirm('Are you sure you want to delete this nutrition record?')) {
+    if (window.confirm(t('deleteRecordConfirm'))) {
       try {
         await apiClient.deleteNutritionRecord(dogId, recordId);
         await loadNutritionData();
@@ -393,7 +389,9 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
     }
   };
 
-  const currentRecord = nutritionRecords[0];
+  const currentRecord = nutritionRecords.length > 0
+    ? [...nutritionRecords].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+    : undefined;
   const totalCalories = nutritionStats?.dailyTotals?.calories || mealPlan.reduce((sum, meal) => sum + meal.calories, 0);
   const totalAmount = nutritionStats?.dailyTotals?.amount || mealPlan.reduce((sum, meal) => sum + meal.amount, 0);
 
@@ -558,7 +556,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     onClick={handleCreateMeal}
                     className="px-3 py-1.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
                   >
-                    Add First Meal
+                    {t('addFirstMeal')}
                   </button>
                 </div>
               )}
@@ -879,6 +877,20 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               required
             />
           </div>
+          {(() => {
+            const total = Math.round(
+              (parseFloat(formData.protein_percentage) || 0) +
+              (parseFloat(formData.fat_percentage) || 0) +
+              (parseFloat(formData.carb_percentage) || 0)
+            );
+            if (total === 0) return null;
+            const ok = total === 100;
+            return (
+              <p className={`text-xs font-medium px-3 py-2 rounded-lg ${ok ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'}`}>
+                {ok ? '✓ 100%' : t('macroTotalWarning', { total })}
+              </p>
+            );
+          })()}
           <Input
             label={t('supplementsPlaceholder')}
             value={formData.supplements}
@@ -1104,8 +1116,6 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                 notes: formData.notes || "",
                 weight_at_time: parseFloat(formData.weight_at_time) || 0,
               };
-              console.log("Submitting nutritionData:", nutritionData);
-
               const createdRecord = await apiClient.createNutritionRecord(dogId, nutritionData);
               const recordId = createdRecord.nutritionRecord.id;
 
@@ -1195,6 +1205,20 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
               onChange={(e) => setFormData({ ...formData, carb_percentage: e.target.value })}
             />
           </div>
+          {(() => {
+            const total = Math.round(
+              (parseFloat(formData.protein_percentage) || 0) +
+              (parseFloat(formData.fat_percentage) || 0) +
+              (parseFloat(formData.carb_percentage) || 0)
+            );
+            if (total === 0) return null;
+            const ok = total === 100;
+            return (
+              <p className={`text-xs font-medium px-3 py-2 rounded-lg ${ok ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'}`}>
+                {ok ? '✓ 100%' : t('macroTotalWarning', { total })}
+              </p>
+            );
+          })()}
           <Input
             label={t('supplementsPlaceholder')}
             value={formData.supplements}

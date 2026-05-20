@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, Clock, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, Calendar, RefreshCw } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
 import { Dog } from '../types';
@@ -23,14 +23,49 @@ interface TrainingViewProps {
   onNavigate: (view: string) => void;
 }
 
-const VIDEOS = [
-  { title: 'Loose Leash Walking', description: 'learnFundamentals', videoId: 'jFMA5ggFsXU', duration: '5:56', level: 'beginner' },
-  { title: 'House Training Puppy', description: 'completeGuideToHouseTraining', videoId: 'Pptoq7avEKM', duration: '4:50', level: 'beginner' },
-  { title: 'Advanced Tricks', description: 'teachAmazingTricks', videoId: 'K1co_bZfs6w', duration: '8:36', level: 'advanced' },
-  { title: 'Leash Training', description: 'stopPullingWalkNicely', videoId: 'tSvfVs4LKyg', duration: '9:14', level: 'intermediate' },
-  { title: 'Socialization', description: 'helpDogInteractWithOthers', videoId: 'ysxjfhmj4c0', duration: '6:18', level: 'beginner' },
-  { title: 'Agility Basics', description: 'introductionToDogAgility', videoId: 'vkxggodZzqc', duration: '4:04', level: 'advanced' },
-];
+interface VideoEntry {
+  titleKey: string;
+  videoId: string;
+  duration: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+}
+
+const VIDEOS_BY_LANG: Record<string, VideoEntry[]> = {
+  en: [
+    { titleKey: 'videoLooseLeashWalking',   videoId: 'jFMA5ggFsXU', duration: '5:56', level: 'beginner' },
+    { titleKey: 'videoHouseTrainingPuppy',  videoId: 'Pptoq7avEKM', duration: '4:50', level: 'beginner' },
+    { titleKey: 'videoAdvancedTricks',      videoId: 'K1co_bZfs6w', duration: '8:36', level: 'advanced' },
+    { titleKey: 'videoLeashTraining',       videoId: 'tSvfVs4LKyg', duration: '9:14', level: 'intermediate' },
+    { titleKey: 'videoSocialization',       videoId: 'ysxjfhmj4c0', duration: '6:18', level: 'beginner' },
+    { titleKey: 'videoAgilityBasics',       videoId: 'vkxggodZzqc', duration: '4:04', level: 'advanced' },
+    { titleKey: 'videoSitStayDown',         videoId: 'IOPQPnSj6hw', duration: '7:12', level: 'beginner' },
+    { titleKey: 'videoRecallTraining',      videoId: 'IzrnKIVrx6Q', duration: '6:44', level: 'intermediate' },
+  ],
+  bg: [
+    // Playlist: "Ново куче - Обучение на Меф" — real Bulgarian dog training series
+    { titleKey: 'videoBgFirstSteps',          videoId: 'ddmmQv0p7h4', duration: '–', level: 'beginner' },
+    { titleKey: 'videoBgTeachName',           videoId: 'exyW6rWZTqU', duration: '–', level: 'beginner' },
+    { titleKey: 'videoBgLeashHarness',        videoId: 'esy39HQkWH8', duration: '–', level: 'beginner' },
+    { titleKey: 'videoBgGoodFoundation',      videoId: 'rqaWqmUzSgU', duration: '–', level: 'beginner' },
+    { titleKey: 'videoBgSeparationBarking',   videoId: '4PJ6CzPJMFI', duration: '–', level: 'intermediate' },
+    { titleKey: 'videoBgTeachPaw',            videoId: 'lLygSnUHPyU', duration: '–', level: 'beginner' },
+    { titleKey: 'videoBgLeaveItLook',         videoId: 'xZ1QovN31Og', duration: '–', level: 'intermediate' },
+    { titleKey: 'videoBgLayOnSide',           videoId: '2btKYLMBCSA', duration: '–', level: 'advanced' },
+    { titleKey: 'videoBgStayPart1',           videoId: 'nJht84T5_2U', duration: '–', level: 'intermediate' },
+    { titleKey: 'videoBgStayPart2',           videoId: 'UDX8T2v_pRA', duration: '–', level: 'intermediate' },
+    { titleKey: 'videoBgCalmBehavior',        videoId: 'Zq-Yvy_EFw8', duration: '–', level: 'advanced' },
+    { titleKey: 'videoBgDogHygiene',          videoId: 'rHiFHw9A0O8', duration: '–', level: 'beginner' },
+  ],
+};
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 const levelStyle: Record<string, string> = {
   beginner:     'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400',
@@ -64,7 +99,7 @@ function calculateStreak(sessions: TrainingSession[]) {
   return streak;
 }
 
-function getWeeklyBars(sessions: TrainingSession[]) {
+function getWeeklyBars(sessions: TrainingSession[], locale: string) {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -72,7 +107,7 @@ function getWeeklyBars(sessions: TrainingSession[]) {
       s => new Date(s.date).toDateString() === d.toDateString()
     );
     return {
-      label: d.toLocaleDateString('en', { weekday: 'short' }),
+      label: d.toLocaleDateString(locale, { weekday: 'short' }),
       duration: daySessions.reduce((sum, s) => sum + s.duration, 0),
       isToday: i === 6,
     };
@@ -88,11 +123,12 @@ function getTopCommands(sessions: TrainingSession[]) {
 }
 
 export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNavigate }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<TrainingSession | null>(null);
   const [loading, setLoading] = useState(false);
+  const [videoSeed, setVideoSeed] = useState(0);
   const [formData, setFormData] = useState({
     date: '', duration: 30, commands: '',
     progress: 'good' as TrainingSession['progress'],
@@ -163,12 +199,20 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
   const totalMinutes = sessions.reduce((s, x) => s + x.duration, 0);
   const successRate = totalSessions > 0
     ? Math.round(sessions.filter(s => s.progress === 'excellent' || s.progress === 'good').length / totalSessions * 100)
-    : 0;
+    : null;
   const streak = calculateStreak(sessions);
-  const weekBars = getWeeklyBars(sessions);
+  const weekBars = getWeeklyBars(sessions, i18n.language);
   const maxBarDuration = Math.max(...weekBars.map(b => b.duration), 1);
   const topCommands = getTopCommands(sessions);
   const maxCmdCount = topCommands.length > 0 ? topCommands[0][1] : 1;
+
+  // Language-aware shuffled video list, re-shuffled when language or videoSeed changes
+  const shuffledVideos = useMemo(() => {
+    const lang = i18n.language.startsWith('bg') ? 'bg' : 'en';
+    const pool = VIDEOS_BY_LANG[lang] ?? VIDEOS_BY_LANG.en;
+    return shuffle(pool);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i18n.language, videoSeed]);
 
   const cardCls = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl';
   const fieldCls = 'w-full px-3 py-2.5 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1c1f] text-gray-900 dark:text-[#e2e2e6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005da7] dark:focus:ring-[#a4c9ff] focus:border-transparent text-sm placeholder-gray-400 dark:placeholder-[#414751]';
@@ -182,7 +226,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
         {[
           { icon: 'fitness_center', value: totalSessions, label: t('totalSessions'), color: 'text-[#005da7] dark:text-[#a4c9ff]', bg: 'bg-[#005da7]/10 dark:bg-[#a4c9ff]/10' },
           { icon: 'timer',          value: `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`, label: t('totalTime'), color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/20' },
-          { icon: 'trending_up',    value: `${successRate}%`, label: t('successRate'), color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/20' },
+          { icon: 'trending_up',    value: successRate !== null ? `${successRate}%` : '–', label: t('successRate'), color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/20' },
         ].map(stat => (
           <div key={stat.label} className={`${cardCls} p-4 flex items-center gap-3`}>
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.bg}`}>
@@ -206,7 +250,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
           <div className={`${cardCls} p-5`}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-[10px] font-bold text-[#005da7] dark:text-[#a4c9ff] uppercase tracking-widest mb-0.5">{t('weeklyActivity', 'Weekly Activity')}</p>
+                <p className="text-[10px] font-bold text-[#005da7] dark:text-[#a4c9ff] uppercase tracking-widest mb-0.5">{t('weeklyActivity')}</p>
                 <h3 className="text-base font-bold text-gray-900 dark:text-[#e2e2e6]">
                   {totalMinutes > 0 ? `${totalMinutes} ${t('minutes')}` : t('noTrainingSessionsRecorded')}
                 </h3>
@@ -317,18 +361,16 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
               <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
               <span className="text-4xl font-extrabold">{streak}</span>
             </div>
-            <h3 className="text-base font-bold leading-tight">{t('trainingStreak', 'Training Streak')}</h3>
+            <h3 className="text-base font-bold leading-tight">{t('trainingStreak')}</h3>
             <p className="text-sm opacity-75 mt-1">
-              {streak > 0
-                ? t('keepItUp', "Keep it up! Don't break the chain.")
-                : t('startYourStreak', 'Log a session today to start your streak!')}
+              {streak > 0 ? t('keepItUp') : t('startYourStreak')}
             </p>
           </div>
 
           {/* Top commands */}
           {topCommands.length > 0 && (
             <div className={`${cardCls} p-5`}>
-              <p className="text-[10px] font-bold text-gray-400 dark:text-[#8b919d] uppercase tracking-widest mb-4">{t('topSkills', 'Top Commands')}</p>
+              <p className="text-[10px] font-bold text-gray-400 dark:text-[#8b919d] uppercase tracking-widest mb-4">{t('topSkills')}</p>
               <div className="space-y-3">
                 {topCommands.map(([cmd, count]) => (
                   <div key={cmd}>
@@ -352,11 +394,18 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
 
           {/* Video tutorials */}
           <div className={`${cardCls} overflow-hidden`}>
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-white/5">
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
               <h3 className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{t('trainingResources')}</h3>
+              <button
+                onClick={() => setVideoSeed(s => s + 1)}
+                title={t('refreshVideoSuggestions')}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-[#005da7] dark:hover:text-[#a4c9ff] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-all"
+              >
+                <RefreshCw size={14} />
+              </button>
             </div>
             <div className="divide-y divide-gray-50 dark:divide-white/5">
-              {VIDEOS.slice(0, 4).map((video, i) => (
+              {shuffledVideos.slice(0, 4).map((video, i) => (
                 <div
                   key={i}
                   onClick={() => window.open(`https://www.youtube.com/watch?v=${video.videoId}`, '_blank')}
@@ -365,7 +414,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
                   <div className="relative flex-shrink-0">
                     <img
                       src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`}
-                      alt={video.title}
+                      alt={t(video.titleKey, video.titleKey)}
                       className="w-20 h-14 object-cover rounded-lg group-hover:opacity-90 transition-opacity"
                     />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -377,7 +426,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 dark:text-[#e2e2e6] truncate group-hover:text-[#005da7] dark:group-hover:text-[#a4c9ff] transition-colors">
-                      {video.title}
+                      {t(video.titleKey, video.titleKey)}
                     </p>
                     <span className={`inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded ${levelStyle[video.level]}`}>
                       {t(video.level)}

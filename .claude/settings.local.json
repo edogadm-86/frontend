@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\nikopesh\\\\Desktop\\\\Projects\\\\eDog-frontend\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Get-Content \"c:\\\\Users\\\\nikopesh\\\\Desktop\\\\Projects\\\\eDog-frontend\\\\desktop-frontend\\\\src\\\\locales\\\\en.json\")",
+      "Bash(Select-Object -Last 20)",
+      "WebFetch(domain:www.youtube.com)"
+    ]
+  }
+}
