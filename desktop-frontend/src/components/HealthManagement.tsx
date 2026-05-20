@@ -31,6 +31,8 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [nutritionStats, setNutritionStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [showAllTimeline, setShowAllTimeline] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const rawStatus = healthStatus?.status;
   let statusKey = statusKeyFromBackend(rawStatus);
@@ -64,6 +66,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
       ]);
       setHealthStatus(healthStatusRes);
       setNutritionStats(nutritionStatsRes);
+      setLastUpdated(new Date());
     } catch (error) {
       console.error('Error loading health stats:', error);
     } finally {
@@ -170,16 +173,25 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
       {/* Stats cards */}
       {activeTab === 'overview' && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {healthStats.map((stat, index) => (
-            <div key={index} className={cardClass}>
-              <div className={`w-10 h-10 ${stat.iconBg} rounded-xl flex items-center justify-center mb-3`}>
-                <stat.icon size={20} className={stat.iconColor} />
-              </div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#e2e2e6]">{stat.value}</div>
-              <div className="text-xs text-gray-500 dark:text-[#8b919d] mt-0.5">{stat.status}</div>
-              <div className="text-xs font-medium text-gray-600 dark:text-[#c1c7d3] mt-2">{stat.label}</div>
-            </div>
-          ))}
+          {loadingStats
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={cardClass}>
+                  <div className="w-10 h-10 bg-gray-200 dark:bg-[#282a2d] rounded-xl mb-3 animate-pulse" />
+                  <div className="h-6 w-16 bg-gray-200 dark:bg-[#282a2d] rounded-lg mb-2 animate-pulse" />
+                  <div className="h-3 w-20 bg-gray-100 dark:bg-[#1e2023] rounded animate-pulse" />
+                  <div className="h-3 w-14 bg-gray-100 dark:bg-[#1e2023] rounded animate-pulse mt-2" />
+                </div>
+              ))
+            : healthStats.map((stat, index) => (
+                <div key={index} className={cardClass}>
+                  <div className={`w-10 h-10 ${stat.iconBg} rounded-xl flex items-center justify-center mb-3`}>
+                    <stat.icon size={20} className={stat.iconColor} />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-[#e2e2e6]">{stat.value}</div>
+                  <div className="text-xs text-gray-500 dark:text-[#8b919d] mt-0.5">{stat.status}</div>
+                  <div className="text-xs font-medium text-gray-600 dark:text-[#c1c7d3] mt-2">{stat.label}</div>
+                </div>
+              ))}
         </div>
       )}
 
@@ -217,81 +229,101 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
                 <Activity size={20} className="text-[#005da7] dark:text-[#a4c9ff]" />
                 {t('healthTimeline')}
               </h3>
-              <div className="space-y-3">
-                {(() => {
-                  const allEvents = [
-                    ...dogVaccinations.map(v => ({
-                      date: v.date_given,
-                      type: 'vaccination',
-                      title: v.vaccine_name,
-                      status: 'completed',
+              {(() => {
+                const allEvents = [
+                  ...dogVaccinations.map(v => ({
+                    date: v.date_given,
+                    type: 'vaccination' as const,
+                    title: v.vaccine_name,
+                    isUpcoming: false,
+                  })),
+                  ...dogHealthRecords.map(r => ({
+                    date: r.date,
+                    type: 'checkup' as const,
+                    title: r.title,
+                    isUpcoming: false,
+                  })),
+                  ...dogNutritionRecords.map(r => ({
+                    date: r.date,
+                    type: 'nutrition' as const,
+                    title: `Diet: ${r.food_brand}`,
+                    isUpcoming: false,
+                  })),
+                  ...dogVaccinations
+                    .filter(v => v.next_due_date && new Date(v.next_due_date) > currentDate)
+                    .map(v => ({
+                      date: v.next_due_date,
+                      type: 'vaccination' as const,
+                      title: `${v.vaccine_name} (${t('upcoming')})`,
+                      isUpcoming: true,
                     })),
-                    ...dogHealthRecords.map(r => ({
-                      date: r.date,
-                      type: 'checkup',
-                      title: r.title,
-                      status: 'completed',
-                    })),
-                    ...dogNutritionRecords.map(r => ({
-                      date: r.date,
-                      type: 'nutrition',
-                      title: `Diet: ${r.food_brand}`,
-                      status: 'completed',
-                    })),
-                    ...dogVaccinations
-                      .filter(v => v.next_due_date && new Date(v.next_due_date) > currentDate)
-                      .map(v => ({
-                        date: v.next_due_date,
-                        type: 'vaccination',
-                        title: `${v.vaccine_name} (Due)`,
-                        status: t('upcoming'),
-                      })),
-                  ];
+                ].sort((a, b) => {
+                  if (a.isUpcoming && !b.isUpcoming) return -1;
+                  if (!a.isUpcoming && b.isUpcoming) return 1;
+                  return new Date(b.date).getTime() - new Date(a.date).getTime();
+                });
 
-                  return allEvents
-                    .sort((a, b) => {
-                      if (a.status === 'upcoming' && b.status !== 'upcoming') return -1;
-                      if (b.status === 'upcoming' && a.status !== 'upcoming') return 1;
-                      return new Date(b.date).getTime() - new Date(a.date).getTime();
-                    })
-                    .slice(0, 6);
-                })().map((item, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      item.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
-                    }`}>
-                      {item.type === 'vaccination' && <Shield size={15} className={item.status === 'completed' ? 'text-green-600' : 'text-amber-600'} />}
-                      {item.type === 'checkup' && <Heart size={15} className={item.status === 'completed' ? 'text-green-600' : 'text-amber-600'} />}
-                      {item.type === 'nutrition' && <Apple size={15} className={item.status === 'completed' ? 'text-green-600' : 'text-amber-600'} />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 dark:text-[#e2e2e6] truncate text-sm">{item.title}</div>
-                      <div className="text-xs text-gray-500 dark:text-[#8b919d]">{formatDate(item.date)}</div>
-                    </div>
-                    <span className={`whitespace-nowrap px-2 py-0.5 text-xs rounded-full font-medium ${
-                      item.status === 'completed'
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                    }`}>
-                      {item.status}
-                    </span>
+                const visibleEvents = showAllTimeline ? allEvents.slice(0, 10) : allEvents.slice(0, 6);
+
+                return (
+                  <div className="space-y-3">
+                    {visibleEvents.map((item, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          !item.isUpcoming ? 'bg-green-100 dark:bg-green-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
+                        }`}>
+                          {item.type === 'vaccination' && <Shield size={15} className={!item.isUpcoming ? 'text-green-600' : 'text-amber-600'} />}
+                          {item.type === 'checkup' && <Heart size={15} className={!item.isUpcoming ? 'text-green-600' : 'text-amber-600'} />}
+                          {item.type === 'nutrition' && <Apple size={15} className={!item.isUpcoming ? 'text-green-600' : 'text-amber-600'} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900 dark:text-[#e2e2e6] truncate text-sm">{item.title}</div>
+                          <div className="text-xs text-gray-500 dark:text-[#8b919d]">{formatDate(item.date)}</div>
+                        </div>
+                        <span className={`whitespace-nowrap px-2 py-0.5 text-xs rounded-full font-medium ${
+                          !item.isUpcoming
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                        }`}>
+                          {item.isUpcoming ? t('upcoming') : t('completed')}
+                        </span>
+                      </div>
+                    ))}
+
+                    {allEvents.length === 0 && (
+                      <div className="text-center py-10">
+                        <Activity size={32} className="mx-auto mb-2 text-gray-300 dark:text-[#414751]" />
+                        <p className="text-gray-500 dark:text-[#8b919d] text-sm">{t('noHealthData', 'No health timeline data available')}</p>
+                      </div>
+                    )}
+
+                    {allEvents.length > 6 && (
+                      <button
+                        onClick={() => setShowAllTimeline(v => !v)}
+                        className="w-full mt-1 py-2 text-xs font-semibold text-[#005da7] dark:text-[#a4c9ff] hover:underline"
+                      >
+                        {showAllTimeline ? t('showLessTimeline') : t('showMoreTimeline')}
+                        {!showAllTimeline && ` (${allEvents.length - 6} more)`}
+                      </button>
+                    )}
                   </div>
-                ))}
-                {dogVaccinations.length === 0 && dogHealthRecords.length === 0 && dogNutritionRecords.length === 0 && (
-                  <div className="text-center py-10">
-                    <Activity size={32} className="mx-auto mb-2 text-gray-300 dark:text-[#414751]" />
-                    <p className="text-gray-500 dark:text-[#8b919d] text-sm">No health timeline data available</p>
-                  </div>
-                )}
-              </div>
+                );
+              })()}
             </div>
 
             {/* Health Insights */}
             <div className={`${cardClass} lg:col-span-4`}>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-[#e2e2e6] mb-5 flex items-center gap-2">
-                <TrendingUp size={20} className="text-[#005da7] dark:text-[#a4c9ff]" />
-                {t('healthInsights')}
-              </h3>
+              <div className="flex items-start justify-between mb-5">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-[#e2e2e6] flex items-center gap-2">
+                  <TrendingUp size={20} className="text-[#005da7] dark:text-[#a4c9ff]" />
+                  {t('healthInsights')}
+                </h3>
+                {lastUpdated && (
+                  <span className="text-[10px] text-gray-400 dark:text-[#8b919d] whitespace-nowrap">
+                    {t('healthDataUpdated', { time: lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })}
+                  </span>
+                )}
+              </div>
               <div className="space-y-5">
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800/40">
                   <div className="flex items-start gap-2 mb-2">
