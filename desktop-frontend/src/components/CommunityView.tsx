@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Share2, Calendar, MapPin, Users,
   ChevronUp, ChevronDown, Image, Activity, Plus, Send,
   TrendingUp, Zap, Check, Trash2, Flag, AlertTriangle, Hash,
-  UserCircle2, Pencil,
+  UserCircle2, Pencil, CornerDownRight,
 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { apiClient } from '../lib/api';
@@ -88,6 +88,12 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
   const [reportReason, setReportReason] = useState('inappropriate');
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState('');
+  const [replySubmitting, setReplySubmitting] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
   const { t, i18n } = useTranslation();
 
   const isOwner = currentUserId && post.user_id === currentUserId;
@@ -117,6 +123,41 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
       setNewComment('');
     } catch { /* silent */ }
     finally { setSubmitting(false); }
+  };
+
+  const handleEditComment = async (commentId: string) => {
+    if (!editContent.trim() || editSubmitting) return;
+    setEditSubmitting(true);
+    try {
+      const data = await apiClient.editPostComment(post.id, commentId, editContent.trim());
+      setComments(prev => prev.map(c => c.id === commentId ? { ...c, content: data.comment.content, updated_at: data.comment.updated_at } : c));
+      setEditingCommentId(null);
+    } catch { /* silent */ }
+    finally { setEditSubmitting(false); }
+  };
+
+  const handleReply = async (parentId: string) => {
+    if (!replyContent.trim() || replySubmitting) return;
+    setReplySubmitting(true);
+    try {
+      const data = await apiClient.addPostComment(post.id, replyContent.trim(), parentId);
+      setComments(prev => [...prev, data.comment]);
+      setReplyContent('');
+      setReplyingToId(null);
+    } catch { /* silent */ }
+    finally { setReplySubmitting(false); }
+  };
+
+  const startEdit = (c: Comment) => {
+    setEditingCommentId(c.id);
+    setEditContent(c.content);
+    setReplyingToId(null);
+  };
+
+  const startReply = (commentId: string) => {
+    setReplyingToId(prev => prev === commentId ? null : commentId);
+    setReplyContent('');
+    setEditingCommentId(null);
   };
 
   const handleShare = async () => {
@@ -265,20 +306,111 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
         {/* Comments section */}
         {showComments && (
           <div className="border-t border-gray-100 dark:border-[#414751]/20 bg-gray-50/50 dark:bg-[#111316]/40 px-5 py-4 space-y-3">
-            {comments.length === 0 && !loadingComments && (
+            {comments.filter(c => !c.parent_id).length === 0 && !loadingComments && (
               <p className="text-xs text-gray-400 dark:text-[#8b919d] text-center py-1">{t('noCommentsYet')}</p>
             )}
-            {comments.map(c => (
-              <div key={c.id} className="flex gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-[#282a2d] flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-500 dark:text-[#8b919d]">
-                  {initials(c.author_name)}
+            {comments.filter(c => !c.parent_id).map(c => {
+              const replies = comments.filter(r => r.parent_id === c.id);
+              const isEditing = editingCommentId === c.id;
+              const isReplying = replyingToId === c.id;
+              const isOwn = c.user_id === currentUserId;
+              return (
+                <div key={c.id} className="space-y-1.5">
+                  {/* Top-level comment */}
+                  <div className="flex gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-[#282a2d] flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-500 dark:text-[#8b919d]">
+                      {initials(c.author_name)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="bg-white dark:bg-[#1e2023] rounded-xl px-3 py-2 border border-gray-100 dark:border-[#414751]/20">
+                        <div className="flex items-center justify-between gap-2 mb-0.5">
+                          <p className="text-xs font-semibold text-gray-700 dark:text-[#c1c7d3]">{c.author_name}</p>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {isOwn && !isEditing && (
+                              <button onClick={() => startEdit(c)} className="p-1 rounded-lg text-gray-300 dark:text-[#414751] hover:text-blue-500 dark:hover:text-[#a4c9ff] hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/10 transition-colors" title="Edit comment">
+                                <Pencil size={11} />
+                              </button>
+                            )}
+                            {currentUserId && !isEditing && (
+                              <button onClick={() => startReply(c.id)} className={`p-1 rounded-lg transition-colors text-xs font-medium flex items-center gap-0.5 ${isReplying ? 'text-blue-500 dark:text-[#a4c9ff]' : 'text-gray-300 dark:text-[#414751] hover:text-blue-500 dark:hover:text-[#a4c9ff] hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/10'}`} title="Reply">
+                                <CornerDownRight size={11} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        {isEditing ? (
+                          <div className="space-y-1.5 mt-1">
+                            <textarea
+                              value={editContent}
+                              onChange={e => setEditContent(e.target.value)}
+                              rows={2}
+                              autoFocus
+                              className="w-full text-xs bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-[#414751]/40 rounded-lg px-2 py-1.5 text-gray-700 dark:text-[#e2e2e6] focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-[#a4c9ff] resize-none"
+                            />
+                            <div className="flex gap-1.5 justify-end">
+                              <button onClick={() => setEditingCommentId(null)} className="text-[10px] font-medium text-gray-400 dark:text-[#8b919d] hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors">Cancel</button>
+                              <button onClick={() => handleEditComment(c.id)} disabled={!editContent.trim() || editSubmitting} className="text-[10px] font-semibold text-white bg-blue-500 dark:bg-[#a4c9ff] dark:text-[#00315d] px-2 py-1 rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors">
+                                {editSubmitting ? '…' : 'Save'}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-gray-600 dark:text-[#8b919d] leading-relaxed">{c.content}</p>
+                        )}
+                      </div>
+                      {/* Reply input */}
+                      {isReplying && (
+                        <div className="flex gap-2 mt-1.5 ml-1">
+                          <input
+                            autoFocus
+                            className="flex-1 text-xs bg-white dark:bg-[#282a2d] border border-blue-200 dark:border-[#a4c9ff]/30 rounded-xl px-3 py-1.5 text-gray-700 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#414751] focus:outline-none focus:ring-1 focus:ring-blue-400 dark:focus:ring-[#a4c9ff]"
+                            placeholder={`Reply to ${c.author_name}…`}
+                            value={replyContent}
+                            onChange={e => setReplyContent(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleReply(c.id)}
+                          />
+                          <button onClick={() => handleReply(c.id)} disabled={!replyContent.trim() || replySubmitting} className="p-1.5 rounded-xl bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] disabled:opacity-40 hover:bg-blue-600 transition-colors">
+                            <Send size={12} />
+                          </button>
+                        </div>
+                      )}
+                      {/* Replies */}
+                      {replies.map(reply => (
+                        <div key={reply.id} className="flex gap-2 mt-1.5 ml-4">
+                          <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-[#282a2d] flex items-center justify-center flex-shrink-0 text-[10px] font-semibold text-gray-500 dark:text-[#8b919d]">
+                            {initials(reply.author_name)}
+                          </div>
+                          <div className="flex-1 bg-white dark:bg-[#1e2023] rounded-xl px-3 py-1.5 border border-gray-100 dark:border-[#414751]/20">
+                            <div className="flex items-center justify-between gap-2 mb-0.5">
+                              <p className="text-[10px] font-semibold text-gray-700 dark:text-[#c1c7d3]">{reply.author_name}</p>
+                              {reply.user_id === currentUserId && editingCommentId !== reply.id && (
+                                <button onClick={() => startEdit(reply)} className="p-0.5 rounded text-gray-300 dark:text-[#414751] hover:text-blue-500 dark:hover:text-[#a4c9ff] transition-colors" title="Edit reply">
+                                  <Pencil size={10} />
+                                </button>
+                              )}
+                            </div>
+                            {editingCommentId === reply.id ? (
+                              <div className="space-y-1.5">
+                                <textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={2} autoFocus className="w-full text-xs bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-[#414751]/40 rounded-lg px-2 py-1.5 text-gray-700 dark:text-[#e2e2e6] focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" />
+                                <div className="flex gap-1.5 justify-end">
+                                  <button onClick={() => setEditingCommentId(null)} className="text-[10px] font-medium text-gray-400 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors">Cancel</button>
+                                  <button onClick={() => handleEditComment(reply.id)} disabled={!editContent.trim() || editSubmitting} className="text-[10px] font-semibold text-white bg-blue-500 dark:bg-[#a4c9ff] dark:text-[#00315d] px-2 py-1 rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors">
+                                    {editSubmitting ? '…' : 'Save'}
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-[11px] text-gray-600 dark:text-[#8b919d] leading-relaxed">{reply.content}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 bg-white dark:bg-[#1e2023] rounded-xl px-3 py-2 border border-gray-100 dark:border-[#414751]/20">
-                  <p className="text-xs font-semibold text-gray-700 dark:text-[#c1c7d3]">{c.author_name}</p>
-                  <p className="text-xs text-gray-600 dark:text-[#8b919d] mt-0.5 leading-relaxed">{c.content}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
+            {/* New comment input */}
             <div className="flex gap-2.5 pt-1">
               <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-[#a4c9ff]/15 flex items-center justify-center flex-shrink-0">
                 <span className="text-xs font-semibold text-blue-600 dark:text-[#a4c9ff]">Me</span>
@@ -291,11 +423,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
                   onChange={e => setNewComment(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddComment()}
                 />
-                <button
-                  onClick={handleAddComment}
-                  disabled={!newComment.trim() || submitting}
-                  className="p-2 rounded-xl bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] disabled:opacity-40 hover:bg-blue-600 dark:hover:bg-[#d4e3ff] transition-colors"
-                >
+                <button onClick={handleAddComment} disabled={!newComment.trim() || submitting} className="p-2 rounded-xl bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] disabled:opacity-40 hover:bg-blue-600 dark:hover:bg-[#d4e3ff] transition-colors">
                   <Send size={14} />
                 </button>
               </div>
@@ -556,43 +684,126 @@ interface EventCardProps {
   onEdit: (event: CommunityEvent) => void;
   onDelete: (eventId: string) => void;
   joining: boolean;
+  isPast?: boolean;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, currentUserId, onJoin, onEdit, onDelete, joining }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, currentUserId, onJoin, onEdit, onDelete, joining, isPast }) => {
   const { t, i18n } = useTranslation();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [localCommentsCount, setLocalCommentsCount] = useState(Number(event.comments_count ?? 0));
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState('');
+  const [replySubmitting, setReplySubmitting] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
   const typeKey = (event.event_type ?? 'other') as EventType;
   const typeColor = EVENT_TYPE_COLORS[typeKey] ?? EVENT_TYPE_COLORS.other;
   const isOwner = currentUserId && event.user_id === currentUserId;
 
   const confirmDeleteEvent = () => { onDelete(event.id); setShowDeleteConfirm(false); };
 
+  const loadComments = async () => {
+    if (comments.length > 0) { setShowComments(s => !s); return; }
+    if (showComments) { setShowComments(false); return; }
+    setLoadingComments(true);
+    try {
+      const data = await apiClient.getEventComments(event.id);
+      setComments(data.comments);
+      setShowComments(true);
+    } catch { /* silent */ }
+    finally { setLoadingComments(false); }
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      const data = await apiClient.addEventComment(event.id, newComment.trim());
+      setComments(prev => [...prev, data.comment]);
+      setLocalCommentsCount(c => c + 1);
+      setNewComment('');
+    } catch { /* silent */ }
+    finally { setSubmitting(false); }
+  };
+
+  const handleEditComment = async (commentId: string) => {
+    if (!editContent.trim() || editSubmitting) return;
+    setEditSubmitting(true);
+    try {
+      const data = await apiClient.editEventComment(event.id, commentId, editContent.trim());
+      setComments(prev => prev.map(c => c.id === commentId ? { ...c, content: data.comment.content, updated_at: data.comment.updated_at } : c));
+      setEditingCommentId(null);
+    } catch { /* silent */ }
+    finally { setEditSubmitting(false); }
+  };
+
+  const handleReply = async (parentId: string) => {
+    if (!replyContent.trim() || replySubmitting) return;
+    setReplySubmitting(true);
+    try {
+      const data = await apiClient.addEventComment(event.id, replyContent.trim(), parentId);
+      setComments(prev => [...prev, data.comment]);
+      setLocalCommentsCount(c => c + 1);
+      setReplyContent('');
+      setReplyingToId(null);
+    } catch { /* silent */ }
+    finally { setReplySubmitting(false); }
+  };
+
+  const startEdit = (c: Comment) => { setEditingCommentId(c.id); setEditContent(c.content); setReplyingToId(null); };
+  const startReply = (commentId: string) => { setReplyingToId(prev => prev === commentId ? null : commentId); setReplyContent(''); setEditingCommentId(null); };
+
   return (
     <>
-    <article className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 shadow-sm p-5 transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${typeColor}`}>
-              {t(typeKey)}
-            </span>
+    <article className={`bg-white dark:bg-[#1e2023] rounded-2xl border shadow-sm transition-shadow hover:shadow-md ${
+      isPast ? 'border-gray-100 dark:border-[#414751]/10 opacity-75' : 'border-gray-100 dark:border-[#414751]/20'
+    }`}>
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${typeColor}`}>
+                {t(typeKey)}
+              </span>
+              {isPast && (
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2d] text-gray-500 dark:text-[#8b919d]">
+                  {t('eventPastBadge')}
+                </span>
+              )}
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-[#e2e2e6] font-jakarta text-sm leading-snug truncate">{event.title}</h3>
           </div>
-          <h3 className="font-semibold text-gray-900 dark:text-[#e2e2e6] font-jakarta text-sm leading-snug truncate">{event.title}</h3>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-[#8b919d]">
-            <Users size={13} />
-            <span>{event.participants_count ?? event.current_participants ?? 0}</span>
-          </div>
-          {isOwner && (
-            <>
-              <button
-                onClick={() => onEdit(event)}
-                className="p-1.5 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/10 transition-colors"
-                title={t('editEvent')}
-              >
-                <Pencil size={14} />
-              </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-[#8b919d]">
+              <Users size={13} />
+              <span>{event.participants_count ?? event.current_participants ?? 0}</span>
+            </div>
+            {isOwner && !isPast && (
+              <>
+                <button
+                  onClick={() => onEdit(event)}
+                  className="p-1.5 rounded-lg text-gray-400 dark:text-[#8b919d] hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/10 transition-colors"
+                  title={t('editEvent')}
+                >
+                  <Pencil size={14} />
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="p-1.5 rounded-lg transition-colors text-gray-400 dark:text-[#8b919d] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                  title={t('deleteEvent')}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </>
+            )}
+            {isOwner && isPast && (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 className="p-1.5 rounded-lg transition-colors text-gray-400 dark:text-[#8b919d] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
@@ -600,35 +811,159 @@ const EventCard: React.FC<EventCardProps> = ({ event, currentUserId, onJoin, onE
               >
                 <Trash2 size={14} />
               </button>
-            </>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3 mb-3 text-xs text-gray-500 dark:text-[#8b919d]">
+          <span className="flex items-center gap-1">
+            <Calendar size={12} />
+            {new Date(event.start_date).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })}
+          </span>
+          {event.location && (
+            <span className="flex items-center gap-1">
+              <MapPin size={12} />
+              {event.location}
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-gray-500 dark:text-[#8b919d] leading-relaxed mb-4 line-clamp-2">{event.description}</p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-gray-400 dark:text-[#414751]">{t('by')} {event.organizer_name}</p>
+          {!isOwner && !isPast && (
+            <button
+              onClick={() => onJoin(event.id)}
+              disabled={joining}
+              className="px-4 py-1.5 text-xs font-bold bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-full hover:bg-blue-600 dark:hover:bg-[#d4e3ff] disabled:opacity-50 transition-colors"
+            >
+              {joining ? t('joining') : t('join')}
+            </button>
           )}
         </div>
       </div>
-      <div className="flex flex-wrap gap-3 mb-3 text-xs text-gray-500 dark:text-[#8b919d]">
-        <span className="flex items-center gap-1">
-          <Calendar size={12} />
-          {formatEventDate(event.start_date, i18n.language)}
-        </span>
-        {event.location && (
-          <span className="flex items-center gap-1">
-            <MapPin size={12} />
-            {event.location}
-          </span>
-        )}
+
+      {/* Comment action bar */}
+      <div className="border-t border-gray-100 dark:border-[#414751]/20">
+        <button
+          onClick={loadComments}
+          disabled={loadingComments}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold transition-colors ${
+            showComments
+              ? 'text-blue-500 dark:text-[#a4c9ff] bg-blue-50 dark:bg-[#a4c9ff]/5'
+              : 'text-gray-500 dark:text-[#8b919d] hover:text-blue-500 dark:hover:text-[#a4c9ff] hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/5'
+          }`}
+        >
+          <MessageCircle size={14} />
+          <span>{localCommentsCount}</span>
+          {showComments ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+        </button>
       </div>
-      <p className="text-xs text-gray-500 dark:text-[#8b919d] leading-relaxed mb-4 line-clamp-2">{event.description}</p>
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-400 dark:text-[#414751]">{t('by')} {event.organizer_name}</p>
-        {!isOwner && (
-          <button
-            onClick={() => onJoin(event.id)}
-            disabled={joining}
-            className="px-4 py-1.5 text-xs font-bold bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-full hover:bg-blue-600 dark:hover:bg-[#d4e3ff] disabled:opacity-50 transition-colors"
-          >
-            {joining ? t('joining') : t('join')}
-          </button>
-        )}
-      </div>
+
+      {/* Comments section */}
+      {showComments && (
+        <div className="border-t border-gray-100 dark:border-[#414751]/20 bg-gray-50/50 dark:bg-[#111316]/40 px-5 py-4 space-y-3 rounded-b-2xl">
+          {comments.filter(c => !c.parent_id).length === 0 && !loadingComments && (
+            <p className="text-xs text-gray-400 dark:text-[#8b919d] text-center py-1">{t('noCommentsYet')}</p>
+          )}
+          {comments.filter(c => !c.parent_id).map(c => {
+            const replies = comments.filter(r => r.parent_id === c.id);
+            const isEditing = editingCommentId === c.id;
+            const isReplying = replyingToId === c.id;
+            const isOwn = c.user_id === currentUserId;
+            return (
+              <div key={c.id} className="space-y-1.5">
+                <div className="flex gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-[#282a2d] flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-500 dark:text-[#8b919d]">
+                    {initials(c.author_name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="bg-white dark:bg-[#1e2023] rounded-xl px-3 py-2 border border-gray-100 dark:border-[#414751]/20">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-[#c1c7d3]">{c.author_name}</p>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {isOwn && !isEditing && (
+                            <button onClick={() => startEdit(c)} className="p-1 rounded-lg text-gray-300 dark:text-[#414751] hover:text-blue-500 dark:hover:text-[#a4c9ff] hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/10 transition-colors" title="Edit comment">
+                              <Pencil size={11} />
+                            </button>
+                          )}
+                          {currentUserId && !isEditing && (
+                            <button onClick={() => startReply(c.id)} className={`p-1 rounded-lg transition-colors ${isReplying ? 'text-blue-500 dark:text-[#a4c9ff]' : 'text-gray-300 dark:text-[#414751] hover:text-blue-500 dark:hover:text-[#a4c9ff] hover:bg-blue-50 dark:hover:bg-[#a4c9ff]/10'}`} title="Reply">
+                              <CornerDownRight size={11} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {isEditing ? (
+                        <div className="space-y-1.5 mt-1">
+                          <textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={2} autoFocus className="w-full text-xs bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-[#414751]/40 rounded-lg px-2 py-1.5 text-gray-700 dark:text-[#e2e2e6] focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" />
+                          <div className="flex gap-1.5 justify-end">
+                            <button onClick={() => setEditingCommentId(null)} className="text-[10px] font-medium text-gray-400 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors">Cancel</button>
+                            <button onClick={() => handleEditComment(c.id)} disabled={!editContent.trim() || editSubmitting} className="text-[10px] font-semibold text-white bg-blue-500 dark:bg-[#a4c9ff] dark:text-[#00315d] px-2 py-1 rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors">
+                              {editSubmitting ? '…' : 'Save'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-600 dark:text-[#8b919d] leading-relaxed">{c.content}</p>
+                      )}
+                    </div>
+                    {isReplying && (
+                      <div className="flex gap-2 mt-1.5 ml-1">
+                        <input autoFocus className="flex-1 text-xs bg-white dark:bg-[#282a2d] border border-blue-200 dark:border-[#a4c9ff]/30 rounded-xl px-3 py-1.5 text-gray-700 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#414751] focus:outline-none focus:ring-1 focus:ring-blue-400" placeholder={`Reply to ${c.author_name}…`} value={replyContent} onChange={e => setReplyContent(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleReply(c.id)} />
+                        <button onClick={() => handleReply(c.id)} disabled={!replyContent.trim() || replySubmitting} className="p-1.5 rounded-xl bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] disabled:opacity-40 hover:bg-blue-600 transition-colors">
+                          <Send size={12} />
+                        </button>
+                      </div>
+                    )}
+                    {replies.map(reply => (
+                      <div key={reply.id} className="flex gap-2 mt-1.5 ml-4">
+                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-[#282a2d] flex items-center justify-center flex-shrink-0 text-[10px] font-semibold text-gray-500 dark:text-[#8b919d]">
+                          {initials(reply.author_name)}
+                        </div>
+                        <div className="flex-1 bg-white dark:bg-[#1e2023] rounded-xl px-3 py-1.5 border border-gray-100 dark:border-[#414751]/20">
+                          <div className="flex items-center justify-between gap-2 mb-0.5">
+                            <p className="text-[10px] font-semibold text-gray-700 dark:text-[#c1c7d3]">{reply.author_name}</p>
+                            {reply.user_id === currentUserId && editingCommentId !== reply.id && (
+                              <button onClick={() => startEdit(reply)} className="p-0.5 rounded text-gray-300 dark:text-[#414751] hover:text-blue-500 dark:hover:text-[#a4c9ff] transition-colors" title="Edit reply">
+                                <Pencil size={10} />
+                              </button>
+                            )}
+                          </div>
+                          {editingCommentId === reply.id ? (
+                            <div className="space-y-1.5">
+                              <textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={2} autoFocus className="w-full text-xs bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-[#414751]/40 rounded-lg px-2 py-1.5 text-gray-700 dark:text-[#e2e2e6] focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" />
+                              <div className="flex gap-1.5 justify-end">
+                                <button onClick={() => setEditingCommentId(null)} className="text-[10px] font-medium text-gray-400 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors">Cancel</button>
+                                <button onClick={() => handleEditComment(reply.id)} disabled={!editContent.trim() || editSubmitting} className="text-[10px] font-semibold text-white bg-blue-500 dark:bg-[#a4c9ff] dark:text-[#00315d] px-2 py-1 rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors">
+                                  {editSubmitting ? '…' : 'Save'}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-[11px] text-gray-600 dark:text-[#8b919d] leading-relaxed">{reply.content}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {currentUserId && (
+            <div className="flex gap-2.5 pt-1">
+              <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-[#a4c9ff]/15 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-semibold text-blue-600 dark:text-[#a4c9ff]">Me</span>
+              </div>
+              <div className="flex-1 flex gap-2">
+                <input className="flex-1 text-xs bg-white dark:bg-[#282a2d] border border-gray-200 dark:border-[#414751]/40 rounded-xl px-3 py-2 text-gray-700 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#8b919d] focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-[#a4c9ff]" placeholder={t('addEventCommentPlaceholder')} value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddComment()} />
+                <button onClick={handleAddComment} disabled={!newComment.trim() || submitting} className="p-2 rounded-xl bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] disabled:opacity-40 hover:bg-blue-600 dark:hover:bg-[#d4e3ff] transition-colors">
+                  <Send size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </article>
 
     <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title={t('deleteEvent')}>
@@ -671,6 +1006,10 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventsError, setEventsError] = useState<string | null>(null);
   const [joiningEvent, setJoiningEvent] = useState<string | null>(null);
+
+  const [pastEvents, setPastEvents] = useState<CommunityEvent[]>([]);
+  const [pastEventsLoading, setPastEventsLoading] = useState(false);
+  const [eventsSubTab, setEventsSubTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const [trendingTags, setTrendingTags] = useState<{ tag: string; count: number }[]>([]);
 
@@ -716,7 +1055,7 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
     setEventsLoading(true);
     setEventsError(null);
     try {
-      const data = await apiClient.getEvents({ limit: 20 });
+      const data = await apiClient.getEvents({ limit: 20, upcoming: true });
       setEvents(data.events);
     } catch (e: any) {
       setEventsError(e.message || 'Failed to load events');
@@ -724,6 +1063,16 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
       setEventsLoading(false);
     }
   }, []);
+
+  const fetchPastEvents = useCallback(async () => {
+    if (pastEvents.length > 0) return;
+    setPastEventsLoading(true);
+    try {
+      const data = await apiClient.getEvents({ limit: 20, upcoming: false });
+      setPastEvents(data.events);
+    } catch { /* silent */ }
+    finally { setPastEventsLoading(false); }
+  }, [pastEvents.length]);
 
   const fetchTrendingTags = useCallback(async () => {
     try {
@@ -741,6 +1090,10 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
   useEffect(() => {
     if (activeTab === 'mine') fetchMyPosts();
   }, [activeTab, fetchMyPosts]);
+
+  useEffect(() => {
+    if (activeTab === 'events' && eventsSubTab === 'past') fetchPastEvents();
+  }, [activeTab, eventsSubTab, fetchPastEvents]);
 
   const filteredPosts = feedFilter === 'all' ? posts : posts.filter(p => p.post_type === feedFilter);
 
@@ -812,6 +1165,7 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
     try {
       await apiClient.deleteEvent(eventId);
       setEvents(prev => prev.filter(e => e.id !== eventId));
+      setPastEvents(prev => prev.filter(e => e.id !== eventId));
     } catch { /* silent */ }
   };
 
@@ -1033,44 +1387,101 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
       {/* ── Events tab ── */}
       {activeTab === 'events' && (
         <div className="flex gap-6 items-start">
-          <div className="flex-1 min-w-0">
-            {eventsLoading && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-5 animate-pulse h-44" />
-                ))}
-              </div>
-            )}
-            {eventsError && (
-              <div className="bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl p-4 text-center">
-                <p className="text-sm text-red-600 dark:text-red-400">{eventsError}</p>
-                <button onClick={fetchEvents} className="mt-2 text-xs text-red-500 underline">{t('retry')}</button>
-              </div>
-            )}
-            {!eventsLoading && !eventsError && events.length === 0 && (
-              <div className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-12 text-center">
-                <div className="w-14 h-14 bg-gray-100 dark:bg-[#282a2d] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Calendar size={24} className="text-gray-400 dark:text-[#414751]" />
-                </div>
-                <p className="text-sm text-gray-500 dark:text-[#8b919d] mb-4">{t('noUpcomingEventsCreate')}</p>
-                <button onClick={() => setIsEventModalOpen(true)} className="px-4 py-2 bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-bold hover:bg-blue-600 dark:hover:bg-[#d4e3ff] transition-colors">
-                  {t('createEvent')}
+          <div className="flex-1 min-w-0 space-y-4">
+            {/* Upcoming / Past sub-tabs */}
+            <div className="flex gap-1 bg-gray-100 dark:bg-[#1a1c1f] rounded-xl p-1 w-fit">
+              {(['upcoming', 'past'] as const).map(sub => (
+                <button
+                  key={sub}
+                  onClick={() => setEventsSubTab(sub)}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    eventsSubTab === sub
+                      ? 'bg-white dark:bg-[#1e2023] text-blue-600 dark:text-[#a4c9ff] shadow-sm'
+                      : 'text-gray-500 dark:text-[#8b919d] hover:text-gray-800 dark:hover:text-[#e2e2e6]'
+                  }`}
+                >
+                  {sub === 'upcoming' ? t('upcomingEventsTab') : t('pastEventsTab')}
                 </button>
-              </div>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {events.map(event => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  currentUserId={user?.id}
-                  onJoin={handleJoinEvent}
-                  onEdit={handleOpenEdit}
-                  onDelete={handleDeleteEvent}
-                  joining={joiningEvent === event.id}
-                />
               ))}
             </div>
+
+            {/* Upcoming events */}
+            {eventsSubTab === 'upcoming' && (
+              <>
+                {eventsLoading && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-5 animate-pulse h-44" />
+                    ))}
+                  </div>
+                )}
+                {eventsError && (
+                  <div className="bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl p-4 text-center">
+                    <p className="text-sm text-red-600 dark:text-red-400">{eventsError}</p>
+                    <button onClick={fetchEvents} className="mt-2 text-xs text-red-500 underline">{t('retry')}</button>
+                  </div>
+                )}
+                {!eventsLoading && !eventsError && events.length === 0 && (
+                  <div className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-12 text-center">
+                    <div className="w-14 h-14 bg-gray-100 dark:bg-[#282a2d] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Calendar size={24} className="text-gray-400 dark:text-[#414751]" />
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-[#8b919d] mb-4">{t('noUpcomingEventsCreate')}</p>
+                    <button onClick={() => setIsEventModalOpen(true)} className="px-4 py-2 bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-bold hover:bg-blue-600 dark:hover:bg-[#d4e3ff] transition-colors">
+                      {t('createEvent')}
+                    </button>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {events.map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      currentUserId={user?.id}
+                      onJoin={handleJoinEvent}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleDeleteEvent}
+                      joining={joiningEvent === event.id}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Past events */}
+            {eventsSubTab === 'past' && (
+              <>
+                {pastEventsLoading && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-5 animate-pulse h-44" />
+                    ))}
+                  </div>
+                )}
+                {!pastEventsLoading && pastEvents.length === 0 && (
+                  <div className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-12 text-center">
+                    <div className="w-14 h-14 bg-gray-100 dark:bg-[#282a2d] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Calendar size={24} className="text-gray-400 dark:text-[#414751]" />
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-[#8b919d]">{t('noPastEvents')}</p>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {pastEvents.map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      currentUserId={user?.id}
+                      onJoin={handleJoinEvent}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleDeleteEvent}
+                      joining={joiningEvent === event.id}
+                      isPast
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

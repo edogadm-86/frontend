@@ -315,13 +315,14 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
 
   // Events endpoints
-  async getEvents(params?: { page?: number; limit?: number; type?: string; location?: string }) {
+  async getEvents(params?: { page?: number; limit?: number; type?: string; location?: string; upcoming?: boolean }) {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.type) queryParams.append('type', params.type);
     if (params?.location) queryParams.append('location', params.location);
-    
+    if (params?.upcoming !== undefined) queryParams.append('upcoming', params.upcoming ? 'true' : 'false');
+
     return this.request<{ events: any[] }>(`/events?${queryParams.toString()}`);
   }
 
@@ -339,14 +340,40 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     });
   }
 
-  // Comment endpoints
+  // Post comment endpoints
   async getPostComments(postId: string) {
     return this.request<{ comments: any[] }>(`/posts/${postId}/comments`);
   }
 
-  async addPostComment(postId: string, content: string) {
+  async addPostComment(postId: string, content: string, parentId?: string) {
     return this.request<{ comment: any }>(`/posts/${postId}/comments`, {
       method: 'POST',
+      body: JSON.stringify({ content, ...(parentId ? { parent_id: parentId } : {}) }),
+    });
+  }
+
+  async editPostComment(postId: string, commentId: string, content: string) {
+    return this.request<{ comment: any }>(`/posts/${postId}/comments/${commentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    });
+  }
+
+  // Event comment endpoints
+  async getEventComments(eventId: string) {
+    return this.request<{ comments: any[] }>(`/events/${eventId}/comments`);
+  }
+
+  async addEventComment(eventId: string, content: string, parentId?: string) {
+    return this.request<{ comment: any }>(`/events/${eventId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content, ...(parentId ? { parent_id: parentId } : {}) }),
+    });
+  }
+
+  async editEventComment(eventId: string, commentId: string, content: string) {
+    return this.request<{ comment: any }>(`/events/${eventId}/comments/${commentId}`, {
+      method: 'PATCH',
       body: JSON.stringify({ content }),
     });
   }

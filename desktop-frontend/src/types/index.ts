@@ -164,11 +164,14 @@ export interface Post {
 
 export interface Comment {
   id: string;
-  post_id: string;
+  post_id?: string;
+  event_id?: string;
   user_id: string;
   content: string;
   author_name: string;
   created_at: string;
+  updated_at?: string;
+  parent_id?: string | null;
 }
 
 export interface WeightEntry {
@@ -235,6 +238,7 @@ export interface CommunityEvent {
   max_participants?: number;
   current_participants: number;
   participants_count: number;
+  comments_count: number;
   image_url?: string;
   is_public: boolean;
   organizer_name: string;
