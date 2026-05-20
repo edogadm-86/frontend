@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Business Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f4f3f3",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary-fixed-dim": "#86d0ef",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e3e2e2",
+                        "on-secondary-fixed": "#101c2b",
+                        "on-secondary-fixed-variant": "#3c4858",
+                        "inverse-primary": "#86d0ef",
+                        "surface-dim": "#dbdada",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#006782",
+                        "secondary-fixed": "#d7e3f8",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#004d62",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#001f29",
+                        "on-surface-variant": "#3f484c",
+                        "surface": "#faf9f9",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#d6bee4",
+                        "primary": "#004e63",
+                        "surface-container-high": "#e9e8e8",
+                        "on-tertiary-fixed": "#251431",
+                        "on-surface": "#1b1c1c",
+                        "surface-bright": "#faf9f9",
+                        "secondary-container": "#d7e3f8",
+                        "surface-container": "#efeded",
+                        "on-tertiary-container": "#e9d0f7",
+                        "outline-variant": "#bfc8cd",
+                        "tertiary-fixed": "#f3daff",
+                        "outline": "#6f787d",
+                        "inverse-surface": "#2f3131",
+                        "primary-container": "#006782",
+                        "secondary": "#535f70",
+                        "on-secondary-container": "#596576",
+                        "surface-variant": "#e3e2e2",
+                        "on-primary-container": "#9fe2ff",
+                        "background": "#faf9f9",
+                        "on-tertiary-fixed-variant": "#523f5f",
+                        "tertiary-container": "#6b5778",
+                        "secondary-fixed-dim": "#bbc7db",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#52405f",
+                        "on-background": "#1b1c1c",
+                        "primary-fixed": "#baeaff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "48px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- Top AppBar (from JSON Guidance) -->
+<header class="w-full top-0 sticky z-50 bg-surface border-b border-white/10 shadow-sm flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-primary hover:bg-white/5 p-2 rounded-full transition-colors active:scale-95 duration-150">arrow_back</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">eDog</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-white/5 p-2 rounded-full transition-colors">share</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-white/5 p-2 rounded-full transition-colors">favorite</button>
+</div>
+</header>
+<main class="max-w-screen-xl mx-auto">
+<!-- Hero Section -->
+<section class="relative h-[300px] md:h-[450px] w-full overflow-hidden">
+<img alt="The Posh Paw Grooming Salon" class="w-full h-full object-cover" data-alt="A luxurious pet grooming salon interior with modern white and teal accents. Soft daylight illuminates a high-end grooming station where a well-groomed poodle stands calmly. The aesthetic is clean, professional, and warm, featuring polished surfaces and minimal corporate pet branding elements. Professional photography style with a shallow depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9KInAaqR6lq1mABYFYVcTv7LgDDm0l0MY7TfVPQZiu6wEW1ZqpTs06jgf6I1vM4LsckB5vngrD4XXJdpn_MzNELzJlL2VI-ZoJM7PejwDMG1nago_Noh0zITqj5x6yQQpXcrBxHU95kHn5Kzp-x9D_g3g7jWEkUmEn4e8eTlh7gQ03XRUyi67WiYEY5VJcmdlvzr8RxfUCODTOU4hq9NOVVEpYq9B9vUB2B17fpU5hnsTMwYkD67dsc80ro-33HnBT89QgMPEU3KK"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-margin-mobile md:p-margin-desktop">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 bg-primary/90 text-white px-3 py-1 rounded-full w-fit backdrop-blur-sm shadow-lg">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-md text-label-md">Verified Partner</span>
+</div>
+<h2 class="text-white font-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg mt-2">The Posh Paw Studio</h2>
+<p class="text-white/90 font-body-md">Luxury Grooming &amp; Spa • 4.9 (128 reviews)</p>
+</div>
+</div>
+</section>
+<div class="px-margin-mobile md:px-margin-desktop space-y-lg mt-lg">
+<!-- Quick Action Row -->
+<div class="grid grid-cols-4 gap-sm">
+<button class="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-all active:scale-95">
+<span class="material-symbols-outlined text-primary">call</span>
+<span class="font-label-md text-label-md text-on-surface">Call</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-all active:scale-95">
+<span class="material-symbols-outlined text-primary">chat_bubble</span>
+<span class="font-label-md text-label-md text-on-surface">Message</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-all active:scale-95">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<span class="font-label-md text-label-md text-on-surface">Map</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-all active:scale-95">
+<span class="material-symbols-outlined text-primary">calendar_add_on</span>
+<span class="font-label-md text-label-md text-on-surface">Book</span>
+</button>
+</div>
+<!-- Exclusive Offer Banner -->
+<div class="relative overflow-hidden rounded-xl bg-primary-container p-lg flex items-center justify-between group shadow-md border border-outline-variant/20">
+<div class="relative z-10">
+<h3 class="text-on-primary-container font-title-lg text-title-lg mb-1">Exclusive eDog Offer</h3>
+<p class="text-on-primary-container/80 font-body-md max-w-[200px]">Get 10% off for your first professional grooming session.</p>
+</div>
+<div class="bg-on-primary-container text-primary font-headline-md text-headline-md px-4 py-2 rounded-lg rotate-3 group-hover:rotate-0 transition-transform">
+                    10% OFF
+                </div>
+<!-- Decorative background circles -->
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<!-- Main Content Layout (Asymmetric/Bento-ish) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Left: Description & Gallery -->
+<div class="md:col-span-2 space-y-lg">
+<div class="bg-surface-container p-lg rounded-xl border border-outline-variant/30">
+<h4 class="font-title-lg text-title-lg text-primary mb-md">About the Studio</h4>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                            At The Posh Paw Studio, we believe every dog deserves to feel like royalty. Our certified master groomers specialize in breed-standard cuts, organic spa treatments, and low-stress handling techniques. We use only premium, hypoallergenic products to ensure your pet's coat stays healthy and vibrant.
+                        </p>
+</div>
+<div>
+<div class="flex items-center justify-between mb-md">
+<h4 class="font-title-lg text-title-lg text-primary">Photo Gallery</h4>
+<button class="text-primary font-label-md text-label-md uppercase tracking-wider">See all</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-sm overflow-hidden rounded-xl">
+<img class="w-full h-40 object-cover hover:scale-105 transition-transform" data-alt="A clean, happy golden retriever being blow-dried in a professional dog grooming salon. The background shows a modern, organized workspace with grooming tools. The lighting is bright and cheerful, emphasizing the dog's fluffy fur and the salon's high hygiene standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSTRoRMzDoY_F7cUaGuS6PUD3QravIKivRRsZPOs7xIrvtpJPrtS6zbKAfr40P6_mWSKnfsBR1lNg0KG_io2YiGJ3hU7X7uxmesprcG1zbmEYlYu-tbm1C82RXDD-mpdigG83Ous218P1SAJYGLEkq2cLVcQJqF_j9U0BmrzkVFSpZjrLRIOYRCyTm246jJmQkyc8rR3uZJSu9Pq7-KCoyXp4qmDyZ7jcbVJZ66h3YgGkqahofyQLDE0Umy_Qf6LYOdOGPWgHOlBZQ"/>
+<img class="w-full h-40 object-cover hover:scale-105 transition-transform" data-alt="Close up of professional dog grooming scissors and a comb sitting on a sterile, minimalist grooming table. The shallow depth of field focuses on the sharp, high-quality tools, representing precision and care. Soft teal and white color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBI-xImJ8hr3aEtDRD-zdTJ0GVKyvmPVsjlfItP-WPW5EMXLBHlE92vIYhO-2TLRRF4qEZwSxHW1Gs34M8dQQjQvF0Z2vzJ-VSIMAnUTLQuePvvnyGT_3OFWVoy58O14LmX2QMYjD_86SmWwuTqKQBtsZXcRqB9IW3HQAQv4SGX8c6ACSgOh6zhn2L40nRHI7ft3DY6LrMIpbbC7MWyW6dQS8JC1S5NRwMyokD3UvUm2xxEZm1yzpWe7uU7-knZ48SB3q-u0aenA1m"/>
+<img class="w-full h-40 object-cover hover:scale-105 transition-transform" data-alt="A small white dog sitting happily in a bathtub filled with bubbles. The dog looks comfortable and pampered. The bathroom is clean, modern, and has a spa-like atmosphere with soft towels and pet-friendly shampoo bottles nearby." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoY1VzV0hrlAt7MrryXDjY1ZFYBU3_iatwsZtxjVn1_OGiMPYXqjyoVnnxIaH4H1Z0-lRv2gVHwROxe97GHZl0jZfU8g2YjhXEF7xFAnAbpmaVKUwI4R0JX-j96C4_lKwnwM75QH5_J5R6mkoLvY7oHZKqLC44y4iJegvMD_mvaIq_1DdU4kypycnaoGBqGXnFNeL9eKug8nmdv2g_5HgvIY1l9C4oTuxSy2mLndEQLiIXLK8aGzcKr1SU6Zs6QuweYNKCdO9Pb_uN"/>
+<img class="w-full h-40 object-cover hover:scale-105 transition-transform" data-alt="A happy group of diverse dogs waiting in a clean, brightly lit reception area of a pet salon. The interior features wood-look floors, minimalist white walls, and professional eDog branding. The atmosphere is calm and inviting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZBVpxxJVdB74jPE9DSl1E-a1Sxg2leci15ftfeTu57Y7qoNPVwj0KAVG9dZV5FwjQNhklZ0cj5dypc_JUE6tEvPsjuRC21PR1eXMsBnLtdWgCWKfpSrJtR1w6cHfHF3whwMUognPaTKH1JfF1IKmtJUlseg6gi9hc0DlTEtGusQueEG-5HIdYF6DbAbFTTBB-FuzBk4Kkx79wcXECM2a5NgOqewpX52UwkpxcWGV410xJccTWAHpN0A75ZMtND9HAimdyA-eZRVPm"/>
+</div>
+</div>
+</div>
+<!-- Right: Details & Hours -->
+<div class="space-y-lg">
+<div class="bg-surface-container p-lg rounded-xl border border-outline-variant/30">
+<h4 class="font-title-lg text-title-lg text-primary mb-md">Hours &amp; Info</h4>
+<div class="space-y-sm">
+<div class="flex justify-between font-body-md text-on-surface-variant">
+<span>Mon - Fri</span>
+<span class="font-semibold text-on-surface">09:00 - 19:00</span>
+</div>
+<div class="flex justify-between font-body-md text-on-surface-variant">
+<span>Saturday</span>
+<span class="font-semibold text-on-surface">10:00 - 17:00</span>
+</div>
+<div class="flex justify-between font-body-md text-on-surface-variant">
+<span>Sunday</span>
+<span class="font-semibold text-error">Closed</span>
+</div>
+</div>
+<div class="mt-lg pt-lg border-t border-outline-variant/30 flex items-start gap-md">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<div class="font-body-md text-on-surface-variant">
+<p class="text-on-surface font-semibold">123 Groomer Street</p>
+<p>Barkington, BK 10293</p>
+</div>
+</div>
+</div>
+<!-- Mini Map Card -->
+<div class="rounded-xl overflow-hidden h-48 relative border border-outline-variant/30 shadow-sm">
+<div class="absolute inset-0 bg-surface-container-highest animate-pulse"></div>
+<img alt="Map location" class="w-full h-full object-cover relative z-10" data-location="Barkington" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc6YdEEwk_3DVxji3xKXYm-0eNNhneE4owHI-22mBR9z0GCfHLCu4QuxwNpEuQt4R-jV1FOAMZkbt5fGFic6Hloewj1mE8VUyq5h6rOKrjv5554mKEVWxrgiG_iHKgyFSPPU6c5aM_-hFo6qd7K5IalexjqmfqEW5oxZ1_NbXaRaTPCWwdY5s7P7tbTm1I2TMwDqFndCwvivrXU6VdsG1VRhfyADommPiojKXngHSmUFc2oxsMdozVgProx79wRVSMYfQGENVrP1jm"/>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-error">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Reviews Section -->
+<section class="pb-8">
+<div class="flex items-center justify-between mb-lg">
+<h4 class="font-headline-md text-headline-md text-on-surface">Member Reviews</h4>
+<div class="flex items-center gap-1 bg-secondary-container px-3 py-1 rounded-lg">
+<span class="material-symbols-outlined text-on-secondary-container text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-title-lg text-title-lg text-on-secondary-container">4.9</span>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-md hide-scrollbar pb-4 -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+<!-- Review Card 1 -->
+<div class="min-w-[300px] bg-white border border-outline-variant/30 p-lg rounded-xl shadow-sm">
+<div class="flex items-center gap-md mb-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold">JD</div>
+<div>
+<p class="font-semibold text-on-surface">Jane Doe</p>
+<div class="flex text-amber-500 text-[14px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant italic">"Best groomer in the city! My Cooper came back looking like a movie star. Highly recommended."</p>
+</div>
+<!-- Review Card 2 -->
+<div class="min-w-[300px] bg-white border border-outline-variant/30 p-lg rounded-xl shadow-sm">
+<div class="flex items-center gap-md mb-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold">MS</div>
+<div>
+<p class="font-semibold text-on-surface">Mark Smith</p>
+<div class="flex text-amber-500 text-[14px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined">star</span>
+</div>
+</div>
+</div>
+<p class="font-body-md text-on-surface-variant italic">"Very professional staff and super clean facility. They took great care of my anxious rescue pup."</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Sticky Booking Action -->
+<div class="fixed bottom-0 left-0 w-full bg-surface/95 backdrop-blur-md border-t border-outline-variant/30 p-md z-[60] flex items-center justify-between gap-lg md:px-margin-desktop">
+<div class="hidden md:block">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Starting from</p>
+<p class="font-headline-md text-headline-md text-primary">$45.00</p>
+</div>
+<button class="flex-1 md:flex-none md:min-w-[240px] bg-primary text-on-primary font-title-lg text-title-lg py-4 rounded-xl shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">calendar_month</span>
+            Book Appointment
+        </button>
+</div>
+<!-- Bottom Navigation (from JSON Guidance) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container border-t border-white/5 shadow-[0_-4px_10px_rgba(0,0,0,0.4)] flex justify-around items-center h-20 px-4 pb-safe md:hidden">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm">Discover</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-sm text-label-sm">Saved</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Account</span>
+</button>
+</nav>
+<script>
+        // Simple micro-interaction for the booking button
+        const bookBtn = document.querySelector('button.bg-primary');
+        bookBtn.addEventListener('click', () => {
+            bookBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Loading...';
+            setTimeout(() => {
+                bookBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Booking Confirmed';
+                bookBtn.classList.replace('bg-primary', 'bg-tertiary-container');
+                bookBtn.classList.replace('text-on-primary', 'text-on-tertiary-container');
+            }, 1500);
+        });
+    </script>
+</body></html>

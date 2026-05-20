@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PetMastery - Services Discovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#93000a",
+                      "surface-container-low": "#1a1c1f",
+                      "on-tertiary-fixed-variant": "#633f00",
+                      "outline": "#8b919d",
+                      "surface-variant": "#333538",
+                      "secondary-container": "#feb300",
+                      "primary-fixed-dim": "#a4c9ff",
+                      "tertiary": "#ffb953",
+                      "surface-tint": "#a4c9ff",
+                      "on-primary-fixed-variant": "#004883",
+                      "surface-container": "#1e2023",
+                      "on-error": "#690005",
+                      "error": "#ffb4ab",
+                      "background": "#111316",
+                      "surface-container-high": "#282a2d",
+                      "primary": "#a4c9ff",
+                      "on-surface-variant": "#c1c7d3",
+                      "primary-fixed": "#d4e3ff",
+                      "secondary-fixed-dim": "#ffba35",
+                      "tertiary-fixed-dim": "#ffb953",
+                      "surface": "#111316",
+                      "on-background": "#e2e2e6",
+                      "outline-variant": "#414751",
+                      "on-error-container": "#ffdad6",
+                      "inverse-surface": "#e2e2e6",
+                      "surface-bright": "#37393d",
+                      "on-secondary": "#422c00",
+                      "on-secondary-fixed": "#281900",
+                      "secondary": "#ffd798",
+                      "surface-dim": "#111316",
+                      "tertiary-container": "#c58305",
+                      "on-tertiary": "#452b00",
+                      "on-secondary-fixed-variant": "#5f4100",
+                      "on-primary-container": "#002a51",
+                      "on-surface": "#e2e2e6",
+                      "primary-container": "#4d93e5",
+                      "surface-container-lowest": "#0c0e11",
+                      "secondary-fixed": "#ffdeac",
+                      "on-primary": "#00315d",
+                      "inverse-on-surface": "#2f3034",
+                      "surface-container-highest": "#333538",
+                      "tertiary-fixed": "#ffddb4",
+                      "on-tertiary-fixed": "#291800",
+                      "inverse-primary": "#0060ac",
+                      "on-primary-fixed": "#001c39",
+                      "on-tertiary-container": "#3c2500",
+                      "on-secondary-container": "#6a4800"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "48px",
+                      "unit": "4px",
+                      "gutter": "16px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "label-md": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #414751; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container/30">
+<!-- Sidebar Navigation -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest shadow-md dark:shadow-none py-md px-sm border-r border-outline-variant/30 z-50">
+<div class="px-sm mb-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">PetMastery</h1>
+<p class="text-on-surface-variant font-label-sm text-label-sm">Premium Training</p>
+</div>
+<nav class="flex-1 space-y-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold bg-primary-container/20 border-r-4 border-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-md text-label-md">Discovery Hub</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-label-md text-label-md">Health</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Community</span>
+</a>
+</nav>
+<button class="mb-xl mx-sm bg-primary text-on-primary py-sm px-md rounded-xl font-label-md text-label-md hover:opacity-90 active:scale-[0.98] transition-all">
+            Start New Session
+        </button>
+<div class="border-t border-outline-variant/30 pt-md space-y-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="md:ml-64 min-h-screen">
+<!-- Top Sticky Header -->
+<header class="sticky top-0 z-40 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md w-full flex justify-between items-center px-margin-desktop py-4 shadow-sm">
+<div class="flex-1 max-w-2xl relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-high border-none rounded-full py-3 pl-12 pr-6 text-body-md focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search for vets, groomers, or trainers near you..." type="text"/>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-sm">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-primary-container/10 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-primary-container/10 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="h-10 w-10 rounded-full bg-primary-container/30 border-2 border-primary overflow-hidden">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJYQkxdPTTZ2gITjNgTDjLNLVHPcXMIhu0IMOA5vVIazd0Jvznvl0LI0LgWS8UAPFSvO6Em36Kx0FIr6y5yKpV4432GslePVuypA5--eXvuR2DQygs73uB88ewWOOdOQu-EjtZeyQaelG7KwHNikuNuaKUOk9O1-xnG81av2FqIk0QfH-xKemeGMWjNf3UyY5jfgsB_7tRfFdFtfAbqkwxlWMaA9LIXhxMMPvZz4xyUW4v-tx9Yxn6Lgqu7F5IBLfuZwxnPdgoVG-O"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="px-margin-desktop py-xl space-y-xl max-w-7xl mx-auto">
+<!-- Horizontal Categories -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-on-background">Explore by Category</h2>
+<div class="flex gap-lg overflow-x-auto pb-4 custom-scrollbar">
+<button class="flex-shrink-0 group w-40 p-lg bg-surface-container rounded-xl border border-outline-variant/30 hover:border-primary transition-all duration-300">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-[32px]">medical_services</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Vets</span>
+</button>
+<button class="flex-shrink-0 group w-40 p-lg bg-surface-container rounded-xl border border-outline-variant/30 hover:border-primary transition-all duration-300">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-tertiary text-[32px]">content_cut</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Groomers</span>
+</button>
+<button class="flex-shrink-0 group w-40 p-lg bg-surface-container rounded-xl border border-outline-variant/30 hover:border-primary transition-all duration-300">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-[32px]">shopping_bag</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Pet Shops</span>
+</button>
+<button class="flex-shrink-0 group w-40 p-lg bg-surface-container rounded-xl border border-outline-variant/30 hover:border-primary transition-all duration-300">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-[32px]">fitness_center</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Trainers</span>
+</button>
+<button class="flex-shrink-0 group w-40 p-lg bg-surface-container rounded-xl border border-outline-variant/30 hover:border-primary transition-all duration-300">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-tertiary text-[32px]">directions_walk</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Walkers</span>
+</button>
+<button class="flex-shrink-0 group w-40 p-lg bg-surface-container rounded-xl border border-outline-variant/30 hover:border-primary transition-all duration-300">
+<div class="w-12 h-12 rounded-lg bg-outline-variant/20 flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]">more_horiz</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">All Services</span>
+</button>
+</div>
+</section>
+<!-- Featured Partners Grid -->
+<section class="space-y-md">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-background">Featured Partners</h2>
+<p class="text-on-surface-variant text-body-md">Top-rated services trusted by our community</p>
+</div>
+<button class="text-primary font-label-md text-label-md hover:underline">View All Top Rated</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Partner Card 1 -->
+<div class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:shadow-xl hover:shadow-black/20 transition-all group">
+<div class="relative h-48">
+<img class="w-full h-full object-cover" data-alt="A clean, state-of-the-art modern veterinary clinic examination room with soft blue accent lighting and high-tech equipment. The atmosphere is professional and sterile yet welcoming, featuring large windows and polished floors that reflect a serene, corporate healthcare environment. Professional veterinary staff are seen in the background, out of focus, maintaining a sense of expert care and precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2IZ8uuIvrg1oY4XvmRMS6oSsbMb_NQFOQ2J0awB5ouRsBYmG9FAb8754wc6mrMkURdA1TuHeyUhPVZccUbSUkvfircynJOmNfJ9Gw1fWeTkl_J7KalXXf-Z9kB99r6b6sLiu7jvRgY0WFCOvqyW9tyer9iVZd3KJQ4bmZb0xzeKxMBwyMWu0v89tUUtue0VfF3FH5l1SrUbHBFyQ3p9f_8f2CvUEdPkM9ijhg-JuYpoQp-WJ3wSU86RNFVE6Yggka6Kbij2sivASM"/>
+<div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded-full text-label-sm font-bold">24/7 OPEN</div>
+</div>
+<div class="p-lg space-y-md">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background text-lg">Elite Vet Care Hub</h3>
+<p class="text-on-surface-variant text-body-md">Advanced Medical Services</p>
+</div>
+<div class="flex items-center gap-xs bg-secondary-container/20 text-on-secondary-container px-2 py-1 rounded">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.9</span>
+</div>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="text-label-md">0.8 miles away</span>
+<span class="mx-xs">•</span>
+<span class="text-label-md">High Precision Surgery</span>
+</div>
+<button class="w-full py-md bg-primary/10 text-primary rounded-xl font-label-md hover:bg-primary hover:text-on-primary transition-all">Book Appointment</button>
+</div>
+</div>
+<!-- Partner Card 2 -->
+<div class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:shadow-xl hover:shadow-black/20 transition-all group">
+<div class="relative h-48">
+<img class="w-full h-full object-cover" data-alt="A luxury pet grooming boutique with minimalist white and wood interior design. The lighting is warm and inviting, highlighting a spacious area where professional stylists are working on well-groomed dogs. High-end products are displayed on floating shelves, creating a tactile and premium retail experience. The overall mood is sophisticated and relaxing, suggesting a five-star spa treatment for pets." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlIZIGrYyZGsponZnq56xPhM-zdtXI26U8gD0loIMb2Yucg3hnGggxWjQVGJuB-My43spGvyoel8gw0UKHIw1HsFUb0OTJ8G_BYH3muvrZeark6ylzyEPdLvuC1BY4WSOeLz1T_G48c2WMwRrGNGFTc0IYnkHDRLchinYloasl0oUGja8t3ymbN67ziX48o_eGtIY7HQ50wPf991SOopa_YQfRE-Rn8KxvfxHTjtVsAQq-yIgcsc49aPQYFU3nM1_OKsN1MqO7EsbU"/>
+<div class="absolute top-4 right-4 bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-label-sm font-bold">TOP STYLIST</div>
+</div>
+<div class="p-lg space-y-md">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background text-lg">Posh Paws Boutique</h3>
+<p class="text-on-surface-variant text-body-md">Luxury Grooming &amp; Spa</p>
+</div>
+<div class="flex items-center gap-xs bg-secondary-container/20 text-on-secondary-container px-2 py-1 rounded">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.8</span>
+</div>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="text-label-md">1.2 miles away</span>
+<span class="mx-xs">•</span>
+<span class="text-label-md">Full Spa Treatment</span>
+</div>
+<button class="w-full py-md bg-primary/10 text-primary rounded-xl font-label-md hover:bg-primary hover:text-on-primary transition-all">Reserve Slot</button>
+</div>
+</div>
+<!-- Partner Card 3 -->
+<div class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:shadow-xl hover:shadow-black/20 transition-all group">
+<div class="relative h-48">
+<img class="w-full h-full object-cover" data-alt="A sprawling, high-fidelity outdoor pet training facility at sunset. The lighting is golden and dramatic, casting long shadows over well-maintained green grass and premium obstacle courses. The scene is calm yet energetic, featuring a focused trainer in professional gear interacting with a smart breed dog. The environment radiates trust, expertise, and a premium educational atmosphere for high-performing pets." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwbgXxSMDELVJoBPJG5YAvZzMeMa5Qd7ryBOrAmo3-gg_iYAthx-3o7jAxf697FjJ1IbdkUZ5MQqLRedcPAnoG5Yr5-YqkqtCP3swjefq6EYkRq6i19DLtvmZGpAjrx7HrWcnoAtucbpcRjF2pw1WbmsC5JUEawzRkADy-510FYx331WLoNKUI9AdmgRVZMreFDcw_5xc7oY6SiMWmrWv_ukmXl35uWOsAjpUN1zPJboekkzokKkBZGvBrECfJvaU2l6Fi48P9c0Js"/>
+<div class="absolute top-4 right-4 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-bold">CERTIFIED</div>
+</div>
+<div class="p-lg space-y-md">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background text-lg">IronPaw Academy</h3>
+<p class="text-on-surface-variant text-body-md">Behavioral Training</p>
+</div>
+<div class="flex items-center gap-xs bg-secondary-container/20 text-on-secondary-container px-2 py-1 rounded">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">5.0</span>
+</div>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="text-label-md">2.5 miles away</span>
+<span class="mx-xs">•</span>
+<span class="text-label-md">Elite Certification</span>
+</div>
+<button class="w-full py-md bg-primary/10 text-primary rounded-xl font-label-md hover:bg-primary hover:text-on-primary transition-all">Join Program</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Discovery List with Filters -->
+<div class="grid grid-cols-12 gap-xl">
+<!-- Advanced Filters Sidebar -->
+<aside class="col-span-12 lg:col-span-3 space-y-xl">
+<div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant/20 sticky top-24">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-label-md text-label-md text-on-background uppercase tracking-wider">Filters</h3>
+<button class="text-primary text-label-sm font-bold">Reset All</button>
+</div>
+<!-- Distance Filter -->
+<div class="space-y-md mb-xl">
+<label class="font-label-md text-label-md text-on-surface">Distance (miles)</label>
+<input class="w-full h-2 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary" max="50" min="1" type="range" value="10"/>
+<div class="flex justify-between text-label-sm text-on-surface-variant">
+<span>1 mi</span>
+<span>10 mi</span>
+<span>50+ mi</span>
+</div>
+</div>
+<!-- Price Range -->
+<div class="space-y-md mb-xl">
+<label class="font-label-md text-label-md text-on-surface">Price Range</label>
+<div class="flex gap-sm">
+<button class="flex-1 py-sm bg-surface-container-high rounded text-label-md hover:bg-primary/20 transition-colors">$</button>
+<button class="flex-1 py-sm bg-primary/20 text-primary border border-primary/50 rounded text-label-md">$$</button>
+<button class="flex-1 py-sm bg-surface-container-high rounded text-label-md hover:bg-primary/20 transition-colors">$$$</button>
+<button class="flex-1 py-sm bg-surface-container-high rounded text-label-md hover:bg-primary/20 transition-colors">$$$$</button>
+</div>
+</div>
+<!-- Ratings -->
+<div class="space-y-md mb-xl">
+<label class="font-label-md text-label-md text-on-surface">Minimum Rating</label>
+<div class="space-y-sm">
+<label class="flex items-center gap-md cursor-pointer group">
+<input checked="" class="rounded border-outline text-primary focus:ring-primary w-5 h-5" type="checkbox"/>
+<span class="text-label-md text-on-surface-variant group-hover:text-on-surface">4.5 &amp; up</span>
+</label>
+<label class="flex items-center gap-md cursor-pointer group">
+<input class="rounded border-outline text-primary focus:ring-primary w-5 h-5" type="checkbox"/>
+<span class="text-label-md text-on-surface-variant group-hover:text-on-surface">4.0 &amp; up</span>
+</label>
+<label class="flex items-center gap-md cursor-pointer group">
+<input class="rounded border-outline text-primary focus:ring-primary w-5 h-5" type="checkbox"/>
+<span class="text-label-md text-on-surface-variant group-hover:text-on-surface">3.5 &amp; up</span>
+</label>
+</div>
+</div>
+<!-- Status -->
+<div class="space-y-md">
+<label class="flex items-center gap-md cursor-pointer">
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Open Now</span>
+</label>
+</div>
+</div>
+</aside>
+<!-- List Content -->
+<section class="col-span-12 lg:col-span-9 space-y-lg">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-on-background">Discover All Services</h2>
+<div class="flex items-center gap-sm text-label-md text-on-surface-variant">
+<span>Sort by:</span>
+<select class="bg-transparent border-none focus:ring-0 text-primary font-bold py-0">
+<option>Recommended</option>
+<option>Distance</option>
+<option>Rating</option>
+<option>Price: Low to High</option>
+</select>
+</div>
+</div>
+<!-- Service List Items -->
+<div class="space-y-lg">
+<!-- List Item 1 -->
+<div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant/10 flex flex-col md:flex-row gap-lg hover:border-primary/50 transition-all cursor-pointer">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A focused close-up of a high-end pet retail shop interior, showcasing premium organic treats and designer pet accessories on backlit shelving. The lighting is crisp and detailed, emphasizing the quality and craftsmanship of the products. The design is modern corporate, with a minimalist aesthetic and a sophisticated dark wood palette. Soft bokeh in the background reveals a professional customer service area." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6AkX-yXWkQxXZaWuyfeXnli_vJc9AJTKRkSGKhFBuAPZTbL_X3sbobQiAGINSeos2GkIPXm0VB_I4XYwrHuaZm6pISGCnsfTw1Sx7i6vf674iunNVt2t4eh69zWWKm-AJKtwhO5oEQX8QB_orZ2iLp72wgx8aQMucP0DMpVrQgWm8t25Sh8oBWwW7a8VMWBbcVeKvKaaXfPpYLIUhqrKoLuka2Y5jtvKhTW6KuAQmD2uhrIhpNcWp9kCqw8u4_IV_jfZMcl2q745q"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-lg">Bark &amp; Barrel Purveyors</h3>
+<div class="flex gap-sm mt-1">
+<span class="px-2 py-0.5 bg-secondary-container/10 text-on-secondary-container text-[10px] font-bold rounded uppercase">Pet Shop</span>
+<span class="px-2 py-0.5 bg-primary-container/10 text-on-primary-container text-[10px] font-bold rounded uppercase">Premium</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline-md text-lg text-primary">$$$</p>
+<p class="text-label-sm text-on-surface-variant">0.4 mi</p>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-2 mt-2">Curated selection of artisanal organic food and bespoke accessories for the discerning urban pet.</p>
+<div class="flex items-center gap-lg mt-4">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.7 (128 reviews)</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-label-md">Closes at 8:00 PM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant/10 flex flex-col md:flex-row gap-lg hover:border-primary/50 transition-all cursor-pointer">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A professional dog walker in modern athletic gear leading a group of well-trained pedigree dogs through a pristine city park. The lighting is vibrant morning sun, creating a high-energy and reliable visual atmosphere. The composition is wide, showing the expansive urban greenery and architectural landmarks in the background. The scene conveys reliability, safety, and a premium service standard for pet owners." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuIGovBX3wW7ea3_VKDGElRXaS48EvkyHT7vnnO5AgqGU0ZB4RjU9GMSX5VNFx92vnZTpFwGfVthNQ3mJJnHvmlL-uGDIqxD1Kph1LhEBmy0pDxcm8jh0D7LotnU5sp-HQz6xEIEn5pU4ElA5TJ0WG2dumVoYW-RpKRriOef9p24wPjgkzkskPGew2yegRwng38-gYxi5CE_OTGwn3sT5Bc4BbRCbieGH-SadEY5uhtmEZ6s306Y88TCzNshNGNoqZCJi5FxwHZwkq"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-lg">Urban Canine Expeditions</h3>
+<div class="flex gap-sm mt-1">
+<span class="px-2 py-0.5 bg-tertiary-container/10 text-on-tertiary-container text-[10px] font-bold rounded uppercase">Walkers</span>
+<span class="px-2 py-0.5 bg-primary-container/10 text-on-primary-container text-[10px] font-bold rounded uppercase">GPS Tracked</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline-md text-lg text-primary">$$</p>
+<p class="text-label-sm text-on-surface-variant">1.1 mi</p>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-2 mt-2">Professional GPS-tracked walking service with personalized exercise routes and real-time activity reports.</p>
+<div class="flex items-center gap-lg mt-4">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.9 (256 reviews)</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-label-md">Open: 6 AM - 10 PM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item 3 -->
+<div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant/10 flex flex-col md:flex-row gap-lg hover:border-primary/50 transition-all cursor-pointer">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A modern, high-tech canine hydrotherapy pool and rehab center. The lighting is calm and therapeutic, with soft cyan and white tones reflecting off the clean water. The facility features glass walls, stainless steel equipment, and a focused, professional specialist assisting a dog in the water. The aesthetic is clean, medical, and high-precision, emphasizing the advanced health and lifestyle management for pets." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ZOUIX0zHNlJ8baNChxSBtbzhdOCrNkcgAFvUsXztsCt6t3MI5MPOM4wGThjka87QKk_fGEYwGDU3CPiH1grCgAUVrJaQj8KbNQLDWBuPJXybxD7E80ErLYAwdYZkrF5ofq466310FifyZwZkL7Le_Gi2n7uz5WDCh6sscuu3SXB7dtw3Ax4vZBwnDvNIRyepz98CycPPt9R_h9JvpLkOkMXOk-CW6QZyOMjmkVWaI_sZjHsFc_pfU2CmUApZLPkzBJ1uBgDpB4W5"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md text-lg text-on-background">Zen Canine Wellness</h3>
+<div class="flex gap-sm mt-1">
+<span class="px-2 py-0.5 bg-primary-container/10 text-on-primary-container text-[10px] font-bold rounded uppercase">Wellness</span>
+<span class="px-2 py-0.5 bg-secondary-container/10 text-on-secondary-container text-[10px] font-bold rounded uppercase">Rehab</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline-md text-lg text-primary">$$$$</p>
+<p class="text-label-sm text-on-surface-variant">2.4 mi</p>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-2 mt-2">Holistic health center specializing in hydrotherapy, massage, and comprehensive physical rehabilitation.</p>
+<div class="flex items-center gap-lg mt-4">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">5.0 (84 reviews)</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-label-md">By Appointment Only</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center pt-xl">
+<nav class="flex gap-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">3</button>
+<span class="w-10 h-10 flex items-center justify-center text-on-surface-variant">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">12</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</nav>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Suppressing on detail but keeping here for primary discovery action) -->
+<button class="fixed bottom-8 right-8 bg-primary text-on-primary p-lg rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all z-50 flex items-center gap-md">
+<span class="material-symbols-outlined text-[32px]">add_location_alt</span>
+<span class="font-label-md text-label-md pr-sm">Add New Business</span>
+</button>
+<script>
+        // Simple Interaction logic
+        document.querySelectorAll('input[type="range"]').forEach(range => {
+            range.addEventListener('input', (e) => {
+                const span = e.target.nextElementSibling.children[1];
+                span.innerText = e.target.value + ' mi';
+            });
+        });
+
+        // Toggle interaction for filters
+        const toggles = document.querySelectorAll('.peer');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', (e) => {
+                const label = e.target.closest('label').querySelector('span');
+                if(e.target.checked) {
+                    label.classList.add('text-primary', 'font-bold');
+                } else {
+                    label.classList.remove('text-primary', 'font-bold');
+                }
+            });
+        });
+    </script>
+</body></html>

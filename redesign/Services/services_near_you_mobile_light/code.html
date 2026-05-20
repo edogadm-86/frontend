@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Local Services</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f4f3f3",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary-fixed-dim": "#86d0ef",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e3e2e2",
+                        "on-secondary-fixed": "#101c2b",
+                        "on-secondary-fixed-variant": "#3c4858",
+                        "inverse-primary": "#86d0ef",
+                        "surface-dim": "#dbdada",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#006782",
+                        "secondary-fixed": "#d7e3f8",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#004d62",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#001f29",
+                        "on-surface-variant": "#3f484c",
+                        "surface": "#faf9f9",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#d6bee4",
+                        "primary": "#004e63",
+                        "surface-container-high": "#e9e8e8",
+                        "on-tertiary-fixed": "#251431",
+                        "on-surface": "#1b1c1c",
+                        "surface-bright": "#faf9f9",
+                        "secondary-container": "#d7e3f8",
+                        "surface-container": "#efeded",
+                        "on-tertiary-container": "#e9d0f7",
+                        "outline-variant": "#bfc8cd",
+                        "tertiary-fixed": "#f3daff",
+                        "outline": "#6f787d",
+                        "inverse-surface": "#2f3131",
+                        "primary-container": "#006782",
+                        "secondary": "#535f70",
+                        "on-secondary-container": "#596576",
+                        "surface-variant": "#e3e2e2",
+                        "on-primary-container": "#9fe2ff",
+                        "background": "#faf9f9",
+                        "on-tertiary-fixed-variant": "#523f5f",
+                        "tertiary-container": "#6b5778",
+                        "secondary-fixed-dim": "#bbc7db",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#52405f",
+                        "on-background": "#1b1c1c",
+                        "primary-fixed": "#baeaff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "48px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="w-full top-0 sticky z-50 bg-surface dark:bg-surface border-b border-white/10 shadow-sm flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-weight="fill">pets</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">eDog</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/5 transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto px-margin-mobile lg:px-margin-desktop py-lg space-y-xl">
+<!-- Search Section -->
+<section class="w-full">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full h-14 pl-12 pr-4 rounded-xl bg-surface-container border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-lg text-body-lg" placeholder="Search for local pet services..." type="text"/>
+<div class="absolute inset-y-2 right-2 flex items-center">
+<button class="px-4 h-full bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+                        Filters
+                    </button>
+</div>
+</div>
+</section>
+<!-- Category Horizontal Scroller -->
+<section class="space-y-md">
+<h2 class="font-title-lg text-title-lg">Explore Categories</h2>
+<div class="flex gap-md overflow-x-auto hide-scrollbar pb-xs -mx-margin-mobile px-margin-mobile">
+<button class="flex flex-col items-center gap-sm shrink-0 group">
+<div class="w-16 h-16 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">medical_services</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Vets</span>
+</button>
+<button class="flex flex-col items-center gap-sm shrink-0 group">
+<div class="w-16 h-16 rounded-2xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">content_cut</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Groomers</span>
+</button>
+<button class="flex flex-col items-center gap-sm shrink-0 group">
+<div class="w-16 h-16 rounded-2xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">shopping_basket</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Pet Shops</span>
+</button>
+<button class="flex flex-col items-center gap-sm shrink-0 group">
+<div class="w-16 h-16 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">school</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Trainers</span>
+</button>
+<button class="flex flex-col items-center gap-sm shrink-0 group">
+<div class="w-16 h-16 rounded-2xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">directions_walk</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Walkers</span>
+</button>
+</div>
+</section>
+<!-- Featured Partners Section -->
+<section class="space-y-md">
+<div class="flex justify-between items-center">
+<h2 class="font-title-lg text-title-lg">Featured Partners</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">See all</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Featured Card 1 -->
+<div class="group relative overflow-hidden rounded-2xl bg-surface-container-low border border-outline-variant hover:shadow-lg transition-all duration-300">
+<div class="aspect-[16/9] overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A luxurious modern pet spa interior with soft ambient lighting, high-end grooming stations, and clean minimalist decor. The scene is bright and airy in a light-mode aesthetic, featuring a professional groomer carefully attending to a well-groomed golden retriever. The atmosphere is serene and premium, emphasizing high-quality care and sophistication in the eDog corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiZJCeCmZzU-bzUvSmtDiJb_wBF5rdHYNIWLTfQnqpSltSrshXCfc8P9ONeBiCw7mIbR1pmut5OKhk5wjMbrKgBACcLtb3AY8aocC3XMpjr8TbPU30iTjsq67aNia4puppsfIW-76ETEkd2Jc28jRjeDXaBzwmDZo6a2JrYc1FISXyJ7XYtDB-kLK5T8ABhGTkh9DG4GELg6FRK5nEPB84pEdrTPXDZyCJI-rMVzwigRLRlzfLRYEbIG7KGcsKQF3YHVkuXrxjyDjh"/>
+<div class="absolute top-4 left-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-full font-label-md text-label-md flex items-center gap-1 shadow-md">
+<span class="material-symbols-outlined text-[14px]" data-weight="fill">verified</span>
+                            Featured
+                        </div>
+</div>
+<div class="p-md space-y-sm">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md">Pawfect Retreat &amp; Spa</h3>
+<div class="flex items-center gap-1 bg-surface-container-highest px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[18px]" data-weight="fill">star</span>
+<span class="font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-body-md text-body-md line-clamp-2">Premium grooming, holistic therapy, and luxury boarding for the most discerning pets.</p>
+<div class="flex items-center gap-4 text-on-surface-variant pt-base">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-label-md text-label-md">1.2 miles away</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-label-md text-label-md">Open until 7 PM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Featured Card 2 -->
+<div class="group relative overflow-hidden rounded-2xl bg-surface-container-low border border-outline-variant hover:shadow-lg transition-all duration-300">
+<div class="aspect-[16/9] overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional canine training facility with high-tech equipment and a large open lawn. A professional trainer is using a clicker with a focused border collie in the foreground. The lighting is crisp daylight, creating a professional and reliable environment. The design is clean and airy, utilizing the eDog blue palette for subtle accents in the equipment and trainer's uniform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG4xqT1OYfyF-gbYRWZ0r98giZgmSaaktwtv7IqsuDJEIUPvkx70Ew99VXuDeZhJWASyeCGP_rAzr3oc5cFuSvZxFkLmF7L-QCWINi7HOa-LIqHHCkXZTVFi-tJZgBmugpAlscNOq2-R-BAYEg60fUPYH78DXoQflzhA9PueRVDzbzWFzHQ4r5HhGUBHSXNdjOo7sAxT220nJabBg9vJnXOBwG4H4DBxZb6hHgA2ei6Ks6JlvuIIVNk7cfRu-zOjtzyC-nLw_6-bT3"/>
+<div class="absolute top-4 left-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-full font-label-md text-label-md flex items-center gap-1 shadow-md">
+<span class="material-symbols-outlined text-[14px]" data-weight="fill">verified</span>
+                            Featured
+                        </div>
+</div>
+<div class="p-md space-y-sm">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md">Bark Academy Elite</h3>
+<div class="flex items-center gap-1 bg-surface-container-highest px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[18px]" data-weight="fill">star</span>
+<span class="font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-body-md text-body-md line-clamp-2">Certified behavioral experts specializing in positive reinforcement and social integration.</p>
+<div class="flex items-center gap-4 text-on-surface-variant pt-base">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-label-md text-label-md">2.5 miles away</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-label-md text-label-md">Opens at 9 AM</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Discover Services List -->
+<section class="space-y-md">
+<h2 class="font-title-lg text-title-lg">Discover Services</h2>
+<div class="grid grid-cols-1 gap-md">
+<!-- Service List Item 1 -->
+<div class="flex items-center p-md gap-md bg-surface-container rounded-2xl border border-outline-variant hover:border-primary/40 transition-all">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A clean, sterile modern veterinary examination room with high-end equipment. A gentle female vet is checking a small tabby cat. The environment is well-lit with natural light, feeling warm yet professional. Soft tones of white and light grey dominate the space, reflecting a trustworthy medical standard consistent with the eDog brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAypPsgfsLQbNm4KxH7VLPZMAHwUgDxYX6P6h13Gi387nFw1tg8k69DB54ePd4lVCiEkvShcpU0XJNUuRHsHJNhZnhRMdvejQe0Qh74qFfNBGV7LXpfTk7gXU1kBm1legeb4Bjiv-fF4UZkSrZa9yJF0ocyfXXZVVTZ9-HuDQGCytIdOicaHadmtzYWgPVFD-R2gbzhkQhRWeVwuK8Oqc_LOEZmu4Ts3-Z9F_D-QISNZovnG7PDtfzakDz6sBjv3AzslWXm_niEjewE"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider">Veterinary</span>
+<span class="text-outline-variant text-[8px]">•</span>
+<span class="font-label-md text-label-md text-on-surface-variant">0.8 mi</span>
+</div>
+<h4 class="font-title-lg text-title-lg truncate">City Center Animal Hospital</h4>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-[16px]" data-weight="fill">star</span>
+<span class="font-label-md text-label-md">4.7 (120+ reviews)</span>
+</div>
+</div>
+<button class="shrink-0 px-4 py-2 border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 active:scale-95 transition-all">
+                        View Profile
+                    </button>
+</div>
+<!-- Service List Item 2 -->
+<div class="flex items-center p-md gap-md bg-surface-container rounded-2xl border border-outline-variant hover:border-primary/40 transition-all">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A charming boutique pet shop with wooden shelves filled with premium colorful dog toys and organic treats. The lighting is warm and inviting, highlighting the high-quality products. A golden retriever is happily browsing at its eye level. The aesthetic is modern-corporate but friendly, with clean lines and organized displays in a bright light-mode setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxQgSQ7c0CwNTCs9XQ0dSlT-Zx_cGCvHVm5H0eB2_Du6U6wcuVycXoqF-0CaB-vJQucWpn5V5ZOFUXayhjNKns96ZnM9--41iYoFqWuIMpp7a3GrF4_Pp4uru3qfW_bJ8KU9L9KsjJgg11Ngch4RCP2OIjZCnWE6dBGZ7B7uwTDT8isk5AAbSYpp0ZFKywtAbyUCJeDcYmdehjTSL5eIPbUlbKcGdDgpVQPwG9DwadTMaproPG2jVBTOQScUS78yFLKAUD60rpjlh1"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider">Pet Shop</span>
+<span class="text-outline-variant text-[8px]">•</span>
+<span class="font-label-md text-label-md text-on-surface-variant">1.4 mi</span>
+</div>
+<h4 class="font-title-lg text-title-lg truncate">Wagging Tails Boutique</h4>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-[16px]" data-weight="fill">star</span>
+<span class="font-label-md text-label-md">4.9 (85 reviews)</span>
+</div>
+</div>
+<button class="shrink-0 px-4 py-2 border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 active:scale-95 transition-all">
+                        View Profile
+                    </button>
+</div>
+<!-- Service List Item 3 -->
+<div class="flex items-center p-md gap-md bg-surface-container rounded-2xl border border-outline-variant hover:border-primary/40 transition-all">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A professional dog walker in a lush green urban park, walking three different happy dogs on colorful leashes. The morning sun filters through the trees, creating a warm, vibrant glow. The scene is energetic and professional, with a focus on trust and pet safety. The colors are natural and bright, fitting the airy and approachable style of the eDog platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR_EZaQsnp_ZB-XwlamqJ0OU1M-rOBebScg-8BiRa38pLQsR-H0fvx2iRF2kSFGkymLFhLhNZ0Yjma0hpm-weRSxVNHJ7lq0v-2mvSXL1n9qoBUOu-dgi7KYvYNsXzWRNIqmMYEEjH0OUFTse1gCfFGjM18gK5QD9gzfhg6qpKegJ7eE1WcR1ayd5wn3qZx4-MM1IPTw_DObE-3-GzJmeARdemOBUXo5RgAwLtMs-PNH_cGQXD4roiknDmQYYeJ92m02b_V9uRy3n4"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider">Walkers</span>
+<span class="text-outline-variant text-[8px]">•</span>
+<span class="font-label-md text-label-md text-on-surface-variant">3.1 mi</span>
+</div>
+<h4 class="font-title-lg text-title-lg truncate">Happy Paws Walking Co.</h4>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-[16px]" data-weight="fill">star</span>
+<span class="font-label-md text-label-md">5.0 (42 reviews)</span>
+</div>
+</div>
+<button class="shrink-0 px-4 py-2 border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 active:scale-95 transition-all">
+                        View Profile
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container dark:bg-surface-container border-t border-white/5 shadow-[0_-4px_10px_rgba(0,0,0,0.4)] flex justify-around items-center h-20 px-4 pb-safe">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary font-bold hover:text-primary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-weight="fill">explore</span>
+<span class="font-label-sm text-label-sm">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-sm text-label-sm">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Account</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for category buttons
+        document.querySelectorAll('.shrink-0.group').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.add('scale-95');
+                setTimeout(() => btn.classList.remove('scale-95'), 150);
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.01]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.01]');
+        });
+    </script>
+</body></html>

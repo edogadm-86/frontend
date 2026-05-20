@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Home, Heart, Wallet, Users, MoreHorizontal, Award, Calendar, Settings, X, ShieldCheck } from 'lucide-react';
+import { Home, Heart, Wallet, Users, MoreHorizontal, Award, Calendar, Settings, X, ShieldCheck, Store } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface MobileBottomNavProps {
@@ -27,6 +27,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
   // Secondary items — shown in the "More" drawer
   const secondary = [
+    { id: 'services',  icon: Store,    label: t('services') },
     { id: 'training',  icon: Award,    label: t('training') },
     { id: 'calendar',  icon: Calendar, label: t('calendar1') },
     { id: 'settings',  icon: Settings, label: t('settings') },

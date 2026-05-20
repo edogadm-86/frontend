@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Paws &amp; Bubbles Grooming | eDog</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #111316;
+        }
+        .glass-card {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #a4c9ff 0%, #4d93e5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#93000a",
+                      "surface-container-low": "#1a1c1f",
+                      "on-tertiary-fixed-variant": "#633f00",
+                      "outline": "#8b919d",
+                      "surface-variant": "#333538",
+                      "secondary-container": "#feb300",
+                      "primary-fixed-dim": "#a4c9ff",
+                      "tertiary": "#ffb953",
+                      "surface-tint": "#a4c9ff",
+                      "on-primary-fixed-variant": "#004883",
+                      "surface-container": "#1e2023",
+                      "on-error": "#690005",
+                      "error": "#ffb4ab",
+                      "background": "#111316",
+                      "surface-container-high": "#282a2d",
+                      "primary": "#a4c9ff",
+                      "on-surface-variant": "#c1c7d3",
+                      "primary-fixed": "#d4e3ff",
+                      "secondary-fixed-dim": "#ffba35",
+                      "tertiary-fixed-dim": "#ffb953",
+                      "surface": "#111316",
+                      "on-background": "#e2e2e6",
+                      "outline-variant": "#414751",
+                      "on-error-container": "#ffdad6",
+                      "inverse-surface": "#e2e2e6",
+                      "surface-bright": "#37393d",
+                      "on-secondary": "#422c00",
+                      "on-secondary-fixed": "#281900",
+                      "secondary": "#ffd798",
+                      "surface-dim": "#111316",
+                      "tertiary-container": "#c58305",
+                      "on-tertiary": "#452b00",
+                      "on-secondary-fixed-variant": "#5f4100",
+                      "on-primary-container": "#002a51",
+                      "on-surface": "#e2e2e6",
+                      "primary-container": "#4d93e5",
+                      "surface-container-lowest": "#0c0e11",
+                      "secondary-fixed": "#ffdeac",
+                      "on-primary": "#00315d",
+                      "inverse-on-surface": "#2f3034",
+                      "surface-container-highest": "#333538",
+                      "tertiary-fixed": "#ffddb4",
+                      "on-tertiary-fixed": "#291800",
+                      "inverse-primary": "#0060ac",
+                      "on-primary-fixed": "#001c39",
+                      "on-tertiary-container": "#3c2500",
+                      "on-secondary-container": "#6a4800"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "48px",
+                      "unit": "4px",
+                      "gutter": "16px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "label-md": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container border-r border-outline-variant z-40 flex flex-col p-md">
+<div class="flex items-center gap-4 mb-xl px-4">
+<div class="relative">
+<img alt="Currently selected pet" class="w-12 h-12 rounded-full border-2 border-primary object-cover" data-alt="A close-up portrait of a cheerful Golden Retriever with a shiny coat and gentle eyes, set against a soft bokeh background. The lighting is warm and natural, highlighting the golden hues of the fur. The pet appears healthy and well-groomed, reflecting a premium pet care aesthetic consistent with the eDog brand's professional and warm visual identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSYCqrTQQ5ym42E6fMguBxypDoznR3EtQERSSjJzODx0liMKpz6iO0ehi4EWvGpp2qfyimJbQ6wsS2GHHEZP_-exqOKhYTXZMH8QiOOeM5QPZE4wpEHJH091SM0dxCCM6DMbnfLweDLJSqoCr_bQFLZ-xtX7BrnjNRxIir0zCD7sKvUIhQsGoMyC7U4KpU__pyaHepjA2PTacVScXfhlITh7rRwGm-7nG4VrTViSnhwsRl4H2p8BL6CdV2XEnUDJgNGh8zH6Q_Idrv"/>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-primary">Buddy</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Golden Retriever</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2 flex-grow">
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-md font-label-md">Home</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="text-label-md font-label-md">Health</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="text-label-md font-label-md">Training</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-label-md font-label-md">Community</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-label-md font-label-md">Expenses</span>
+</a>
+<a class="flex items-center gap-4 bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 scale-[0.98] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="text-label-md font-label-md font-bold">Services</span>
+</a>
+</nav>
+<button class="mt-auto bg-primary text-on-primary font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+<span class="text-label-md font-label-md">Add New Pet</span>
+</button>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-desktop h-16 bg-surface border-b border-outline-variant shadow-sm sticky top-0 z-30">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-extrabold text-primary tracking-tight">eDog</span>
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-variant border-none rounded-full pl-10 pr-4 py-2 w-64 text-body-md focus:ring-2 focus:ring-primary" placeholder="Search facilities..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmvKK5D7-u9YB9vBE-zqx0juzYrcfk6banMbp8a5LU6Rfb50myDx-vKUhUwuBhLs1Gx-E7GRUW2neXdl0WwCCgh8VxMV95m6oPiGg47B_mnogSTTxLs7oTbgpJxFuagJi6NMY6LEX1JcvJ78RuwW4zoZDVvRmLAwvGLCXavcXS3ThhxToZqXDG8TKwKZcfVnRWLl5hIiHJBScjfgmjqAPLiMtJT1I27nDQ3cNoBGhs8I5iihN8fS3GuZ7NdCcTLCHx8sDn0V4CbPYb"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="px-margin-desktop py-lg max-w-[1280px] mx-auto w-full">
+<!-- Hero Section -->
+<section class="relative h-[400px] rounded-xl overflow-hidden mb-xl shadow-2xl group">
+<div class="absolute inset-0 bg-gradient-to-t from-[#111316] via-transparent to-transparent z-10"></div>
+<img alt="Paws &amp; Bubbles Grooming Studio" class="w-full h-full object-cover scale-105 transition-transform duration-700 group-hover:scale-100" data-alt="A wide-angle, high-end commercial interior shot of the Paws &amp; Bubbles Grooming studio. The space is bright and clinical yet cozy, with minimalist white tiling, light oak wood accents, and state-of-the-art pet grooming stations. Floor-to-ceiling windows flood the area with soft, natural morning light. The overall mood is sophisticated, reflecting a premium and hygienic pet lifestyle destination within the eDog corporate modern design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu23VAZdxAOFQhgQvlD9aTydWiPpWf1kZuaxCSDaSKjT48HM1q8mfJHK9j9HqpbcwQbEDFBZspZzWPDPbH9oK3965B2UxN6hKsB1-EAIMetebF3nhkANVf9-JcY4AA3O4F0YcAu9SIrg6kZZxiBpcIEsQo_GWjgr4ODjLYuhHGIxbgeeQElDCL4gR2ReEHA0hyCmpoO4KBVV1hmdOTmLIetuWaReXlyluWbvLe4BL3PLhF3ptADWKTHGrr65VJZE6snMTfjJyuvOZp"/>
+<div class="absolute bottom-0 left-0 p-xl z-20 w-full flex justify-between items-end">
+<div class="space-y-2">
+<div class="flex items-center gap-2 text-primary font-bold text-label-md mb-2">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            PREMIUM PARTNER
+                        </div>
+<h1 class="font-headline-lg text-headline-lg text-white">Paws &amp; Bubbles Grooming</h1>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-on-surface">4.9</span>
+<span>(128 Reviews)</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>Manhattan, NY</span>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-lg py-md rounded-lg font-bold transition-all flex items-center gap-2 border border-white/10">
+<span class="material-symbols-outlined">share</span>
+                            Share
+                        </button>
+</div>
+</div>
+</section>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-12 gap-lg items-start">
+<!-- Left Content Column -->
+<div class="col-span-8 space-y-xl">
+<!-- About the Studio -->
+<section class="glass-card p-lg rounded-xl">
+<h2 class="font-headline-md text-headline-md text-primary mb-md">About the Studio</h2>
+<p class="text-body-lg text-on-surface-variant leading-relaxed">
+                            Paws &amp; Bubbles is Manhattan's premier destination for canine aesthetics and wellness. Our studio combines veterinary-grade hygiene standards with a tranquil, spa-like atmosphere to ensure your pet leaves feeling as good as they look. We specialize in breed-standard cuts, organic therapeutic baths, and stress-free handling techniques.
+                        </p>
+<div class="grid grid-cols-3 gap-md mt-lg">
+<div class="bg-surface-container p-md rounded-lg border border-outline-variant/30 text-center">
+<span class="material-symbols-outlined text-primary mb-2">wash</span>
+<p class="text-label-md font-label-md">Organic Spa</p>
+</div>
+<div class="bg-surface-container p-md rounded-lg border border-outline-variant/30 text-center">
+<span class="material-symbols-outlined text-primary mb-2">content_cut</span>
+<p class="text-label-md font-label-md">Master Groomers</p>
+</div>
+<div class="bg-surface-container p-md rounded-lg border border-outline-variant/30 text-center">
+<span class="material-symbols-outlined text-primary mb-2">eco</span>
+<p class="text-label-md font-label-md">Eco-Friendly</p>
+</div>
+</div>
+</section>
+<!-- Photo Gallery (Asymmetric/Bento Style) -->
+<section>
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-md text-headline-md text-primary">Studio Gallery</h2>
+<button class="text-primary text-label-md font-bold flex items-center gap-1 hover:underline">
+                                View all <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-4 grid-rows-2 gap-md h-[400px]">
+<div class="col-span-2 row-span-2 rounded-xl overflow-hidden shadow-lg border border-outline-variant/30">
+<img alt="Grooming Process" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" data-alt="A close-up shot of a professional groomer gently washing a small, happy terrier in a stainless steel tub filled with bubbly, organic shampoo. The lighting is bright and clean, capturing the sparkling water droplets and the lush textures of the foam. The background features the sleek, modern aesthetic of the Paws &amp; Bubbles studio in the eDog color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9Pub2BOVC4lmoxK659QKohnIv-AlT395UtrzKaRxrusZRCribxexh3k7ktbPo7NBshyr6EwnNgBwA-bshRFrOO_9xDp05MMIXF_I4eTnSOSLhIPPbsJbCRfudGLV_eYOTTGFkb9WFe9GN2cIG-BNxudgpm712x5_uTCiPkC7hFoT2IdEhU-2sgPMhdbYd5OhC3SjBvPm1idDyqzbFjNL4y8LbvOysEiBnhNOQeq6T2Ch0tEflO1BwQYElEGYeABT25KjeBhCAYLmx"/>
+</div>
+<div class="col-span-2 rounded-xl overflow-hidden shadow-lg border border-outline-variant/30">
+<img alt="Puppy after grooming" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" data-alt="A portrait of a freshly groomed, fluffy poodle sitting proudly with a small blue bow. The dog's coat is perfectly trimmed and voluminous. The shot is taken in a professional studio setting with soft lighting and a minimalist grey background, emphasizing the high-quality grooming work typical of Paws &amp; Bubbles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL8d5tqlsfPFNHcyk3L2NOwmFZ2e0-4NF5FxcIyxudobSR2MboPFMksgt4dZCQQZhtaNoM75Iekt07SDEz5q-K8BRu0TI4bsN2Sn_Aa5OTNYTdQ6JXy34WhYjA3siRIFZJ8Hu0L7f9zCsf0womTV59Phq760u04DIc_fXYCYTl42OEbdPPecQn9o01SIgGdzUQLvx5IFSVjVjYgXgsEsLehzDA4YD0lxMVlbvOVdLdwzYE21CSdLbxbJxPZaIxoH79D_ecRG5Zi_zk"/>
+</div>
+<div class="rounded-xl overflow-hidden shadow-lg border border-outline-variant/30">
+<img alt="Studio details" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" data-alt="A detailed shot of premium grooming tools—shears, brushes, and specialized organic pet colognes—arranged neatly on a light oak surface. The image highlights the professional, high-tech, and tactile nature of the service, aligned with the eDog design system's corporate modern aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoK5V3CVAyJUN9benF1PAwfhr6gm0pXEOTBKnJWU6GwSykqLuloIkWCkwanBLnILiQHbeUVZUATZ8SlnNufkjyNzKLW_mydu-IcOZRq2sEo8ga5NE6_yZTlmfyfsWlzViMR7I27pwSrC23Uvk99xtYYYWhp1JbAouJaYGrZO84cJAD3S2jnAZpKywKoLSQGPWgjM7ponvo5H8r8DiiAQf8c1YvoU26tg6mTh0lmgWCo6QXD09qpGfx9gf5LogfZ-s1z0lkccnkCigB"/>
+</div>
+<div class="rounded-xl overflow-hidden shadow-lg border border-outline-variant/30">
+<img alt="Happy client" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" data-alt="A candid photo of a happy client picking up their golden retriever from Paws &amp; Bubbles. The pet and owner are sharing a joyful moment in the studio's stylish reception area, which features warm lighting and modern furniture, emphasizing the emotional bond between owner and pet in a premium environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoMYIbA1A8d0sMLQ9j6C10SZtcVnG-lNIuNpdCvCrUZpIOBf4b2QVIAVRvw9t_j5pt_FsHPZ3RSXtSPR6DKey2F7JIbvedb55MgXVtqI6qxy_TPOgXMm0wC8mO2QA1Pe3_4hluUMW2auabw8oAnWh2r_jHz3te9IWFESuY2GwqVxHdKDVDabM9is8K-64flwIO4ozngSGNPYq847lj5773bHiHM73A-hpqTTwG_AYcjRZk66UUR2ehFX7MfnuQ6k3Mm-EEg_41Rjly"/>
+</div>
+</div>
+</section>
+<!-- Member Deals -->
+<section class="glass-card p-lg rounded-xl overflow-hidden relative">
+<div class="absolute top-0 right-0 p-lg opacity-10">
+<span class="material-symbols-outlined text-[120px] text-primary">redeem</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary mb-md">eDog Member Deals</h2>
+<div class="grid grid-cols-2 gap-lg relative z-10">
+<div class="flex gap-md bg-primary/10 p-md rounded-lg border border-primary/20">
+<div class="bg-primary text-on-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">percent</span>
+</div>
+<div>
+<h4 class="font-bold text-primary">First-Time Discount</h4>
+<p class="text-label-sm text-on-surface-variant">20% off any full grooming service for new eDog members.</p>
+</div>
+</div>
+<div class="flex gap-md bg-secondary/10 p-md rounded-lg border border-secondary/20">
+<div class="bg-secondary text-on-secondary w-12 h-12 rounded-full flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">spa</span>
+</div>
+<div>
+<h4 class="font-bold text-secondary">Free Aroma Therapy</h4>
+<p class="text-label-sm text-on-surface-variant">Complimentary upgrade with every 5th visit booking.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Reviews -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-primary">Customer Reviews</h2>
+<div class="space-y-md">
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant/30 flex gap-md">
+<img alt="Reviewer" class="w-12 h-12 rounded-full object-cover shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS2BoxQpZP42UqOyA8qZhgztpthT0WoIANg0SjsFqbH4nYsB6MCou1jZurIOy0l1mYS_wSYCMAGIi8ATWdyXWCLR4ccWBAOsBYf72M58ZMBlpEzRDrVu7VYuCXAsUqNrzIqupjXaXmunsR_ofMt1zzqZEXyf4JQ6EtUTdVxTsL0Iy7trPMfhaXnoATVgj4j2wcK11Q29YGvyNcEJmgWUY_6TVwi5FVK3jMfIDtJdi3RgBOVeZqtsPxXDKHHNTyfCsg8qQHeU7PoKZV"/>
+<div>
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-on-surface">Mark Stevenson</h4>
+<span class="text-label-sm text-on-surface-variant">2 days ago</span>
+</div>
+<div class="flex gap-0.5 text-secondary mb-2">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic">"The level of care here is unmatched. Buddy is usually very anxious at the groomers, but the team at Paws &amp; Bubbles handled him with so much patience. He came home looking like a show dog!"</p>
+</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant/30 flex gap-md">
+<img alt="Reviewer" class="w-12 h-12 rounded-full object-cover shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7HEdZVtyqRF8jKTcWg-A4sHHb3_fUFoJ1Ppg9eTsOhdQIxmB2FuW51O3tISUmKSRFXS0-c4N4Si7_46DEaRr3233r4CG0IvtZiK-Vr13q94rXQUvcGkADtzFnb-IOO9Jsh0ONhVnAwKdRKLvtT2hcropaqvEvEAY-fFlnAYNwk0chV9Wjj5C-4T4KvML8_v-eofgle_Kd1-DP9Cl13Spe4TAb_XOXhOR8vPnbMP1HFT_TRZvf13zekoLvZGRGuqBihtk4pfk5q2ek"/>
+<div>
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-on-surface">Sarah Jenkins</h4>
+<span class="text-label-sm text-on-surface-variant">1 week ago</span>
+</div>
+<div class="flex gap-0.5 text-secondary mb-2">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic">"Best organic treatment in the city. The facilities are pristine and the eDog member integration makes booking so easy. Highly recommend for any pet parent!"</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Sidebar Column (Sticky) -->
+<aside class="col-span-4 sticky top-24 space-y-lg">
+<!-- Booking Card -->
+<div class="glass-card p-lg rounded-xl shadow-xl border border-primary/20">
+<div class="mb-lg">
+<span class="text-label-sm text-on-surface-variant">Starting from</span>
+<div class="flex items-baseline gap-2">
+<span class="text-headline-md font-extrabold text-white">$65</span>
+<span class="text-on-surface-variant">/ session</span>
+</div>
+</div>
+<div class="space-y-md mb-xl">
+<button class="w-full bg-primary text-on-primary font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(164,201,255,0.3)]">
+<span class="material-symbols-outlined">event_available</span>
+                                Book Appointment
+                            </button>
+<button class="w-full bg-transparent text-primary border-2 border-primary font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined">chat</span>
+                                Message Studio
+                            </button>
+</div>
+<div class="space-y-sm border-t border-outline-variant pt-lg">
+<h4 class="text-label-md font-bold text-on-surface mb-2">Service Hours</h4>
+<div class="flex justify-between text-label-sm">
+<span class="text-on-surface-variant">Mon - Fri</span>
+<span class="text-on-surface">9:00 AM - 7:00 PM</span>
+</div>
+<div class="flex justify-between text-label-sm">
+<span class="text-on-surface-variant">Saturday</span>
+<span class="text-on-surface">10:00 AM - 5:00 PM</span>
+</div>
+<div class="flex justify-between text-label-sm">
+<span class="text-on-surface-variant">Sunday</span>
+<span class="text-secondary font-bold">Closed</span>
+</div>
+</div>
+</div>
+<!-- Contact/Location Card -->
+<div class="glass-card p-lg rounded-xl space-y-md">
+<h4 class="font-headline-md text-primary" style="font-size: 18px;">Contact &amp; Location</h4>
+<div class="rounded-lg overflow-hidden h-32 relative mb-md">
+<img alt="Map Location" class="w-full h-full object-cover" data-location="Manhattan, New York" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFgQ3egiPjuY0RveW_72VM8YVV5fkNfP-hNAmY7PxyJl34F8s7hLLIZBk9Yd1CnkSALTuaSKVXUJeHz4Vk1jGhGwwmd3u4RrdKksyEv2hkKN7sPRFdO9YN-70N2NYKTm9eS9k6jzqzZbBfYTt9kDf26jwQqqkMJX_pL59g4Blsrwp18QZ5tXAKvWwv_UP_SKxjFxrFo6WP57lKcK1b-2pSs_VmAWJmoykAQSopumqUTveotsZXbukTLZjpyx-9i2Jn73EBtTcxYvzD"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="bg-primary p-2 rounded-full shadow-lg animate-bounce">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+</div>
+<div class="space-y-md">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<p class="text-label-sm text-on-surface-variant">128 East 32nd St, Suite 400<br/>Manhattan, NY 10016</p>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary">call</span>
+<p class="text-label-sm text-on-surface-variant">+1 (212) 555-0192</p>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary">mail</span>
+<p class="text-label-sm text-on-surface-variant">hello@pawsbubbles.com</p>
+</div>
+</div>
+</div>
+<!-- Trust Badge -->
+<div class="bg-surface-container-highest p-md rounded-xl border border-outline-variant/50 flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary text-[40px]">shield_spark</span>
+<div>
+<h5 class="text-label-md font-bold text-on-surface">eDog Insured</h5>
+<p class="text-label-sm text-on-surface-variant">Full coverage for all bookings through eDog.</p>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<script>
+        // Simple scroll behavior for top bar
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('bg-surface/90', 'backdrop-blur-md');
+            } else {
+                header.classList.remove('bg-surface/90', 'backdrop-blur-md');
+            }
+        });
+
+        // Interactive states for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.96)';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = '';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
+            });
+        });
+    </script>
+</body></html>

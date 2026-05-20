@@ -17,6 +17,7 @@ import { PetPassport } from './components/PetPassport';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { AdminApp } from './components/AdminApp';
 import { ExpensesView } from './components/ExpensesView';
+import { ServicesView } from './components/ServicesView';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 
 const AppContent: React.FC = () => {
@@ -113,6 +114,8 @@ const AppContent: React.FC = () => {
         return (
           <ExpensesView currentDog={currentDog} />
         );
+      case 'services':
+        return <ServicesView />;
       case 'settings':
         return (
           <SettingsView

@@ -12,6 +12,7 @@ import { Button } from './components/ui/Button';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from './hooks/useNotifications';
 import { Health } from './components/Health';
+import { ServicesView } from './components/ServicesView';
 import { LocalNotifications } from "@capacitor/local-notifications";
 
 const NOTIF_PERM_ASKED_KEY = 'notif_permission_asked';
@@ -90,6 +91,8 @@ const AppContent: React.FC = () => {
         return <Health />;
       case 'training':
         return <TrainingTracker />;
+      case 'services':
+        return <ServicesView />;
       case 'settings':
         return <Settings />;
       default:

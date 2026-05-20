@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Local Services</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #111316;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#1e2023",
+                      "on-tertiary-container": "#3c2500",
+                      "outline-variant": "#414751",
+                      "primary-container": "#4d93e5",
+                      "secondary": "#ffd798",
+                      "on-secondary-container": "#6a4800",
+                      "tertiary-fixed": "#ffddb4",
+                      "outline": "#8b919d",
+                      "inverse-surface": "#e2e2e6",
+                      "tertiary-fixed-dim": "#ffb953",
+                      "primary": "#a4c9ff",
+                      "on-surface": "#e2e2e6",
+                      "surface-bright": "#37393d",
+                      "secondary-container": "#feb300",
+                      "surface-container-high": "#282a2d",
+                      "on-tertiary-fixed": "#291800",
+                      "on-tertiary-fixed-variant": "#633f00",
+                      "background": "#111316",
+                      "primary-fixed": "#d4e3ff",
+                      "tertiary-container": "#c58305",
+                      "secondary-fixed-dim": "#ffba35",
+                      "on-secondary": "#422c00",
+                      "tertiary": "#ffb953",
+                      "on-background": "#e2e2e6",
+                      "surface-variant": "#333538",
+                      "on-primary-container": "#002a51",
+                      "inverse-on-surface": "#2f3034",
+                      "surface-container-low": "#1a1c1f",
+                      "primary-fixed-dim": "#a4c9ff",
+                      "on-primary": "#00315d",
+                      "on-error": "#690005",
+                      "on-error-container": "#ffdad6",
+                      "on-primary-fixed": "#001c39",
+                      "on-surface-variant": "#c1c7d3",
+                      "surface": "#111316",
+                      "error": "#ffb4ab",
+                      "on-secondary-fixed-variant": "#5f4100",
+                      "inverse-primary": "#0060ac",
+                      "surface-container-highest": "#333538",
+                      "on-secondary-fixed": "#281900",
+                      "surface-container-lowest": "#0c0e11",
+                      "on-primary-fixed-variant": "#004883",
+                      "error-container": "#93000a",
+                      "surface-dim": "#111316",
+                      "on-tertiary": "#452b00",
+                      "surface-tint": "#a4c9ff",
+                      "secondary-fixed": "#ffdeac"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "margin-desktop": "48px",
+                      "gutter": "16px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<header class="w-full top-0 sticky z-40 bg-surface dark:bg-surface border-b border-white/10 shadow-sm flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary font-headline-md text-headline-md">pets</span>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">eDog</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/5 transition-colors text-primary active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto pb-32">
+<section class="px-margin-mobile pt-lg">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-high rounded-xl border-none focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline transition-all" placeholder="Search for vets, walkers, or groomers..." type="text"/>
+</div>
+</section>
+<section class="mt-xl">
+<div class="flex items-center justify-between px-margin-mobile mb-md">
+<h2 class="font-headline-md text-headline-md">Categories</h2>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar px-margin-mobile pb-2">
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-16 h-16 rounded-full bg-primary-container/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-[28px]">medical_services</span>
+</div>
+<span class="font-label-md text-label-md">Vets</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-[28px]">content_cut</span>
+</div>
+<span class="font-label-md text-label-md">Groomers</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-[28px]">shopping_bag</span>
+</div>
+<span class="font-label-md text-label-md">Shops</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-[28px]">fitness_center</span>
+</div>
+<span class="font-label-md text-label-md">Trainers</span>
+</button>
+<button class="flex flex-col items-center gap-2 min-w-[80px] group">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-[28px]">directions_walk</span>
+</div>
+<span class="font-label-md text-label-md">Walkers</span>
+</button>
+</div>
+</section>
+<section class="mt-xl">
+<div class="flex items-center justify-between px-margin-mobile mb-md">
+<h2 class="font-headline-md text-headline-md">Featured Partners</h2>
+<button class="text-primary font-label-md text-label-md">See all</button>
+</div>
+<div class="flex gap-lg overflow-x-auto hide-scrollbar px-margin-mobile pb-4">
+<div class="min-w-[300px] md:min-w-[400px] glass-card rounded-2xl overflow-hidden relative group">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A premium high-end veterinary clinic interior with sleek dark wood panels, minimalist furniture, and warm ambient lighting. A professional veterinarian is smiling warmly while checking a golden retriever on a modern examination table. The overall aesthetic is professional, corporate modern, and reassuringly clean with a deep palette of charcoal and blue accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgNFSz3CBTIKKQIGf2-OuWncfVif_-LneOt77RneUs2vQgDZ9dN3j6A4_ZzcfspscttrupJI2qjaLhArxgOMv03c6UYq7M7ntDs3viP64g0dlpdxrYMZ7FwjeCG_BjLARylW0H0odRmDMT28RmnTkwJ3i_TZgFUHblPTEhQq2mJHWyk5nC3h3tcwDY0cLjy6N-T0zVjDLv3BpWiF7Jgmvnu1lTTXZUcxV9mIqLRAGVStO95x50rb7u90ydff2OZwHcDy6aV78VxvrQ"/>
+<div class="absolute top-4 left-4 bg-secondary text-on-secondary px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 shadow-lg">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                            Featured
+                        </div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md leading-tight">Bark &amp; Care Wellness</h3>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.9</span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-label-md text-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">location_on</span> 0.8 miles</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">emergency</span> 24/7 Service</span>
+</div>
+</div>
+</div>
+<div class="min-width-[300px] md:min-w-[400px] glass-card rounded-2xl overflow-hidden relative group">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A luxury pet grooming studio with professional lighting and high-tech equipment. The setting is modern and sophisticated, featuring a clean dark aesthetic with polished surfaces. A stylishly groomed poodle stands proudly on a grooming station. The atmosphere is upscale, calm, and meticulous, using the corporate modern design language of the eDog brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJUqjretw7vB46gLvQlM9tYJ1IOsbzv5gCvwEDXYbrtVT1NKKM04PLGgtL--yXzW1nZPLLRZpEQlyftyS_IWxnnobWCPWKH4agLWVonWRaNdMHqomtyN-g3F9c6srNec5OGcQxbisHzGtf8bIgqv3Htr3Tx5CAROCKX25SnRCawo8xnj5MrZje5WyEJRilTzPJjRNdxPq-vvOZ0eaZMTBiv2gyNNu0PR_kRaC-MRprx-Aq6es2TQdYP0wWkIYl0zDgrgGrUyzwTqod"/>
+<div class="absolute top-4 left-4 bg-secondary text-on-secondary px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 shadow-lg">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                            Featured
+                        </div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md leading-tight">The Posh Pooch</h3>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.8</span>
+</div>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-label-md text-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">location_on</span> 1.2 miles</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">content_cut</span> Full Spa</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="mt-xl px-margin-mobile">
+<div class="flex items-center justify-between mb-md">
+<h2 class="font-headline-md text-headline-md">Discover Services</h2>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container-high rounded-lg text-outline">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="p-md bg-surface-container rounded-2xl flex gap-md items-center border border-white/5 hover:border-primary/20 transition-all cursor-pointer group">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A focused portrait of a professional dog trainer working in a green park at sunset. The lighting is golden and cinematic, highlighting the trainer's expert posture and the attentive look of a German Shepherd. The image maintains a high-fidelity, high-contrast look that fits into a premium dark-themed service directory." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6vCAnoIK0WsXXEsms29X4OXM-PAGVE8DubHFvQnq8_JybPYqeyCAOOrvG0eAktsOFvK0_FfvimRfvJZbx8Bw8ZzXT_MHnbG3qrLhXd6zZPDt5gah7Lf1gpDnM2xVdPkYOWgjkuZcR4XvOxeymoT79uvF3GJ7QNll2UANDLoozqRm5kTjVinxnAv8jMWjmDj1PdXeZkOPOCetCaESdYglNYZEgIK-NTcUPH0VLo7hzLxdP-B1ghbp6LhXv8hmaEI3D2PWczA0rbHBd"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-label-md text-label-md truncate">Elite Training Academy</h4>
+<p class="text-on-surface-variant font-label-sm text-label-sm">Professional Training</p>
+</div>
+<p class="text-primary font-label-sm text-label-sm">2.4 mi</p>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">4.7</span>
+</div>
+<button class="text-primary font-label-md text-label-md group-hover:underline">View Profile</button>
+</div>
+</div>
+</div>
+<div class="p-md bg-surface-container rounded-2xl flex gap-md items-center border border-white/5 hover:border-primary/20 transition-all cursor-pointer group">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close-up of a diverse range of premium organic dog food and toys in a high-end boutique pet shop. The setting is modern with dark shelving and spotlights emphasizing the quality of the products. The visual style is tactile and corporate, emphasizing trust and precision in pet health management." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm-B9YWG3qpPA8cVHLrZwivykKnQvPSeQxoTH0rN-5AdfNoEtmy2YCToB0mveic0mU1ZHKSp8wEVgzQ2D4sgPT0y8tvo_jcZcpVhcsjUQ2fau4DNviXeW8HM1AK06mQw0RQm2gsZuLRpAjuDxSK4biWXqMEqacY2hjw7_3daVhk5Ecpo8S_PdlWk6x5z9IgaFS-498XUDUCzzNKrs8rv6rmje0xdOMxL7UeouOSb8738ySTEYJcDjMWeLMiEDFW8wAp62OEQiqDJI7"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-label-md text-label-md truncate">Paws &amp; Whiskers Boutique</h4>
+<p class="text-on-surface-variant font-label-sm text-label-sm">Pet Shop</p>
+</div>
+<p class="text-primary font-label-sm text-label-sm">1.1 mi</p>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">4.6</span>
+</div>
+<button class="text-primary font-label-md text-label-md group-hover:underline">View Profile</button>
+</div>
+</div>
+</div>
+<div class="p-md bg-surface-container rounded-2xl flex gap-md items-center border border-white/5 hover:border-primary/20 transition-all cursor-pointer group">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A dog walker leading a group of happy dogs through a lush, sun-dappled city park path. The image conveys energy, movement, and warmth. The photography style is crisp and professional, using a shallow depth of field to keep the focus on the pets and their caretaker." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZfF9Utf7zwkvggp9LceGIkQG8a-ATKW8IyQGbeqFnTndXPQrBonYW5YmJtKsGiOHNVq5crV4UaT-zelX27hLFFvuWcHf5xUMDZdm-gJg-VohndTL31JkzUBQDRyJNv8_eCJ19xM_G6qEiBlMGLEtz-W6u-I_ef85wrfYdbVAAJx6hZZJPJ-do1XYTLupLvZ0SiNp62rtRtGN50C6CT8RFtopiS8KwV7xAsCLAUJlVICzD7FHm30P7EHP7EUi9hZ0eK3lAg2OtvwCj"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-label-md text-label-md truncate">City Tails Walking</h4>
+<p class="text-on-surface-variant font-label-sm text-label-sm">Dog Walker</p>
+</div>
+<p class="text-primary font-label-sm text-label-sm">0.5 mi</p>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">4.9</span>
+</div>
+<button class="text-primary font-label-md text-label-md group-hover:underline">View Profile</button>
+</div>
+</div>
+</div>
+<div class="p-md bg-surface-container rounded-2xl flex gap-md items-center border border-white/5 hover:border-primary/20 transition-all cursor-pointer group">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A modern veterinary clinic laboratory where a white lab-coated technician is looking into a high-precision digital microscope. The environment is sterile and high-tech, using cool blue lighting. The image represents the medical precision and professional excellence at the core of the eDog brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwTVvcBj_a4lmCAYLCwXgcUgdXboN-zsSULLedZiX7w38vduyryqo4hAJQtx4txQ2IzTpXVMg2f4-1e9VrmE-O-iaMJTq0duzvd422JLUfub9vi7TtM0LQxz6uVKss41BgGvAYZQTps-YpUSxs_l_BQZvf1-fxZUvGtYe6vu5zM26RfLDhm--DniWWX_H00NfxmarcYUBsIhjcxvNlGeskZP77cHvFajEEPK_FRTHLt4d4ZZYWDflU-6G-OfcX9eonVPhom00uIOps"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-label-md text-label-md truncate">PetMed Diagnostics</h4>
+<p class="text-on-surface-variant font-label-sm text-label-sm">Veterinary Hospital</p>
+</div>
+<p class="text-primary font-label-sm text-label-sm">3.2 mi</p>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">4.8</span>
+</div>
+<button class="text-primary font-label-md text-label-md group-hover:underline">View Profile</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container dark:bg-surface-container border-t border-white/5 shadow-[0_-4px_10px_rgba(0,0,0,0.4)] flex justify-around items-center h-20 px-4 pb-safe">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary font-bold active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label-sm text-label-sm">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary-fixed-dim transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-sm text-label-sm">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary-fixed-dim transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary-fixed-dim transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Account</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for category selection
+        const categoryButtons = document.querySelectorAll('button.flex.flex-col.items-center');
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryButtons.forEach(b => {
+                    const iconDiv = b.querySelector('div');
+                    iconDiv.classList.remove('bg-primary', 'text-on-primary-container');
+                    iconDiv.classList.add('bg-surface-container-highest', 'text-on-surface-variant');
+                });
+                const iconDiv = btn.querySelector('div');
+                iconDiv.classList.add('bg-primary', 'text-on-primary-container');
+                iconDiv.classList.remove('bg-surface-container-highest', 'text-on-surface-variant');
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.01]');
+            searchInput.parentElement.classList.add('shadow-xl');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.01]');
+            searchInput.parentElement.classList.remove('shadow-xl');
+        });
+    </script>
+</body></html>

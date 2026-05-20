@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Paws &amp; Bubbles Grooming | PetMastery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #111316;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .inner-glow {
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#93000a",
+                      "surface-container-low": "#1a1c1f",
+                      "on-tertiary-fixed-variant": "#633f00",
+                      "outline": "#8b919d",
+                      "surface-variant": "#333538",
+                      "secondary-container": "#feb300",
+                      "primary-fixed-dim": "#a4c9ff",
+                      "tertiary": "#ffb953",
+                      "surface-tint": "#a4c9ff",
+                      "on-primary-fixed-variant": "#004883",
+                      "surface-container": "#1e2023",
+                      "on-error": "#690005",
+                      "error": "#ffb4ab",
+                      "background": "#111316",
+                      "surface-container-high": "#282a2d",
+                      "primary": "#a4c9ff",
+                      "on-surface-variant": "#c1c7d3",
+                      "primary-fixed": "#d4e3ff",
+                      "secondary-fixed-dim": "#ffba35",
+                      "tertiary-fixed-dim": "#ffb953",
+                      "surface": "#111316",
+                      "on-background": "#e2e2e6",
+                      "outline-variant": "#414751",
+                      "on-error-container": "#ffdad6",
+                      "inverse-surface": "#e2e2e6",
+                      "surface-bright": "#37393d",
+                      "on-secondary": "#422c00",
+                      "on-secondary-fixed": "#281900",
+                      "secondary": "#ffd798",
+                      "surface-dim": "#111316",
+                      "tertiary-container": "#c58305",
+                      "on-tertiary": "#452b00",
+                      "on-secondary-fixed-variant": "#5f4100",
+                      "on-primary-container": "#002a51",
+                      "on-surface": "#e2e2e6",
+                      "primary-container": "#4d93e5",
+                      "surface-container-lowest": "#0c0e11",
+                      "secondary-fixed": "#ffdeac",
+                      "on-primary": "#00315d",
+                      "inverse-on-surface": "#2f3034",
+                      "surface-container-highest": "#333538",
+                      "tertiary-fixed": "#ffddb4",
+                      "on-tertiary-fixed": "#291800",
+                      "inverse-primary": "#0060ac",
+                      "on-primary-fixed": "#001c39",
+                      "on-tertiary-container": "#3c2500",
+                      "on-secondary-container": "#6a4800"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "48px",
+                      "unit": "4px",
+                      "gutter": "16px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "label-md": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+              }
+            }
+          }
+        }
+      </script>
+</head>
+<body class="text-on-surface">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full flex justify-between items-center px-margin-desktop py-4 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md z-40 shadow-sm border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">PetMastery</span>
+</div>
+<div class="flex items-center gap-lg">
+<nav class="hidden md:flex items-center gap-xl">
+<a class="text-on-surface-variant font-normal hover:bg-primary-container/10 transition-colors duration-200 px-3 py-1 rounded-lg" href="#">Dashboard</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Directory</a>
+<a class="text-on-surface-variant font-normal hover:bg-primary-container/10 transition-colors duration-200 px-3 py-1 rounded-lg" href="#">Health</a>
+</nav>
+<div class="flex items-center gap-md">
+<div class="relative">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary p-2">notifications</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary p-2">settings</span>
+<img alt="User Profile" class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A professional close-up portrait of a user profile avatar. The lighting is soft and warm against a dark, out-of-focus office background, creating a high-end corporate aesthetic. The person is smiling gently, conveying trust and approachability. The image uses a cool-toned color palette with subtle blue accents to match the PetMastery brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGxZ3yxg5z7srHaoUsRM1qoXqgR_ClHnXJ6nMqbtnKXJnDTVa2c-idkLeKXJ5HcbTKu9_S06qLDdv53PI0L89aEIvtGiPs28ZPV43BKeIWEdjYDLTDQyO7HDQL9Ef-ETBthsAUnAyj92cn3ern1LJRVDiPoR4_HlpS6rrnSaHhZ1K2Nlm0e2E99ly59a7wqFkEghBJROwv8huRZDrlHHI6zmiVRx-oEWolDmXfuCL9sS6P1c6iBIuCy4YpeuWp1sj0INvIcVtjFdBu"/>
+</div>
+</div>
+</header>
+<div class="flex min-h-screen">
+<!-- SideNavBar (The Anchor) -->
+<aside class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant/30 py-md px-sm z-50 pt-24">
+<div class="mb-xl px-sm">
+<div class="flex items-center gap-sm mb-4">
+<img class="w-8 h-8 rounded-lg object-cover" data-alt="PetMastery application logo featuring a stylized dog head icon in bright primary blue. The logo is clean and minimalist, set against a dark, sophisticated carbon-fiber textured background. High-tech, precise lines define the shape, reflecting professional-grade pet training and care." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwsBwaiMf0kASi7duvX5rFZBz2yk2R_BlR1qJ9fBV72StkEcyK1z1zbQihxlEeJoCRfApnvcuX3qeNbHM2CstSgvVG-8DrbdraAqcCB-bgtIAwVCdPUlqsd9szWKj7tcaAh51fPQ6o9qq2bhx1tHeY0w29bV8WHr3U5DnZsrmaM9swarmQqhnJAvziisLB8XKFZv1UcUz-roAW4-V5mLsW4x_Mfa4vyt-GO2qWRTzOJOsO-freYDJecjQugMFnQ6gjtgcpAHcL1pqC"/>
+<div>
+<p class="font-headline-md text-sm font-bold text-primary">PetMastery</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Premium Training</p>
+</div>
+</div>
+</div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300 rounded-xl group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300 rounded-xl group" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-label-md text-label-md">Health</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300 rounded-xl group" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-md text-label-md">Training</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300 rounded-xl group" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Community</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-primary font-bold bg-primary-container/20 border-r-4 border-primary transition-all duration-300 rounded-l-xl" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-md text-label-md">AI Assistant</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1">
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300 rounded-xl" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-all duration-300 rounded-xl" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 w-full bg-background overflow-x-hidden">
+<!-- Hero Section -->
+<section class="relative h-[400px] w-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A luxurious, high-end pet grooming salon interior with a modern corporate aesthetic. The room features dark wood paneling, sleek marble grooming stations, and professional LED ring lighting. The color palette is dominated by deep charcoal and PetMastery blue accents. Soft, cinematic lighting creates a premium, professional atmosphere that conveys trust and high-quality care." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX0TVrMug7dkhWA45qnYNMlOklbRID8LhcLopWeIOI_Jg_vD_Ac7lTDKJ_WLjKRSny9n2A6cXhXPUQg04VcY-Y_JsfpjsHBCUxYFx1mIH7w-_ioUzRhgUv_eRjJAV3ypx7Cfregz4CzeBD_JnM-8wZVnB-0Hrw4CVD0OcOQfi8uxGRXaKKSjiDkhaDsR82Ldx1FoiiPTWVWTZPazAzRugnoTgKxjsabXLgc1inLAZLNlZLICAyf3AI7gNs6CGErd0AkSXSrI1xsaiI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-margin-desktop w-full flex justify-between items-end">
+<div class="max-w-2xl">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-primary/30">Verified Partner</span>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold">4.9 (128 reviews)</span>
+</div>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Paws &amp; Bubbles Grooming</h1>
+<p class="text-on-surface-variant font-body-lg max-w-lg">Providing a serene, spa-like experience for your beloved companions with award-winning precision and care.</p>
+</div>
+</div>
+</section>
+<div class="px-margin-desktop py-xl grid grid-cols-12 gap-lg">
+<!-- Main Body Content -->
+<div class="col-span-8 space-y-xl">
+<!-- Exclusive Offer Banner -->
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-secondary-container to-secondary p-8 flex items-center justify-between shadow-lg">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-on-secondary-container">workspace_premium</span>
+<span class="text-on-secondary-container font-bold uppercase tracking-widest text-[10px]">Exclusive eDog Gold Perk</span>
+</div>
+<h2 class="font-headline-md text-on-secondary-container mb-1">10% OFF All Services</h2>
+<p class="text-on-secondary-container/80 font-body-md">Redeem your exclusive eDog Gold member discount at checkout.</p>
+</div>
+<button class="relative z-10 px-lg py-md bg-on-secondary-container text-surface rounded-lg font-bold hover:scale-105 transition-transform active:scale-95 shadow-md">
+                            Claim Offer
+                        </button>
+<!-- Decorative element -->
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+</div>
+</div>
+<!-- About Section -->
+<div class="glass-card rounded-xl p-lg inner-glow">
+<h3 class="font-headline-md text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined">info</span>
+                            About the Salon
+                        </h3>
+<p class="text-on-surface-variant font-body-md leading-relaxed mb-md">
+                            At Paws &amp; Bubbles, we believe grooming is more than just a haircut—it's a vital component of your pet's overall health and happiness. Our state-of-the-art facility is designed to minimize stress, featuring sound-dampened suites and therapeutic bathing systems. 
+                        </p>
+<p class="text-on-surface-variant font-body-md leading-relaxed">
+                            Our team of Master Groomers specializes in breed-specific styling, hand-stripping, and creative grooming. We use only premium, hypoallergenic products tailored to your pet's skin and coat type.
+                        </p>
+</div>
+<!-- Gallery Section (Bento Layout) -->
+<div class="space-y-md">
+<h3 class="font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined">gallery_thumbnail</span>
+                            Gallery
+                        </h3>
+<div class="grid grid-cols-4 grid-rows-2 gap-md h-[450px]">
+<div class="col-span-2 row-span-2 rounded-xl overflow-hidden group cursor-zoom-in">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A macro photograph of a perfectly groomed Bichon Frise with soft, white, fluffy fur. The dog is looking directly at the camera with expressive eyes. The background is a sophisticated dark grey studio setting with a single blue spotlight, highlighting the precision of the grooming. The image atmosphere is professional and high-end." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN8rLREIBfvMxkKlVCn7Xu6Mg2oY3Wx43HYQvgwbR_ZTMCjhXEIG9mgwEtZtZe3H0y4ZntJE5QGhCgqFEDSpsSVH0EbwuL2mquPIJoMubQlAaMG2-X_LciogDTAp4Zn4rl1q6o0k-vBViLP6YriNcibCdtdTLmC-vqUoeoDEEl4nggD2q2kwJsEH54ADiVBFYP8H3OQxAM1z38zSVfYJZ3FG2nyVix8WhO9S-Q-3cgUryTy2hfH_wZcrPa2KwKKVmK00kYVEsoIel2"/>
+</div>
+<div class="col-span-2 row-span-1 rounded-xl overflow-hidden group cursor-zoom-in">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A clean, modern grooming workstation at Paws &amp; Bubbles. Professional stainless steel tools and high-end pet shampoo bottles are neatly arranged on a marble surface. The lighting is crisp and bright, creating a medical-grade cleanliness feel while maintaining a luxury aesthetic. A soft blue neon light in the background adds a modern touch." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDHqInhFA03e4d9dXtPJJ3rlzvpB4KApHGIuHT424EBgLBLwjDg6MWpJO7GZI5R7FALPDtlGBDnqKke4Ftgyhd1U758gaC-GiyQLBpZ05Xccofr2FKwsWJP4jUKVY2Ab3Uojo3tzVLJJIb4Qh7ClHAG71XSR8D6On91fhonKC0VwPMDiGFXLuXJN-XBGWWKoh6p8rmslVdFj4yGFAuGR88hJATO6bDZYQF6DspEPXf-jz0xpf-CTyUQUDklCP2lTAgFU7zG4BMMPjW"/>
+</div>
+<div class="col-span-1 row-span-1 rounded-xl overflow-hidden group cursor-zoom-in">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Close up of a groomer's hands gently washing a Golden Retriever's paws with rich, white suds. The water ripples are captured in high speed, and the lighting is warm and comforting. The scene emphasizes the tactile edge and the emotional bond of the grooming process within a dark-mode, high-end environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEn5UjZgrnFvQ1KrECraHDl9q-OYBrs7cAZ3vVHX1qsjctAIgJ_Q1NJ-PSXZTABPgNQ5VwxDVjCFIm-a9fcpZcu7wzWJqAj30WM60TaeqcXHdr-0viUh3jmmEDXp88hTnKusOYHtSpnOQKjQg8EfG_F_8yirx4Ph8Uu3T7gS5TjIH4tB6bQCyiYiy8T0j9bxJ8cD52EhKC8Yf0P6rElYzVKmVLn7sgjPjpveIEq7tW-B5mx-0du91uC4nhMAL34N-UkHnVHpUnNgNs"/>
+</div>
+<div class="col-span-1 row-span-1 rounded-xl overflow-hidden group cursor-zoom-in">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A happy, freshly groomed Corgi wearing a small blue bowtie, sitting proudly in the salon lobby. The lobby has a corporate modern design with a dark palette and subtle blue accents. Soft focus on the background showing the reception desk. The lighting is high-key and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqlQA8ucVVUw8ZB0R6-NBGKCrkjJhWpbadiuPLhor7zasuGTpmiuJTAGdnkCZNFQ-TGFsZvj0EISk69wg8Bv7IluJAUISuVWSt-SNEtXQNPBER_aPQLQEQPi7JMxMF_opn9nBZpwJk7mlbnH8fx0SGQIAuQlnROocjCDWeFK1lf49p-xKQ_kifGOF7mFvyvEjK1AZ067lhOMKCbawTjlseK7M6LhjAV7LVfez66PmcDKTjt_vXN8NFFQ54B3NrSCMrAyeALmeE0qfb"/>
+</div>
+</div>
+</div>
+<!-- Reviews Section -->
+<div class="space-y-md">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined">reviews</span>
+                                Reviews
+                            </h3>
+<button class="text-primary font-bold hover:underline text-label-md">Write a Review</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Review 1 -->
+<div class="glass-card rounded-xl p-lg inner-glow">
+<div class="flex items-center gap-md mb-md">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A profile picture of a happy female customer. Professional headshot lighting, warm tones, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiCqzu2kZZMmjcDhoeTQ1twa0iCbjS5L86DwaoRer2ODpKwVX7ULlcMH86e-6OHqipccaujGALIh_GPrAtPV5NqR3DEYIuKVk23EsWooCrabyG1pHWgpDOF8d7_9Byz9-_CjFjhsUi_fY5ZnoVUPu9mLSoqEtQr6nVb3dMFAK42-WEhDYFcfzi0-gFOpDmjGSLXn8kHp_hUeZCL9opr5XAt1tJ3f6q8Rv0H9kTU1gzI95s5eHGN3LvP77u90Zx8WG6WkXHnUcExTRb"/>
+<div>
+<p class="font-label-md text-on-surface">Sarah Jenkins</p>
+<p class="text-[10px] text-on-surface-variant">2 days ago • eDog Gold Member</p>
+</div>
+<div class="ml-auto flex text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-body-md">"Absolutely phenomenal service. They took such care with my anxious rescue. The high-tech facility really makes a difference."</p>
+</div>
+<!-- Review 2 -->
+<div class="glass-card rounded-xl p-lg inner-glow">
+<div class="flex items-center gap-md mb-md">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A profile picture of a male customer. Cinematic lighting, professional tech-focused aesthetic, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5j5ykjZENCDHKRYtl3hYvJTG-EYt5HBA9D-Ptcr5FU8kudMVhWmJcJN_el4bzVAuW5zqF390zikuHylZwZZHKTwYmcPli14yN4SVacdwCrtmW1C28lwBlZBDhThjThx-h8tYNbDCIFmcQ6wi2ekur9Ot_vlmA806IMSU2Ph7a1hd6vH70FmZn0Ha5_mpBpAzb_cw0yfPjrp_qUgU7PeogUvC9oIj4QjGsJl35yvWIdP8KRo349f8iTecoNRoEt9xHAZeaw6SIKorD"/>
+<div>
+<p class="font-label-md text-on-surface">Mark Thompson</p>
+<p class="text-[10px] text-on-surface-variant">1 week ago</p>
+</div>
+<div class="ml-auto flex text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+</div>
+<p class="text-on-surface-variant font-body-md">"The breed-specific cut for my Poodle was perfect. Best grooming salon in the city, hands down. Highly recommended!"</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar Content -->
+<aside class="col-span-4 space-y-lg">
+<!-- Quick Actions Card -->
+<div class="glass-card rounded-xl p-lg inner-glow sticky top-28">
+<h4 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-md">Book Your Visit</h4>
+<div class="space-y-md">
+<button class="w-full py-md bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-primary-container transition-colors shadow-lg active:scale-95">
+<span class="material-symbols-outlined">calendar_month</span>
+                                Book Appointment
+                            </button>
+<div class="grid grid-cols-2 gap-md">
+<button class="py-md bg-surface-variant/50 text-on-surface rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors border border-outline-variant/20">
+<span class="material-symbols-outlined">call</span>
+                                    Call
+                                </button>
+<button class="py-md bg-surface-variant/50 text-on-surface rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors border border-outline-variant/20">
+<span class="material-symbols-outlined">chat</span>
+                                    Message
+                                </button>
+</div>
+</div>
+<hr class="my-lg border-outline-variant/20"/>
+<div class="space-y-lg">
+<!-- Location -->
+<div>
+<h4 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-md">Location</h4>
+<div class="rounded-xl overflow-hidden h-40 relative group cursor-pointer mb-md">
+<img class="w-full h-full object-cover filter brightness-50" data-alt="A stylized digital map interface showing the Seattle metropolitan area in a dark mode theme. Streets are highlighted with glowing blue lines, and the salon location is marked with a pulsing primary blue pinpoint. The map is minimalist and clean, reflecting a high-tech concierge service aesthetic." data-location="Seattle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlETv0-YVniaocbRdOV4LX4WprTr9ZLw2WOnxDQO0Y5JME5wiVitoD2FsFnUDLjxJsRaz_YWyFQDSfRusigNwHy9dQrGqVXv9HPxiOS4U77WLwhiRswJVf1zuQ94Xv01_e-szYyT3MjC1J23T6-w6mEeQfUGRJHRUczOe4O2aladRi42ZwUZUrfufFAecAfKWBcf1e8ls6CMU0e6oQKJb3ZQQxEhhSjpvEik8A6omnhxGzx-e09vpaE09P7L-J9WtFPfcST_ySwq8K"/>
+<div class="absolute inset-0 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+<div class="bg-surface/80 backdrop-blur-md px-md py-sm rounded-lg border border-primary/20 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">map</span>
+<span class="font-label-md">View Map</span>
+</div>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-sm mt-1">location_on</span>
+                                    123 Pet Lane, Suite 400<br/>Seattle, WA 98101
+                                </p>
+</div>
+<!-- Working Hours -->
+<div>
+<h4 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-md">Working Hours</h4>
+<ul class="space-y-sm">
+<li class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Monday - Friday</span>
+<span class="text-on-surface font-bold">08:00 - 19:00</span>
+</li>
+<li class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Saturday</span>
+<span class="text-on-surface font-bold">09:00 - 17:00</span>
+</li>
+<li class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Sunday</span>
+<span class="text-primary font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
+                                            By Appointment Only
+                                        </span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<!-- Floating Action Button (FAB) - Suppression Logic: Hidden as per Details Screen rules -->
+<script>
+        // Micro-interactions for glass cards
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+                card.style.transition = 'transform 0.3s ease';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Simple star rating interaction
+        console.log("Paws & Bubbles profile loaded successfully.");
+    </script>
+</body></html>
