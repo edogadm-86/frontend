@@ -708,6 +708,12 @@
   "confirmDeleteEvent": "Tap again to confirm delete",
   "saveChanges": "Save Changes",
   "saving": "Saving...",
+  "pastEvents": "Past Events",
+  "upcomingEventsTab": "Upcoming",
+  "pastEventsTab": "Past",
+  "noPastEvents": "No past events found.",
+  "addEventCommentPlaceholder": "Comment on this event...",
+  "eventPastBadge": "Past",
 
   "weightHistory": "Weight",
   "addWeight": "Add Weight",

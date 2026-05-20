@@ -315,6 +315,22 @@ const runMigrations = async () => {
 
       CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
 
+      -- Event comments
+      CREATE TABLE IF NOT EXISTS event_comments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_event_comments_event_id ON event_comments(event_id);
+
+      DROP TRIGGER IF EXISTS update_event_comments_updated_at ON event_comments;
+      CREATE TRIGGER update_event_comments_updated_at
+        BEFORE UPDATE ON event_comments
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
       -- Post reports (flag inappropriate content)
       CREATE TABLE IF NOT EXISTS post_reports (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -403,6 +419,10 @@ const runMigrations = async () => {
       CREATE TRIGGER update_expenses_updated_at
         BEFORE UPDATE ON expenses
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      -- Comment replies: add parent_id to support 2-level nesting
+      ALTER TABLE post_comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES post_comments(id) ON DELETE CASCADE;
+      ALTER TABLE event_comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES event_comments(id) ON DELETE CASCADE;
     `;
 
     await pool.query(migrationSQL);

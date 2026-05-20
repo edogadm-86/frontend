@@ -712,6 +712,12 @@
   "confirmDeleteEvent": "Натисни отново за потвърждение",
   "saveChanges": "Запази промените",
   "saving": "Запазване...",
+  "pastEvents": "Минали събития",
+  "upcomingEventsTab": "Предстоящи",
+  "pastEventsTab": "Минали",
+  "noPastEvents": "Няма минали събития.",
+  "addEventCommentPlaceholder": "Коментирай събитието...",
+  "eventPastBadge": "Минало",
 
   "weightHistory": "Тегло",
   "addWeight": "Добави тегло",
