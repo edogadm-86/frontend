@@ -1,6 +1,4 @@
-const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
-const USER_AGENT = 'eDogApp/1.0 (contact@edog.app)';
+// Google Places / Maps utilities
 
 export interface OsmPlace {
   id: string;
@@ -12,6 +10,8 @@ export interface OsmPlace {
   phone?: string;
   website?: string;
   openingHours?: string;
+  rating?: number;
+  placeId?: string;
 }
 
 export interface GeoLocation {
@@ -21,117 +21,96 @@ export interface GeoLocation {
 }
 
 const geocodeCache = new Map<string, GeoLocation | null>();
-const overpassCache = new Map<string, OsmPlace[]>();
 
 export async function geocodeCity(city: string): Promise<GeoLocation | null> {
   const key = city.toLowerCase().trim();
   if (geocodeCache.has(key)) return geocodeCache.get(key)!;
 
-  try {
-    const params = new URLSearchParams({ q: city, format: 'json', limit: '1' });
-    const res = await fetch(`${NOMINATIM_URL}?${params}`, {
-      headers: { 'User-Agent': USER_AGENT, 'Accept-Language': 'en' },
-    });
-    const data = await res.json();
-    if (!data?.length) {
+  return new Promise((resolve) => {
+    if (typeof google === 'undefined' || !google.maps?.Geocoder) {
       geocodeCache.set(key, null);
-      return null;
+      resolve(null);
+      return;
     }
-    const result: GeoLocation = {
-      lat: parseFloat(data[0].lat),
-      lon: parseFloat(data[0].lon),
-      displayName: data[0].display_name,
-    };
-    geocodeCache.set(key, result);
-    return result;
-  } catch {
-    geocodeCache.set(key, null);
-    return null;
-  }
-}
-
-const OSM_AMENITY_TO_CATEGORY: Record<string, string> = {
-  veterinary: 'veterinary',
-  animal_shelter: 'veterinary',
-  pet_grooming: 'grooming',
-  pet_shop: 'pet_shop',
-};
-
-const OSM_SHOP_TO_CATEGORY: Record<string, string> = {
-  pet: 'pet_shop',
-  pet_grooming: 'grooming',
-  grooming: 'grooming',
-};
-
-function buildOverpassQuery(lat: number, lon: number, radiusM = 5000): string {
-  return `
-[out:json][timeout:20];
-(
-  node["amenity"="veterinary"](around:${radiusM},${lat},${lon});
-  node["amenity"="animal_shelter"](around:${radiusM},${lat},${lon});
-  node["shop"="pet"](around:${radiusM},${lat},${lon});
-  node["shop"="grooming"](around:${radiusM},${lat},${lon});
-  node["shop"="pet_grooming"](around:${radiusM},${lat},${lon});
-  node["leisure"="dog_park"](around:${radiusM},${lat},${lon});
-);
-out body;`;
-}
-
-function parseTags(tags: Record<string, string>, nodeId: number): OsmPlace {
-  const amenity = tags['amenity'] || '';
-  const shop = tags['shop'] || '';
-
-  let category =
-    OSM_AMENITY_TO_CATEGORY[amenity] ||
-    OSM_SHOP_TO_CATEGORY[shop] ||
-    (tags['leisure'] === 'dog_park' ? 'dog_park' : 'other');
-
-  const housenumber = tags['addr:housenumber'] || '';
-  const street = tags['addr:street'] || '';
-  const city = tags['addr:city'] || '';
-  const addressParts = [street, housenumber, city].filter(Boolean);
-
-  return {
-    id: `osm-${nodeId}`,
-    name: tags['name'] || tags['brand'] || 'Unnamed',
-    category,
-    lat: 0,
-    lon: 0,
-    address: addressParts.length ? addressParts.join(' ') : undefined,
-    phone: tags['phone'] || tags['contact:phone'] || undefined,
-    website: tags['website'] || tags['contact:website'] || undefined,
-    openingHours: tags['opening_hours'] || undefined,
-  };
-}
-
-export async function fetchOsmPlaces(lat: number, lon: number, radiusM = 5000): Promise<OsmPlace[]> {
-  const cacheKey = `${lat.toFixed(3)},${lon.toFixed(3)},${radiusM}`;
-  if (overpassCache.has(cacheKey)) return overpassCache.get(cacheKey)!;
-
-  try {
-    const query = buildOverpassQuery(lat, lon, radiusM);
-    const res = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `data=${encodeURIComponent(query)}`,
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address: city }, (results, status) => {
+      if (status === 'OK' && results && results.length > 0) {
+        const loc = results[0].geometry.location;
+        const result: GeoLocation = {
+          lat: loc.lat(),
+          lon: loc.lng(),
+          displayName: results[0].formatted_address,
+        };
+        geocodeCache.set(key, result);
+        resolve(result);
+      } else {
+        geocodeCache.set(key, null);
+        resolve(null);
+      }
     });
-    const data = await res.json();
+  });
+}
 
-    const places: OsmPlace[] = (data.elements || [])
-      .filter((el: any) => el.tags?.name || el.tags?.brand)
-      .map((el: any) => {
-        const place = parseTags(el.tags || {}, el.id);
-        place.lat = el.lat;
-        place.lon = el.lon;
-        return place;
-      });
+// Searches nearby dog-related places via Google Places API
+// Returns up to 20 results per type (60 total max)
+const PLACE_TYPES: Array<{ type: string; category: string }> = [
+  { type: 'veterinary_care', category: 'veterinary' },
+  { type: 'pet_store', category: 'pet_shop' },
+];
 
-    overpassCache.set(cacheKey, places);
-    return places;
-  } catch {
-    overpassCache.set(cacheKey, []);
-    return [];
+const placesCache = new Map<string, OsmPlace[]>();
+
+export function fetchNearbyPlaces(
+  map: google.maps.Map,
+  lat: number,
+  lon: number,
+  onResult: (places: OsmPlace[]) => void
+): void {
+  const cacheKey = `${lat.toFixed(3)},${lon.toFixed(3)}`;
+  if (placesCache.has(cacheKey)) {
+    onResult(placesCache.get(cacheKey)!);
+    return;
   }
+
+  const service = new google.maps.places.PlacesService(map);
+  const center = new google.maps.LatLng(lat, lon);
+  const collected: OsmPlace[] = [];
+  let pending = PLACE_TYPES.length;
+
+  PLACE_TYPES.forEach(({ type, category }) => {
+    service.nearbySearch(
+      { location: center, radius: 5000, type },
+      (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          results.forEach(place => {
+            if (!place.geometry?.location || !place.name) return;
+            collected.push({
+              id: `gp-${place.place_id}`,
+              name: place.name,
+              category,
+              lat: place.geometry.location.lat(),
+              lon: place.geometry.location.lng(),
+              address: place.vicinity ?? undefined,
+              rating: place.rating ?? undefined,
+              placeId: place.place_id,
+            });
+          });
+        }
+        pending--;
+        if (pending === 0) {
+          // dedupe by place_id
+          const seen = new Set<string>();
+          const unique = collected.filter(p => {
+            if (seen.has(p.placeId!)) return false;
+            seen.add(p.placeId!);
+            return true;
+          });
+          placesCache.set(cacheKey, unique);
+          onResult(unique);
+        }
+      }
+    );
+  });
 }
 
 export function googleMapsUrl(lat: number, lon: number, name?: string): string {

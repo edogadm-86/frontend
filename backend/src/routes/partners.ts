@@ -123,15 +123,15 @@ router.post('/', authenticateToken, adminOnly, validatePartner, validateRequest,
     const {
       category_id, name, description, phone, email, website,
       address, city, latitude, longitude, working_hours,
-      social_links, photos, logo_url, is_featured, is_active,
+      social_links, photos, logo_url, is_featured, is_active, google_place_id,
     } = req.body;
 
     const id = uuidv4();
     const result = await pool.query(
       `INSERT INTO partners (id, category_id, name, description, phone, email, website,
         address, city, latitude, longitude, working_hours, social_links, photos,
-        logo_url, is_featured, is_active, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+        logo_url, is_featured, is_active, google_place_id, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
        RETURNING *`,
       [
         id, category_id, name, description || null, phone || null, email || null,
@@ -143,6 +143,7 @@ router.post('/', authenticateToken, adminOnly, validatePartner, validateRequest,
         logo_url || null,
         is_featured ?? false,
         is_active ?? true,
+        google_place_id || null,
         req.user!.id,
       ]
     );
@@ -161,7 +162,7 @@ router.put('/:id', authenticateToken, adminOnly, validatePartner, validateReques
     const {
       category_id, name, description, phone, email, website,
       address, city, latitude, longitude, working_hours,
-      social_links, photos, logo_url, is_featured, is_active,
+      social_links, photos, logo_url, is_featured, is_active, google_place_id,
     } = req.body;
 
     const result = await pool.query(
@@ -169,8 +170,8 @@ router.put('/:id', authenticateToken, adminOnly, validatePartner, validateReques
         category_id=$1, name=$2, description=$3, phone=$4, email=$5, website=$6,
         address=$7, city=$8, latitude=$9, longitude=$10, working_hours=$11,
         social_links=$12, photos=$13, logo_url=$14, is_featured=$15, is_active=$16,
-        updated_at=CURRENT_TIMESTAMP
-       WHERE id=$17
+        google_place_id=$17, updated_at=CURRENT_TIMESTAMP
+       WHERE id=$18
        RETURNING *`,
       [
         category_id, name, description || null, phone || null, email || null,
@@ -182,6 +183,7 @@ router.put('/:id', authenticateToken, adminOnly, validatePartner, validateReques
         logo_url || null,
         is_featured ?? false,
         is_active ?? true,
+        google_place_id || null,
         id,
       ]
     );

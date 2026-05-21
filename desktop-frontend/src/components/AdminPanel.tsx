@@ -8,6 +8,7 @@ import {
 } from 'recharts';
 import { apiClient } from '../lib/api';
 import { AdminStats, AdminUserSummary, AdminDog, AdminReportedPost } from '../types';
+import { PartnerLocationPicker, type PickedLocation } from './PartnerLocationPicker';
 
 type Tab = 'overview' | 'users' | 'dogs' | 'reports' | 'email' | 'partners';
 
@@ -1009,7 +1010,12 @@ export const AdminPanel: React.FC = () => {
 // ── Partners admin tab ────────────────────────────────────────────────────────
 const EMPTY_PARTNER = {
   name: '', category_id: '', description: '', phone: '', email: '',
-  website: '', address: '', city: '', logo_url: '', is_featured: false, is_active: true,
+  website: '', address: '', city: '', logo_url: '',
+  is_featured: false, is_active: true,
+  latitude: null as number | null,
+  longitude: null as number | null,
+  google_place_id: '',
+  photos: [] as string[],
 };
 const EMPTY_PROMO = { title: '', description: '', discount_text: '', valid_until: '' };
 
@@ -1050,6 +1056,9 @@ const PartnersTab: React.FC<{ inputCls: string }> = ({ inputCls }) => {
       phone: p.phone || '', email: p.email || '', website: p.website || '',
       address: p.address || '', city: p.city || '', logo_url: p.logo_url || '',
       is_featured: p.is_featured, is_active: p.is_active,
+      latitude: p.latitude ?? null, longitude: p.longitude ?? null,
+      google_place_id: p.google_place_id || '',
+      photos: p.photos || [],
     });
     setShowForm(true);
   };
@@ -1108,6 +1117,22 @@ const PartnersTab: React.FC<{ inputCls: string }> = ({ inputCls }) => {
 
   const f = (k: keyof typeof form, v: any) => setForm(prev => ({ ...prev, [k]: v }));
 
+  const handleLocationPick = (loc: PickedLocation) => {
+    setForm(prev => ({
+      ...prev,
+      name: prev.name || loc.name,
+      phone: prev.phone || loc.phone,
+      website: prev.website || loc.website,
+      address: loc.address,
+      city: loc.city,
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      google_place_id: loc.google_place_id,
+      logo_url: prev.logo_url || loc.logo_url,
+      photos: prev.photos.length ? prev.photos : loc.photos,
+    }));
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -1165,18 +1190,96 @@ const PartnersTab: React.FC<{ inputCls: string }> = ({ inputCls }) => {
               <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Website</label>
               <input className={inputCls} value={form.website} onChange={e => f('website', e.target.value)} placeholder="https://..." />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Logo URL</label>
-              <input className={inputCls} value={form.logo_url} onChange={e => f('logo_url', e.target.value)} placeholder="https://..." />
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">
+                Photos
+                {form.photos.length > 0 && (
+                  <span className="ml-2 text-green-600 dark:text-green-400 font-normal">
+                    ✓ {form.photos.length} photo{form.photos.length > 1 ? 's' : ''} from Google Maps
+                  </span>
+                )}
+              </label>
+              {form.photos.length > 0 ? (
+                <div className="space-y-1">
+                  <p className="text-[11px] text-gray-400 dark:text-[#8b919d]">Click a photo to set it as the cover image.</p>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {form.photos.map((url, i) => (
+                      <div key={i} className="relative flex-shrink-0 group cursor-pointer"
+                        onClick={() => {
+                          if (i === 0) return;
+                          const reordered = [url, ...form.photos.filter((_, j) => j !== i)];
+                          f('photos', reordered);
+                          f('logo_url', url);
+                        }}
+                      >
+                        <img
+                          src={url}
+                          alt={`Photo ${i + 1}`}
+                          className={`h-20 w-32 object-cover rounded-lg border-2 transition-all ${
+                            i === 0
+                              ? 'border-[#005da7] ring-2 ring-[#005da7]/30'
+                              : 'border-gray-200 dark:border-white/10 hover:border-[#005da7]/50 opacity-80 hover:opacity-100'
+                          }`}
+                        />
+                        {i === 0 ? (
+                          <span className="absolute top-1 left-1 text-[10px] bg-[#005da7] text-white px-1.5 py-0.5 rounded font-semibold">
+                            Cover
+                          </span>
+                        ) : (
+                          <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 group-hover:bg-black/20 transition-all">
+                            <span className="text-[10px] text-white font-semibold opacity-0 group-hover:opacity-100 bg-black/60 px-2 py-1 rounded">
+                              Set cover
+                            </span>
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); f('photos', form.photos.filter((_, j) => j !== i)); }}
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white text-[10px] hidden group-hover:flex items-center justify-center hover:bg-red-500 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400 dark:text-[#8b919d] py-2">
+                  Photos will be auto-fetched when you select a business from the map search below.
+                </p>
+              )}
+              <input
+                className={`${inputCls} mt-2`}
+                value={form.logo_url}
+                onChange={e => f('logo_url', e.target.value)}
+                placeholder="Logo / cover image URL (auto-filled or enter manually)"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Address</label>
-              <input className={inputCls} value={form.address} onChange={e => f('address', e.target.value)} placeholder="Street & number" />
+              <input className={inputCls} value={form.address} onChange={e => f('address', e.target.value)} placeholder="Auto-filled from map search" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">City</label>
-              <input className={inputCls} value={form.city} onChange={e => f('city', e.target.value)} placeholder="Sofia" />
+              <input className={inputCls} value={form.city} onChange={e => f('city', e.target.value)} placeholder="Auto-filled from map search" />
             </div>
+          </div>
+
+          {/* Location picker */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-2">
+              Location on Map
+              {form.google_place_id && (
+                <span className="ml-2 text-green-600 dark:text-green-400 font-normal">✓ Linked to Google Maps</span>
+              )}
+            </label>
+            <PartnerLocationPicker
+              latitude={form.latitude}
+              longitude={form.longitude}
+              googlePlaceId={form.google_place_id}
+              onPick={handleLocationPick}
+              onCoordsChange={(lat, lng) => setForm(prev => ({ ...prev, latitude: lat, longitude: lng }))}
+            />
           </div>
 
           <div className="flex items-center gap-6 pt-1">

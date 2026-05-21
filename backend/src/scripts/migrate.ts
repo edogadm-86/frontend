@@ -493,6 +493,10 @@ const runMigrations = async () => {
       CREATE TRIGGER update_partners_updated_at
         BEFORE UPDATE ON partners
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      -- Add google_place_id to partners if missing
+      ALTER TABLE partners ADD COLUMN IF NOT EXISTS google_place_id VARCHAR(255);
+      CREATE INDEX IF NOT EXISTS idx_partners_google_place_id ON partners(google_place_id);
     `;
 
     await pool.query(migrationSQL);
