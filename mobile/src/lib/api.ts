@@ -508,6 +508,23 @@ async deleteMedicationReminder(dogId: string, reminderId: string) {
   return this.request(`/dogs/${dogId}/reminders/${reminderId}`, { method: 'DELETE' });
 }
 
+  // Partner endpoints
+  async getPartnerCategories() {
+    return this.request<{ categories: any[] }>('/partners/categories');
+  }
+
+  async getPartners(params?: { category?: string; city?: string; featured?: boolean }) {
+    const q = new URLSearchParams();
+    if (params?.category) q.append('category', params.category);
+    if (params?.city) q.append('city', params.city);
+    if (params?.featured) q.append('featured', 'true');
+    return this.request<{ partners: any[] }>(`/partners?${q.toString()}`);
+  }
+
+  async getPartner(id: string) {
+    return this.request<{ partner: any }>(`/partners/${id}`);
+  }
+
 }
 
 

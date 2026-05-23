@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>eDog - Paws &amp; Bubbles Grooming Salon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #111316;
+            color: #e2e2e6;
+        }
+        .glass-effect {
+            background: rgba(30, 33, 38, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #414751;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#1e2023",
+                        "on-tertiary-container": "#3c2500",
+                        "outline-variant": "#414751",
+                        "primary-container": "#4d93e5",
+                        "secondary": "#ffd798",
+                        "on-secondary-container": "#6a4800",
+                        "tertiary-fixed": "#ffddb4",
+                        "outline": "#8b919d",
+                        "inverse-surface": "#e2e2e6",
+                        "tertiary-fixed-dim": "#ffb953",
+                        "primary": "#a4c9ff",
+                        "on-surface": "#e2e2e6",
+                        "surface-bright": "#37393d",
+                        "secondary-container": "#feb300",
+                        "surface-container-high": "#282a2d",
+                        "on-tertiary-fixed": "#291800",
+                        "on-tertiary-fixed-variant": "#633f00",
+                        "background": "#111316",
+                        "primary-fixed": "#d4e3ff",
+                        "tertiary-container": "#c58305",
+                        "secondary-fixed-dim": "#ffba35",
+                        "on-secondary": "#422c00",
+                        "tertiary": "#ffb953",
+                        "on-background": "#e2e2e6",
+                        "surface-variant": "#333538",
+                        "on-primary-container": "#002a51",
+                        "inverse-on-surface": "#2f3034",
+                        "surface-container-low": "#1a1c1f",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "on-primary": "#00315d",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#001c39",
+                        "on-surface-variant": "#c1c7d3",
+                        "surface": "#111316",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed-variant": "#5f4100",
+                        "inverse-primary": "#0060ac",
+                        "surface-container-highest": "#333538",
+                        "on-secondary-fixed": "#281900",
+                        "surface-container-lowest": "#0c0e11",
+                        "on-primary-fixed-variant": "#004883",
+                        "error-container": "#93000a",
+                        "surface-dim": "#111316",
+                        "on-tertiary": "#452b00",
+                        "surface-tint": "#a4c9ff",
+                        "secondary-fixed": "#ffdeac"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "margin-desktop": "48px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-surface dark:bg-surface border-b border-white/10 shadow-sm">
+<div class="flex justify-between items-center w-full px-margin-mobile h-16">
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform duration-150">arrow_back</button>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">eDog</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform duration-150">favorite</button>
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform duration-150">share</button>
+</div>
+</div>
+</header>
+<main class="pb-32">
+<!-- Hero Section -->
+<section class="relative h-[300px] md:h-[450px] w-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A sophisticated, high-end dog grooming salon interior with modern minimalist furniture, soft ambient lighting, and professional grooming equipment. The color palette features deep charcoal and slate blues with warm oak accents. A calm, well-behaved golden retriever is being pampered by a professional groomer in the background, creating a mood of luxury, trust, and professional pet care." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuwimHnfAt79KcCRPyFozHdwlN3zjB-9Qk5xm5XdQCnxg5F4mnth3OB7gHApbjGtOoncqvYK24MIR17W3XWVE4PUDvv-NR4y4ylr9DKMwhRmS7dH6lwlRZKxeRvRqhL5B0N1jzmv9bps2ZG06B_m4y2vVZu-UyHUBxLCvpZucWK76n7EEOUfUWMo5C3m7J1pQ7B3x5MvYDP65jzwQPutBA-yJNiR30JHDuWzedadDt9sRNLVOFvzaCwys2FhAarMvKZy5Ucrs_grKi"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-lg left-margin-mobile right-margin-mobile">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 mb-md">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-md text-label-md text-primary">Verified Partner</span>
+</div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-white mb-xs">Paws &amp; Bubbles Grooming</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Premium Spa &amp; Aesthetic Styling • Los Angeles, CA</p>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="px-margin-mobile -mt-6 relative z-10">
+<div class="grid grid-cols-4 gap-sm bg-surface-container border border-white/10 p-md rounded-xl shadow-lg">
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined">call</span>
+</div>
+<span class="font-label-sm text-label-sm">Call</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined">chat_bubble</span>
+</div>
+<span class="font-label-sm text-label-sm">Message</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<span class="font-label-sm text-label-sm">Map</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined">event_available</span>
+</div>
+<span class="font-label-sm text-label-sm">Book</span>
+</button>
+</div>
+</section>
+<!-- Exclusive Offer -->
+<section class="px-margin-mobile mt-lg">
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-secondary-container to-tertiary-container p-lg flex items-center gap-4">
+<div class="absolute -right-4 -top-4 opacity-20 transform rotate-12">
+<span class="material-symbols-outlined text-[100px]" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div class="flex-shrink-0 w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">card_giftcard</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-secondary-container uppercase tracking-wider">Exclusive Offer</h3>
+<p class="font-headline-md text-[18px] font-bold text-on-secondary-container">10% off for eDog Gold members</p>
+</div>
+</div>
+</section>
+<!-- Content Grid (Asymmetric) -->
+<div class="px-margin-mobile mt-xl grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Main Content (Left Column) -->
+<div class="md:col-span-2 space-y-xl">
+<!-- Description -->
+<div>
+<h2 class="font-headline-md text-headline-md mb-md">About the Salon</h2>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        At Paws &amp; Bubbles, we believe grooming is more than just a haircut—it's a wellness ritual. Our master stylists specialize in breed-specific hand-stripping, Asian Fusion styling, and therapeutic hydro-massage baths. We use only organic, hypoallergenic products to ensure your pet's skin health and coat shine.
+                    </p>
+</div>
+<!-- Photo Gallery -->
+<div>
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-headline-md text-headline-md">Gallery</h2>
+<button class="text-primary font-label-md">View All</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-sm">
+<img class="rounded-lg h-40 w-full object-cover border border-white/5" data-alt="A macro shot of a fluffy white Samoyed dog receiving a gentle paw massage in a high-end pet spa. The lighting is soft and golden, highlighting the textures of the dog's fur and the calm atmosphere. Corporate modern aesthetic with high-quality focus and pristine environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeU8TPpf0Pn7NC2Ar0hMQMCGvg4HcR8g3R427simah7TcVI_ICSKCW9LBLcEBUi6khwnKWLin17OjmrpZX0av7hOZMFN6ODXTmoddr5EwBvO07K9S2Gz8RXoDF8Gl6JDhTIjcyaBnc-M1VmU5qkZHQ2DE7-i-1cafEfgLy8ySrQPaZYtcfXgxxP8qGWP5NNdTvzMWpMbuzMmIPJji9CgN9K-eFqXQtbiPV-02YU_0sJGPT8awxf1XFXlOrQaP4LcNHmZZPyqSSaXkD"/>
+<img class="rounded-lg h-40 w-full object-cover border border-white/5" data-alt="A stylized miniature poodle with a creative 'Asian Fusion' style haircut, standing on a sleek black grooming table. The background is a clean, dark-themed grooming studio with professional LED lighting and minimalist décor. The image conveys precision and artistic pet styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_oEg50mqygeXAWVeaATTivgGJAkJeuhEB7qaVQPfmQQK7sECcF1r2s0SDP7tyY4sxr1pMkYjqRbfMt6E0nxBdtgxBqV4UsHLdO5XIvgTy-wrnYMaoWJjw0K2DobWICQKMxCsLNhs2SmgzEVNDyLX81VR_e0Ho2vmzFyfHWeyig-750xJl8xshCRStgFGaIM1VjZAXEyo4FsELuvRbCJRaB2qlOf81O9ARzEe4-X5791PXytsRTu7jtrSBAi2g0Q7o34tM2XEP-mIL"/>
+<img class="rounded-lg h-40 w-full object-cover border border-white/5 hidden md:block" data-alt="A modern pet spa treatment room with a high-tech hydro-massage bathtub for dogs. Bubbles are visible in the clear water, and warm towels are neatly stacked on a side shelf. Professional, clean, and inviting dark-mode atmosphere with blue and charcoal tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6fRGvzft4JUQgnuzZpbO9bFpXNpRLdTWkHQMClZcTPFStMUdYVhqeuFGxv84qS_CI8t2fl1u33qbbtZCQMdyRVmoe46-pxYkExz3AGGLIXRtLd49sPXCu-HrNbD-Lnjd9QZkNBqGAl1BHEx9w0bqmOPGInGgZrqPldkBBtW2H3oMhAsc-kEzJKkaWxMBZEkZmSZIrC8FFr1Q0NgHHFFvA2rbPA8Cln6oYYPrtp1Y6UOkWq4UBucYQL4VThQciGMhnUmFkcUKDPtIM"/>
+</div>
+</div>
+<!-- Reviews -->
+<div class="space-y-md">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">Reviews</h2>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-headline-md text-[20px] font-bold">4.9</span>
+<span class="font-label-md text-on-surface-variant">(124)</span>
+</div>
+</div>
+<div class="space-y-sm">
+<!-- Review Card 1 -->
+<div class="p-lg bg-surface-container-low rounded-xl border border-white/5">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary">SC</div>
+<div>
+<h4 class="font-label-md text-label-md">Sarah Chen</h4>
+<p class="text-[12px] text-on-surface-variant">2 days ago</p>
+</div>
+</div>
+<div class="flex text-secondary scale-75 origin-right">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Exceptional service! They were so patient with my nervous rescue pup. The cut is perfect and she smells amazing.</p>
+</div>
+</div>
+<button class="w-full py-md text-primary font-label-md hover:bg-primary/5 transition-colors rounded-lg border border-primary/20">Read More Reviews</button>
+</div>
+</div>
+<!-- Side Column (Right Column) -->
+<div class="space-y-lg">
+<!-- Working Hours -->
+<div class="p-lg bg-surface-container rounded-xl border border-white/5">
+<h3 class="font-label-md text-label-md mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+                        Working Hours
+                    </h3>
+<div class="space-y-sm font-label-md">
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Mon - Fri</span>
+<span>09:00 - 19:00</span>
+</div>
+<div class="flex justify-between font-bold text-primary">
+<span>Saturday</span>
+<span>10:00 - 18:00</span>
+</div>
+<div class="flex justify-between text-error">
+<span class="text-on-surface-variant">Sunday</span>
+<span>Closed</span>
+</div>
+</div>
+</div>
+<!-- Location Map -->
+<div class="p-lg bg-surface-container rounded-xl border border-white/5">
+<h3 class="font-label-md text-label-md mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">map</span>
+                        Location
+                    </h3>
+<div class="relative w-full h-40 rounded-lg overflow-hidden mb-md border border-white/10">
+<img class="w-full h-full object-cover" data-alt="A stylized, high-contrast dark mode map showing city streets of Los Angeles with a prominent glowing blue pin marking the business location. The map aesthetic is minimal and professional, using slate and navy tones to match the corporate tech UI design." data-location="Los Angeles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMsU_KVCPoQ_qFc2UJa_o3PEpkICPwpCCcw-lSus-JQWc1EkSMFHMeTRPgaBBB91-iuw-1469eHsmISIGjHYMOcd56sM_ru5t0RuH7JURQK6Lbej7kw5nKpalJ4CfZQgPoQ7_INK9Mf_-uRg7FMR60QRIejNcMlH2iyN0t4UUcAHWdfDfIgpqJKuCDEIhKRphKaaZCqAhfYPs1GVNlCkdYEZvClxmcctZFmHjzATFcAjDF31cdqwQph_qfwjUPR2RQrLVs8XQW8H2Y"/>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        842 Melrose Ave, Suite 102<br/>
+                        West Hollywood, CA 90069
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom CTA -->
+<div class="fixed bottom-0 left-0 right-0 p-lg bg-surface/80 backdrop-blur-lg border-t border-white/5 z-40 flex justify-center">
+<div class="w-full max-w-4xl flex items-center justify-between gap-lg">
+<div class="hidden md:block">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Starting from</p>
+<p class="font-headline-md text-headline-md text-primary">$45.00</p>
+</div>
+<button class="flex-1 md:flex-initial px-xl py-lg bg-primary text-on-primary font-headline-md text-[18px] rounded-full shadow-[0_4px_20px_rgba(164,201,255,0.3)] active:scale-95 transition-transform duration-150 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">calendar_month</span>
+                Book Appointment
+            </button>
+</div>
+</div>
+<!-- Bottom Navigation Bar (Hidden on this transactional detail page as per rules, but showing for context of TopLevel) -->
+<!-- Suppressed based on "Task-Focused: sub-page featuring a Back action" rule -->
+<script>
+        // Simple micro-interaction for the active state of buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Sticky header behavior
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            const header = document.querySelector('header');
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            header.style.transition = 'transform 0.3s ease';
+            lastScroll = currentScroll;
+        });
+    </script>
+</body></html>

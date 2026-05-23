@@ -653,6 +653,52 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     });
   }
 
+  // Partner endpoints
+  async getPartnerCategories() {
+    return this.request<{ categories: any[] }>('/partners/categories');
+  }
+
+  async getPartners(params?: { category?: string; city?: string; featured?: boolean }) {
+    const q = new URLSearchParams();
+    if (params?.category) q.append('category', params.category);
+    if (params?.city) q.append('city', params.city);
+    if (params?.featured) q.append('featured', 'true');
+    return this.request<{ partners: any[] }>(`/partners?${q.toString()}`);
+  }
+
+  async getPartner(id: string) {
+    return this.request<{ partner: any }>(`/partners/${id}`);
+  }
+
+  async adminCreatePartner(data: any) {
+    return this.request<{ partner: any }>('/partners', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminUpdatePartner(id: string, data: any) {
+    return this.request<{ partner: any }>(`/partners/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminDeletePartner(id: string) {
+    return this.request(`/partners/${id}`, { method: 'DELETE' });
+  }
+
+  async adminCreatePromotion(partnerId: string, data: any) {
+    return this.request<{ promotion: any }>(`/partners/${partnerId}/promotions`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminDeletePromotion(partnerId: string, promoId: string) {
+    return this.request(`/partners/${partnerId}/promotions/${promoId}`, { method: 'DELETE' });
+  }
+
   // Expense endpoints
   async getExpenses(dogId: string, params?: { month?: string; year?: number; limit?: number }) {
     const q = new URLSearchParams();

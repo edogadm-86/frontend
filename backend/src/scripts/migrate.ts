@@ -423,6 +423,80 @@ const runMigrations = async () => {
       -- Comment replies: add parent_id to support 2-level nesting
       ALTER TABLE post_comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES post_comments(id) ON DELETE CASCADE;
       ALTER TABLE event_comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES event_comments(id) ON DELETE CASCADE;
+
+      -- Partner categories (seed data for service types)
+      CREATE TABLE IF NOT EXISTS partner_categories (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        slug VARCHAR(50) UNIQUE NOT NULL,
+        name_en VARCHAR(100) NOT NULL,
+        name_bg VARCHAR(100) NOT NULL,
+        icon VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      INSERT INTO partner_categories (id, slug, name_en, name_bg, icon) VALUES
+        (gen_random_uuid(), 'veterinary',   'Veterinary Clinic', 'Ветеринарна клиника', 'medical_services'),
+        (gen_random_uuid(), 'grooming',     'Grooming Salon',    'Фризьорски салон',    'content_cut'),
+        (gen_random_uuid(), 'pet_shop',     'Pet Shop',          'Зоомагазин',          'storefront'),
+        (gen_random_uuid(), 'hotel',        'Dog Hotel',         'Хотел за кучета',     'hotel'),
+        (gen_random_uuid(), 'trainer',      'Dog Trainer',       'Дресьор',             'fitness_center'),
+        (gen_random_uuid(), 'walker',       'Dog Walker',        'Разходчик',           'directions_walk'),
+        (gen_random_uuid(), 'photographer', 'Pet Photographer',  'Фотограф',            'photo_camera'),
+        (gen_random_uuid(), 'transport',    'Pet Transport',     'Транспорт',           'directions_car'),
+        (gen_random_uuid(), 'other',        'Other',             'Друго',               'pets')
+      ON CONFLICT (slug) DO NOTHING;
+
+      -- Partner businesses
+      CREATE TABLE IF NOT EXISTS partners (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        category_id UUID NOT NULL REFERENCES partner_categories(id),
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        phone VARCHAR(50),
+        email VARCHAR(255),
+        website VARCHAR(500),
+        address TEXT,
+        city VARCHAR(100),
+        latitude DECIMAL(10,8),
+        longitude DECIMAL(11,8),
+        working_hours JSONB DEFAULT '{}',
+        social_links JSONB DEFAULT '{}',
+        photos TEXT[] DEFAULT '{}',
+        logo_url TEXT,
+        is_featured BOOLEAN DEFAULT false,
+        is_active BOOLEAN DEFAULT true,
+        created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_partners_category_id ON partners(category_id);
+      CREATE INDEX IF NOT EXISTS idx_partners_is_active ON partners(is_active);
+      CREATE INDEX IF NOT EXISTS idx_partners_is_featured ON partners(is_featured);
+      CREATE INDEX IF NOT EXISTS idx_partners_city ON partners(city);
+
+      -- Partner promotions / exclusive deals
+      CREATE TABLE IF NOT EXISTS partner_promotions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        partner_id UUID NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        discount_text VARCHAR(100),
+        valid_until DATE,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_partner_promotions_partner_id ON partner_promotions(partner_id);
+
+      DROP TRIGGER IF EXISTS update_partners_updated_at ON partners;
+      CREATE TRIGGER update_partners_updated_at
+        BEFORE UPDATE ON partners
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      -- Add google_place_id to partners if missing
+      ALTER TABLE partners ADD COLUMN IF NOT EXISTS google_place_id VARCHAR(255);
+      CREATE INDEX IF NOT EXISTS idx_partners_google_place_id ON partners(google_place_id);
     `;
 
     await pool.query(migrationSQL);

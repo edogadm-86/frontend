@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Users, TrendingUp, Dog, FileText, Search, RefreshCw, Trash2, X,
-  Shield, AlertTriangle, ChevronLeft, ChevronRight, Mail, Send,
+  Shield, AlertTriangle, ChevronLeft, ChevronRight, Mail, Send, Store, Plus, Edit2, Check,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { apiClient } from '../lib/api';
 import { AdminStats, AdminUserSummary, AdminDog, AdminReportedPost } from '../types';
+import { PartnerLocationPicker, type PickedLocation } from './PartnerLocationPicker';
 
-type Tab = 'overview' | 'users' | 'dogs' | 'reports' | 'email';
+type Tab = 'overview' | 'users' | 'dogs' | 'reports' | 'email' | 'partners';
 
 const NEW_USER_THRESHOLD_MS = 24 * 60 * 60 * 1000;
 
@@ -397,6 +398,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'dogs',     label: 'Dogs',            icon: <Dog size={15} /> },
     { id: 'reports',  label: 'Reported Posts',  icon: <AlertTriangle size={15} />, badge: reports.length || undefined },
     { id: 'email',    label: 'Email',           icon: <Mail size={15} /> },
+    { id: 'partners', label: 'Partners',        icon: <Store size={15} /> },
   ];
 
   const inputCls = 'w-full px-3 py-2 text-sm bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#414751] focus:outline-none focus:ring-2 focus:ring-[#005da7]/30 dark:focus:ring-[#a4c9ff]/20';
@@ -996,6 +998,464 @@ export const AdminPanel: React.FC = () => {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Partners ── */}
+      {tab === 'partners' && <PartnersTab inputCls={inputCls} />}
+    </div>
+  );
+};
+
+// ── Partners admin tab ────────────────────────────────────────────────────────
+const EMPTY_PARTNER = {
+  name: '', category_id: '', description: '', phone: '', email: '',
+  website: '', address: '', city: '', logo_url: '',
+  is_featured: false, is_active: true,
+  latitude: null as number | null,
+  longitude: null as number | null,
+  google_place_id: '',
+  photos: [] as string[],
+};
+const EMPTY_PROMO = { title: '', description: '', discount_text: '', valid_until: '' };
+
+const PartnersTab: React.FC<{ inputCls: string }> = ({ inputCls }) => {
+  const [partners, setPartners] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [form, setForm] = useState({ ...EMPTY_PARTNER });
+  const [saving, setSaving] = useState(false);
+  const [promoTarget, setPromoTarget] = useState<any | null>(null);
+  const [promoForm, setPromoForm] = useState({ ...EMPTY_PROMO });
+  const [promoSaving, setPromoSaving] = useState(false);
+  const [expandedPromos, setExpandedPromos] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [pRes, cRes] = await Promise.all([
+        apiClient.getPartners(),
+        apiClient.getPartnerCategories(),
+      ]);
+      setPartners(pRes.partners || []);
+      setCategories(cRes.categories || []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const openCreate = () => { setEditing(null); setForm({ ...EMPTY_PARTNER }); setShowForm(true); };
+  const openEdit = (p: any) => {
+    setEditing(p);
+    setForm({
+      name: p.name || '', category_id: p.category_id || '', description: p.description || '',
+      phone: p.phone || '', email: p.email || '', website: p.website || '',
+      address: p.address || '', city: p.city || '', logo_url: p.logo_url || '',
+      is_featured: p.is_featured, is_active: p.is_active,
+      latitude: p.latitude ?? null, longitude: p.longitude ?? null,
+      google_place_id: p.google_place_id || '',
+      photos: p.photos || [],
+    });
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.category_id) return;
+    setSaving(true);
+    try {
+      if (editing) {
+        await apiClient.adminUpdatePartner(editing.id, form);
+      } else {
+        await apiClient.adminCreatePartner(form);
+      }
+      setShowForm(false);
+      await load();
+    } catch (e: any) {
+      alert(e.message || 'Failed to save partner');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this partner?')) return;
+    try {
+      await apiClient.adminDeletePartner(id);
+      await load();
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete');
+    }
+  };
+
+  const handleAddPromo = async () => {
+    if (!promoTarget || !promoForm.title.trim()) return;
+    setPromoSaving(true);
+    try {
+      await apiClient.adminCreatePromotion(promoTarget.id, promoForm);
+      setPromoForm({ ...EMPTY_PROMO });
+      await load();
+    } catch (e: any) {
+      alert(e.message || 'Failed to add promotion');
+    } finally {
+      setPromoSaving(false);
+    }
+  };
+
+  const handleDeletePromo = async (partnerId: string, promoId: string) => {
+    if (!window.confirm('Delete this promotion?')) return;
+    try {
+      await apiClient.adminDeletePromotion(partnerId, promoId);
+      await load();
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete promotion');
+    }
+  };
+
+  const f = (k: keyof typeof form, v: any) => setForm(prev => ({ ...prev, [k]: v }));
+
+  const handleLocationPick = (loc: PickedLocation) => {
+    setForm(prev => ({
+      ...prev,
+      name: prev.name || loc.name,
+      phone: prev.phone || loc.phone,
+      website: prev.website || loc.website,
+      address: loc.address,
+      city: loc.city,
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      google_place_id: loc.google_place_id,
+      logo_url: prev.logo_url || loc.logo_url,
+      photos: prev.photos.length ? prev.photos : loc.photos,
+    }));
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-[#e2e2e6]">Partner Businesses</h2>
+          <p className="text-xs text-gray-400 dark:text-[#8b919d] mt-0.5">{partners.length} partner{partners.length !== 1 ? 's' : ''} registered</p>
+        </div>
+        <button
+          onClick={openCreate}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] text-sm font-semibold hover:opacity-90 transition-opacity"
+        >
+          <Plus size={15} />
+          Add Partner
+        </button>
+      </div>
+
+      {/* Create / Edit form */}
+      {showForm && (
+        <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-gray-800 dark:text-[#e2e2e6] text-sm">
+              {editing ? 'Edit Partner' : 'New Partner'}
+            </h3>
+            <button onClick={() => setShowForm(false)} className="p-1 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d]">
+              <X size={16} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Business Name *</label>
+              <input className={inputCls} value={form.name} onChange={e => f('name', e.target.value)} placeholder="e.g. Happy Paws Clinic" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Category *</label>
+              <select className={inputCls} value={form.category_id} onChange={e => f('category_id', e.target.value)}>
+                <option value="">Select category…</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name_en}</option>)}
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Description</label>
+              <textarea className={inputCls} rows={2} value={form.description} onChange={e => f('description', e.target.value)} placeholder="Short description of the business" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Phone</label>
+              <input className={inputCls} value={form.phone} onChange={e => f('phone', e.target.value)} placeholder="+359 888 123 456" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Email</label>
+              <input className={inputCls} type="email" value={form.email} onChange={e => f('email', e.target.value)} placeholder="hello@business.com" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Website</label>
+              <input className={inputCls} value={form.website} onChange={e => f('website', e.target.value)} placeholder="https://..." />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">
+                Photos
+                {form.photos.length > 0 && (
+                  <span className="ml-2 text-green-600 dark:text-green-400 font-normal">
+                    ✓ {form.photos.length} photo{form.photos.length > 1 ? 's' : ''} from Google Maps
+                  </span>
+                )}
+              </label>
+              {form.photos.length > 0 ? (
+                <div className="space-y-1">
+                  <p className="text-[11px] text-gray-400 dark:text-[#8b919d]">Click a photo to set it as the cover image.</p>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {form.photos.map((url, i) => (
+                      <div key={i} className="relative flex-shrink-0 group cursor-pointer"
+                        onClick={() => {
+                          if (i === 0) return;
+                          const reordered = [url, ...form.photos.filter((_, j) => j !== i)];
+                          f('photos', reordered);
+                          f('logo_url', url);
+                        }}
+                      >
+                        <img
+                          src={url}
+                          alt={`Photo ${i + 1}`}
+                          className={`h-20 w-32 object-cover rounded-lg border-2 transition-all ${
+                            i === 0
+                              ? 'border-[#005da7] ring-2 ring-[#005da7]/30'
+                              : 'border-gray-200 dark:border-white/10 hover:border-[#005da7]/50 opacity-80 hover:opacity-100'
+                          }`}
+                        />
+                        {i === 0 ? (
+                          <span className="absolute top-1 left-1 text-[10px] bg-[#005da7] text-white px-1.5 py-0.5 rounded font-semibold">
+                            Cover
+                          </span>
+                        ) : (
+                          <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 group-hover:bg-black/20 transition-all">
+                            <span className="text-[10px] text-white font-semibold opacity-0 group-hover:opacity-100 bg-black/60 px-2 py-1 rounded">
+                              Set cover
+                            </span>
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); f('photos', form.photos.filter((_, j) => j !== i)); }}
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white text-[10px] hidden group-hover:flex items-center justify-center hover:bg-red-500 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400 dark:text-[#8b919d] py-2">
+                  Photos will be auto-fetched when you select a business from the map search below.
+                </p>
+              )}
+              <input
+                className={`${inputCls} mt-2`}
+                value={form.logo_url}
+                onChange={e => f('logo_url', e.target.value)}
+                placeholder="Logo / cover image URL (auto-filled or enter manually)"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">Address</label>
+              <input className={inputCls} value={form.address} onChange={e => f('address', e.target.value)} placeholder="Auto-filled from map search" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-1">City</label>
+              <input className={inputCls} value={form.city} onChange={e => f('city', e.target.value)} placeholder="Auto-filled from map search" />
+            </div>
+          </div>
+
+          {/* Location picker */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-2">
+              Location on Map
+              {form.google_place_id && (
+                <span className="ml-2 text-green-600 dark:text-green-400 font-normal">✓ Linked to Google Maps</span>
+              )}
+            </label>
+            <PartnerLocationPicker
+              latitude={form.latitude}
+              longitude={form.longitude}
+              googlePlaceId={form.google_place_id}
+              onPick={handleLocationPick}
+              onCoordsChange={(lat, lng) => setForm(prev => ({ ...prev, latitude: lat, longitude: lng }))}
+            />
+          </div>
+
+          <div className="flex items-center gap-6 pt-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={form.is_featured} onChange={e => f('is_featured', e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-[#005da7] focus:ring-[#005da7]/30" />
+              <span className="text-sm text-gray-700 dark:text-[#c1c7d3]">Featured partner</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={form.is_active} onChange={e => f('is_active', e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-[#005da7] focus:ring-[#005da7]/30" />
+              <span className="text-sm text-gray-700 dark:text-[#c1c7d3]">Active (visible to users)</span>
+            </label>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-1">
+            <button onClick={() => setShowForm(false)}
+              className="px-4 py-2 rounded-xl text-sm text-gray-600 dark:text-[#8b919d] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors">
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={saving || !form.name.trim() || !form.category_id}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity">
+              {saving ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <Check size={14} />}
+              {editing ? 'Save Changes' : 'Create Partner'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Partner list */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-2 border-[#005da7] dark:border-[#a4c9ff] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : partners.length === 0 ? (
+        <div className="text-center py-16">
+          <Store size={40} className="mx-auto mb-3 text-gray-300 dark:text-[#414751]" />
+          <p className="text-sm text-gray-500 dark:text-[#8b919d]">No partners yet. Add your first partner business.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {partners.map(partner => (
+            <div key={partner.id} className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden">
+              {/* Partner row */}
+              <div className="flex items-center gap-3 p-4">
+                <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-[#282a2d] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {partner.logo_url
+                    ? <img src={partner.logo_url} alt={partner.name} className="w-full h-full object-contain" />
+                    : <span className="material-symbols-outlined text-gray-400 dark:text-[#8b919d] text-[20px]">{partner.category_icon || 'store'}</span>
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-[#e2e2e6] truncate">{partner.name}</p>
+                    {partner.is_featured && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-700 font-bold">Featured</span>
+                    )}
+                    {!partner.is_active && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#282a2d] text-gray-500 font-bold">Inactive</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-[#8b919d]">
+                    {partner.category_name_en}
+                    {partner.city ? ` · ${partner.city}` : ''}
+                    {partner.phone ? ` · ${partner.phone}` : ''}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => setExpandedPromos(expandedPromos === partner.id ? null : partner.id)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-gray-500 dark:text-[#8b919d] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">local_offer</span>
+                    {partner.promotions?.length ?? 0}
+                  </button>
+                  <button
+                    onClick={() => openEdit(partner)}
+                    className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] transition-colors"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(partner.id)}
+                    className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Promotions panel */}
+              {expandedPromos === partner.id && (
+                <div className="border-t border-gray-100 dark:border-white/5 p-4 space-y-3 bg-gray-50/50 dark:bg-[#282a2d]/30">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-[#8b919d] uppercase tracking-wider">Promotions</p>
+
+                  {/* Existing promos */}
+                  {partner.promotions && partner.promotions.length > 0 ? (
+                    <div className="space-y-2">
+                      {partner.promotions.map((promo: any) => (
+                        <div key={promo.id} className="flex items-start justify-between gap-2 bg-white dark:bg-[#1e2023] rounded-xl px-3 py-2 border border-gray-100 dark:border-white/5">
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-[#e2e2e6]">{promo.title}</p>
+                            {promo.discount_text && <p className="text-xs text-orange-500 font-bold">{promo.discount_text}</p>}
+                            {promo.description && <p className="text-xs text-gray-400 dark:text-[#8b919d] mt-0.5">{promo.description}</p>}
+                            {promo.valid_until && <p className="text-xs text-gray-400 dark:text-[#414751] mt-0.5">Until {new Date(promo.valid_until).toLocaleDateString()}</p>}
+                          </div>
+                          <button
+                            onClick={() => handleDeletePromo(partner.id, promo.id)}
+                            className="p-1 rounded-lg text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-colors flex-shrink-0"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 dark:text-[#414751]">No promotions yet.</p>
+                  )}
+
+                  {/* Add promo form */}
+                  {promoTarget?.id === partner.id ? (
+                    <div className="space-y-2 pt-1">
+                      <input
+                        className="w-full px-3 py-1.5 text-xs bg-white dark:bg-[#1e2023] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#005da7]/30"
+                        placeholder="Promotion title *"
+                        value={promoForm.title}
+                        onChange={e => setPromoForm(p => ({ ...p, title: e.target.value }))}
+                      />
+                      <input
+                        className="w-full px-3 py-1.5 text-xs bg-white dark:bg-[#1e2023] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#005da7]/30"
+                        placeholder="Discount text (e.g. 20% off)"
+                        value={promoForm.discount_text}
+                        onChange={e => setPromoForm(p => ({ ...p, discount_text: e.target.value }))}
+                      />
+                      <input
+                        className="w-full px-3 py-1.5 text-xs bg-white dark:bg-[#1e2023] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#005da7]/30"
+                        placeholder="Description (optional)"
+                        value={promoForm.description}
+                        onChange={e => setPromoForm(p => ({ ...p, description: e.target.value }))}
+                      />
+                      <input
+                        type="date"
+                        className="w-full px-3 py-1.5 text-xs bg-white dark:bg-[#1e2023] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-[#e2e2e6] focus:outline-none focus:ring-1 focus:ring-[#005da7]/30"
+                        value={promoForm.valid_until}
+                        onChange={e => setPromoForm(p => ({ ...p, valid_until: e.target.value }))}
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setPromoTarget(null); setPromoForm({ ...EMPTY_PROMO }); }}
+                          className="px-3 py-1.5 text-xs rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleAddPromo}
+                          disabled={promoSaving || !promoForm.title.trim()}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity"
+                        >
+                          {promoSaving ? <div className="w-3 h-3 border border-white/40 border-t-white rounded-full animate-spin" /> : <Plus size={11} />}
+                          Add Promotion
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setPromoTarget(partner); setPromoForm({ ...EMPTY_PROMO }); }}
+                      className="flex items-center gap-1.5 text-xs text-[#005da7] dark:text-[#a4c9ff] font-medium hover:underline"
+                    >
+                      <Plus size={12} />
+                      Add promotion
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
