@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
+import { WalkProvider } from './context/WalkContext';
+import { WalkActiveBanner } from './components/WalkActiveBanner';
 import { Auth } from './components/Auth';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -184,6 +186,8 @@ const AppContent: React.FC = () => {
         <MobileBottomNav currentView={currentView} onViewChange={setCurrentView} user={user} />
       </div>
     )}
+
+    <WalkActiveBanner onNavigateToTraining={() => setCurrentView('training')} />
   </div>
 );
 
@@ -192,6 +196,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AppProvider>
+      <WalkProvider>
       <Router>
         <Routes>
           {/* Public route for QR scan */}
@@ -204,6 +209,7 @@ const App: React.FC = () => {
           <Route path="/*" element={<AppContent />} />
         </Routes>
       </Router>
+      </WalkProvider>
     </AppProvider>
   );
 };

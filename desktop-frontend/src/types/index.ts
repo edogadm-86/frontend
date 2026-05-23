@@ -160,6 +160,11 @@ export interface Post {
   author_name: string;
   dog_name?: string;
   liked_by_user?: boolean;
+  user_reaction?: string | null;
+  bookmarked_by_user?: boolean;
+  reaction_counts?: Record<string, number>;
+  location_name?: string;
+  is_resolved?: boolean;
 }
 
 export interface Comment {

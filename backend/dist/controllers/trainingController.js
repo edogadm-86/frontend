@@ -26,14 +26,17 @@ exports.getTrainingSessions = getTrainingSessions;
 const createTrainingSession = async (req, res) => {
     try {
         const { dogId } = req.params;
-        const { date, duration, commands, progress, notes, behavior_notes } = req.body;
+        const { date, duration, commands, progress, notes, behavior_notes, walk_path } = req.body;
         // Verify dog belongs to user
         const dogCheck = await database_1.default.query('SELECT id FROM dogs WHERE id = $1 AND user_id = $2', [dogId, req.user.id]);
         if (dogCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Dog not found' });
         }
         const sessionId = (0, uuid_1.v4)();
-        const result = await database_1.default.query('INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *', [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null]);
+        const walkPathJson = walk_path && Array.isArray(walk_path) && walk_path.length > 1
+            ? JSON.stringify(walk_path)
+            : null;
+        const result = await database_1.default.query('INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes, walk_path) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *', [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null, walkPathJson]);
         res.status(201).json({
             message: 'Training session created successfully',
             trainingSession: result.rows[0]

@@ -8,7 +8,8 @@ import { broadcastLostDogAlert } from '../services/pushService';
 
 const router = express.Router();
 
-// Validation middleware
+const REACTION_TYPES = ['heart', 'paw', 'laugh', 'wow'] as const;
+
 const validatePost = [
   body('title').trim().isLength({ min: 1, max: 255 }).withMessage('Title is required and must be less than 255 characters'),
   body('content').trim().isLength({ min: 1 }).withMessage('Content is required'),
@@ -23,7 +24,24 @@ const validateRequest = (req: express.Request, res: express.Response, next: expr
   next();
 };
 
-// Trending tags (must be before /:id routes)
+// ── SELECT helper ──────────────────────────────────────────────────────────────
+// Builds the common SELECT fields for post listings.
+function postSelect(currentUserId: string | null) {
+  const likeJoin = currentUserId
+    ? `LEFT JOIN post_likes pl ON pl.post_id = p.id AND pl.user_id = '${currentUserId}'`
+    : '';
+  const bookmarkJoin = currentUserId
+    ? `LEFT JOIN post_bookmarks pb ON pb.post_id = p.id AND pb.user_id = '${currentUserId}'`
+    : '';
+
+  const userReaction = currentUserId ? 'pl.reaction_type' : 'NULL';
+  const likedBy = currentUserId ? '(pl.reaction_type IS NOT NULL)' : 'false';
+  const bookmarked = currentUserId ? '(pb.post_id IS NOT NULL)' : 'false';
+
+  return { likeJoin, bookmarkJoin, userReaction, likedBy, bookmarked };
+}
+
+// ── Trending tags ──────────────────────────────────────────────────────────────
 router.get('/trending-tags', async (_req, res) => {
   try {
     const result = await pool.query(`
@@ -41,33 +59,77 @@ router.get('/trending-tags', async (_req, res) => {
   }
 });
 
-// Get all public posts
+// ── Get bookmarked posts (auth) ────────────────────────────────────────────────
+router.get('/bookmarked', authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const uid = req.user!.id;
+    const result = await pool.query(
+      `SELECT p.*, u.name as author_name, d.name as dog_name,
+              pl.reaction_type as user_reaction,
+              (pl.reaction_type IS NOT NULL) as liked_by_user,
+              true as bookmarked_by_user,
+              COALESCE((
+                SELECT json_object_agg(rt, cnt)
+                FROM (SELECT reaction_type rt, COUNT(*)::int cnt FROM post_likes WHERE post_id = p.id GROUP BY reaction_type) rc
+              ), '{}') as reaction_counts
+       FROM post_bookmarks bk
+       JOIN posts p ON p.id = bk.post_id
+       JOIN users u ON u.id = p.user_id
+       LEFT JOIN dogs d ON d.id = p.dog_id
+       LEFT JOIN post_likes pl ON pl.post_id = p.id AND pl.user_id = $1
+       WHERE bk.user_id = $1
+       ORDER BY bk.created_at DESC`,
+      [uid]
+    );
+    res.json({ posts: result.rows });
+  } catch (error) {
+    console.error('Get bookmarked posts error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── Get all public posts ───────────────────────────────────────────────────────
 router.get('/', optionalAuth, async (req: AuthRequest, res) => {
   try {
-    const { page = 1, limit = 10, type, userId } = req.query;
+    const { page = 1, limit = 30, type, userId, search } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
     const currentUserId = req.user?.id ?? null;
+
+    const params: any[] = currentUserId ? [currentUserId] : [];
+
+    const reactionCountSubq = `
+      COALESCE((
+        SELECT json_object_agg(rt, cnt)
+        FROM (SELECT reaction_type rt, COUNT(*)::int cnt FROM post_likes WHERE post_id = p.id GROUP BY reaction_type) rc
+      ), '{}') as reaction_counts
+    `;
 
     let query = `
       SELECT p.*, u.name as author_name, d.name as dog_name,
         ${currentUserId
-          ? `EXISTS(SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $1) as liked_by_user`
-          : `false as liked_by_user`}
+          ? `pl.reaction_type as user_reaction, (pl.reaction_type IS NOT NULL) as liked_by_user,
+             (pb.post_id IS NOT NULL) as bookmarked_by_user,`
+          : `NULL as user_reaction, false as liked_by_user, false as bookmarked_by_user,`}
+        ${reactionCountSubq}
       FROM posts p
       JOIN users u ON p.user_id = u.id
       LEFT JOIN dogs d ON p.dog_id = d.id
+      ${currentUserId ? `LEFT JOIN post_likes pl ON pl.post_id = p.id AND pl.user_id = $1
+       LEFT JOIN post_bookmarks pb ON pb.post_id = p.id AND pb.user_id = $1` : ''}
       WHERE p.is_public = true
     `;
-    const params: any[] = currentUserId ? [currentUserId] : [];
 
     if (type) {
       query += ` AND p.post_type = $${params.length + 1}`;
       params.push(type);
     }
-
     if (userId) {
       query += ` AND p.user_id = $${params.length + 1}`;
       params.push(userId);
+    }
+    if (search) {
+      query += ` AND (p.title ILIKE $${params.length + 1} OR p.content ILIKE $${params.length + 1} OR $${params.length + 1} = ANY(p.tags))`;
+      params.push(`%${search}%`);
     }
 
     query += ` ORDER BY p.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
@@ -75,51 +137,35 @@ router.get('/', optionalAuth, async (req: AuthRequest, res) => {
 
     const result = await pool.query(query, params);
 
-    // Get total count
-    let countQuery = 'SELECT COUNT(*) FROM posts WHERE is_public = true';
-    const countParams: any[] = [];
-    
-    if (type) {
-      countQuery += ` AND post_type = $${countParams.length + 1}`;
-      countParams.push(type);
-    }
-
-    if (userId) {
-      countQuery += ` AND user_id = $${countParams.length + 1}`;
-      countParams.push(userId);
-    }
-
-    const countResult = await pool.query(countQuery, countParams);
-    const total = parseInt(countResult.rows[0].count);
-
-    res.json({
-      posts: result.rows,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        pages: Math.ceil(total / Number(limit))
-      }
-    });
+    res.json({ posts: result.rows, pagination: { page: Number(page), limit: Number(limit) } });
   } catch (error) {
     console.error('Get posts error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Get user's posts
+// ── Get my posts ───────────────────────────────────────────────────────────────
 router.get('/my-posts', authenticateToken, async (req: AuthRequest, res) => {
   try {
+    const uid = req.user!.id;
     const result = await pool.query(
-      `SELECT p.*, u.name as author_name, d.name as dog_name
+      `SELECT p.*, u.name as author_name, d.name as dog_name,
+              pl.reaction_type as user_reaction,
+              (pl.reaction_type IS NOT NULL) as liked_by_user,
+              (pb.post_id IS NOT NULL) as bookmarked_by_user,
+              COALESCE((
+                SELECT json_object_agg(rt, cnt)
+                FROM (SELECT reaction_type rt, COUNT(*)::int cnt FROM post_likes WHERE post_id = p.id GROUP BY reaction_type) rc
+              ), '{}') as reaction_counts
        FROM posts p
-       JOIN users u ON p.user_id = u.id
-       LEFT JOIN dogs d ON p.dog_id = d.id
+       JOIN users u ON u.id = p.user_id
+       LEFT JOIN dogs d ON d.id = p.dog_id
+       LEFT JOIN post_likes pl ON pl.post_id = p.id AND pl.user_id = $1
+       LEFT JOIN post_bookmarks pb ON pb.post_id = p.id AND pb.user_id = $1
        WHERE p.user_id = $1
        ORDER BY p.created_at DESC`,
-      [req.user!.id]
+      [uid]
     );
-
     res.json({ posts: result.rows });
   } catch (error) {
     console.error('Get user posts error:', error);
@@ -127,76 +173,65 @@ router.get('/my-posts', authenticateToken, async (req: AuthRequest, res) => {
   }
 });
 
-// Create post
+// ── Create post ────────────────────────────────────────────────────────────────
 router.post('/', authenticateToken, validatePost, validateRequest, async (req: AuthRequest, res: express.Response) => {
   try {
-    const { title, content, post_type, dog_id, image_url, video_url, tags, is_public = true } = req.body;
+    const { title, content, post_type, dog_id, image_url, video_url, tags, is_public = true, location_name } = req.body;
 
     const postId = uuidv4();
     const result = await pool.query(
-      `INSERT INTO posts (id, user_id, dog_id, title, content, post_type, image_url, video_url, tags, is_public) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [postId, req.user!.id, dog_id || null, title, content, post_type, image_url || null, video_url || null, tags || [], is_public]
+      `INSERT INTO posts (id, user_id, dog_id, title, content, post_type, image_url, video_url, tags, is_public, location_name)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [postId, req.user!.id, dog_id || null, title, content, post_type,
+       image_url || null, video_url || null, tags || [], is_public, location_name || null]
     );
 
-    const createdPost = result.rows[0];
-
-    // Broadcast push alert to all subscribed users when a lost dog is reported
     if (post_type === 'lost_dog') {
       broadcastLostDogAlert(req.user!.id, title, req.body.location).catch(console.error);
     }
 
-    res.status(201).json({
-      message: 'Post created successfully',
-      post: createdPost,
-    });
+    res.status(201).json({ message: 'Post created successfully', post: result.rows[0] });
   } catch (error) {
     console.error('Create post error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Update post
+// ── Update post ────────────────────────────────────────────────────────────────
 router.put('/:id', authenticateToken, validatePost, validateRequest, async (req: AuthRequest, res: express.Response) => {
   try {
     const { id } = req.params;
-    const { title, content, post_type, dog_id, image_url, video_url, tags, is_public } = req.body;
+    const { title, content, post_type, dog_id, image_url, video_url, tags, is_public, location_name } = req.body;
 
     const result = await pool.query(
-      `UPDATE posts SET title = $1, content = $2, post_type = $3, dog_id = $4, image_url = $5, 
-       video_url = $6, tags = $7, is_public = $8, updated_at = CURRENT_TIMESTAMP 
-       WHERE id = $9 AND user_id = $10 RETURNING *`,
-      [title, content, post_type, dog_id || null, image_url || null, video_url || null, tags || [], is_public, id, req.user!.id]
+      `UPDATE posts SET title=$1, content=$2, post_type=$3, dog_id=$4, image_url=$5,
+       video_url=$6, tags=$7, is_public=$8, location_name=$9, updated_at=CURRENT_TIMESTAMP
+       WHERE id=$10 AND user_id=$11 RETURNING *`,
+      [title, content, post_type, dog_id || null, image_url || null,
+       video_url || null, tags || [], is_public, location_name || null, id, req.user!.id]
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Post not found or access denied' });
     }
-
-    res.json({
-      message: 'Post updated successfully',
-      post: result.rows[0]
-    });
+    res.json({ message: 'Post updated successfully', post: result.rows[0] });
   } catch (error) {
     console.error('Update post error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Delete post
+// ── Delete post ────────────────────────────────────────────────────────────────
 router.delete('/:id', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
-
     const result = await pool.query(
-      'DELETE FROM posts WHERE id = $1 AND user_id = $2 RETURNING id',
+      'DELETE FROM posts WHERE id=$1 AND user_id=$2 RETURNING id',
       [id, req.user!.id]
     );
-
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Post not found or access denied' });
     }
-
     res.json({ message: 'Post deleted successfully' });
   } catch (error) {
     console.error('Delete post error:', error);
@@ -204,7 +239,7 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res) => {
   }
 });
 
-// Report post
+// ── Report post ────────────────────────────────────────────────────────────────
 router.post('/:id/report', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
@@ -212,8 +247,7 @@ router.post('/:id/report', authenticateToken, async (req: AuthRequest, res) => {
     const reportId = uuidv4();
     await pool.query(
       `INSERT INTO post_reports (id, post_id, reporter_id, reason)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (post_id, reporter_id) DO NOTHING`,
+       VALUES ($1, $2, $3, $4) ON CONFLICT (post_id, reporter_id) DO NOTHING`,
       [reportId, id, req.user!.id, reason]
     );
     res.json({ message: 'Report submitted' });
@@ -223,27 +257,91 @@ router.post('/:id/report', authenticateToken, async (req: AuthRequest, res) => {
   }
 });
 
-// Like/Unlike post
-router.post('/:id/like', authenticateToken, async (req: AuthRequest, res) => {
+// ── Mark lost dog as found ─────────────────────────────────────────────────────
+router.post('/:id/mark-found', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
+    const result = await pool.query(
+      `UPDATE posts SET is_resolved=true, resolved_at=CURRENT_TIMESTAMP
+       WHERE id=$1 AND user_id=$2 AND post_type='lost_dog' RETURNING id`,
+      [id, req.user!.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Post not found or access denied' });
+    }
+    res.json({ message: 'Marked as found' });
+  } catch (error) {
+    console.error('Mark found error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-    // Check if already liked
-    const existingLike = await pool.query(
-      'SELECT id FROM post_likes WHERE post_id = $1 AND user_id = $2',
+// ── React to post (heart | paw | laugh | wow) ─────────────────────────────────
+router.post('/:id/react', authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { reaction_type = 'heart' } = req.body;
+
+    if (!REACTION_TYPES.includes(reaction_type as any)) {
+      return res.status(400).json({ error: 'Invalid reaction type' });
+    }
+
+    const existing = await pool.query(
+      'SELECT id, reaction_type FROM post_likes WHERE post_id=$1 AND user_id=$2',
       [id, req.user!.id]
     );
 
-    if (existingLike.rows.length > 0) {
-      // Unlike
-      await pool.query('DELETE FROM post_likes WHERE post_id = $1 AND user_id = $2', [id, req.user!.id]);
-      await pool.query('UPDATE posts SET likes_count = likes_count - 1 WHERE id = $1', [id]);
+    if (existing.rows.length > 0) {
+      if (existing.rows[0].reaction_type === reaction_type) {
+        // Same reaction → remove it
+        await pool.query('DELETE FROM post_likes WHERE post_id=$1 AND user_id=$2', [id, req.user!.id]);
+        await pool.query('UPDATE posts SET likes_count=likes_count-1 WHERE id=$1 AND likes_count>0', [id]);
+        return res.json({ reacted: false, reaction_type: null });
+      } else {
+        // Different reaction → update
+        await pool.query(
+          'UPDATE post_likes SET reaction_type=$1 WHERE post_id=$2 AND user_id=$3',
+          [reaction_type, id, req.user!.id]
+        );
+        return res.json({ reacted: true, reaction_type });
+      }
+    } else {
+      // New reaction
+      const likeId = uuidv4();
+      await pool.query(
+        'INSERT INTO post_likes (id, post_id, user_id, reaction_type) VALUES ($1,$2,$3,$4)',
+        [likeId, id, req.user!.id, reaction_type]
+      );
+      await pool.query('UPDATE posts SET likes_count=likes_count+1 WHERE id=$1', [id]);
+      return res.json({ reacted: true, reaction_type });
+    }
+  } catch (error) {
+    console.error('React post error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── Like post (legacy — maps to heart reaction) ────────────────────────────────
+router.post('/:id/like', authenticateToken, async (req: AuthRequest, res) => {
+  (req as any).body.reaction_type = 'heart';
+  // Inline the react logic for backward compat
+  try {
+    const { id } = req.params;
+    const existing = await pool.query(
+      'SELECT id FROM post_likes WHERE post_id=$1 AND user_id=$2',
+      [id, req.user!.id]
+    );
+    if (existing.rows.length > 0) {
+      await pool.query('DELETE FROM post_likes WHERE post_id=$1 AND user_id=$2', [id, req.user!.id]);
+      await pool.query('UPDATE posts SET likes_count=likes_count-1 WHERE id=$1 AND likes_count>0', [id]);
       res.json({ message: 'Post unliked', liked: false });
     } else {
-      // Like
       const likeId = uuidv4();
-      await pool.query('INSERT INTO post_likes (id, post_id, user_id) VALUES ($1, $2, $3)', [likeId, id, req.user!.id]);
-      await pool.query('UPDATE posts SET likes_count = likes_count + 1 WHERE id = $1', [id]);
+      await pool.query(
+        'INSERT INTO post_likes (id, post_id, user_id, reaction_type) VALUES ($1,$2,$3,$4)',
+        [likeId, id, req.user!.id, 'heart']
+      );
+      await pool.query('UPDATE posts SET likes_count=likes_count+1 WHERE id=$1', [id]);
       res.json({ message: 'Post liked', liked: true });
     }
   } catch (error) {
@@ -252,7 +350,59 @@ router.post('/:id/like', authenticateToken, async (req: AuthRequest, res) => {
   }
 });
 
-// Add comment (supports optional parent_id for replies, 2-level max)
+// ── Bookmark post (toggle) ─────────────────────────────────────────────────────
+router.post('/:id/bookmark', authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const existing = await pool.query(
+      'SELECT id FROM post_bookmarks WHERE post_id=$1 AND user_id=$2',
+      [id, req.user!.id]
+    );
+    if (existing.rows.length > 0) {
+      await pool.query('DELETE FROM post_bookmarks WHERE post_id=$1 AND user_id=$2', [id, req.user!.id]);
+      res.json({ bookmarked: false });
+    } else {
+      const bmId = uuidv4();
+      await pool.query(
+        'INSERT INTO post_bookmarks (id, post_id, user_id) VALUES ($1,$2,$3)',
+        [bmId, id, req.user!.id]
+      );
+      res.json({ bookmarked: true });
+    }
+  } catch (error) {
+    console.error('Bookmark post error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── Get reaction counts for a post ────────────────────────────────────────────
+router.get('/:id/reactions', optionalAuth, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const uid = req.user?.id ?? null;
+    const countsRes = await pool.query(
+      `SELECT reaction_type, COUNT(*)::int as count FROM post_likes WHERE post_id=$1 GROUP BY reaction_type`,
+      [id]
+    );
+    const counts: Record<string, number> = {};
+    countsRes.rows.forEach(r => { counts[r.reaction_type] = r.count; });
+
+    let userReaction: string | null = null;
+    if (uid) {
+      const ur = await pool.query(
+        'SELECT reaction_type FROM post_likes WHERE post_id=$1 AND user_id=$2',
+        [id, uid]
+      );
+      userReaction = ur.rows[0]?.reaction_type ?? null;
+    }
+    res.json({ counts, user_reaction: userReaction });
+  } catch (error) {
+    console.error('Get reactions error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── Add comment ────────────────────────────────────────────────────────────────
 router.post('/:id/comments', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
@@ -264,7 +414,7 @@ router.post('/:id/comments', authenticateToken, async (req: AuthRequest, res) =>
 
     if (parent_id) {
       const parentRes = await pool.query(
-        'SELECT id, parent_id FROM post_comments WHERE id = $1 AND post_id = $2',
+        'SELECT id, parent_id FROM post_comments WHERE id=$1 AND post_id=$2',
         [parent_id, id]
       );
       if (parentRes.rows.length === 0) {
@@ -278,16 +428,12 @@ router.post('/:id/comments', authenticateToken, async (req: AuthRequest, res) =>
     const commentId = uuidv4();
     const result = await pool.query(
       `INSERT INTO post_comments (id, post_id, user_id, content, parent_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
       [commentId, id, req.user!.id, content.trim(), parent_id || null]
     );
-
-    await pool.query('UPDATE posts SET comments_count = comments_count + 1 WHERE id = $1', [id]);
-
-    const userRes = await pool.query('SELECT name FROM users WHERE id = $1', [req.user!.id]);
+    await pool.query('UPDATE posts SET comments_count=comments_count+1 WHERE id=$1', [id]);
+    const userRes = await pool.query('SELECT name FROM users WHERE id=$1', [req.user!.id]);
     const comment = { ...result.rows[0], author_name: userRes.rows[0]?.name ?? 'Unknown' };
-
     res.status(201).json({ message: 'Comment added successfully', comment });
   } catch (error) {
     console.error('Add comment error:', error);
@@ -295,7 +441,7 @@ router.post('/:id/comments', authenticateToken, async (req: AuthRequest, res) =>
   }
 });
 
-// Edit own comment
+// ── Edit own comment ───────────────────────────────────────────────────────────
 router.patch('/:postId/comments/:commentId', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const { postId, commentId } = req.params;
@@ -306,7 +452,7 @@ router.patch('/:postId/comments/:commentId', authenticateToken, async (req: Auth
     }
 
     const commentRes = await pool.query(
-      'SELECT id, user_id FROM post_comments WHERE id = $1 AND post_id = $2',
+      'SELECT id, user_id FROM post_comments WHERE id=$1 AND post_id=$2',
       [commentId, postId]
     );
     if (commentRes.rows.length === 0) {
@@ -317,15 +463,11 @@ router.patch('/:postId/comments/:commentId', authenticateToken, async (req: Auth
     }
 
     const result = await pool.query(
-      `UPDATE post_comments SET content = $1, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2
-       RETURNING *`,
+      `UPDATE post_comments SET content=$1, updated_at=CURRENT_TIMESTAMP WHERE id=$2 RETURNING *`,
       [content.trim(), commentId]
     );
-
-    const userRes = await pool.query('SELECT name FROM users WHERE id = $1', [req.user!.id]);
+    const userRes = await pool.query('SELECT name FROM users WHERE id=$1', [req.user!.id]);
     const comment = { ...result.rows[0], author_name: userRes.rows[0]?.name ?? 'Unknown' };
-
     res.json({ comment });
   } catch (error) {
     console.error('Edit comment error:', error);
@@ -333,20 +475,18 @@ router.patch('/:postId/comments/:commentId', authenticateToken, async (req: Auth
   }
 });
 
-// Get comments for a post
+// ── Get comments ───────────────────────────────────────────────────────────────
 router.get('/:id/comments', async (req, res) => {
   try {
     const { id } = req.params;
-
     const result = await pool.query(
       `SELECT c.*, u.name as author_name
        FROM post_comments c
        JOIN users u ON c.user_id = u.id
-       WHERE c.post_id = $1
+       WHERE c.post_id=$1
        ORDER BY c.created_at ASC`,
       [id]
     );
-
     res.json({ comments: result.rows });
   } catch (error) {
     console.error('Get comments error:', error);

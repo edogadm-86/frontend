@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, Clock, Calendar, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, Calendar, RefreshCw, Map } from 'lucide-react';
+import { GoogleMap, PolylineF, OverlayViewF, OVERLAY_MOUSE_TARGET, useJsApiLoader } from '@react-google-maps/api';
+
+const GOOGLE_LIBRARIES: ('places')[] = ['places'];
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
 import { Dog } from '../types';
 import { apiClient } from '../lib/api';
 import { formatDate } from '../lib/utils';
+import { WalkTracker } from './WalkTracker';
+
+interface WalkPoint { lat: number; lng: number; }
 
 interface TrainingSession {
   id: string;
@@ -15,6 +21,7 @@ interface TrainingSession {
   progress: 'excellent' | 'good' | 'fair' | 'needs-work';
   notes: string;
   behavior_notes?: string;
+  walk_path?: WalkPoint[] | null;
 }
 
 interface TrainingViewProps {
@@ -114,13 +121,8 @@ function getWeeklyBars(sessions: TrainingSession[], locale: string) {
   });
 }
 
-function getTopCommands(sessions: TrainingSession[]) {
-  const counts: Record<string, number> = {};
-  sessions.forEach(s => s.commands.forEach(c => { counts[c] = (counts[c] || 0) + 1; }));
-  return Object.entries(counts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5);
-}
+
+const ROUTE_MAP_STYLE = { width: '100%', height: '360px' };
 
 export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNavigate }) => {
   const { t, i18n } = useTranslation();
@@ -129,10 +131,16 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
   const [editingSession, setEditingSession] = useState<TrainingSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [videoSeed, setVideoSeed] = useState(0);
+  const [routeSession, setRouteSession] = useState<TrainingSession | null>(null);
   const [formData, setFormData] = useState({
     date: '', duration: 30, commands: '',
     progress: 'good' as TrainingSession['progress'],
     notes: '', behavior_notes: '',
+  });
+
+  const { isLoaded: mapsLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
+    libraries: GOOGLE_LIBRARIES,
   });
 
   useEffect(() => {
@@ -203,9 +211,6 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
   const streak = calculateStreak(sessions);
   const weekBars = getWeeklyBars(sessions, i18n.language);
   const maxBarDuration = Math.max(...weekBars.map(b => b.duration), 1);
-  const topCommands = getTopCommands(sessions);
-  const maxCmdCount = topCommands.length > 0 ? topCommands[0][1] : 1;
-
   // Language-aware shuffled video list, re-shuffled when language or videoSeed changes
   const shuffledVideos = useMemo(() => {
     const lang = i18n.language.startsWith('bg') ? 'bg' : 'en';
@@ -283,6 +288,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
             </div>
           </div>
 
+          {/* Walk tracker — mobile only, appears below Weekly Activity */}
+          <div className="xl:hidden">
+            <WalkTracker currentDog={currentDog} onSaved={load} />
+          </div>
+
           {/* Sessions list */}
           <div className={`${cardCls} overflow-hidden`}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
@@ -337,6 +347,15 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
                           )}
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
+                          {session.walk_path && session.walk_path.length > 1 && (
+                            <button
+                              onClick={() => setRouteSession(session)}
+                              title={t('viewRoute')}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all"
+                            >
+                              <Map size={14} />
+                            </button>
+                          )}
                           <button onClick={() => openEdit(session)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#005da7] dark:hover:text-[#a4c9ff] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-all">
                             <Edit size={14} />
                           </button>
@@ -355,6 +374,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
         {/* Right column */}
         <div className="xl:col-span-5 space-y-5">
 
+          {/* Walk tracker — desktop only */}
+          <div className="hidden xl:block">
+            <WalkTracker currentDog={currentDog} onSaved={load} />
+          </div>
+
           {/* Streak card */}
           <div className="bg-[#005da7] dark:bg-[#a4c9ff]/15 dark:border dark:border-[#a4c9ff]/20 rounded-xl p-5 text-white dark:text-[#a4c9ff]">
             <div className="flex items-center justify-between mb-3">
@@ -366,31 +390,6 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
               {streak > 0 ? t('keepItUp') : t('startYourStreak')}
             </p>
           </div>
-
-          {/* Top commands */}
-          {topCommands.length > 0 && (
-            <div className={`${cardCls} p-5`}>
-              <p className="text-[10px] font-bold text-gray-400 dark:text-[#8b919d] uppercase tracking-widest mb-4">{t('topSkills')}</p>
-              <div className="space-y-3">
-                {topCommands.map(([cmd, count]) => (
-                  <div key={cmd}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-semibold text-gray-800 dark:text-[#e2e2e6] capitalize">{cmd}</span>
-                      <span className="text-[#005da7] dark:text-[#a4c9ff] font-bold">
-                        {Math.round((count / maxCmdCount) * 100)}%
-                      </span>
-                    </div>
-                    <div className="h-1.5 w-full bg-gray-100 dark:bg-[#282a2d] rounded-full">
-                      <div
-                        className="h-full bg-[#005da7] dark:bg-[#a4c9ff] rounded-full transition-all duration-500"
-                        style={{ width: `${(count / maxCmdCount) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Video tutorials */}
           <div className={`${cardCls} overflow-hidden`}>
@@ -438,6 +437,53 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
           </div>
         </div>
       </div>
+
+      {/* Walk route map modal */}
+      <Modal
+        isOpen={routeSession !== null}
+        onClose={() => setRouteSession(null)}
+        title={t('walkRoute')}
+        size="lg"
+      >
+        {routeSession?.walk_path && mapsLoaded ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-[#8b919d]">
+              <span className="flex items-center gap-1"><Calendar size={11} />{formatDate(routeSession.date)}</span>
+              <span className="flex items-center gap-1"><Clock size={11} />{routeSession.duration} {t('minutes')}</span>
+              <span className="text-[10px] font-semibold bg-gray-100 dark:bg-[#282a2d] px-2 py-0.5 rounded-full">
+                {routeSession.walk_path.length} {t('gpsPoints')}
+              </span>
+            </div>
+            <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
+              <GoogleMap
+                mapContainerStyle={ROUTE_MAP_STYLE}
+                zoom={15}
+                center={routeSession.walk_path[0]}
+                options={{ disableDefaultUI: true, zoomControl: true, fullscreenControl: true }}
+                onLoad={map => {
+                  const bounds = new window.google.maps.LatLngBounds();
+                  routeSession.walk_path!.forEach(p => bounds.extend(p));
+                  map.fitBounds(bounds, 40);
+                }}
+              >
+                <PolylineF
+                  path={routeSession.walk_path}
+                  options={{ strokeColor: '#005da7', strokeWeight: 4, strokeOpacity: 0.85 }}
+                />
+                <OverlayViewF position={routeSession.walk_path[0]} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -h })}>
+                  <div style={{ background: '#005da7', color: '#fff', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, boxShadow: '0 2px 4px rgba(0,0,0,0.35)' }}>S</div>
+                </OverlayViewF>
+                <OverlayViewF position={routeSession.walk_path[routeSession.walk_path.length - 1]} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -h })}>
+                  <div style={{ background: '#ef4444', borderRadius: '50%', width: 14, height: 14, boxShadow: '0 2px 4px rgba(0,0,0,0.35)', border: '2px solid #fff' }} />
+                </OverlayViewF>
+              </GoogleMap>
+            </div>
+            <p className="text-[10px] text-gray-400 dark:text-[#8b919d] text-center">{t('walkRouteCaption')}</p>
+          </div>
+        ) : (
+          <div className="py-8 text-center text-sm text-gray-400 dark:text-[#8b919d]">{t('loadingMap')}</div>
+        )}
+      </Modal>
 
       {/* Add / Edit session modal */}
       <Modal

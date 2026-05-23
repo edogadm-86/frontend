@@ -10,8 +10,9 @@ import {
   Clock,
   Sparkles,
   Activity,
-  Download,
-  QrCode
+  QrCode,
+  Play,
+  Download
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -206,16 +207,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       <Modal isOpen={showIosHelp} onClose={() => setShowIosHelp(false)} title={t('downloadApp')}>
         <div className="space-y-3 text-sm">
-          <p>
-            On iPhone/iPad: open this site in <b>Safari</b>, tap <b>Share</b>, then choose{' '}
-            <b>Add to Home Screen</b>.
-          </p>
-          <p className="text-gray-500">
-            (iOS doesn't allow an automatic install popup like Android.)
-          </p>
+          <p>On iPhone/iPad: open this site in <b>Safari</b>, tap the <b>Share</b> button, then choose <b>Add to Home Screen</b>.</p>
+          <p className="text-gray-500">(iOS doesn't allow an automatic install prompt — you need to do it manually from Safari.)</p>
         </div>
       </Modal>
-
 
       {/* Bento Grid */}
       <div className="grid grid-cols-12 gap-4 lg:gap-6 mx-auto">
@@ -330,10 +325,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
             )}
 
+            <button
+              onClick={() => onNavigate('training')}
+              className="w-full mt-4 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-lg text-sm font-semibold hover:opacity-90 transition-all flex items-center justify-center gap-2"
+            >
+              <Play size={14} fill="currentColor" />{t('startWalk')}
+            </button>
             {!isStandalone && (
               <button
                 onClick={handleInstall}
-                className="w-full mt-4 py-2 border border-gray-200 dark:border-white/10 rounded-lg text-sm text-gray-500 dark:text-[#8b919d] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2 border border-gray-200 dark:border-white/10 rounded-lg text-sm text-gray-500 dark:text-[#8b919d] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all flex items-center justify-center gap-2"
               >
                 <Download size={14} />{t('downloadApp')}
               </button>

@@ -32,7 +32,7 @@ export const getTrainingSessions = async (req: AuthRequest, res: Response) => {
 export const createTrainingSession = async (req: AuthRequest, res: Response) => {
   try {
     const { dogId } = req.params;
-    const { date, duration, commands, progress, notes, behavior_notes } = req.body;
+    const { date, duration, commands, progress, notes, behavior_notes, walk_path } = req.body;
 
     // Verify dog belongs to user
     const dogCheck = await pool.query(
@@ -45,9 +45,12 @@ export const createTrainingSession = async (req: AuthRequest, res: Response) => 
     }
 
     const sessionId = uuidv4();
+    const walkPathJson = walk_path && Array.isArray(walk_path) && walk_path.length > 1
+      ? JSON.stringify(walk_path)
+      : null;
     const result = await pool.query(
-      'INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null]
+      'INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes, walk_path) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+      [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null, walkPathJson]
     );
 
     res.status(201).json({

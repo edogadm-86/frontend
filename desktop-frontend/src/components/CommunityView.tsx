@@ -4,7 +4,8 @@ import {
   Heart, MessageCircle, Share2, Calendar, MapPin, Users,
   ChevronUp, ChevronDown, Image, Activity, Plus, Send,
   TrendingUp, Zap, Check, Trash2, Flag, AlertTriangle, Hash,
-  UserCircle2, Pencil, CornerDownRight,
+  UserCircle2, Pencil, CornerDownRight, X, ZoomIn, CheckCircle2,
+  Bookmark, Search,
 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { apiClient } from '../lib/api';
@@ -37,6 +38,14 @@ const EVENT_TYPE_COLORS: Record<EventType, string> = {
   fundraiser:  'bg-purple-500/10 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400',
   other:       'bg-gray-500/10 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400',
 };
+
+const REACTIONS = [
+  { type: 'heart', emoji: '❤️', label: 'Heart' },
+  { type: 'paw',   emoji: '🐾', label: 'Paw'   },
+  { type: 'laugh', emoji: '😄', label: 'Laugh'  },
+  { type: 'wow',   emoji: '🤩', label: 'Wow'    },
+] as const;
+type ReactionType = typeof REACTIONS[number]['type'];
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -72,12 +81,13 @@ const initials = (name?: string) => (name ?? '?').split(' ').map(p => p[0]).join
 interface PostCardProps {
   post: Post;
   currentUserId?: string;
-  onLike: (postId: string) => void;
+  onReact: (postId: string, reactionType: string) => void;
   onDelete?: (postId: string) => void;
-  showOwnerActions?: boolean;
+  onMarkFound?: (postId: string) => void;
+  onBookmark?: (postId: string, bookmarked: boolean) => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDelete }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onReact, onDelete, onMarkFound, onBookmark }) => {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
@@ -94,6 +104,13 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
   const [replyContent, setReplyContent] = useState('');
   const [replySubmitting, setReplySubmitting] = useState(false);
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [markingFound, setMarkingFound] = useState(false);
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
+  const [localReaction, setLocalReaction] = useState<string | null>(post.user_reaction ?? null);
+  const [localLikesCount, setLocalLikesCount] = useState(post.likes_count);
+  const [localBookmarked, setLocalBookmarked] = useState(post.bookmarked_by_user ?? false);
+  const reactionPickerRef = useRef<HTMLDivElement>(null);
   const { t, i18n } = useTranslation();
 
   const isOwner = currentUserId && post.user_id === currentUserId;
@@ -185,6 +202,43 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
   const handleDelete = () => setShowDeleteConfirm(true);
   const confirmDeletePost = () => { onDelete?.(post.id); setShowDeleteConfirm(false); };
 
+  const handleMarkFound = async () => {
+    if (markingFound) return;
+    setMarkingFound(true);
+    try {
+      await apiClient.markPostFound(post.id);
+      onMarkFound?.(post.id);
+    } catch { /* silent */ }
+    finally { setMarkingFound(false); }
+  };
+
+  const handleReact = async (reactionType: string) => {
+    setShowReactionPicker(false);
+    const prevReaction = localReaction;
+    const isToggleOff = prevReaction === reactionType;
+    setLocalReaction(isToggleOff ? null : reactionType);
+    setLocalLikesCount(prev => isToggleOff ? prev - 1 : prevReaction ? prev : prev + 1);
+    try {
+      await onReact(post.id, reactionType);
+    } catch {
+      setLocalReaction(prevReaction);
+      setLocalLikesCount(post.likes_count);
+    }
+  };
+
+  const handleBookmark = async () => {
+    const next = !localBookmarked;
+    setLocalBookmarked(next);
+    try {
+      await apiClient.bookmarkPost(post.id);
+      onBookmark?.(post.id, next);
+    } catch {
+      setLocalBookmarked(!next);
+    }
+  };
+
+  const currentReactionEmoji = REACTIONS.find(r => r.type === localReaction)?.emoji;
+
   return (
     <>
       <article className={`bg-white dark:bg-[#1e2023] rounded-2xl border shadow-sm overflow-hidden transition-shadow hover:shadow-md ${
@@ -257,26 +311,91 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
           )}
         </div>
 
+        {/* Lost dog: last known location */}
+        {isLostDog && post.location_name && (
+          <div className="px-5 pb-3 flex items-center gap-2">
+            <MapPin size={14} className="text-red-500 flex-shrink-0" />
+            <span className="text-xs text-gray-600 dark:text-[#8b919d]">
+              <span className="font-semibold text-red-600 dark:text-red-400">{t('lastKnownLocation')}:</span>{' '}
+              {post.location_name}
+            </span>
+          </div>
+        )}
+
+        {/* Lost dog: found banner */}
+        {isLostDog && post.is_resolved && (
+          <div className="mx-5 mb-3 py-2 bg-green-100 dark:bg-green-500/15 border border-green-200 dark:border-green-500/20 rounded-xl flex items-center justify-center gap-2">
+            <CheckCircle2 size={14} className="text-green-600 dark:text-green-400" />
+            <span className="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wide">{t('dogFound')}</span>
+          </div>
+        )}
+
+        {/* Lost dog: mark as found button (owner only, unresolved) */}
+        {isLostDog && isOwner && !post.is_resolved && (
+          <div className="px-5 pb-3">
+            <button
+              onClick={handleMarkFound}
+              disabled={markingFound}
+              className="w-full py-2 text-xs font-bold bg-green-500 text-white rounded-xl hover:bg-green-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 size={14} />
+              {markingFound ? t('saving') : t('markAsFound')}
+            </button>
+          </div>
+        )}
+
         {/* Photo */}
         {post.image_url && (
           <div className="px-5 pb-4">
-            <img src={post.image_url} alt="" className="w-full rounded-xl object-cover max-h-72" />
+            <button
+              onClick={() => setLightboxOpen(true)}
+              className="w-full block relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-[#282a2d]"
+            >
+              <img
+                src={post.image_url}
+                alt=""
+                className="w-full object-contain max-h-96"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center">
+                <ZoomIn size={22} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+              </div>
+            </button>
           </div>
         )}
 
         {/* Action bar */}
         <div className="border-t border-gray-100 dark:border-[#414751]/20 flex">
-          <button
-            onClick={() => onLike(post.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold transition-colors
-              ${post.liked_by_user
-                ? 'text-red-500 bg-red-50 dark:bg-red-500/5'
-                : 'text-gray-500 dark:text-[#8b919d] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/5'
-              }`}
-          >
-            <Heart size={15} fill={post.liked_by_user ? 'currentColor' : 'none'} />
-            <span>{post.likes_count}</span>
-          </button>
+          {/* Reaction button with picker */}
+          <div className="relative flex-1" ref={reactionPickerRef}>
+            <button
+              onClick={() => setShowReactionPicker(prev => !prev)}
+              className={`w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-colors
+                ${localReaction
+                  ? 'text-red-500 bg-red-50 dark:bg-red-500/5'
+                  : 'text-gray-500 dark:text-[#8b919d] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/5'
+                }`}
+            >
+              {localReaction
+                ? <span className="text-base leading-none">{currentReactionEmoji}</span>
+                : <Heart size={15} />
+              }
+              <span>{localLikesCount}</span>
+            </button>
+            {showReactionPicker && (
+              <div className="absolute bottom-full left-0 mb-1 flex gap-1 bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-[#414751]/30 rounded-2xl px-2 py-1.5 shadow-lg z-10">
+                {REACTIONS.map(r => (
+                  <button
+                    key={r.type}
+                    onClick={() => handleReact(r.type)}
+                    className={`w-9 h-9 flex items-center justify-center text-xl rounded-xl transition-all hover:scale-125 hover:bg-gray-50 dark:hover:bg-[#282a2d] ${localReaction === r.type ? 'bg-gray-100 dark:bg-[#282a2d] scale-110' : ''}`}
+                    title={r.label}
+                  >
+                    {r.emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             onClick={loadComments}
             disabled={loadingComments}
@@ -289,6 +408,17 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
             <MessageCircle size={15} />
             <span>{post.comments_count}</span>
             {showComments ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
+          <button
+            onClick={handleBookmark}
+            className={`flex items-center justify-center px-3 py-2.5 text-xs font-semibold transition-colors border-r border-gray-100 dark:border-[#414751]/20
+              ${localBookmarked
+                ? 'text-amber-500 bg-amber-50 dark:bg-amber-500/5'
+                : 'text-gray-500 dark:text-[#8b919d] hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/5'
+              }`}
+            title={t('bookmark')}
+          >
+            <Bookmark size={15} fill={localBookmarked ? 'currentColor' : 'none'} />
           </button>
           <button
             onClick={handleShare}
@@ -483,6 +613,27 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
           </div>
         )}
       </Modal>
+
+      {/* Image lightbox */}
+      {lightboxOpen && post.image_url && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <X size={18} />
+          </button>
+          <img
+            src={post.image_url}
+            alt=""
+            className="max-w-[92vw] max-h-[92vh] object-contain rounded-lg shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </>
   );
 };
@@ -490,7 +641,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onLike, onDele
 // ── ComposeCard ───────────────────────────────────────────────────────────────
 
 interface ComposeCardProps {
-  onPost: (title: string, content: string, type: PostType, imageUrl?: string, tags?: string[]) => Promise<void>;
+  onPost: (title: string, content: string, type: PostType, imageUrl?: string, tags?: string[], locationName?: string) => Promise<void>;
 }
 
 const ComposeCard: React.FC<ComposeCardProps> = ({ onPost }) => {
@@ -499,6 +650,7 @@ const ComposeCard: React.FC<ComposeCardProps> = ({ onPost }) => {
   const [content, setContent] = useState('');
   const [postType, setPostType] = useState<PostType>('story');
   const [tagsInput, setTagsInput] = useState('');
+  const [locationName, setLocationName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -536,8 +688,8 @@ const ComposeCard: React.FC<ComposeCardProps> = ({ onPost }) => {
         }
       }
       const tags = tagsInput.split(/[\s,]+/).map(t => t.replace(/^#/, '').trim()).filter(Boolean);
-      await onPost(title.trim(), content.trim(), postType, imageUrl, tags.length ? tags : undefined);
-      setTitle(''); setContent(''); setPostType('story'); setTagsInput('');
+      await onPost(title.trim(), content.trim(), postType, imageUrl, tags.length ? tags : undefined, locationName.trim() || undefined);
+      setTitle(''); setContent(''); setPostType('story'); setTagsInput(''); setLocationName('');
       setExpanded(false);
       clearPhoto();
     } finally {
@@ -585,6 +737,17 @@ const ComposeCard: React.FC<ComposeCardProps> = ({ onPost }) => {
               value={tagsInput}
               onChange={e => setTagsInput(e.target.value)}
             />
+          )}
+          {expanded && isLostDog && (
+            <div className="mt-2 flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-3 py-2">
+              <MapPin size={13} className="text-red-500 flex-shrink-0" />
+              <input
+                className="flex-1 text-xs bg-transparent text-gray-700 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#8b919d] focus:outline-none"
+                placeholder={t('lastKnownLocationPlaceholder')}
+                value={locationName}
+                onChange={e => setLocationName(e.target.value)}
+              />
+            </div>
           )}
           {photoPreview && (
             <div className="relative mt-2">
@@ -652,7 +815,7 @@ const ComposeCard: React.FC<ComposeCardProps> = ({ onPost }) => {
         {expanded && (
           <div className="flex gap-2 flex-shrink-0">
             <button
-              onClick={() => { setExpanded(false); setTitle(''); setContent(''); setTagsInput(''); clearPhoto(); setPostType('story'); }}
+              onClick={() => { setExpanded(false); setTitle(''); setContent(''); setTagsInput(''); setLocationName(''); clearPhoto(); setPostType('story'); }}
               className="px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-[#8b919d] hover:bg-gray-100 dark:hover:bg-[#282a2d] rounded-xl transition-colors"
             >
               {t('cancel')}
@@ -990,7 +1153,7 @@ interface CommunityViewProps {
 }
 
 export const CommunityView: React.FC<CommunityViewProps> = () => {
-  const [activeTab, setActiveTab] = useState<'feed' | 'events' | 'mine'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'events' | 'mine' | 'saved'>('feed');
   const [feedFilter, setFeedFilter] = useState<FilterType>('all');
   const { t, i18n } = useTranslation();
   const { user } = useApp();
@@ -1012,6 +1175,15 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
   const [eventsSubTab, setEventsSubTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const [trendingTags, setTrendingTags] = useState<{ tag: string; count: number }[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeChannelTag, setActiveChannelTag] = useState<string | null>(null);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
+  const [savedPostsLoading, setSavedPostsLoading] = useState(false);
+  const [showReunitedModal, setShowReunitedModal] = useState(false);
+  const [reunitedPost, setReunitedPost] = useState<Post | null>(null);
+  const [reunitedStoryTitle, setReunitedStoryTitle] = useState('');
+  const [reunitedStoryContent, setReunitedStoryContent] = useState('');
+  const [reunitedSubmitting, setReunitedSubmitting] = useState(false);
 
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
@@ -1081,6 +1253,15 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
     } catch { /* silent */ }
   }, []);
 
+  const fetchSavedPosts = useCallback(async () => {
+    setSavedPostsLoading(true);
+    try {
+      const data = await apiClient.getBookmarkedPosts();
+      setSavedPosts(data.posts);
+    } catch { /* silent */ }
+    finally { setSavedPostsLoading(false); }
+  }, []);
+
   useEffect(() => {
     fetchPosts();
     fetchEvents();
@@ -1089,25 +1270,29 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
 
   useEffect(() => {
     if (activeTab === 'mine') fetchMyPosts();
-  }, [activeTab, fetchMyPosts]);
+    if (activeTab === 'saved') fetchSavedPosts();
+  }, [activeTab, fetchMyPosts, fetchSavedPosts]);
 
   useEffect(() => {
     if (activeTab === 'events' && eventsSubTab === 'past') fetchPastEvents();
   }, [activeTab, eventsSubTab, fetchPastEvents]);
 
-  const filteredPosts = feedFilter === 'all' ? posts : posts.filter(p => p.post_type === feedFilter);
+  let filteredPosts = feedFilter === 'all' ? posts : posts.filter(p => p.post_type === feedFilter);
+  if (activeChannelTag) filteredPosts = filteredPosts.filter(p => p.tags?.includes(activeChannelTag));
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    filteredPosts = filteredPosts.filter(p =>
+      p.title.toLowerCase().includes(q) ||
+      p.content.toLowerCase().includes(q) ||
+      p.tags?.some(tag => tag.toLowerCase().includes(q))
+    );
+  }
 
-  const handleLike = async (postId: string) => {
-    setPosts(prev => prev.map(p =>
-      p.id === postId ? { ...p, liked_by_user: !p.liked_by_user, likes_count: p.likes_count + (p.liked_by_user ? -1 : 1) } : p
-    ));
+  const handleReact = async (postId: string, reactionType: string) => {
+    // optimistic update is handled inside PostCard; backend call here
     try {
-      await apiClient.likePost(postId);
-    } catch {
-      setPosts(prev => prev.map(p =>
-        p.id === postId ? { ...p, liked_by_user: !p.liked_by_user, likes_count: p.likes_count + (p.liked_by_user ? -1 : 1) } : p
-      ));
-    }
+      await apiClient.reactToPost(postId, reactionType);
+    } catch { /* silent — PostCard reverts on error */ }
   };
 
   const handleDelete = async (postId: string) => {
@@ -1118,10 +1303,38 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
     } catch { /* silent */ }
   };
 
-  const handleCreatePost = async (title: string, content: string, postType: PostType, imageUrl?: string, tags?: string[]) => {
-    await apiClient.createPost({ title, content, post_type: postType, image_url: imageUrl, tags });
+  const handleCreatePost = async (title: string, content: string, postType: PostType, imageUrl?: string, tags?: string[], locationName?: string) => {
+    await apiClient.createPost({ title, content, post_type: postType, image_url: imageUrl, tags, ...(locationName ? { location_name: locationName } : {}) });
     fetchPosts();
     fetchTrendingTags();
+  };
+
+  const handleBookmark = (_postId: string, _bookmarked: boolean) => {
+    // refresh saved tab next time it's opened
+    setSavedPosts([]);
+  };
+
+  const handleMarkFound = (postId: string) => {
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_resolved: true } : p));
+    setMyPosts(prev => prev.map(p => p.id === postId ? { ...p, is_resolved: true } : p));
+    const foundPost = posts.find(p => p.id === postId) || myPosts.find(p => p.id === postId);
+    if (foundPost) {
+      setReunitedPost(foundPost);
+      setReunitedStoryTitle(t('reunitedDefaultTitle', { dog: foundPost.dog_name || t('myDog') }));
+      setReunitedStoryContent(t('reunitedDefaultContent', { dog: foundPost.dog_name || t('myDog') }));
+      setShowReunitedModal(true);
+    }
+  };
+
+  const handleShareReunited = async () => {
+    if (!reunitedStoryTitle.trim() || !reunitedStoryContent.trim() || reunitedSubmitting) return;
+    setReunitedSubmitting(true);
+    try {
+      await apiClient.createPost({ title: reunitedStoryTitle.trim(), content: reunitedStoryContent.trim(), post_type: 'story' });
+      setShowReunitedModal(false);
+      fetchPosts();
+    } catch { /* silent */ }
+    finally { setReunitedSubmitting(false); }
   };
 
   const handleJoinEvent = async (eventId: string) => {
@@ -1195,11 +1408,11 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
       {/* Tab bar */}
       <div className="flex items-center justify-between gap-3 mb-6">
         <div className="flex gap-1 bg-gray-100 dark:bg-[#1a1c1f] rounded-xl p-1">
-          {(['feed', 'events', 'mine'] as const).map(tab => (
+          {(['feed', 'events', 'mine', 'saved'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === tab
                   ? 'bg-white dark:bg-[#1e2023] text-blue-600 dark:text-[#a4c9ff] shadow-sm'
                   : 'text-gray-500 dark:text-[#8b919d] hover:text-gray-800 dark:hover:text-[#e2e2e6]'
@@ -1208,7 +1421,10 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
               {tab === 'feed' && <MessageCircle size={15} />}
               {tab === 'events' && <Calendar size={15} />}
               {tab === 'mine' && <UserCircle2 size={15} />}
-              {t(tab === 'feed' ? 'feed' : tab === 'events' ? 'events' : 'myPosts')}
+              {tab === 'saved' && <Bookmark size={15} />}
+              <span className="hidden sm:inline">
+                {tab === 'feed' ? t('feed') : tab === 'events' ? t('events') : tab === 'mine' ? t('myPosts') : t('saved')}
+              </span>
             </button>
           ))}
         </div>
@@ -1228,6 +1444,39 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
         <div className="flex gap-6 items-start">
           <div className="flex-1 min-w-0 space-y-4">
             <ComposeCard onPost={handleCreatePost} />
+
+            {/* Search bar */}
+            <div className="relative">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b919d] pointer-events-none" />
+              <input
+                className="w-full text-sm bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-[#414751]/20 rounded-xl pl-9 pr-9 py-2.5 text-gray-700 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#8b919d] focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-[#a4c9ff] shadow-sm"
+                placeholder={t('searchPosts')}
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-[#e2e2e6]"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Channel tag filter */}
+            {activeChannelTag && (
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-gray-500 dark:text-[#8b919d]">{t('filteringByTag')}:</span>
+                <span className="inline-flex items-center gap-1 bg-blue-500 text-white px-2.5 py-1 rounded-full font-semibold">
+                  <Hash size={10} />
+                  {activeChannelTag}
+                  <button onClick={() => setActiveChannelTag(null)} className="ml-0.5 hover:text-blue-200">
+                    <X size={11} />
+                  </button>
+                </span>
+              </div>
+            )}
 
             {/* Filter chips */}
             <div className="flex gap-1.5 flex-wrap">
@@ -1291,8 +1540,10 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
                 key={post.id}
                 post={post}
                 currentUserId={user?.id}
-                onLike={handleLike}
+                onReact={handleReact}
                 onDelete={handleDelete}
+                onMarkFound={handleMarkFound}
+                onBookmark={handleBookmark}
               />
             ))}
           </div>
@@ -1334,12 +1585,19 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
                   {trendingTags.slice(0, 10).map(({ tag, count }) => (
                     <button
                       key={tag}
-                      onClick={() => setFeedFilter('all')}
-                      className="inline-flex items-center gap-1 text-xs text-blue-500 dark:text-[#a4c9ff] bg-blue-50 dark:bg-[#a4c9ff]/10 hover:bg-blue-100 dark:hover:bg-[#a4c9ff]/20 px-2.5 py-1 rounded-full transition-colors"
+                      onClick={() => {
+                        setFeedFilter('all');
+                        setActiveChannelTag(prev => prev === tag ? null : tag);
+                      }}
+                      className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full transition-colors ${
+                        activeChannelTag === tag
+                          ? 'bg-blue-500 text-white'
+                          : 'text-blue-500 dark:text-[#a4c9ff] bg-blue-50 dark:bg-[#a4c9ff]/10 hover:bg-blue-100 dark:hover:bg-[#a4c9ff]/20'
+                      }`}
                     >
                       <Hash size={10} />
                       {tag}
-                      <span className="text-gray-400 dark:text-[#8b919d] ml-0.5">{count}</span>
+                      <span className={`ml-0.5 ${activeChannelTag === tag ? 'text-blue-100' : 'text-gray-400 dark:text-[#8b919d]'}`}>{count}</span>
                     </button>
                   ))}
                 </div>
@@ -1513,13 +1771,95 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
                 key={post.id}
                 post={post}
                 currentUserId={user?.id}
-                onLike={handleLike}
+                onReact={handleReact}
                 onDelete={handleDelete}
+                onMarkFound={handleMarkFound}
+                onBookmark={handleBookmark}
               />
             ))}
           </div>
         </div>
       )}
+
+      {/* ── Saved tab ── */}
+      {activeTab === 'saved' && (
+        <div className="flex gap-6 items-start">
+          <div className="flex-1 min-w-0 space-y-4">
+            {savedPostsLoading && (
+              <div className="space-y-4">
+                {[1,2].map(i => (
+                  <div key={i} className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-5 animate-pulse h-36" />
+                ))}
+              </div>
+            )}
+            {!savedPostsLoading && savedPosts.length === 0 && (
+              <div className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-[#414751]/20 p-12 text-center">
+                <div className="w-14 h-14 bg-gray-100 dark:bg-[#282a2d] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Bookmark size={24} className="text-gray-400 dark:text-[#414751]" />
+                </div>
+                <p className="text-sm text-gray-500 dark:text-[#8b919d] mb-4">{t('noSavedPosts')}</p>
+                <button onClick={() => setActiveTab('feed')} className="px-4 py-2 bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-bold hover:bg-blue-600 dark:hover:bg-[#d4e3ff] transition-colors">
+                  {t('browseFeed')}
+                </button>
+              </div>
+            )}
+            {savedPosts.map(post => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUserId={user?.id}
+                onReact={handleReact}
+                onDelete={handleDelete}
+                onMarkFound={handleMarkFound}
+                onBookmark={(postId, bookmarked) => {
+                  if (!bookmarked) setSavedPosts(prev => prev.filter(p => p.id !== postId));
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Dog Reunited Modal */}
+      <Modal isOpen={showReunitedModal} onClose={() => setShowReunitedModal(false)} title={t('dogReunitedTitle')}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-500/10 rounded-xl border border-green-200 dark:border-green-500/20">
+            <CheckCircle2 size={20} className="text-green-600 dark:text-green-400 flex-shrink-0" />
+            <p className="text-sm text-green-700 dark:text-green-400 font-medium">{t('dogReunitedSubtitle')}</p>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-[#8b919d]">{t('dogReunitedSharePrompt')}</p>
+          <div className="space-y-3">
+            <input
+              className={inputCls}
+              value={reunitedStoryTitle}
+              onChange={e => setReunitedStoryTitle(e.target.value)}
+              placeholder={t('storyTitlePlaceholder')}
+            />
+            <textarea
+              className={`${inputCls} resize-none`}
+              rows={4}
+              value={reunitedStoryContent}
+              onChange={e => setReunitedStoryContent(e.target.value)}
+              placeholder={t('storyContentPlaceholder')}
+            />
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button
+              onClick={() => setShowReunitedModal(false)}
+              className="flex-1 py-2 text-sm font-semibold text-gray-600 dark:text-[#8b919d] border border-gray-200 dark:border-[#414751]/40 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+            >
+              {t('skipForNow')}
+            </button>
+            <button
+              onClick={handleShareReunited}
+              disabled={!reunitedStoryTitle.trim() || !reunitedStoryContent.trim() || reunitedSubmitting}
+              className="flex-1 py-2 text-sm font-bold bg-green-500 text-white rounded-xl hover:bg-green-600 disabled:opacity-40 transition-colors"
+            >
+              {reunitedSubmitting ? t('posting') : t('shareStory')}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Create Event Modal */}
       <Modal isOpen={isEventModalOpen} onClose={() => setIsEventModalOpen(false)} title={t('createEvent')}>
