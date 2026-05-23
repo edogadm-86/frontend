@@ -7,21 +7,29 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "{{ .Values.frontend.ingress.issuer }}"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
 spec:
   ingressClassName: {{ .Values.frontend.ingress.className }}
+
   tls:
     - hosts:
-        - "{{ .Values.frontend.ingress.host }}"
+{{- range .Values.frontend.ingress.hosts }}
+        - "{{ . }}"
+{{- end }}
       secretName: edog-frontend-tls
+
   rules:
-    - host: "{{ .Values.frontend.ingress.host }}"
+{{- range .Values.frontend.ingress.hosts }}
+    - host: "{{ . }}"
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-frontend
+                name: {{ $.Release.Name }}-frontend
                 port:
-                  number: {{ .Values.frontend.service.port }}
+                  number: {{ $.Values.frontend.service.port }}
+{{- end }}
+
 {{- end }}

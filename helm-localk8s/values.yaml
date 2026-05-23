@@ -11,13 +11,12 @@ frontend:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    host: "edog.dogpass.net"
     className: "nginx"
-    issuer: "letsencrypt-prod"  # Use the ClusterIssuer name
-    tls:
-      - hosts:
-          - "edog.dogpass.net"
-        secretName: edog-frontend-tls
+    issuer: "letsencrypt-prod"
+    hosts:
+      - "edog.dogpass.net"
+      - "edog.bg"
+      - "www.edog.bg"
 
 backend:
   image:
@@ -38,10 +37,9 @@ backend:
     vapid_email: "admin@edog.app"
   ingress:
     enabled: true
-    host: "edog.dogpass.net"
     className: nginx
     issuer: "letsencrypt-prod" 
-    tls:
-      - hosts:
-          - "edog.dogpass.net"
-        secretName: edog-frontend-tls
+    hosts:
+    - "edog.dogpass.net"
+    - "edog.bg"
+    - "www.edog.bg"

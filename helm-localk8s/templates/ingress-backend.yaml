@@ -14,21 +14,29 @@ metadata:
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
     nginx.ingress.kubernetes.io/cors-max-age: "86400"
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+
 spec:
   ingressClassName: {{ .Values.backend.ingress.className }}
+
   tls:
     - hosts:
-        - "{{ .Values.backend.ingress.host }}"
+{{- range .Values.backend.ingress.hosts }}
+        - "{{ . }}"
+{{- end }}
       secretName: edog-frontend-tls
+
   rules:
-    - host: "{{ .Values.backend.ingress.host }}"
+{{- range .Values.backend.ingress.hosts }}
+    - host: "{{ . }}"
       http:
         paths:
           - path: /api
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-backend
+                name: {{ $.Release.Name }}-backend
                 port:
-                  number: {{ .Values.backend.service.port }}
+                  number: {{ $.Values.backend.service.port }}
+{{- end }}
+
 {{- end }}

@@ -93,11 +93,25 @@ app.use(morgan('combined'));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Digital Asset Links — required for TWA (Android Play Store package)
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.json([{
+    relation: ['delegate_permission/common.handle_all_urls'],
+    target: {
+      namespace: 'android_app',
+      package_name: 'net.dogpass.edog.twa',
+      sha256_cert_fingerprints: [
+        '59:10:5D:00:17:8D:63:49:23:E8:00:90:53:D0:C4:D0:4C:4B:D9:99:8A:A1:39:47:C3:47:3F:21:7E:A6:66:94'
+      ]
+    }
+  }]);
 });
 
 
