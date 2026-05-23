@@ -29,15 +29,19 @@ router.get('/', async (req, res) => {
         const { page = 1, limit = 10, type, location, upcoming = 'true' } = req.query;
         const offset = (Number(page) - 1) * Number(limit);
         let query = `
-      SELECT e.*, u.name as organizer_name, 
-             (SELECT COUNT(*) FROM event_participants ep WHERE ep.event_id = e.id AND ep.status = 'attending') as participants_count
-      FROM events e 
-      JOIN users u ON e.user_id = u.id 
+      SELECT e.*, u.name as organizer_name,
+             (SELECT COUNT(*) FROM event_participants ep WHERE ep.event_id = e.id AND ep.status = 'attending') as participants_count,
+             (SELECT COUNT(*) FROM event_comments ec WHERE ec.event_id = e.id) as comments_count
+      FROM events e
+      JOIN users u ON e.user_id = u.id
       WHERE e.is_public = true
     `;
         const params = [];
         if (upcoming === 'true') {
-            query += ` AND e.start_date >= NOW() - INTERVAL '7 days'`;
+            query += ` AND e.start_date >= NOW()`;
+        }
+        else if (upcoming === 'false') {
+            query += ` AND e.start_date < NOW()`;
         }
         if (type) {
             query += ` AND e.event_type = $${params.length + 1}`;
@@ -47,7 +51,8 @@ router.get('/', async (req, res) => {
             query += ` AND e.location ILIKE $${params.length + 1}`;
             params.push(`%${location}%`);
         }
-        query += ` ORDER BY e.start_date ASC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+        const order = upcoming === 'false' ? 'DESC' : 'ASC';
+        query += ` ORDER BY e.start_date ${order} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(Number(limit), offset);
         const result = await database_1.default.query(query, params);
         res.json({ events: result.rows });
@@ -180,6 +185,83 @@ router.get('/:id/participants', async (req, res) => {
     }
     catch (error) {
         console.error('Get participants error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// Get event comments
+router.get('/:id/comments', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await database_1.default.query(`SELECT ec.id, ec.event_id, ec.user_id, ec.content, ec.created_at, ec.updated_at, ec.parent_id, u.name as author_name
+       FROM event_comments ec
+       JOIN users u ON ec.user_id = u.id
+       WHERE ec.event_id = $1
+       ORDER BY ec.created_at ASC`, [id]);
+        res.json({ comments: result.rows });
+    }
+    catch (error) {
+        console.error('Get event comments error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// Add comment to event (supports optional parent_id for replies, 2-level max)
+router.post('/:id/comments', auth_1.authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { content, parent_id } = req.body;
+        if (!content || !content.trim()) {
+            return res.status(400).json({ error: 'Comment content is required' });
+        }
+        const eventExists = await database_1.default.query('SELECT id FROM events WHERE id = $1', [id]);
+        if (eventExists.rows.length === 0) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+        if (parent_id) {
+            const parentRes = await database_1.default.query('SELECT id, parent_id FROM event_comments WHERE id = $1 AND event_id = $2', [parent_id, id]);
+            if (parentRes.rows.length === 0) {
+                return res.status(400).json({ error: 'Parent comment not found' });
+            }
+            if (parentRes.rows[0].parent_id) {
+                return res.status(400).json({ error: 'Cannot reply to a reply' });
+            }
+        }
+        const commentId = (0, uuid_1.v4)();
+        const result = await database_1.default.query(`INSERT INTO event_comments (id, event_id, user_id, content, parent_id)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, event_id, user_id, content, created_at, updated_at, parent_id`, [commentId, id, req.user.id, content.trim(), parent_id || null]);
+        const userResult = await database_1.default.query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+        const comment = { ...result.rows[0], author_name: userResult.rows[0]?.name ?? 'Unknown' };
+        res.status(201).json({ comment });
+    }
+    catch (error) {
+        console.error('Add event comment error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// Edit own event comment
+router.patch('/:eventId/comments/:commentId', auth_1.authenticateToken, async (req, res) => {
+    try {
+        const { eventId, commentId } = req.params;
+        const { content } = req.body;
+        if (!content?.trim()) {
+            return res.status(400).json({ error: 'Comment content is required' });
+        }
+        const commentRes = await database_1.default.query('SELECT id, user_id FROM event_comments WHERE id = $1 AND event_id = $2', [commentId, eventId]);
+        if (commentRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+        if (commentRes.rows[0].user_id !== req.user.id) {
+            return res.status(403).json({ error: 'You can only edit your own comments' });
+        }
+        const result = await database_1.default.query(`UPDATE event_comments SET content = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING id, event_id, user_id, content, created_at, updated_at, parent_id`, [content.trim(), commentId]);
+        const userRes = await database_1.default.query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+        const comment = { ...result.rows[0], author_name: userRes.rows[0]?.name ?? 'Unknown' };
+        res.json({ comment });
+    }
+    catch (error) {
+        console.error('Edit event comment error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

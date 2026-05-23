@@ -96,7 +96,7 @@ export const AdminApp: React.FC = () => {
           {/* Brand */}
           <a href="/" className="flex items-center gap-2.5 flex-shrink-0 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-gradient-to-br from-[#005da7] to-[#0090e7] rounded-xl flex items-center justify-center shadow-sm">
-              <img src="/logo.png" alt="eDog" className="w-5 h-5 object-contain" />
+              <img src="/logo-header.png" alt="eDog" className="w-5 h-5 object-contain" />
             </div>
             <span className="text-lg font-bold text-[#005da7] dark:text-[#a4c9ff] hidden md:block">eDog</span>
           </a>

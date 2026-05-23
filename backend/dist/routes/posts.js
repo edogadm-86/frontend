@@ -212,25 +212,61 @@ router.post('/:id/like', auth_1.authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// Add comment
+// Add comment (supports optional parent_id for replies, 2-level max)
 router.post('/:id/comments', auth_1.authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { content } = req.body;
+        const { content, parent_id } = req.body;
         if (!content || content.trim().length === 0) {
             return res.status(400).json({ error: 'Comment content is required' });
         }
+        if (parent_id) {
+            const parentRes = await database_1.default.query('SELECT id, parent_id FROM post_comments WHERE id = $1 AND post_id = $2', [parent_id, id]);
+            if (parentRes.rows.length === 0) {
+                return res.status(400).json({ error: 'Parent comment not found' });
+            }
+            if (parentRes.rows[0].parent_id) {
+                return res.status(400).json({ error: 'Cannot reply to a reply' });
+            }
+        }
         const commentId = (0, uuid_1.v4)();
-        const result = await database_1.default.query(`INSERT INTO post_comments (id, post_id, user_id, content) VALUES ($1, $2, $3, $4) RETURNING *`, [commentId, id, req.user.id, content.trim()]);
-        // Update comments count
+        const result = await database_1.default.query(`INSERT INTO post_comments (id, post_id, user_id, content, parent_id)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`, [commentId, id, req.user.id, content.trim(), parent_id || null]);
         await database_1.default.query('UPDATE posts SET comments_count = comments_count + 1 WHERE id = $1', [id]);
-        res.status(201).json({
-            message: 'Comment added successfully',
-            comment: result.rows[0]
-        });
+        const userRes = await database_1.default.query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+        const comment = { ...result.rows[0], author_name: userRes.rows[0]?.name ?? 'Unknown' };
+        res.status(201).json({ message: 'Comment added successfully', comment });
     }
     catch (error) {
         console.error('Add comment error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// Edit own comment
+router.patch('/:postId/comments/:commentId', auth_1.authenticateToken, async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        const { content } = req.body;
+        if (!content?.trim()) {
+            return res.status(400).json({ error: 'Comment content is required' });
+        }
+        const commentRes = await database_1.default.query('SELECT id, user_id FROM post_comments WHERE id = $1 AND post_id = $2', [commentId, postId]);
+        if (commentRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+        if (commentRes.rows[0].user_id !== req.user.id) {
+            return res.status(403).json({ error: 'You can only edit your own comments' });
+        }
+        const result = await database_1.default.query(`UPDATE post_comments SET content = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`, [content.trim(), commentId]);
+        const userRes = await database_1.default.query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+        const comment = { ...result.rows[0], author_name: userRes.rows[0]?.name ?? 'Unknown' };
+        res.json({ comment });
+    }
+    catch (error) {
+        console.error('Edit comment error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -238,10 +274,10 @@ router.post('/:id/comments', auth_1.authenticateToken, async (req, res) => {
 router.get('/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await database_1.default.query(`SELECT c.*, u.name as author_name 
-       FROM post_comments c 
-       JOIN users u ON c.user_id = u.id 
-       WHERE c.post_id = $1 
+        const result = await database_1.default.query(`SELECT c.*, u.name as author_name
+       FROM post_comments c
+       JOIN users u ON c.user_id = u.id
+       WHERE c.post_id = $1
        ORDER BY c.created_at ASC`, [id]);
         res.json({ comments: result.rows });
     }
