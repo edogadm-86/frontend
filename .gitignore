@@ -11,6 +11,7 @@ lerna-debug.log*
 /backend/.env**/otherfiles/
 node_modules
 **/node_modules/
+**/otherfiles/
 dist
 dist-ssr
 *.local
