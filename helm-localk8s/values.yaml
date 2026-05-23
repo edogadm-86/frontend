@@ -1,28 +1,28 @@
 frontend:
   image:
     repository: nikolaypeshev/dogpass
-    tag: edog-frontend-20-05-26
+    tag: edog-frontend-23-05-26
   service:
     type: ClusterIP
     port: 80
   config: 
     backend_url: "https://edog.dogpass.net"
+    vite_google_maps_api_key: "AIzaSyDWAla0Y50XI6fM4MNrOtFX9wBFF3yHOls"
   ingress:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    host: "edog.dogpass.net"
+    hosts:
+      - "edog.dogpass.net"
+      - "edog.bg"
+      - "www.edog.bg"
     className: "nginx"
     issuer: "letsencrypt-prod"  # Use the ClusterIssuer name
-    tls:
-      - hosts:
-          - "edog.dogpass.net"
-        secretName: edog-frontend-tls
 
 backend:
   image:
     repository: nikolaypeshev/dogpass
-    tag: edog-backend-20-05-26
+    tag: edog-backend-23-05-26
   service:
     type: ClusterIP
     port: 3001
@@ -41,7 +41,7 @@ backend:
     host: "edog.dogpass.net"
     className: nginx
     issuer: "letsencrypt-prod" 
-    tls:
-      - hosts:
-          - "edog.dogpass.net"
-        secretName: edog-frontend-tls
+    hosts:
+    - "edog.dogpass.net"
+    - "edog.bg"
+    - "www.edog.bg"

@@ -21,5 +21,7 @@ spec:
         env:
           - name: VITE_BACKEND_URL
             value: {{ .Values.frontend.config.backend_url }}
+          - name: VITE_GOOGLE_MAPS_API_KEY
+            value: {{ .Values.frontend.config.vite_google_maps_api_key }}
         ports:
         - containerPort: {{ .Values.frontend.service.port }}
