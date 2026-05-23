@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, LogOut, Globe, Settings, Moon, Sun, HelpCircle } from 'lucide-react';
+import { Bell, LogOut, Globe, Settings, Moon, Sun, HelpCircle, MessageSquarePlus, X, Check } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { HelpSupportPage } from './HelpSupportPage';
 import { apiClient } from '../lib/api';
@@ -33,6 +33,16 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
   const [showHelpPage, setShowHelpPage] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
+
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'bug' | 'feature' | 'general'>('general');
+  const [feedbackTitle, setFeedbackTitle] = useState('');
+  const [feedbackDesc, setFeedbackDesc] = useState('');
+  const [feedbackFile, setFeedbackFile] = useState<File | null>(null);
+  const [feedbackPreview, setFeedbackPreview] = useState<string | null>(null);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackDone, setFeedbackDone] = useState(false);
+  const feedbackFileRef = useRef<HTMLInputElement>(null);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
   const langMenuRef = useRef<HTMLDivElement>(null);
@@ -120,6 +130,41 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const openFeedback = () => {
+    setFeedbackType('general');
+    setFeedbackTitle('');
+    setFeedbackDesc('');
+    setFeedbackFile(null);
+    setFeedbackPreview(null);
+    setFeedbackDone(false);
+    setShowFeedback(true);
+  };
+
+  const handleFeedbackFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFeedbackFile(file);
+    setFeedbackPreview(URL.createObjectURL(file));
+  };
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackTitle.trim() || !feedbackDesc.trim() || feedbackSubmitting) return;
+    setFeedbackSubmitting(true);
+    try {
+      let imageUrl: string | undefined;
+      if (feedbackFile) {
+        try {
+          const up = await apiClient.uploadImage(feedbackFile);
+          imageUrl = up.fileUrl;
+        } catch { /* image upload optional */ }
+      }
+      await apiClient.submitFeedback({ type: feedbackType, title: feedbackTitle.trim(), description: feedbackDesc.trim(), imageUrl });
+    } catch { /* show success regardless */ }
+    finally { setFeedbackSubmitting(false); }
+    setFeedbackDone(true);
+  };
+
   const iconBtn =
     'p-2 rounded-lg text-gray-500 dark:text-[#8b919d] hover:text-gray-800 dark:hover:text-[#e2e2e6] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-all duration-150';
 
@@ -185,9 +230,18 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
               )}
             </div>
 
+            {/* Feedback button */}
+            <button
+              className={iconBtn}
+              onClick={openFeedback}
+              title={t('sendFeedback')}
+            >
+              <MessageSquarePlus size={18} />
+            </button>
+
             {/* Theme toggle */}
             <button
-              className={`${iconBtn} hidden lg:flex`}
+              className={iconBtn}
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               title={theme === 'dark' ? t('lightMode') : t('darkMode')}
             >
@@ -195,7 +249,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
             </button>
 
             {/* Notifications */}
-            <div className="relative hidden lg:block" ref={notifMenuRef}>
+            <div className="relative" ref={notifMenuRef}>
               <button
                 onClick={e => { e.stopPropagation(); setShowNotifications(!showNotifications); setShowUserMenu(false); setShowLanguageMenu(false); }}
                 className={`${iconBtn} relative`}
@@ -313,6 +367,128 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
       </header>
 
       {showHelpPage && <HelpSupportPage onClose={() => setShowHelpPage(false)} />}
+
+      {/* Feedback modal */}
+      {showFeedback && (
+        <div className="fixed inset-0 z-[80] bg-black/40 flex items-center justify-center p-4" onClick={() => setShowFeedback(false)}>
+          <div
+            className="bg-white dark:bg-[#1e2023] rounded-2xl shadow-2xl w-full max-w-md font-jakarta"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
+              <div className="flex items-center gap-2">
+                <MessageSquarePlus size={18} className="text-[#005da7] dark:text-[#a4c9ff]" />
+                <h2 className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{t('sendFeedback')}</h2>
+              </div>
+              <button onClick={() => setShowFeedback(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+
+            {feedbackDone ? (
+              <div className="flex flex-col items-center py-10 gap-3 px-5">
+                <div className="w-14 h-14 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center">
+                  <Check size={28} className="text-green-600 dark:text-green-400" />
+                </div>
+                <p className="text-base font-bold text-gray-900 dark:text-[#e2e2e6]">{t('feedbackThankYou')}</p>
+                <p className="text-sm text-gray-500 dark:text-[#8b919d] text-center">{t('feedbackReceived')}</p>
+                <button
+                  onClick={() => setShowFeedback(false)}
+                  className="mt-2 px-6 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-semibold text-sm hover:opacity-90 transition-all"
+                >
+                  {t('close')}
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleFeedbackSubmit} className="p-5 space-y-4">
+                {/* Type pills */}
+                <div className="flex gap-2">
+                  {(['bug', 'feature', 'general'] as const).map(type => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setFeedbackType(type)}
+                      className={`flex-1 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                        feedbackType === type
+                          ? type === 'bug'
+                            ? 'bg-red-500 text-white'
+                            : type === 'feature'
+                            ? 'bg-blue-500 dark:bg-[#a4c9ff] text-white dark:text-[#00315d]'
+                            : 'bg-gray-700 dark:bg-[#414751] text-white'
+                          : 'bg-gray-100 dark:bg-[#282a2d] text-gray-500 dark:text-[#8b919d] hover:bg-gray-200 dark:hover:bg-[#333740]'
+                      }`}
+                    >
+                      {type === 'bug' ? `🐛 ${t('feedbackBug')}` : type === 'feature' ? `✨ ${t('feedbackFeature')}` : `💬 ${t('feedbackGeneral')}`}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Title */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-[#8b919d] mb-1.5 uppercase tracking-wide">{t('feedbackTitle')}</label>
+                  <input
+                    required
+                    value={feedbackTitle}
+                    onChange={e => setFeedbackTitle(e.target.value)}
+                    placeholder={t('feedbackTitlePlaceholder')}
+                    className="w-full text-sm bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-[#414751]/40 rounded-xl px-3 py-2.5 text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#8b919d] focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-[#a4c9ff]"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-[#8b919d] mb-1.5 uppercase tracking-wide">{t('feedbackDescription')}</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={feedbackDesc}
+                    onChange={e => setFeedbackDesc(e.target.value)}
+                    placeholder={t('feedbackDescPlaceholder')}
+                    className="w-full text-sm bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-[#414751]/40 rounded-xl px-3 py-2.5 text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#8b919d] focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-[#a4c9ff] resize-none"
+                  />
+                </div>
+
+                {/* Screenshot */}
+                <div>
+                  <input ref={feedbackFileRef} type="file" accept="image/*" className="hidden" onChange={handleFeedbackFile} />
+                  {feedbackPreview ? (
+                    <div className="relative">
+                      <img src={feedbackPreview} alt="screenshot" className="w-full max-h-40 object-cover rounded-xl border border-gray-200 dark:border-[#414751]/40" />
+                      <button
+                        type="button"
+                        onClick={() => { setFeedbackFile(null); setFeedbackPreview(null); if (feedbackFileRef.current) feedbackFileRef.current.value = ''; }}
+                        className="absolute top-2 right-2 w-6 h-6 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => feedbackFileRef.current?.click()}
+                      className="w-full py-2.5 border-2 border-dashed border-gray-200 dark:border-[#414751]/40 rounded-xl text-xs text-gray-400 dark:text-[#8b919d] hover:border-blue-400 dark:hover:border-[#a4c9ff]/50 hover:text-blue-500 dark:hover:text-[#a4c9ff] transition-colors flex items-center justify-center gap-2"
+                    >
+                      <MessageSquarePlus size={14} />
+                      {t('attachScreenshot')}
+                    </button>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-1">
+                  <button type="button" onClick={() => setShowFeedback(false)} className="flex-1 py-2.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] rounded-xl font-semibold text-sm hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all">
+                    {t('cancel')}
+                  </button>
+                  <button type="submit" disabled={feedbackSubmitting} className="flex-1 py-2.5 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition-all">
+                    {feedbackSubmitting ? t('sending') : t('sendFeedback')}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };

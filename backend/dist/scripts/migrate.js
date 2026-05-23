@@ -425,6 +425,38 @@ const runMigrations = async () => {
       ALTER TABLE post_comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES post_comments(id) ON DELETE CASCADE;
       ALTER TABLE event_comments ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES event_comments(id) ON DELETE CASCADE;
 
+      -- Community: lost-dog resolution + location
+      ALTER TABLE posts ADD COLUMN IF NOT EXISTS location_name TEXT;
+      ALTER TABLE posts ADD COLUMN IF NOT EXISTS is_resolved BOOLEAN DEFAULT false;
+      ALTER TABLE posts ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP WITH TIME ZONE;
+
+      -- Community: reaction types on likes (heart, paw, laugh, wow)
+      ALTER TABLE post_likes ADD COLUMN IF NOT EXISTS reaction_type VARCHAR(20) DEFAULT 'heart';
+
+      -- Community: post bookmarks
+      CREATE TABLE IF NOT EXISTS post_bookmarks (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(post_id, user_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_post_bookmarks_user_id ON post_bookmarks(user_id);
+      CREATE INDEX IF NOT EXISTS idx_post_bookmarks_post_id ON post_bookmarks(post_id);
+
+      -- Feedback submissions
+      CREATE TABLE IF NOT EXISTS feedback (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        type VARCHAR(20) NOT NULL CHECK (type IN ('bug', 'feature', 'general')),
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        image_url TEXT,
+        status VARCHAR(20) DEFAULT 'open',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at);
+
       -- Partner categories (seed data for service types)
       CREATE TABLE IF NOT EXISTS partner_categories (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -498,6 +530,9 @@ const runMigrations = async () => {
       -- Add google_place_id to partners if missing
       ALTER TABLE partners ADD COLUMN IF NOT EXISTS google_place_id VARCHAR(255);
       CREATE INDEX IF NOT EXISTS idx_partners_google_place_id ON partners(google_place_id);
+
+      -- Walk path: store GPS coordinates for walk-type training sessions
+      ALTER TABLE training_sessions ADD COLUMN IF NOT EXISTS walk_path JSONB;
     `;
         await database_1.default.query(migrationSQL);
         console.log('Database migration completed successfully!');

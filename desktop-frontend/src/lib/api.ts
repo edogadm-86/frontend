@@ -274,13 +274,15 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
 
   // Posts endpoints
-  async getPosts(params?: { page?: number; limit?: number; type?: string; userId?: string }) {
+  async getPosts(params?: { page?: number; limit?: number; type?: string; userId?: string; search?: string; tag?: string }) {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.type) queryParams.append('type', params.type);
     if (params?.userId) queryParams.append('userId', params.userId);
-    
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.tag) queryParams.append('tag', params.tag);
+
     return this.request<{ posts: any[] }>(`/posts?${queryParams.toString()}`);
   }
 
@@ -734,6 +736,32 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
 
   async deleteExpense(dogId: string, expenseId: string) {
     return this.request(`/expenses/dog/${dogId}/${expenseId}`, { method: 'DELETE' });
+  }
+
+  async submitFeedback(data: { type: string; title: string; description: string; imageUrl?: string }) {
+    return this.request('/feedback', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async markPostFound(postId: string) {
+    return this.request(`/posts/${postId}/mark-found`, { method: 'POST' });
+  }
+
+  async reactToPost(postId: string, reactionType: string) {
+    return this.request(`/posts/${postId}/react`, {
+      method: 'POST',
+      body: JSON.stringify({ reaction_type: reactionType }),
+    });
+  }
+
+  async bookmarkPost(postId: string) {
+    return this.request<{ bookmarked: boolean }>(`/posts/${postId}/bookmark`, { method: 'POST' });
+  }
+
+  async getBookmarkedPosts() {
+    return this.request<{ posts: any[] }>('/posts/bookmarked');
   }
 }
 
