@@ -16,6 +16,8 @@ dist
 dist-ssr
 *.local
 *.release-key.jks
+mobile/android.keystore
+mobile/*.keystore
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
