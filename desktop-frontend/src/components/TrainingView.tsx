@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Edit, Trash2, Clock, Calendar, RefreshCw, Map } from 'lucide-react';
-import { GoogleMap, PolylineF, OverlayViewF, OVERLAY_MOUSE_TARGET, useJsApiLoader } from '@react-google-maps/api';
-
-const GOOGLE_LIBRARIES: ('places')[] = ['places'];
+import { MapContainer, TileLayer, Polyline, CircleMarker, useMap } from 'react-leaflet';
+import { LatLngBounds } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
 import { Dog } from '../types';
@@ -122,7 +122,19 @@ function getWeeklyBars(sessions: TrainingSession[], locale: string) {
 }
 
 
-const ROUTE_MAP_STYLE = { width: '100%', height: '360px' };
+function FitBoundsController({ path }: { path: WalkPoint[] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (path.length < 2) return;
+    const bounds = path.reduce(
+      (b, p) => b.extend([p.lat, p.lng]),
+      new LatLngBounds([path[0].lat, path[0].lng], [path[0].lat, path[0].lng])
+    );
+    map.fitBounds(bounds, { padding: [40, 40] });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
 
 export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNavigate }) => {
   const { t, i18n } = useTranslation();
@@ -136,11 +148,6 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
     date: '', duration: 30, commands: '',
     progress: 'good' as TrainingSession['progress'],
     notes: '', behavior_notes: '',
-  });
-
-  const { isLoaded: mapsLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
-    libraries: GOOGLE_LIBRARIES,
   });
 
   useEffect(() => {
@@ -224,7 +231,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
   const labelCls = 'block text-sm font-medium text-gray-700 dark:text-[#c1c7d3] mb-1';
 
   return (
-    <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-5 font-jakarta">
+    <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-5 font-jakarta animate-fade-in">
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
@@ -315,10 +322,10 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
               <div className="divide-y divide-gray-50 dark:divide-white/5">
                 {[...sessions]
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                  .map(session => {
+                  .map((session, idx) => {
                     const cfg = progressCfg[session.progress] || progressCfg.good;
                     return (
-                      <div key={session.id} className="flex items-start gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-[#282a2d]/40 transition-colors">
+                      <div key={session.id} className="flex items-start gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-[#282a2d]/40 transition-colors animate-fade-in-up" style={{ animationDelay: `${idx * 35}ms` }}>
                         <div className="w-10 h-10 bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 rounded-xl flex items-center justify-center flex-shrink-0">
                           <span className="material-symbols-outlined text-[18px] text-[#005da7] dark:text-[#a4c9ff]">fitness_center</span>
                         </div>
@@ -445,7 +452,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
         title={t('walkRoute')}
         size="lg"
       >
-        {routeSession?.walk_path && mapsLoaded ? (
+        {routeSession?.walk_path ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-[#8b919d]">
               <span className="flex items-center gap-1"><Calendar size={11} />{formatDate(routeSession.date)}</span>
@@ -454,34 +461,41 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
                 {routeSession.walk_path.length} {t('gpsPoints')}
               </span>
             </div>
-            <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/10">
-              <GoogleMap
-                mapContainerStyle={ROUTE_MAP_STYLE}
+            <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/10" style={{ height: 360 }}>
+              <MapContainer
+                center={[routeSession.walk_path[0].lat, routeSession.walk_path[0].lng]}
                 zoom={15}
-                center={routeSession.walk_path[0]}
-                options={{ disableDefaultUI: true, zoomControl: true, fullscreenControl: true }}
-                onLoad={map => {
-                  const bounds = new window.google.maps.LatLngBounds();
-                  routeSession.walk_path!.forEach(p => bounds.extend(p));
-                  map.fitBounds(bounds, 40);
-                }}
+                style={{ width: '100%', height: '100%' }}
+                zoomControl={true}
+                attributionControl={false}
               >
-                <PolylineF
-                  path={routeSession.walk_path}
-                  options={{ strokeColor: '#005da7', strokeWeight: 4, strokeOpacity: 0.85 }}
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 />
-                <OverlayViewF position={routeSession.walk_path[0]} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -h })}>
-                  <div style={{ background: '#005da7', color: '#fff', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, boxShadow: '0 2px 4px rgba(0,0,0,0.35)' }}>S</div>
-                </OverlayViewF>
-                <OverlayViewF position={routeSession.walk_path[routeSession.walk_path.length - 1]} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -h })}>
-                  <div style={{ background: '#ef4444', borderRadius: '50%', width: 14, height: 14, boxShadow: '0 2px 4px rgba(0,0,0,0.35)', border: '2px solid #fff' }} />
-                </OverlayViewF>
-              </GoogleMap>
+                <FitBoundsController path={routeSession.walk_path} />
+                <Polyline
+                  positions={routeSession.walk_path.map(p => [p.lat, p.lng] as [number, number])}
+                  pathOptions={{ color: '#005da7', weight: 4, opacity: 0.85 }}
+                />
+                {/* Start marker */}
+                <CircleMarker
+                  center={[routeSession.walk_path[0].lat, routeSession.walk_path[0].lng]}
+                  radius={9}
+                  pathOptions={{ color: '#fff', fillColor: '#005da7', fillOpacity: 1, weight: 2 }}
+                />
+                {/* End marker */}
+                <CircleMarker
+                  center={[routeSession.walk_path[routeSession.walk_path.length - 1].lat, routeSession.walk_path[routeSession.walk_path.length - 1].lng]}
+                  radius={6}
+                  pathOptions={{ color: '#fff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 }}
+                />
+              </MapContainer>
             </div>
             <p className="text-[10px] text-gray-400 dark:text-[#8b919d] text-center">{t('walkRouteCaption')}</p>
           </div>
         ) : (
-          <div className="py-8 text-center text-sm text-gray-400 dark:text-[#8b919d]">{t('loadingMap')}</div>
+          <div className="py-8 text-center text-sm text-gray-400 dark:text-[#8b919d]">{t('noRouteData')}</div>
         )}
       </Modal>
 

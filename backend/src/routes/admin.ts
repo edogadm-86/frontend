@@ -14,6 +14,9 @@ import {
   getAdminGrowthStats,
   adminSendBroadcastEmail,
   adminSendUserEmail,
+  getAdminFeedback,
+  adminUpdateFeedbackStatus,
+  adminDeleteFeedback,
 } from '../controllers/adminController';
 
 const router = express.Router();
@@ -35,5 +38,9 @@ router.delete('/dogs/:dogId', adminDeleteDog);
 router.get('/stats/growth', getAdminGrowthStats);
 router.post('/email/broadcast', adminSendBroadcastEmail);
 router.post('/email/user/:userId', adminSendUserEmail);
+
+router.get('/feedback', getAdminFeedback);
+router.patch('/feedback/:feedbackId/status', adminUpdateFeedbackStatus);
+router.delete('/feedback/:feedbackId', adminDeleteFeedback);
 
 export default router;

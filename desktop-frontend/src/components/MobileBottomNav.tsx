@@ -57,7 +57,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
       {/* More drawer */}
       {moreOpen && (
-        <div className="md:hidden fixed bottom-[72px] left-3 right-3 z-50 bg-white dark:bg-[#1e2023] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
+        <div className="md:hidden fixed bottom-[72px] left-3 right-3 z-50 bg-white dark:bg-[#1e2023] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden animate-slide-up">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/5">
             <span className="text-xs font-semibold text-gray-400 dark:text-[#8b919d] uppercase tracking-wider">
               {t('more')}
@@ -124,7 +124,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                     className={cn(
                       'w-full h-14 rounded-2xl px-1',
                       'flex flex-col items-center justify-center',
-                      'transition-all duration-200',
+                      'transition-all duration-200 active:scale-90',
                       active
                         ? 'bg-[#005da7] dark:bg-[#a4c9ff]/15 text-white dark:text-[#a4c9ff]'
                         : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d]'

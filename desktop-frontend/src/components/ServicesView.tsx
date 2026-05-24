@@ -547,7 +547,7 @@ export const ServicesView: React.FC = () => {
   }));
 
   return (
-    <div className="min-h-full bg-[#fbf9f8] dark:bg-[#111316]">
+    <div className="min-h-full bg-[#fbf9f8] dark:bg-[#111316] animate-fade-in">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-[#fbf9f8]/90 dark:bg-[#111316]/90 backdrop-blur-md border-b border-gray-200/60 dark:border-white/5 px-6 py-4">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -736,8 +736,10 @@ export const ServicesView: React.FC = () => {
                     <p className="text-sm text-gray-500 dark:text-[#8b919d]">{t('featuredPartnersSubtitle')}</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {featured.map(partner => (
-                      <PartnerCard key={partner.id} partner={partner} lang={lang} getPartnerCategoryName={getPartnerCategoryName} onClick={() => setSelectedPartner(partner)} />
+                    {featured.map((partner, idx) => (
+                      <div key={partner.id} className="animate-fade-in-up" style={{ animationDelay: `${idx * 60}ms` }}>
+                        <PartnerCard partner={partner} lang={lang} getPartnerCategoryName={getPartnerCategoryName} onClick={() => setSelectedPartner(partner)} />
+                      </div>
                     ))}
                   </div>
                 </section>
@@ -749,8 +751,10 @@ export const ServicesView: React.FC = () => {
                     {featured.length > 0 ? t('allServices') : t('servicesNearYou')}
                   </h2>
                   <div className="space-y-3">
-                    {all.map(partner => (
-                      <PartnerListItem key={partner.id} partner={partner} lang={lang} getPartnerCategoryName={getPartnerCategoryName} onClick={() => setSelectedPartner(partner)} />
+                    {all.map((partner, idx) => (
+                      <div key={partner.id} className="animate-fade-in-up" style={{ animationDelay: `${idx * 40}ms` }}>
+                        <PartnerListItem partner={partner} lang={lang} getPartnerCategoryName={getPartnerCategoryName} onClick={() => setSelectedPartner(partner)} />
+                      </div>
                     ))}
                   </div>
                 </section>

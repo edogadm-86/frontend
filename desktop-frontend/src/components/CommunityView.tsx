@@ -1417,7 +1417,7 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
   const labelCls = 'block text-xs font-semibold text-gray-600 dark:text-[#8b919d] mb-1.5 uppercase tracking-wide';
 
   return (
-    <div className="font-jakarta p-4 sm:p-6 lg:p-8 min-h-full bg-[#fbf9f8] dark:bg-[#111316]">
+    <div className="animate-fade-in font-jakarta p-4 sm:p-6 lg:p-8 min-h-full bg-[#fbf9f8] dark:bg-[#111316]">
       {/* Tab bar */}
       <div className="flex items-center justify-between gap-3 mb-6">
         <div className="flex gap-1 bg-gray-100 dark:bg-[#1a1c1f] rounded-xl p-1">
@@ -1553,16 +1553,17 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
               </div>
             )}
 
-            {filteredPosts.map(post => (
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUserId={user?.id}
-                onReact={handleReact}
-                onDelete={handleDelete}
-                onMarkFound={handleMarkFound}
-                onBookmark={handleBookmark}
-              />
+            {filteredPosts.map((post, idx) => (
+              <div key={post.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx, 6) * 50}ms` }}>
+                <PostCard
+                  post={post}
+                  currentUserId={user?.id}
+                  onReact={handleReact}
+                  onDelete={handleDelete}
+                  onMarkFound={handleMarkFound}
+                  onBookmark={handleBookmark}
+                />
+              </div>
             ))}
           </div>
 

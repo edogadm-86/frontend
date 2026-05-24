@@ -190,7 +190,7 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
   });
 
   return (
-    <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-4">
+    <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-4 animate-fade-in">
 
       {/* Top bar */}
       <div className="flex items-center justify-end">
@@ -219,13 +219,14 @@ export const CalendarManagement: React.FC<CalendarManagementProps> = ({
             {selectedDateLabel}
           </h3>
           <div className="space-y-2">
-            {selectedDateEvents.map(event => {
+            {selectedDateEvents.map((event, idx) => {
               const cfg = getTypeConfig(event.type);
               return (
                 <div
                   key={event.id}
                   onClick={() => handleEventClick(event)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-[#282a2d]/50 hover:bg-gray-100 dark:hover:bg-[#282a2d] cursor-pointer transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-[#282a2d]/50 hover:bg-gray-100 dark:hover:bg-[#282a2d] cursor-pointer transition-colors animate-fade-in-up"
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
                     <span className={`material-symbols-outlined text-[18px] ${cfg.text}`}>{cfg.icon}</span>

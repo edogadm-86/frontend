@@ -107,7 +107,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
   const valueClass = 'text-sm font-medium text-gray-900 dark:text-[#e1e2eb]';
 
   return (
-    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8">
+    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8 animate-fade-in">
       <div id="passport-content" className=" mx-auto space-y-5 lg:space-y-6">
 
         {/* Page header */}
@@ -299,7 +299,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
                 <p className="text-sm text-gray-500 dark:text-[#8b919d] text-center py-4">{t('noOtherVaccinations')}</p>
               ) : (
                 <div className="space-y-4">
-                  {vaccinations.map(v => {
+                  {vaccinations.map((v, idx) => {
                     const isExpired = v.next_due_date && new Date(v.next_due_date) < new Date();
                     const isDueSoon = v.next_due_date && !isExpired &&
                       (new Date(v.next_due_date).getTime() - Date.now()) < 30 * 24 * 60 * 60 * 1000;
@@ -310,7 +310,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
                       : 'bg-[#005da7] dark:bg-[#a4c9ff]';
 
                     return (
-                      <div key={v.id} className="relative pl-3">
+                      <div key={v.id} className="relative pl-3 animate-fade-in-up" style={{ animationDelay: `${idx * 50}ms` }}>
                         <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${accentColor}`} />
                         <div className="flex justify-between items-start">
                           <div>

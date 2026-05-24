@@ -1,4 +1,4 @@
-import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, AdminStats, AdminUserSummary, AdminDog, AdminReportedPost } from '../types';
+import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, AdminStats, AdminUserSummary, AdminDog, AdminReportedPost, AdminFeedbackItem } from '../types';
 import { API_BASE_URL } from '../config';
 
 class ApiClient {
@@ -765,6 +765,26 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
 
   async getBookmarkedPosts() {
     return this.request<{ posts: any[] }>('/posts/bookmarked');
+  }
+
+  // Admin feedback
+  async getAdminFeedback(params?: { page?: number; limit?: number; status?: string }) {
+    const q = new URLSearchParams();
+    if (params?.page) q.append('page', params.page.toString());
+    if (params?.limit) q.append('limit', params.limit.toString());
+    if (params?.status) q.append('status', params.status);
+    return this.request<{ feedback: AdminFeedbackItem[]; total: number }>(`/admin/feedback?${q.toString()}`);
+  }
+
+  async adminUpdateFeedbackStatus(feedbackId: string, status: 'open' | 'resolved') {
+    return this.request<{ feedback: { id: string; status: string } }>(`/admin/feedback/${feedbackId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async adminDeleteFeedback(feedbackId: string) {
+    return this.request(`/admin/feedback/${feedbackId}`, { method: 'DELETE' });
   }
 
   // Walk leaderboard

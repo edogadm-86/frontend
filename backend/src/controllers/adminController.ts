@@ -379,6 +379,90 @@ export const adminSendBroadcastEmail = async (req: AuthRequest, res: Response) =
   }
 };
 
+export const getAdminFeedback = async (req: AuthRequest, res: Response) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const offset = (page - 1) * limit;
+    const status = (req.query.status as string) || '';
+
+    const whereClause = status ? `WHERE f.status = $3` : '';
+    const params: any[] = status ? [limit, offset, status] : [limit, offset];
+
+    const feedbackRes = await pool.query(
+      `SELECT
+         f.id,
+         f.type,
+         f.title,
+         f.description,
+         f.image_url,
+         f.status,
+         f.created_at,
+         u.id   AS user_id,
+         u.name AS user_name,
+         u.email AS user_email
+       FROM feedback f
+       JOIN users u ON u.id = f.user_id
+       ${whereClause}
+       ORDER BY f.created_at DESC
+       LIMIT $1 OFFSET $2`,
+      params
+    );
+
+    const countRes = await pool.query(
+      `SELECT COUNT(*) FROM feedback f ${status ? 'WHERE f.status = $1' : ''}`,
+      status ? [status] : []
+    );
+
+    res.json({
+      feedback: feedbackRes.rows,
+      total: parseInt(countRes.rows[0].count),
+    });
+  } catch (error) {
+    console.error('Admin getFeedback error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const adminUpdateFeedbackStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { feedbackId } = req.params;
+    const { status } = req.body;
+
+    if (!['open', 'resolved'].includes(status)) {
+      return res.status(400).json({ error: 'Status must be open or resolved' });
+    }
+
+    const result = await pool.query(
+      'UPDATE feedback SET status = $1 WHERE id = $2 RETURNING id, status',
+      [status, feedbackId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Feedback not found' });
+    }
+
+    res.json({ feedback: result.rows[0] });
+  } catch (error) {
+    console.error('Admin updateFeedbackStatus error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const adminDeleteFeedback = async (req: AuthRequest, res: Response) => {
+  try {
+    const { feedbackId } = req.params;
+    const result = await pool.query('DELETE FROM feedback WHERE id = $1 RETURNING id', [feedbackId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Feedback not found' });
+    }
+    res.json({ message: 'Feedback deleted' });
+  } catch (error) {
+    console.error('Admin deleteFeedback error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 export const adminSendUserEmail = async (req: AuthRequest, res: Response) => {
   try {
     const { userId } = req.params;

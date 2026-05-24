@@ -44,6 +44,10 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
   } = useWalk();
   const { user, setUserOptIn } = useApp();
   const [optInSaving, setOptInSaving] = useState(false);
+  // Track whether a walk has ever started in this session so MapContainer
+  // stays permanently mounted (never remounts between walks — prevents
+  // Leaflet losing state and showing straight lines on 2nd+ walks).
+  const [mapEverShown, setMapEverShown] = useState(false);
 
   const dogWeightKg = currentDog ? parseFloat(String(currentDog.weight)) || 0 : 0;
 
@@ -59,6 +63,11 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
   };
 
   const avgSpeedKmh = elapsed > 0 ? (distanceM / 1000) / (elapsed / 3600) : 0;
+
+  // Once phase leaves idle, permanently show the map so MapContainer never unmounts
+  useEffect(() => {
+    if (phase !== 'idle') setMapEverShown(true);
+  }, [phase]);
 
   const cardCls = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl';
   const statVal = 'text-2xl font-extrabold text-gray-900 dark:text-[#e2e2e6] leading-tight';
@@ -114,9 +123,9 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
           </div>
         </div>
 
-        {/* Map — shown once we have at least 1 GPS point */}
-        {pathPoints.length > 0 && (
-          <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/5" style={{ height: 200 }}>
+        {/* Map — permanently mounted after first walk so Leaflet never remounts */}
+        {mapEverShown && (
+          <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/5 relative" style={{ height: 200 }}>
             <MapContainer
               center={mapCenter}
               zoom={17}
@@ -128,30 +137,39 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               />
-              {/* Auto-pan to latest position */}
-              <LiveMapController center={mapCenter} />
-              {/* Walk path */}
-              {leafletPath.length > 1 && (
-                <Polyline
-                  positions={leafletPath}
-                  pathOptions={{ color: '#005da7', weight: 4, opacity: 0.85 }}
-                />
-              )}
-              {/* Start marker */}
-              <CircleMarker
-                center={leafletPath[0]}
-                radius={8}
-                pathOptions={{ color: '#fff', fillColor: '#005da7', fillOpacity: 1, weight: 2 }}
-              />
-              {/* Current position marker */}
-              {leafletPath.length > 1 && (
-                <CircleMarker
-                  center={leafletPath[leafletPath.length - 1]}
-                  radius={6}
-                  pathOptions={{ color: '#fff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 }}
-                />
+              {pathPoints.length > 0 && (
+                <>
+                  {/* Auto-pan to latest position */}
+                  <LiveMapController center={mapCenter} />
+                  {/* Walk path */}
+                  {leafletPath.length > 1 && (
+                    <Polyline
+                      positions={leafletPath}
+                      pathOptions={{ color: '#005da7', weight: 4, opacity: 0.85 }}
+                    />
+                  )}
+                  {/* Start marker */}
+                  <CircleMarker
+                    center={leafletPath[0]}
+                    radius={8}
+                    pathOptions={{ color: '#fff', fillColor: '#005da7', fillOpacity: 1, weight: 2 }}
+                  />
+                  {/* Current position marker */}
+                  {leafletPath.length > 1 && (
+                    <CircleMarker
+                      center={leafletPath[leafletPath.length - 1]}
+                      radius={6}
+                      pathOptions={{ color: '#fff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 }}
+                    />
+                  )}
+                </>
               )}
             </MapContainer>
+            {pathPoints.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-[#1e2023]/70 z-[1000]">
+                <p className="text-xs font-semibold text-gray-400 dark:text-[#8b919d]">Waiting for GPS…</p>
+              </div>
+            )}
           </div>
         )}
 

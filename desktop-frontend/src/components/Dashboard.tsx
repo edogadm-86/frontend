@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Heart,
@@ -12,7 +12,8 @@ import {
   Activity,
   QrCode,
   Play,
-  Download
+  Download,
+  Move,
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -53,6 +54,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [expenseStats, setExpenseStats] = useState<any>(null);
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const { canPromptInstall, showInstallPrompt, isIOS, isStandalone } = usePwaInstall();
+
+  // Image focal-point drag (desktop only)
+  const [imgPosY, setImgPosY] = useState(50); // 0-100 %
+  const [repoMode, setRepoMode] = useState(false);
+  const dragRef = useRef<{ startY: number; startPos: number } | null>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const publicUrl = `/public/dog/${currentDog?.id}`;
 
   const rawStatus = healthStatus?.status;
@@ -103,6 +110,44 @@ export const Dashboard: React.FC<DashboardProps> = ({
     } catch (e) {
       console.error('Error loading posts:', e);
     }
+  };
+
+  // Load saved image position for this dog
+  useEffect(() => {
+    if (!currentDog?.id) return;
+    const saved = localStorage.getItem(`img-pos-y-${currentDog.id}`);
+    setImgPosY(saved !== null ? parseInt(saved) : 50);
+    setRepoMode(false);
+  }, [currentDog?.id]);
+
+  const saveImgPos = useCallback((pos: number) => {
+    if (!currentDog?.id) return;
+    const clamped = Math.max(0, Math.min(100, pos));
+    setImgPosY(clamped);
+    localStorage.setItem(`img-pos-y-${currentDog.id}`, String(clamped));
+  }, [currentDog?.id]);
+
+  const onHeroMouseDown = (e: React.MouseEvent) => {
+    if (!repoMode) return;
+    e.preventDefault();
+    dragRef.current = { startY: e.clientY, startPos: imgPosY };
+    const onMove = (mv: MouseEvent) => {
+      if (!dragRef.current || !heroRef.current) return;
+      const delta = mv.clientY - dragRef.current.startY;
+      const pct = (delta / heroRef.current.offsetHeight) * 100;
+      setImgPosY(Math.max(0, Math.min(100, dragRef.current.startPos + pct)));
+    };
+    const onUp = (mv: MouseEvent) => {
+      if (!dragRef.current || !heroRef.current) return;
+      const delta = mv.clientY - dragRef.current.startY;
+      const pct = (delta / heroRef.current.offsetHeight) * 100;
+      saveImgPos(dragRef.current.startPos + pct);
+      dragRef.current = null;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
   };
 
   if (!currentDog) {
@@ -216,60 +261,105 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="grid grid-cols-12 gap-4 lg:gap-6 mx-auto">
 
         {/* Pet Hero */}
-        <section className="col-span-12 lg:col-span-8 relative rounded-xl overflow-hidden h-[400px] shadow-sm bg-[#1a1c1f]">
+        <section
+          ref={heroRef}
+          className="col-span-12 lg:col-span-8 relative rounded-xl overflow-hidden h-[320px] sm:h-[380px] lg:h-[400px] shadow-sm bg-[#1a1c1f] animate-fade-in group/hero"
+          style={{ cursor: repoMode ? 'ns-resize' : 'default' }}
+          onMouseDown={onHeroMouseDown}
+        >
           {currentDog.profilePicture ? (
             <img
               src={currentDog.profilePicture}
               alt={currentDog.name}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover transition-none select-none"
+              style={{ objectPosition: `50% ${imgPosY}%` }}
+              draggable={false}
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[#005da7] via-[#004f91] to-[#003870]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/20 to-transparent" />
-          <div className="absolute bottom-0 left-0 p-6 lg:p-8 z-10 w-full flex flex-col sm:flex-row justify-between items-end gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-1 bg-[#a4c9ff] text-[#00315d] rounded-full text-xs font-semibold">
+          <div className="absolute inset-0 bg-gradient-to-t from-[#111316]/90 via-[#111316]/15 to-transparent" />
+
+          {/* Reposition button — desktop only, shown on hover or when active */}
+          {currentDog.profilePicture && (
+            <button
+              onClick={e => { e.stopPropagation(); setRepoMode(m => !m); if (repoMode) saveImgPos(imgPosY); }}
+              title={repoMode ? 'Done repositioning' : 'Drag to reposition photo'}
+              className={`hidden lg:flex absolute top-3 right-3 z-20 items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg backdrop-blur-md border transition-all ${
+                repoMode
+                  ? 'bg-[#005da7] border-[#005da7] text-white'
+                  : 'bg-black/30 border-white/20 text-white/70 opacity-0 group-hover/hero:opacity-100'
+              }`}
+            >
+              <Move size={12} />
+              {repoMode ? 'Done' : 'Reposition'}
+            </button>
+          )}
+
+          {/* Reposition hint overlay */}
+          {repoMode && (
+            <div className="hidden lg:flex absolute inset-0 z-10 items-center justify-center pointer-events-none">
+              <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-2">
+                <Move size={12} />
+                Drag up / down to reposition
+              </div>
+            </div>
+          )}
+
+          {/* Bottom content */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 z-10">
+            {/* Dog name + badges */}
+            <div className="mb-3">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="px-2 py-0.5 bg-[#a4c9ff] text-[#00315d] rounded-full text-[11px] font-bold">
                   {t('active')}
                 </span>
                 {currentDog.age && (
-                  <span className="px-2 py-1 bg-white/10 text-white rounded text-xs font-medium backdrop-blur-md border border-white/10">
+                  <span className="px-2 py-0.5 bg-white/15 text-white rounded text-[11px] font-medium backdrop-blur-md border border-white/10">
                     {currentDog.age} {t('yearsOld')}
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-1">
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
                 {currentDog.name}
               </h1>
-              <p className="text-[#a4c9ff] text-base lg:text-lg">{currentDog.breed}</p>
+              <p className="text-[#a4c9ff] text-sm sm:text-base lg:text-lg mt-0.5">{currentDog.breed}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            {/* Action buttons — icon+text on mobile, full labels on sm+ */}
+            <div className="flex gap-2">
               <button
                 onClick={() => onNavigate('passport')}
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium border border-white/10"
+                className="bg-white/10 hover:bg-white/25 active:bg-white/30 backdrop-blur-xl text-white rounded-lg transition-all flex items-center gap-1.5 font-medium border border-white/15
+                  px-2.5 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm"
               >
-                <span className="material-symbols-outlined text-base leading-none">badge</span>{t('petPassport')}
+                <span className="material-symbols-outlined text-sm sm:text-base leading-none">badge</span>
+                <span className="hidden sm:inline">{t('petPassport')}</span>
+                <span className="sm:hidden">Passport</span>
               </button>
               <button
                 onClick={() => onNavigate('settings')}
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium border border-white/10"
+                className="bg-white/10 hover:bg-white/25 active:bg-white/30 backdrop-blur-xl text-white rounded-lg transition-all flex items-center gap-1.5 font-medium border border-white/15
+                  px-2.5 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm"
               >
-                <span className="material-symbols-outlined text-base leading-none">edit</span>
+                <span className="material-symbols-outlined text-sm sm:text-base leading-none">edit</span>
                 {t('edit')}
               </button>
               <button
                 onClick={() => setShowQR(true)}
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium border border-white/10"
+                className="bg-white/10 hover:bg-white/25 active:bg-white/30 backdrop-blur-xl text-white rounded-lg transition-all flex items-center gap-1.5 font-medium border border-white/15
+                  px-2.5 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm"
               >
-                <QrCode size={15} />{t('qrCode')}
+                <QrCode size={13} className="sm:hidden" />
+                <QrCode size={15} className="hidden sm:block" />
+                <span className="hidden sm:inline">{t('qrCode')}</span>
+                <span className="sm:hidden">QR</span>
               </button>
             </div>
           </div>
         </section>
 
         {/* Health Summary */}
-        <section className="col-span-12 lg:col-span-4">
+        <section className="col-span-12 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '80ms' }}>
           <div className={`${cardClass} p-6 h-full flex flex-col`}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-[#005da7] dark:text-[#a4c9ff]">
@@ -314,8 +404,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
                 <div className="h-2 bg-gray-100 dark:bg-[#333538] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#005da7] dark:bg-[#a4c9ff] rounded-full transition-all duration-500"
-                    style={{ width: `${healthStatus.score}%` }}
+                    className="h-full bg-[#005da7] dark:bg-[#a4c9ff] rounded-full transition-all duration-700"
+                    style={{ width: `${healthStatus.score}%`, transitionDelay: '400ms' }}
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-[#8b919d] mt-2">
@@ -347,9 +437,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div
             key={index}
             onClick={stat.onClick}
-            className={`col-span-6 lg:col-span-3 ${cardClass} p-4 lg:p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+            className={`col-span-6 lg:col-span-3 ${cardClass} p-4 lg:p-5 cursor-pointer hover:shadow-md hover:-translate-y-1 active:scale-[0.97] transition-all duration-200 animate-fade-in-up`}
+            style={{ animationDelay: `${160 + index * 60}ms` }}
           >
-            <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center mb-3 shadow-sm`}>
+            <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center mb-3 shadow-sm transition-transform duration-200 group-hover:scale-110`}>
               <stat.icon size={20} className="text-white" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-[#e2e2e6]">{stat.value}</div>
@@ -358,7 +449,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         ))}
 
         {/* Upcoming Appointments + ChatBot */}
-        <section className={`col-span-12 md:col-span-6 lg:col-span-5 ${cardClass} p-6`}>
+        <section className={`col-span-12 md:col-span-6 lg:col-span-5 ${cardClass} p-6 animate-fade-in-up`} style={{ animationDelay: '420ms' }}>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-semibold text-amber-600 dark:text-[#ffd798]">
               {t('upcomingAppointments')}
@@ -374,7 +465,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </section>
 
         {/* Recent Activity + Quick Actions */}
-        <section className={`col-span-12 md:col-span-6 lg:col-span-7 ${cardClass} p-6`}>
+        <section className={`col-span-12 md:col-span-6 lg:col-span-7 ${cardClass} p-6 animate-fade-in-up`} style={{ animationDelay: '500ms' }}>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-[#e2e2e6]">
               {t('recentActivity')}
@@ -470,7 +561,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </section>
 
         {/* Expenses Widget */}
-        <section className={`col-span-12 md:col-span-6 ${cardClass} p-6`}>
+        <section className={`col-span-12 md:col-span-6 ${cardClass} p-6 animate-fade-in-up`} style={{ animationDelay: '580ms' }}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-[#005da7] dark:text-[#a4c9ff] flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px]">receipt_long</span>
@@ -523,7 +614,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </section>
 
         {/* Community Widget */}
-        <section className={`col-span-12 md:col-span-6 ${cardClass} p-6`}>
+        <section className={`col-span-12 md:col-span-6 ${cardClass} p-6 animate-fade-in-up`} style={{ animationDelay: '640ms' }}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px]">forum</span>

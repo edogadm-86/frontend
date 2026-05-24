@@ -383,7 +383,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   return (
-    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8">
+    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8 animate-fade-in">
       <div className=" mx-auto">
         {/* Page header
         <div className="mb-6">
@@ -442,7 +442,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </aside>
 
           {/* ── Content area ──────────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0">
+          <div key={activeTab} className="flex-1 min-w-0 animate-fade-in-up">
             {renderContent()}
           </div>
         </div>

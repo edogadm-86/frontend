@@ -154,7 +154,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
   ];
 
   return (
-    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8 space-y-5">
+    <div className="font-jakarta bg-[#fbf9f8] dark:bg-[#111316] min-h-full p-4 sm:p-6 lg:p-8 space-y-5 animate-fade-in">
       {/* Header */}
       {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -183,7 +183,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
                 </div>
               ))
             : healthStats.map((stat, index) => (
-                <div key={index} className={cardClass}>
+                <div key={index} className={`${cardClass} animate-fade-in-up`} style={{ animationDelay: `${index * 60}ms` }}>
                   <div className={`w-10 h-10 ${stat.iconBg} rounded-xl flex items-center justify-center mb-3`}>
                     <stat.icon size={20} className={stat.iconColor} />
                   </div>
@@ -268,7 +268,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
                 return (
                   <div className="space-y-3">
                     {visibleEvents.map((item, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl">
+                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#282a2d] rounded-xl animate-fade-in-up" style={{ animationDelay: `${index * 40}ms` }}>
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
                           !item.isUpcoming ? 'bg-green-100 dark:bg-green-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
                         }`}>

@@ -163,6 +163,19 @@ export interface AdminReportedPost {
   post_author_id: string;
 }
 
+export interface AdminFeedbackItem {
+  id: string;
+  type: 'bug' | 'feature' | 'general';
+  title: string;
+  description: string;
+  image_url?: string | null;
+  status: 'open' | 'resolved';
+  created_at: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+}
+
 export interface Post {
   id: string;
   user_id: string;

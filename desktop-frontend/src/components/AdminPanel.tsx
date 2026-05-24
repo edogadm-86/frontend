@@ -2,16 +2,17 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Users, TrendingUp, Dog, FileText, Search, RefreshCw, Trash2, X,
   Shield, AlertTriangle, ChevronLeft, ChevronRight, Mail, Send, Store, Plus, Edit2, Check,
+  MessageSquare,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   LineChart, Line,
 } from 'recharts';
 import { apiClient } from '../lib/api';
-import { AdminStats, AdminUserSummary, AdminDog, AdminReportedPost } from '../types';
+import { AdminStats, AdminUserSummary, AdminDog, AdminReportedPost, AdminFeedbackItem } from '../types';
 import { PartnerLocationPicker, type PickedLocation } from './PartnerLocationPicker';
 
-type Tab = 'overview' | 'users' | 'dogs' | 'reports' | 'email' | 'partners';
+type Tab = 'overview' | 'users' | 'dogs' | 'reports' | 'email' | 'partners' | 'feedback';
 
 const NEW_USER_THRESHOLD_MS = 24 * 60 * 60 * 1000;
 
@@ -218,6 +219,14 @@ export const AdminPanel: React.FC = () => {
   // Email compose modal
   const [composeTarget, setComposeTarget] = useState<{ id: string; name: string; email: string } | null>(null);
 
+  // Feedback
+  const [feedbackItems, setFeedbackItems] = useState<AdminFeedbackItem[]>([]);
+  const [feedbackTotal, setFeedbackTotal] = useState(0);
+  const [feedbackPage, setFeedbackPage] = useState(1);
+  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState('');
+  const [togglingFeedbackId, setTogglingFeedbackId] = useState<string | null>(null);
+  const [deletingFeedbackId, setDeletingFeedbackId] = useState<string | null>(null);
+
   // Broadcast email
   const [broadcastSubject, setBroadcastSubject] = useState('');
   const [broadcastBody, setBroadcastBody] = useState('');
@@ -283,12 +292,27 @@ export const AdminPanel: React.FC = () => {
     }
   }, []);
 
+  const loadFeedback = useCallback(async (pageNum = 1, statusFilter = '') => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await apiClient.getAdminFeedback({ page: pageNum, limit: PAGE_SIZE, status: statusFilter || undefined });
+      setFeedbackItems(res.feedback);
+      setFeedbackTotal(res.total);
+    } catch (e: any) {
+      setError(e.message || 'Failed to load feedback');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => { loadStats(); loadGrowthStats(); }, [loadStats, loadGrowthStats]);
 
   useEffect(() => {
     if (tab === 'users') loadUsers(page, search);
     if (tab === 'dogs') loadDogs(dogPage, dogSearch);
     if (tab === 'reports') loadReports();
+    if (tab === 'feedback') loadFeedback(feedbackPage, feedbackStatusFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
@@ -303,6 +327,13 @@ export const AdminPanel: React.FC = () => {
     const t = setTimeout(() => { setDogPage(1); loadDogs(1, dogSearch); }, 400);
     return () => clearTimeout(t);
   }, [dogSearch, tab, loadDogs]);
+
+  useEffect(() => {
+    if (tab !== 'feedback') return;
+    setFeedbackPage(1);
+    loadFeedback(1, feedbackStatusFilter);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbackStatusFilter, tab]);
 
   const handlePageChange = (newPage: number) => { setPage(newPage); loadUsers(newPage, search); };
   const handleDogPageChange = (newPage: number) => { setDogPage(newPage); loadDogs(newPage, dogSearch); };
@@ -373,6 +404,34 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleToggleFeedbackStatus = async (item: AdminFeedbackItem) => {
+    const next = item.status === 'open' ? 'resolved' : 'open';
+    setTogglingFeedbackId(item.id);
+    setFeedbackItems(prev => prev.map(f => f.id === item.id ? { ...f, status: next } : f));
+    try {
+      await apiClient.adminUpdateFeedbackStatus(item.id, next);
+    } catch (e: any) {
+      setFeedbackItems(prev => prev.map(f => f.id === item.id ? { ...f, status: item.status } : f));
+      alert(e.message || 'Failed to update feedback status');
+    } finally {
+      setTogglingFeedbackId(null);
+    }
+  };
+
+  const handleDeleteFeedback = async (id: string) => {
+    if (!confirm('Delete this feedback entry? This cannot be undone.')) return;
+    setDeletingFeedbackId(id);
+    try {
+      await apiClient.adminDeleteFeedback(id);
+      setFeedbackItems(prev => prev.filter(f => f.id !== id));
+      setFeedbackTotal(prev => prev - 1);
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete feedback');
+    } finally {
+      setDeletingFeedbackId(null);
+    }
+  };
+
   const handleBroadcast = async () => {
     if (!broadcastSubject.trim() || !broadcastBody.trim()) return;
     if (!confirm(`Send this email to all active users?`)) return;
@@ -396,12 +455,13 @@ export const AdminPanel: React.FC = () => {
   const totalPages = Math.ceil(usersTotal / PAGE_SIZE);
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
-    { id: 'overview', label: 'Overview',       icon: <TrendingUp size={15} /> },
-    { id: 'users',    label: 'Users',           icon: <Users size={15} />,         badge: newUserCount || undefined },
-    { id: 'dogs',     label: 'Dogs',            icon: <Dog size={15} /> },
-    { id: 'reports',  label: 'Reported Posts',  icon: <AlertTriangle size={15} />, badge: reports.length || undefined },
-    { id: 'email',    label: 'Email',           icon: <Mail size={15} /> },
-    { id: 'partners', label: 'Partners',        icon: <Store size={15} /> },
+    { id: 'overview',  label: 'Overview',       icon: <TrendingUp size={15} /> },
+    { id: 'users',     label: 'Users',          icon: <Users size={15} />,         badge: newUserCount || undefined },
+    { id: 'dogs',      label: 'Dogs',           icon: <Dog size={15} /> },
+    { id: 'reports',   label: 'Reported Posts', icon: <AlertTriangle size={15} />, badge: reports.length || undefined },
+    { id: 'email',     label: 'Email',          icon: <Mail size={15} /> },
+    { id: 'partners',  label: 'Partners',       icon: <Store size={15} /> },
+    { id: 'feedback',  label: 'Feedback',       icon: <MessageSquare size={15} />, badge: feedbackItems.filter(f => f.status === 'open').length || undefined },
   ];
 
   const inputCls = 'w-full px-3 py-2 text-sm bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-[#e2e2e6] placeholder-gray-400 dark:placeholder-[#414751] focus:outline-none focus:ring-2 focus:ring-[#005da7]/30 dark:focus:ring-[#a4c9ff]/20';
@@ -1049,6 +1109,156 @@ export const AdminPanel: React.FC = () => {
 
       {/* ── Partners ── */}
       {tab === 'partners' && <PartnersTab inputCls={inputCls} />}
+
+      {/* ── Feedback ── */}
+      {tab === 'feedback' && (
+        <div className="space-y-4">
+          {/* Filter + count bar */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500 dark:text-[#8b919d]">
+                {feedbackTotal} item{feedbackTotal !== 1 ? 's' : ''}
+              </span>
+              {feedbackStatusFilter && (
+                <button
+                  onClick={() => setFeedbackStatusFilter('')}
+                  className="flex items-center gap-1 text-xs text-[#005da7] dark:text-[#a4c9ff] hover:underline"
+                >
+                  <X size={11} /> clear filter
+                </button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              {(['', 'open', 'resolved'] as const).map(s => (
+                <button
+                  key={s}
+                  onClick={() => setFeedbackStatusFilter(s)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                    feedbackStatusFilter === s
+                      ? 'bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d]'
+                      : 'bg-gray-100 dark:bg-[#282a2d] text-gray-600 dark:text-[#8b919d] hover:bg-gray-200 dark:hover:bg-[#32363c]'
+                  }`}
+                >
+                  {s === '' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+              <button
+                onClick={() => loadFeedback(feedbackPage, feedbackStatusFilter)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-[#c1c7d3] hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors"
+                title="Refresh"
+              >
+                <RefreshCw size={14} />
+              </button>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-7 h-7 border-2 border-[#005da7] dark:border-[#a4c9ff] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : feedbackItems.length === 0 ? (
+            <div className="py-12 text-center">
+              <MessageSquare size={32} className="mx-auto mb-3 text-gray-300 dark:text-[#414751]" />
+              <p className="text-sm text-gray-400 dark:text-[#8b919d]">No feedback found</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {feedbackItems.map(item => {
+                const typeBadge: Record<string, string> = {
+                  bug:     'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400',
+                  feature: 'bg-purple-100 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400',
+                  general: 'bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-[#8b919d]',
+                };
+                return (
+                  <div key={item.id} className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-4 flex gap-3">
+                    {/* Left: type badge + status indicator */}
+                    <div className="flex-shrink-0 pt-0.5">
+                      <div className={`w-2 h-2 rounded-full mt-1 ${item.status === 'open' ? 'bg-amber-400' : 'bg-green-500'}`} />
+                    </div>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-2 flex-wrap mb-1">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${typeBadge[item.type] ?? typeBadge.general}`}>
+                          {item.type}
+                        </span>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          item.status === 'open'
+                            ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                            : 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </div>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-[#e2e2e6] mb-1">{item.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-[#8b919d] whitespace-pre-wrap mb-2">{item.description}</p>
+                      {item.image_url && (
+                        <button
+                          onClick={() => openLightbox(item.image_url!, item.title)}
+                          className="mb-2 rounded-lg overflow-hidden border border-gray-100 dark:border-white/10 inline-block"
+                        >
+                          <img src={item.image_url} alt="Attachment" className="h-24 object-cover" />
+                        </button>
+                      )}
+                      <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-[#414751]">
+                        <span>{item.user_name}</span>
+                        <span>·</span>
+                        <span>{item.user_email}</span>
+                        <span>·</span>
+                        <span>{timeAgo(item.created_at)}</span>
+                      </div>
+                    </div>
+                    {/* Actions */}
+                    <div className="flex-shrink-0 flex flex-col gap-2">
+                      <Toggle
+                        checked={item.status === 'resolved'}
+                        onChange={() => handleToggleFeedbackStatus(item)}
+                        loading={togglingFeedbackId === item.id}
+                      />
+                      <span className="text-[9px] text-center text-gray-400 dark:text-[#414751]">
+                        {item.status === 'resolved' ? 'Done' : 'Open'}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteFeedback(item.id)}
+                        disabled={deletingFeedbackId === item.id}
+                        className="p-1.5 rounded-lg text-gray-300 dark:text-[#414751] hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-40"
+                      >
+                        {deletingFeedbackId === item.id
+                          ? <div className="w-3.5 h-3.5 border border-red-400 border-t-transparent rounded-full animate-spin" />
+                          : <Trash2 size={14} />}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {feedbackTotal > PAGE_SIZE && (
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-xs text-gray-400 dark:text-[#414751]">
+                Page {feedbackPage} of {Math.ceil(feedbackTotal / PAGE_SIZE)}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { const p = feedbackPage - 1; setFeedbackPage(p); loadFeedback(p, feedbackStatusFilter); }}
+                  disabled={feedbackPage <= 1}
+                  className="p-2 rounded-xl border border-gray-200 dark:border-white/10 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+                >
+                  <ChevronLeft size={15} />
+                </button>
+                <button
+                  onClick={() => { const p = feedbackPage + 1; setFeedbackPage(p); loadFeedback(p, feedbackStatusFilter); }}
+                  disabled={feedbackPage >= Math.ceil(feedbackTotal / PAGE_SIZE)}
+                  className="p-2 rounded-xl border border-gray-200 dark:border-white/10 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+                >
+                  <ChevronRight size={15} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

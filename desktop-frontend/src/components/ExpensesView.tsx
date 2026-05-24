@@ -575,7 +575,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ currentDog }) => {
   }
 
   return (
-    <div className="min-h-full bg-[#fbf9f8] dark:bg-[#111316] px-4 md:px-8 py-6 pb-24 md:pb-8">
+    <div className="min-h-full bg-[#fbf9f8] dark:bg-[#111316] px-4 md:px-8 py-6 pb-24 md:pb-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -775,13 +775,14 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ currentDog }) => {
               </div>
             ) : (
               <div className="divide-y divide-gray-50 dark:divide-white/5">
-                {visibleExpenses.map(exp => {
+                {visibleExpenses.map((exp, idx) => {
                   const cat = getCat(exp.category);
                   const isRecurring = exp.recur_monthly || !!exp.recur_source_id;
                   return (
                     <div
                       key={exp.id}
-                      className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-[#282a2d]/50 group transition-colors"
+                      className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-[#282a2d]/50 group transition-colors animate-fade-in-up"
+                      style={{ animationDelay: `${idx * 30}ms` }}
                     >
                       <div className={cn('w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center', cat.bg, cat.darkBg)}>
                         <span className={cn('material-symbols-outlined text-[18px]', cat.color)}>{cat.icon}</span>
