@@ -26,7 +26,7 @@ exports.getTrainingSessions = getTrainingSessions;
 const createTrainingSession = async (req, res) => {
     try {
         const { dogId } = req.params;
-        const { date, duration, commands, progress, notes, behavior_notes, walk_path } = req.body;
+        const { date, duration, commands, progress, notes, behavior_notes, walk_path, distance_meters, calories_burned } = req.body;
         // Verify dog belongs to user
         const dogCheck = await database_1.default.query('SELECT id FROM dogs WHERE id = $1 AND user_id = $2', [dogId, req.user.id]);
         if (dogCheck.rows.length === 0) {
@@ -36,7 +36,9 @@ const createTrainingSession = async (req, res) => {
         const walkPathJson = walk_path && Array.isArray(walk_path) && walk_path.length > 1
             ? JSON.stringify(walk_path)
             : null;
-        const result = await database_1.default.query('INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes, walk_path) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *', [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null, walkPathJson]);
+        const distM = distance_meters != null && distance_meters > 0 ? distance_meters : null;
+        const cal = calories_burned != null && calories_burned > 0 ? Math.round(calories_burned) : null;
+        const result = await database_1.default.query('INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes, walk_path, distance_meters, calories_burned) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *', [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null, walkPathJson, distM, cal]);
         res.status(201).json({
             message: 'Training session created successfully',
             trainingSession: result.rows[0]

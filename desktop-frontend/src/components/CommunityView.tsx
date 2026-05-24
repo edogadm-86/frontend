@@ -5,12 +5,12 @@ import {
   ChevronUp, ChevronDown, Image, Activity, Plus, Send,
   TrendingUp, Zap, Check, Trash2, Flag, AlertTriangle, Hash,
   UserCircle2, Pencil, CornerDownRight, X, ZoomIn, CheckCircle2,
-  Bookmark, Search,
+  Bookmark, Search, Trophy, Medal,
 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { apiClient } from '../lib/api';
 import { useApp } from '../context/AppContext';
-import type { Post, Comment, CommunityEvent } from '../types';
+import type { Post, Comment, CommunityEvent, WalkLeaderboardResponse } from '../types';
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -1153,7 +1153,7 @@ interface CommunityViewProps {
 }
 
 export const CommunityView: React.FC<CommunityViewProps> = () => {
-  const [activeTab, setActiveTab] = useState<'feed' | 'events' | 'mine' | 'saved'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'events' | 'mine' | 'saved' | 'leaderboard'>('feed');
   const [feedFilter, setFeedFilter] = useState<FilterType>('all');
   const { t, i18n } = useTranslation();
   const { user } = useApp();
@@ -1179,6 +1179,9 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
   const [activeChannelTag, setActiveChannelTag] = useState<string | null>(null);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [savedPostsLoading, setSavedPostsLoading] = useState(false);
+
+  const [leaderboard, setLeaderboard] = useState<WalkLeaderboardResponse | null>(null);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [showReunitedModal, setShowReunitedModal] = useState(false);
   const [reunitedPost, setReunitedPost] = useState<Post | null>(null);
   const [reunitedStoryTitle, setReunitedStoryTitle] = useState('');
@@ -1262,6 +1265,15 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
     finally { setSavedPostsLoading(false); }
   }, []);
 
+  const fetchLeaderboard = useCallback(async () => {
+    setLeaderboardLoading(true);
+    try {
+      const data = await apiClient.getWalkLeaderboard();
+      setLeaderboard(data);
+    } catch { /* silent */ }
+    finally { setLeaderboardLoading(false); }
+  }, []);
+
   useEffect(() => {
     fetchPosts();
     fetchEvents();
@@ -1271,7 +1283,8 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
   useEffect(() => {
     if (activeTab === 'mine') fetchMyPosts();
     if (activeTab === 'saved') fetchSavedPosts();
-  }, [activeTab, fetchMyPosts, fetchSavedPosts]);
+    if (activeTab === 'leaderboard') fetchLeaderboard();
+  }, [activeTab, fetchMyPosts, fetchSavedPosts, fetchLeaderboard]);
 
   useEffect(() => {
     if (activeTab === 'events' && eventsSubTab === 'past') fetchPastEvents();
@@ -1408,7 +1421,7 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
       {/* Tab bar */}
       <div className="flex items-center justify-between gap-3 mb-6">
         <div className="flex gap-1 bg-gray-100 dark:bg-[#1a1c1f] rounded-xl p-1">
-          {(['feed', 'events', 'mine', 'saved'] as const).map(tab => (
+          {(['feed', 'events', 'mine', 'saved', 'leaderboard'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -1422,8 +1435,13 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
               {tab === 'events' && <Calendar size={15} />}
               {tab === 'mine' && <UserCircle2 size={15} />}
               {tab === 'saved' && <Bookmark size={15} />}
+              {tab === 'leaderboard' && <Trophy size={15} />}
               <span className="hidden sm:inline">
-                {tab === 'feed' ? t('feed') : tab === 'events' ? t('events') : tab === 'mine' ? t('myPosts') : t('saved')}
+                {tab === 'feed' ? t('feed')
+                  : tab === 'events' ? t('events')
+                  : tab === 'mine' ? t('myPosts')
+                  : tab === 'saved' ? t('saved')
+                  : t('leaderboard')}
               </span>
             </button>
           ))}
@@ -1817,6 +1835,107 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ── Leaderboard tab ── */}
+      {activeTab === 'leaderboard' && (
+        <div className="max-w-xl mx-auto space-y-4">
+          {/* Last week's winner */}
+          {leaderboard?.last_week_winner && (
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-500/10 dark:to-yellow-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-4 flex items-center gap-4">
+              <Trophy size={28} className="text-amber-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-0.5">{t('lastWeekChampion')}</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6] truncate">{leaderboard.last_week_winner.dog_name}</p>
+                <p className="text-xs text-gray-500 dark:text-[#8b919d]">
+                  {(leaderboard.last_week_winner.total_distance_meters / 1000).toFixed(2)} km · {leaderboard.last_week_winner.walk_count} {t('walks')}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* This week's leaderboard */}
+          <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-white/5">
+              <p className="text-[10px] font-bold text-[#005da7] dark:text-[#a4c9ff] uppercase tracking-widest mb-0.5">{t('thisWeek')}</p>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{t('walkLeaderboard')}</h3>
+              {leaderboard?.week_start && (
+                <p className="text-xs text-gray-400 dark:text-[#8b919d] mt-0.5">{t('weekOf')} {leaderboard.week_start}</p>
+              )}
+            </div>
+
+            {leaderboardLoading && (
+              <div className="p-5 space-y-3">
+                {[1,2,3].map(i => (
+                  <div key={i} className="h-12 bg-gray-100 dark:bg-[#282a2d] rounded-xl animate-pulse" />
+                ))}
+              </div>
+            )}
+
+            {!leaderboardLoading && (!leaderboard || leaderboard.leaderboard.length === 0) && (
+              <div className="p-10 text-center">
+                <div className="w-14 h-14 bg-gray-100 dark:bg-[#282a2d] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Trophy size={24} className="text-gray-400 dark:text-[#414751]" />
+                </div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-[#e2e2e6] mb-1">{t('noCompetitors')}</p>
+                <p className="text-xs text-gray-400 dark:text-[#8b919d]">{t('noCompetitorsHint')}</p>
+              </div>
+            )}
+
+            {!leaderboardLoading && leaderboard && leaderboard.leaderboard.length > 0 && (
+              <div className="divide-y divide-gray-50 dark:divide-white/5">
+                {leaderboard.leaderboard.map((entry, idx) => {
+                  const isMe = entry.owner_id === user?.id;
+                  const medalColors = ['text-amber-500', 'text-gray-400', 'text-amber-700'];
+                  return (
+                    <div key={entry.dog_id} className={`flex items-center gap-3 px-5 py-3 ${isMe ? 'bg-blue-50 dark:bg-[#a4c9ff]/5' : ''}`}>
+                      <div className="w-7 text-center">
+                        {idx < 3
+                          ? <Medal size={18} className={medalColors[idx]} />
+                          : <span className="text-sm font-bold text-gray-400 dark:text-[#8b919d]">{idx + 1}</span>
+                        }
+                      </div>
+                      {entry.profile_picture ? (
+                        <img src={entry.profile_picture} alt={entry.dog_name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-[#005da7] dark:text-[#a4c9ff]">{entry.dog_name[0]}</span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6] truncate">
+                          {entry.dog_name} {isMe && <span className="text-[10px] font-semibold text-[#005da7] dark:text-[#a4c9ff]">({t('you')})</span>}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-[#8b919d]">{entry.owner_name}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-extrabold text-gray-900 dark:text-[#e2e2e6]">{(entry.total_distance_meters / 1000).toFixed(2)} km</p>
+                        <p className="text-[10px] text-gray-400 dark:text-[#8b919d]">{entry.walk_count} {t('walks')}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* My position (if outside top 10) */}
+          {leaderboard?.my_entry && !leaderboard.leaderboard.find(e => e.owner_id === user?.id) && (
+            <div className="bg-blue-50 dark:bg-[#a4c9ff]/5 border border-blue-200 dark:border-[#a4c9ff]/20 rounded-2xl px-5 py-3 flex items-center gap-3">
+              <div className="w-7 text-center">
+                <span className="text-sm font-bold text-[#005da7] dark:text-[#a4c9ff]">#{leaderboard.my_entry.rank}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-900 dark:text-[#e2e2e6]">{leaderboard.my_entry.dog_name} <span className="text-[10px] font-semibold text-[#005da7] dark:text-[#a4c9ff]">({t('you')})</span></p>
+                <p className="text-xs text-gray-500 dark:text-[#8b919d]">{t('yourPosition')}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-extrabold text-gray-900 dark:text-[#e2e2e6]">{(leaderboard.my_entry.total_distance_meters / 1000).toFixed(2)} km</p>
+                <p className="text-[10px] text-gray-400 dark:text-[#8b919d]">{leaderboard.my_entry.walk_count} {t('walks')}</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

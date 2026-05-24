@@ -282,6 +282,7 @@ export const getAdminGrowthStats = async (req: AuthRequest, res: Response) => {
   try {
     const days = Math.min(90, Math.max(7, parseInt(req.query.days as string) || 14));
 
+    // New registrations per day
     const regRes = await pool.query(
       `SELECT DATE(created_at) AS date, COUNT(*)::int AS count
        FROM users
@@ -291,21 +292,55 @@ export const getAdminGrowthStats = async (req: AuthRequest, res: Response) => {
       [days]
     );
 
-    const byDate: Record<string, number> = {};
+    // Daily active users per day (based on last_seen_at)
+    const dauRes = await pool.query(
+      `SELECT DATE(last_seen_at) AS date, COUNT(*)::int AS count
+       FROM users
+       WHERE last_seen_at >= CURRENT_DATE - ($1 * INTERVAL '1 day')
+         AND last_seen_at IS NOT NULL
+       GROUP BY DATE(last_seen_at)
+       ORDER BY date`,
+      [days]
+    );
+
+    // 14-day average DAU
+    const avgDauRes = await pool.query(
+      `SELECT ROUND(AVG(daily_count))::int AS avg_dau
+       FROM (
+         SELECT DATE(last_seen_at) AS date, COUNT(*)::int AS daily_count
+         FROM users
+         WHERE last_seen_at >= CURRENT_DATE - INTERVAL '14 days'
+           AND last_seen_at IS NOT NULL
+         GROUP BY DATE(last_seen_at)
+       ) sub`
+    );
+
+    const regByDate: Record<string, number> = {};
     for (const row of regRes.rows) {
-      const key = new Date(row.date).toISOString().split('T')[0];
-      byDate[key] = row.count;
+      regByDate[new Date(row.date).toISOString().split('T')[0]] = row.count;
     }
 
-    const data: { date: string; users: number }[] = [];
+    const dauByDate: Record<string, number> = {};
+    for (const row of dauRes.rows) {
+      dauByDate[new Date(row.date).toISOString().split('T')[0]] = row.count;
+    }
+
+    const data: { date: string; registrations: number; active_users: number }[] = [];
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const key = d.toISOString().split('T')[0];
-      data.push({ date: key, users: byDate[key] ?? 0 });
+      data.push({
+        date: key,
+        registrations: regByDate[key] ?? 0,
+        active_users: dauByDate[key] ?? 0,
+      });
     }
 
-    res.json({ data });
+    res.json({
+      data,
+      avg_daily_active: avgDauRes.rows[0]?.avg_dau ?? 0,
+    });
   } catch (error) {
     console.error('Admin getGrowthStats error:', error);
     res.status(500).json({ error: 'Internal server error' });

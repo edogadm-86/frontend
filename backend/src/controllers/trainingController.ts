@@ -32,7 +32,7 @@ export const getTrainingSessions = async (req: AuthRequest, res: Response) => {
 export const createTrainingSession = async (req: AuthRequest, res: Response) => {
   try {
     const { dogId } = req.params;
-    const { date, duration, commands, progress, notes, behavior_notes, walk_path } = req.body;
+    const { date, duration, commands, progress, notes, behavior_notes, walk_path, distance_meters, calories_burned } = req.body;
 
     // Verify dog belongs to user
     const dogCheck = await pool.query(
@@ -48,9 +48,11 @@ export const createTrainingSession = async (req: AuthRequest, res: Response) => 
     const walkPathJson = walk_path && Array.isArray(walk_path) && walk_path.length > 1
       ? JSON.stringify(walk_path)
       : null;
+    const distM = distance_meters != null && distance_meters > 0 ? distance_meters : null;
+    const cal = calories_burned != null && calories_burned > 0 ? Math.round(calories_burned) : null;
     const result = await pool.query(
-      'INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes, walk_path) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-      [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null, walkPathJson]
+      'INSERT INTO training_sessions (id, dog_id, date, duration, commands, progress, notes, behavior_notes, walk_path, distance_meters, calories_burned) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
+      [sessionId, dogId, date, duration, commands || [], progress, notes, behavior_notes || null, walkPathJson, distM, cal]
     );
 
     res.status(201).json({

@@ -22,6 +22,7 @@ interface AppContextType {
   deleteDog: (dogId: string) => Promise<void>;
   currentDog: Dog | null;
   setCurrentDog: (dog: Dog | null) => void;
+  setUserOptIn: (opted_in: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -57,6 +58,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     createDog,
     updateDog,
     deleteDog,
+    setUserOptIn,
   } = useApi();
 
   const [currentDog, setCurrentDog] = React.useState<Dog | null>(null);
@@ -88,6 +90,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     deleteDog,
     currentDog,
     setCurrentDog,
+    setUserOptIn,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

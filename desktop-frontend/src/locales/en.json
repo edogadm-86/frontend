@@ -922,5 +922,29 @@
   "walkRoute": "Walk Route",
   "gpsPoints": "GPS points",
   "walkRouteCaption": "Start marker shows beginning of walk",
-  "loadingMap": "Loading map..."
+  "loadingMap": "Loading map...",
+
+  "burned": "burned",
+  "walks": "walks",
+  "leaderboard": "Leaderboard",
+  "walkLeaderboard": "Weekly Walk Leaderboard",
+  "thisWeek": "This Week",
+  "weekOf": "Week of",
+  "lastWeekChampion": "Last Week's Champion",
+  "noCompetitors": "No competitors yet this week",
+  "noCompetitorsHint": "Be the first! Opt in to the competition and log a walk.",
+  "you": "you",
+  "yourPosition": "Your position this week",
+
+  "competitionOptInTitle": "Join the Walk Competition!",
+  "competitionOptInSubtitle": "Compete with the eDog community",
+  "competitionOptInDescription": "Track your weekly walks and compete for the top spot on the community leaderboard. Your dog's privacy is always protected.",
+  "competitionPerk1": "Weekly leaderboard in the Community tab",
+  "competitionPerk2": "Trophy badge for the weekly champion",
+  "competitionPerk3": "Your position shown even outside the top 10",
+  "competitionPrivacyNote": "Only your dog's name and total distance are visible. You can opt out any time from the walk tracker.",
+  "joinCompetition": "Join the Competition",
+  "skipForNow": "Not now",
+  "competitionOn": "Competition: ON — tap to opt out",
+  "competitionOff": "Competition: OFF — tap to join"
 }

@@ -91,6 +91,25 @@ export interface User {
   emergencyContacts: EmergencyContact[];
   is_admin?: boolean;
   role?: string;
+  walk_competition_opted_in?: boolean | null;
+}
+
+export interface WalkLeaderboardEntry {
+  dog_id: string;
+  dog_name: string;
+  profile_picture?: string;
+  owner_id: string;
+  owner_name: string;
+  walk_count: number;
+  total_distance_meters: number;
+  rank?: number;
+}
+
+export interface WalkLeaderboardResponse {
+  leaderboard: WalkLeaderboardEntry[];
+  my_entry: WalkLeaderboardEntry | null;
+  last_week_winner: WalkLeaderboardEntry | null;
+  week_start: string;
 }
 
 export interface AdminUserSummary {

@@ -11,6 +11,9 @@ export default defineConfig({
       srcDir: "src",
       filename: "sw.ts",
       registerType: "autoUpdate",
+      injectManifest: {
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4 MiB
+      },
       devOptions: {
         enabled: true,
         type: "module",
@@ -46,6 +49,12 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'leaflet'],
+  },
+  optimizeDeps: {
+    include: ['leaflet', 'react-leaflet'],
+  },
   server: {
     host: true,        // same as 0.0.0.0
     port: 5174,

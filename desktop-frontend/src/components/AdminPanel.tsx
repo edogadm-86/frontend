@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  LineChart, Line,
 } from 'recharts';
 import { apiClient } from '../lib/api';
 import { AdminStats, AdminUserSummary, AdminDog, AdminReportedPost } from '../types';
@@ -189,7 +190,8 @@ const ChartTooltip: React.FC<any> = ({ active, payload, label }) => {
 export const AdminPanel: React.FC = () => {
   const [tab, setTab] = useState<Tab>('overview');
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [growthData, setGrowthData] = useState<{ date: string; users: number }[]>([]);
+  const [growthData, setGrowthData] = useState<{ date: string; registrations: number; active_users: number }[]>([]);
+  const [avgDailyActive, setAvgDailyActive] = useState<number | null>(null);
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
   const [usersTotal, setUsersTotal] = useState(0);
   const [reports, setReports] = useState<AdminReportedPost[]>([]);
@@ -235,6 +237,7 @@ export const AdminPanel: React.FC = () => {
     try {
       const res = await apiClient.getAdminGrowthStats(14);
       setGrowthData(res.data);
+      setAvgDailyActive(res.avg_daily_active ?? null);
     } catch { /* non-fatal */ }
   }, []);
 
@@ -491,9 +494,9 @@ export const AdminPanel: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-              {/* User registrations chart */}
+              {/* New Registrations chart */}
               {growthData.length > 0 && (
-                <div className="md:col-span-2 bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5">
+                <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5">
                   <h3 className="font-semibold text-sm text-gray-700 dark:text-[#c1c7d3] mb-4">New Registrations — last 14 days</h3>
                   <ResponsiveContainer width="100%" height={160}>
                     <BarChart data={growthData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
@@ -508,8 +511,44 @@ export const AdminPanel: React.FC = () => {
                       />
                       <YAxis tick={{ fontSize: 10, fill: '#8b919d' }} tickLine={false} axisLine={false} allowDecimals={false} />
                       <Tooltip content={<ChartTooltip />} cursor={{ fill: '#005da7', fillOpacity: 0.06 }} />
-                      <Bar dataKey="users" fill="#005da7" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                      <Bar dataKey="registrations" fill="#005da7" radius={[4, 4, 0, 0]} maxBarSize={32} />
                     </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {/* Daily Active Users chart */}
+              {growthData.length > 0 && (
+                <div className="bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-sm text-gray-700 dark:text-[#c1c7d3]">Active Users per Day — last 14 days</h3>
+                    {avgDailyActive !== null && (
+                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg">
+                        avg {avgDailyActive}/day
+                      </span>
+                    )}
+                  </div>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <LineChart data={growthData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.4} vertical={false} />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 10, fill: '#8b919d' }}
+                        tickFormatter={v => new Date(v).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        tickLine={false}
+                        axisLine={false}
+                        interval={1}
+                      />
+                      <YAxis tick={{ fontSize: 10, fill: '#8b919d' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                      <Tooltip content={<ChartTooltip />} />
+                      <Line
+                        dataKey="active_users"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: '#10b981', strokeWidth: 0 }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </LineChart>
                   </ResponsiveContainer>
                 </div>
               )}
@@ -519,16 +558,23 @@ export const AdminPanel: React.FC = () => {
                 <h3 className="font-semibold text-sm text-gray-700 dark:text-[#c1c7d3] mb-4">User Growth</h3>
                 <div className="space-y-3">
                   {[
-                    { label: 'New today',        value: stats.new_users_today,    color: true },
+                    { label: 'New today',        value: stats.new_users_today,    color: 'blue' as const },
                     { label: 'New this week',    value: stats.new_users_this_week },
                     { label: 'Total registered', value: stats.total_users },
                     ...(stats.active_users_today !== undefined
-                      ? [{ label: 'Active today', value: stats.active_users_today, color: true }]
+                      ? [{ label: 'Active today', value: stats.active_users_today, color: 'blue' as const }]
+                      : []),
+                    ...(avgDailyActive !== null
+                      ? [{ label: 'Avg active / day (14d)', value: avgDailyActive, color: 'green' as const }]
                       : []),
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center">
                       <span className="text-sm text-gray-500 dark:text-[#8b919d]">{row.label}</span>
-                      <span className={`text-sm font-semibold ${row.color ? 'text-[#005da7] dark:text-[#a4c9ff]' : 'text-gray-900 dark:text-[#e2e2e6]'}`}>
+                      <span className={`text-sm font-semibold ${
+                        row.color === 'blue'  ? 'text-[#005da7] dark:text-[#a4c9ff]'
+                        : row.color === 'green' ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-gray-900 dark:text-[#e2e2e6]'
+                      }`}>
                         {row.value}
                       </span>
                     </div>

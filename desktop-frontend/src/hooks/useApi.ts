@@ -185,6 +185,10 @@ export const useApi = () => {
     }
   }, []);
 
+  const setUserOptIn = (opted_in: boolean) => {
+    setUser(prev => prev ? { ...prev, walk_competition_opted_in: opted_in } : prev);
+  };
+
   return {
     user,
     dogs,
@@ -204,5 +208,6 @@ export const useApi = () => {
     updateDog,
     deleteDog,
     loadUser,
+    setUserOptIn,
   };
 };

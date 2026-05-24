@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Square, Pause, RotateCcw, MapPin, Clock, Zap, Save, Navigation } from 'lucide-react';
-import { GoogleMap, PolylineF, OverlayViewF, OVERLAY_MOUSE_TARGET, useJsApiLoader } from '@react-google-maps/api';
+import { Play, Square, Pause, RotateCcw, MapPin, Clock, Zap, Save, Navigation, Trophy } from 'lucide-react';
+import { MapContainer, TileLayer, Polyline, CircleMarker, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Dog } from '../types';
 import { useWalk } from '../context/WalkContext';
-
-const GOOGLE_LIBRARIES: ('places')[] = ['places'];
-const MAP_CONTAINER_STYLE = { width: '100%', height: '200px' };
+import { useApp } from '../context/AppContext';
+import { apiClient } from '../lib/api';
 
 interface WalkTrackerProps {
   currentDog: Dog | null;
@@ -26,24 +26,50 @@ function formatDistance(meters: number): string {
   return `${(meters / 1000).toFixed(2)} km`;
 }
 
+// Inner component so it can call useMap (must be inside MapContainer)
+function LiveMapController({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, map.getZoom(), { animate: true });
+  }, [center, map]);
+  return null;
+}
+
 export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved }) => {
   const { t } = useTranslation();
   const {
-    phase, elapsed, distanceM, maxSpeedKmh, pathPoints,
+    phase, elapsed, distanceM, caloriesBurned, maxSpeedKmh, pathPoints,
     gpsStatus, gpsError, saving, saved,
     handleStart, handlePause, handleResume, handleStop, handleReset, handleSave,
   } = useWalk();
+  const { user, setUserOptIn } = useApp();
+  const [optInSaving, setOptInSaving] = useState(false);
 
-  const { isLoaded: mapsLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
-    libraries: GOOGLE_LIBRARIES,
-  });
+  const dogWeightKg = currentDog ? parseFloat(String(currentDog.weight)) || 0 : 0;
+
+  const handleToggleCompetition = async () => {
+    if (optInSaving || user?.walk_competition_opted_in === undefined) return;
+    const next = !user.walk_competition_opted_in;
+    setOptInSaving(true);
+    try {
+      await apiClient.updateWalkCompetitionOptIn(next);
+      setUserOptIn(next);
+    } catch { /* silent */ }
+    finally { setOptInSaving(false); }
+  };
 
   const avgSpeedKmh = elapsed > 0 ? (distanceM / 1000) / (elapsed / 3600) : 0;
 
   const cardCls = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl';
   const statVal = 'text-2xl font-extrabold text-gray-900 dark:text-[#e2e2e6] leading-tight';
   const statLbl = 'text-[10px] font-bold text-gray-400 dark:text-[#8b919d] uppercase tracking-widest mt-0.5';
+
+  const lastPoint = pathPoints.length > 0 ? pathPoints[pathPoints.length - 1] : null;
+  const mapCenter: [number, number] = lastPoint
+    ? [lastPoint.lat, lastPoint.lng]
+    : [51.505, -0.09]; // default (London) — never visible unless GPS fires
+
+  const leafletPath: [number, number][] = pathPoints.map(p => [p.lat, p.lng]);
 
   return (
     <div className={`${cardCls} overflow-hidden`}>
@@ -88,30 +114,44 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
           </div>
         </div>
 
-        {/* Map */}
-        {mapsLoaded && pathPoints.length > 0 && (
-          <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/5">
-            <GoogleMap
-              mapContainerStyle={MAP_CONTAINER_STYLE}
-              center={pathPoints[pathPoints.length - 1]}
+        {/* Map — shown once we have at least 1 GPS point */}
+        {pathPoints.length > 0 && (
+          <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/5" style={{ height: 200 }}>
+            <MapContainer
+              center={mapCenter}
               zoom={17}
-              options={{ disableDefaultUI: true, zoomControl: true }}
+              style={{ width: '100%', height: '100%' }}
+              zoomControl={true}
+              attributionControl={false}
             >
-              <PolylineF
-                path={pathPoints}
-                options={{ strokeColor: '#005da7', strokeWeight: 4, strokeOpacity: 0.85 }}
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               />
-              {pathPoints.length >= 1 && (
-                <OverlayViewF position={pathPoints[0]} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -h })}>
-                  <div style={{ background: '#005da7', color: '#fff', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, boxShadow: '0 2px 4px rgba(0,0,0,0.35)' }}>S</div>
-                </OverlayViewF>
+              {/* Auto-pan to latest position */}
+              <LiveMapController center={mapCenter} />
+              {/* Walk path */}
+              {leafletPath.length > 1 && (
+                <Polyline
+                  positions={leafletPath}
+                  pathOptions={{ color: '#005da7', weight: 4, opacity: 0.85 }}
+                />
               )}
-              {pathPoints.length > 1 && (
-                <OverlayViewF position={pathPoints[pathPoints.length - 1]} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -h })}>
-                  <div style={{ background: '#ef4444', borderRadius: '50%', width: 14, height: 14, boxShadow: '0 2px 4px rgba(0,0,0,0.35)', border: '2px solid #fff' }} />
-                </OverlayViewF>
+              {/* Start marker */}
+              <CircleMarker
+                center={leafletPath[0]}
+                radius={8}
+                pathOptions={{ color: '#fff', fillColor: '#005da7', fillOpacity: 1, weight: 2 }}
+              />
+              {/* Current position marker */}
+              {leafletPath.length > 1 && (
+                <CircleMarker
+                  center={leafletPath[leafletPath.length - 1]}
+                  radius={6}
+                  pathOptions={{ color: '#fff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 }}
+                />
               )}
-            </GoogleMap>
+            </MapContainer>
           </div>
         )}
 
@@ -125,14 +165,31 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
 
         {/* Controls */}
         {phase === 'idle' && (
-          <button
-            onClick={handleStart}
-            disabled={!currentDog}
-            className="w-full py-3 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
-          >
-            <Play size={16} fill="currentColor" />
-            {t('startWalk')}
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={handleStart}
+              disabled={!currentDog}
+              className="w-full py-3 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+            >
+              <Play size={16} fill="currentColor" />
+              {t('startWalk')}
+            </button>
+            {/* Competition toggle — only shown when user has already been asked */}
+            {user && user.walk_competition_opted_in !== null && (
+              <button
+                onClick={handleToggleCompetition}
+                disabled={optInSaving}
+                className={`w-full py-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition-all border ${
+                  user.walk_competition_opted_in
+                    ? 'border-amber-300 dark:border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10'
+                    : 'border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#8b919d] hover:bg-gray-50 dark:hover:bg-[#282a2d]'
+                }`}
+              >
+                <Trophy size={13} className={user.walk_competition_opted_in ? 'text-amber-500' : ''} />
+                {user.walk_competition_opted_in ? t('competitionOn') : t('competitionOff')}
+              </button>
+            )}
+          </div>
         )}
 
         {phase === 'walking' && (
@@ -164,12 +221,17 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
               <p className="text-xs text-gray-600 dark:text-[#8b919d]">
                 {formatDistance(distanceM)} · {formatDuration(elapsed)} · {t('max')} {maxSpeedKmh.toFixed(1)} km/h
               </p>
+              {caloriesBurned > 0 && (
+                <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                  ~{caloriesBurned} kcal {t('burned')}
+                </p>
+              )}
             </div>
             {saved ? (
               <div className="py-2 text-center text-sm font-semibold text-green-600 dark:text-green-400">{t('walkSaved')}</div>
             ) : (
               <button
-                onClick={() => currentDog && handleSave(currentDog.id, onSaved)}
+                onClick={() => currentDog && handleSave(currentDog.id, dogWeightKg, onSaved)}
                 disabled={saving || !currentDog}
                 className="w-full py-3 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
               >

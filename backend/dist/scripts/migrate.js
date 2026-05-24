@@ -533,6 +533,13 @@ const runMigrations = async () => {
 
       -- Walk path: store GPS coordinates for walk-type training sessions
       ALTER TABLE training_sessions ADD COLUMN IF NOT EXISTS walk_path JSONB;
+
+      -- Walk metrics: distance and estimated calories per session
+      ALTER TABLE training_sessions ADD COLUMN IF NOT EXISTS distance_meters DECIMAL(10,2);
+      ALTER TABLE training_sessions ADD COLUMN IF NOT EXISTS calories_burned INTEGER;
+
+      -- Walk competition opt-in per user (NULL = not yet asked, true = opted in, false = opted out)
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS walk_competition_opted_in BOOLEAN DEFAULT NULL;
     `;
         await database_1.default.query(migrationSQL);
         console.log('Database migration completed successfully!');

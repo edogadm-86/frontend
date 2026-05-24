@@ -147,7 +147,7 @@ const resetPassword = async (req, res) => {
 exports.resetPassword = resetPassword;
 const getProfile = async (req, res) => {
     try {
-        const result = await database_1.default.query('SELECT id, name, email, phone, is_admin, created_at FROM users WHERE id = $1', [req.user.id]);
+        const result = await database_1.default.query('SELECT id, name, email, phone, is_admin, walk_competition_opted_in, created_at FROM users WHERE id = $1', [req.user.id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -161,6 +161,7 @@ const getProfile = async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 is_admin: user.is_admin ?? false,
+                walk_competition_opted_in: user.walk_competition_opted_in ?? null,
                 createdAt: user.created_at
             }
         });

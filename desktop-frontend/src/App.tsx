@@ -20,20 +20,21 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { AdminApp } from './components/AdminApp';
 import { ExpensesView } from './components/ExpensesView';
 import { ServicesView } from './components/ServicesView';
+import { WalkCompetitionOptIn } from './components/WalkCompetitionOptIn';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 
 const AppContent: React.FC = () => {
   useTheme(); // Initialize theme
-  const { 
-    user, 
-    dogs, 
-    vaccinations, 
-    healthRecords, 
-    appointments, 
+  const {
+    user,
+    dogs,
+    vaccinations,
+    healthRecords,
+    appointments,
     trainingSessions,
-    loading, 
-    register, 
-    login, 
+    loading,
+    register,
+    login,
     logout,
     createDog,
     updateDog,
@@ -41,9 +42,18 @@ const AppContent: React.FC = () => {
     currentDog,
     setCurrentDog
   } = useApp();
-  
+
   const [currentView, setCurrentView] = useState('dashboard');
   const [showAddDogModal, setShowAddDogModal] = useState(false);
+  const [showOptInModal, setShowOptInModal] = useState(false);
+
+  // Show opt-in modal once when user is logged in and hasn't been asked yet
+  useEffect(() => {
+    if (user && user.walk_competition_opted_in === null) {
+      const timer = setTimeout(() => setShowOptInModal(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
   const isCoarse = useIsCoarsePointer();
   const isMdUp = useMediaQuery("(min-width: 768px)");
   const showSidebar = isMdUp && !isCoarse;      // desktop only
@@ -188,6 +198,7 @@ const AppContent: React.FC = () => {
     )}
 
     <WalkActiveBanner onNavigateToTraining={() => setCurrentView('training')} />
+    {showOptInModal && <WalkCompetitionOptIn onDismiss={() => setShowOptInModal(false)} />}
   </div>
 );
 

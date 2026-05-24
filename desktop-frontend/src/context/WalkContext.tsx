@@ -19,6 +19,7 @@ interface WalkContextType {
   phase: WalkPhase;
   elapsed: number;
   distanceM: number;
+  caloriesBurned: number;
   maxSpeedKmh: number;
   pathPoints: WalkPoint[];
   gpsStatus: 'waiting' | 'ok' | 'error';
@@ -30,7 +31,7 @@ interface WalkContextType {
   handleResume: () => void;
   handleStop: () => void;
   handleReset: () => void;
-  handleSave: (dogId: string, onSaved?: () => void) => Promise<void>;
+  handleSave: (dogId: string, dogWeightKg: number, onSaved?: () => void) => Promise<void>;
 }
 
 const WalkContext = createContext<WalkContextType | undefined>(undefined);
@@ -46,6 +47,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [elapsed, setElapsed] = useState(0);
   const [distanceM, setDistanceM] = useState(0);
   const [maxSpeedKmh, setMaxSpeedKmh] = useState(0);
+  const [caloriesBurned, setCaloriesBurned] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
@@ -126,7 +128,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const handleStart = useCallback(() => {
-    setDistanceM(0); setElapsed(0); setMaxSpeedKmh(0); setSaved(false);
+    setDistanceM(0); setElapsed(0); setMaxSpeedKmh(0); setSaved(false); setCaloriesBurned(0);
     setPathPoints([]); pathRef.current = [];
     lastPositionRef.current = null;
     pausedElapsedRef.current = 0; elapsedRef.current = 0; distanceMRef.current = 0;
@@ -156,7 +158,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const handleReset = useCallback(() => {
     stopGps(); stopTimer();
-    setDistanceM(0); setElapsed(0); setMaxSpeedKmh(0); setSaved(false);
+    setDistanceM(0); setElapsed(0); setMaxSpeedKmh(0); setSaved(false); setCaloriesBurned(0);
     setGpsError(null); setGpsStatus('waiting');
     setPathPoints([]); pathRef.current = [];
     lastPositionRef.current = null;
@@ -164,7 +166,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setPhase('idle');
   }, [stopGps, stopTimer]);
 
-  const handleSave = useCallback(async (dogId: string, onSaved?: () => void) => {
+  const handleSave = useCallback(async (dogId: string, dogWeightKg: number, onSaved?: () => void) => {
     if (saving) return;
     setSaving(true);
     const e = elapsedRef.current;
@@ -172,7 +174,10 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const durationMin = Math.max(1, Math.round(e / 60));
     const distKm = (d / 1000).toFixed(2);
     const avgKmh = e > 0 ? ((d / 1000) / (e / 3600)).toFixed(1) : '0.0';
-    const notes = `${i18next.t('walkSummary')}: ${distKm} km ${i18next.t('in')} ${durationMin} ${i18next.t('minutes')}, ${i18next.t('avgSpeed')}: ${avgKmh} km/h`;
+    // 0.8 kcal per kg per km walked (standard dog walking estimate)
+    const cal = dogWeightKg > 0 ? Math.round(dogWeightKg * (d / 1000) * 0.8) : 0;
+    setCaloriesBurned(cal);
+    const notes = `${i18next.t('walkSummary')}: ${distKm} km ${i18next.t('in')} ${durationMin} ${i18next.t('minutes')}, ${i18next.t('avgSpeed')}: ${avgKmh} km/h${cal > 0 ? `, ~${cal} kcal` : ''}`;
     try {
       await apiClient.createTrainingSession(dogId, {
         date: new Date().toISOString().split('T')[0],
@@ -181,6 +186,8 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         progress: 'good',
         notes,
         walk_path: pathRef.current.length > 1 ? pathRef.current : undefined,
+        distance_meters: d > 0 ? d : undefined,
+        calories_burned: cal > 0 ? cal : undefined,
       });
       setSaved(true);
       onSaved?.();
@@ -190,7 +197,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return (
     <WalkContext.Provider value={{
-      phase, elapsed, distanceM, maxSpeedKmh, pathPoints,
+      phase, elapsed, distanceM, caloriesBurned, maxSpeedKmh, pathPoints,
       gpsStatus, gpsError, saving, saved,
       handleStart, handlePause, handleResume, handleStop, handleReset, handleSave,
     }}>

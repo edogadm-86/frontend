@@ -638,7 +638,10 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
 
   async getAdminGrowthStats(days = 14) {
-    return this.request<{ data: { date: string; users: number }[] }>(`/admin/stats/growth?days=${days}`);
+    return this.request<{
+      data: { date: string; registrations: number; active_users: number }[];
+      avg_daily_active: number;
+    }>(`/admin/stats/growth?days=${days}`);
   }
 
   async adminSendBroadcastEmail(subject: string, body: string) {
@@ -762,6 +765,18 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
 
   async getBookmarkedPosts() {
     return this.request<{ posts: any[] }>('/posts/bookmarked');
+  }
+
+  // Walk leaderboard
+  async getWalkLeaderboard() {
+    return this.request<import('../types').WalkLeaderboardResponse>('/leaderboard/walks');
+  }
+
+  async updateWalkCompetitionOptIn(opted_in: boolean) {
+    return this.request<{ message: string; walk_competition_opted_in: boolean }>('/leaderboard/walks/opt-in', {
+      method: 'POST',
+      body: JSON.stringify({ opted_in }),
+    });
   }
 }
 
