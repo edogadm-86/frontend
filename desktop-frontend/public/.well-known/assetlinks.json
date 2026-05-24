@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "bg.edog.app",
+    "sha256_cert_fingerprints": [
+      "59:10:5D:00:17:8D:63:49:23:E8:00:90:53:D0:C4:D0:4C:4B:D9:99:8A:A1:39:47:C3:47:3F:21:7E:A6:66:94"
+    ]
+  }
+}]

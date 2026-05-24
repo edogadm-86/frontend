@@ -55,7 +55,8 @@ app.set('trust proxy', 1);
 // CORS configuration
 // Put this ABOVE your routes
 const allowedOrigins = [
-  'https://edog.catena-x.polygran.io', // web app
+  'https://edog.bg',   
+  'https://edog.bg',         //official edog website
   'https://edog.dogpass.net',         //official edog website
   'http://localhost',                  // Android WebView default
   'https://localhost',                 // some setups / if androidScheme:'https'
