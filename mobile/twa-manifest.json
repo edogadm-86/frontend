@@ -1,6 +1,6 @@
 {
-  "packageId": "net.dogpass.edog.twa",
-  "host": "edog.dogpass.net",
+  "packageId": "bg.edog.app",
+  "host": "edog.bg",
   "name": "eDog",
   "launcherName": "eDog",
   "display": "standalone",
@@ -13,8 +13,8 @@
   "backgroundColor": "#FFFFFF",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://edog.dogpass.net/pwa-512x512.png",
-  "maskableIconUrl": "https://edog.dogpass.net/pwa-512x512.png",
+  "iconUrl": "https://edog.bg/pwa-512x512.png",
+  "maskableIconUrl": "https://edog.bg/pwa-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "C:\\Users\\nikopesh\\Desktop\\Projects\\eDog-frontend\\mobile\\android.keystore",
@@ -24,7 +24,7 @@
   "appVersionCode": 1,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://edog.dogpass.net/manifest.webmanifest",
+  "webManifestUrl": "https://edog.bg/manifest.webmanifest",
   "fallbackType": "customtabs",
   "features": {
     "locationDelegation": {
@@ -37,7 +37,7 @@
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "fullScopeUrl": "https://edog.dogpass.net/",
+  "fullScopeUrl": "https://edog.bg/",
   "minSdkVersion": 21,
   "orientation": "default",
   "fingerprints": [],

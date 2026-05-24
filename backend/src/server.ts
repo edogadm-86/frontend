@@ -52,8 +52,10 @@ app.set('trust proxy', 1);
 // CORS configuration
 // Put this ABOVE your routes
 const allowedOrigins = [
-  'https://edog.catena-x.polygran.io', // web app
-  'https://edog.dogpass.net',         //official edog website
+  'https://edog.bg',                   // official eDog website
+  'https://www.edog.bg',               // www variant
+  'https://edog.catena-x.polygran.io', // legacy/staging
+  'https://edog.dogpass.net',          // legacy
   'http://localhost',                  // Android WebView default
   'https://localhost',                 // some setups / if androidScheme:'https'
   'capacitor://localhost',            // iOS WebView
@@ -106,7 +108,7 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
     relation: ['delegate_permission/common.handle_all_urls'],
     target: {
       namespace: 'android_app',
-      package_name: 'net.dogpass.edog.twa',
+      package_name: 'bg.edog.app',
       sha256_cert_fingerprints: [
         '59:10:5D:00:17:8D:63:49:23:E8:00:90:53:D0:C4:D0:4C:4B:D9:99:8A:A1:39:47:C3:47:3F:21:7E:A6:66:94'
       ]
