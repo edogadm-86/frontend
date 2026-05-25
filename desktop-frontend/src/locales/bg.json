@@ -829,6 +829,7 @@
   "recurringExpense": "Повтарящ се",
   "receiptPhoto": "Снимка на разписка",
   "addReceipt": "Добави разписка",
+  "photoUploadError": "Неуспешно качване на снимката. Опитайте отново.",
   "viewReceipt": "Виж разписката",
   "removePhoto": "Премахни снимката",
   "weeklyActivity": "Седмична активност",

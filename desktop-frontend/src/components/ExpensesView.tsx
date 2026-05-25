@@ -223,16 +223,18 @@ const ExpenseModal: React.FC<{
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [photoLoading, setPhotoLoading] = useState(false);
+  const [photoError, setPhotoError] = useState('');
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPhotoLoading(true);
+    setPhotoError('');
     try {
       const compressed = await compressImage(file);
       setForm(f => ({ ...f, receipt_photo: compressed }));
     } catch {
-      // silently ignore compression errors
+      setPhotoError(t('photoUploadError'));
     } finally {
       setPhotoLoading(false);
     }
@@ -266,10 +268,16 @@ const ExpenseModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+    <div className="fixed inset-0 z-50">
+      {/* Full-screen backdrop */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full md:max-w-lg bg-white dark:bg-[#1e2023] rounded-t-3xl md:rounded-2xl shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 dark:border-white/5">
+      {/* Modal sits above the bottom nav bar on mobile */}
+      <div
+        className="absolute inset-x-0 top-0 flex items-end md:items-center md:justify-center p-0 md:p-4 pointer-events-none"
+        style={{ bottom: 'calc(72px + env(safe-area-inset-bottom))' }}
+      >
+      <div className="relative w-full md:max-w-lg max-h-full flex flex-col bg-white dark:bg-[#1e2023] rounded-t-3xl md:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 dark:border-white/5 flex-shrink-0">
           <h2 className="text-lg font-bold text-gray-900 dark:text-[#e2e2e6]">
             {expense ? t('editExpense') : t('addExpense')}
           </h2>
@@ -278,7 +286,8 @@ const ExpenseModal: React.FC<{
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden flex-1">
+          <div className="px-5 py-4 space-y-4 overflow-y-auto flex-1">
           {error && (
             <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-xl px-3 py-2">
               {error}
@@ -405,24 +414,28 @@ const ExpenseModal: React.FC<{
                 </button>
               </div>
             ) : (
-              <label className={cn(
-                'flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors',
-                'border-gray-200 dark:border-white/10 text-gray-400 dark:text-[#8b919d]',
-                'hover:border-[#005da7] dark:hover:border-[#a4c9ff] hover:text-[#005da7] dark:hover:text-[#a4c9ff]',
-                photoLoading && 'opacity-50 pointer-events-none'
-              )}>
-                <span className="material-symbols-outlined text-[18px]">photo_camera</span>
-                <span className="text-sm font-medium">
-                  {photoLoading ? '…' : t('addReceipt')}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={handlePhotoChange}
-                />
-              </label>
+              <>
+                <label className={cn(
+                  'flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors',
+                  'border-gray-200 dark:border-white/10 text-gray-400 dark:text-[#8b919d]',
+                  'hover:border-[#005da7] dark:hover:border-[#a4c9ff] hover:text-[#005da7] dark:hover:text-[#a4c9ff]',
+                  photoLoading && 'opacity-50 pointer-events-none'
+                )}>
+                  <span className="material-symbols-outlined text-[18px]">photo_camera</span>
+                  <span className="text-sm font-medium">
+                    {photoLoading ? '…' : t('addReceipt')}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoChange}
+                  />
+                </label>
+                {photoError && (
+                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">{photoError}</p>
+                )}
+              </>
             )}
           </div>
 
@@ -445,15 +458,19 @@ const ExpenseModal: React.FC<{
               </div>
             </label>
           )}
+          </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full py-3 rounded-xl bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] font-bold text-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-60"
-          >
-            {saving ? t('saving') : expense ? t('saveChanges') : t('addExpense')}
-          </button>
+          <div className="px-5 py-4 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#1e2023]">
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full py-3 rounded-xl bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] font-bold text-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-60"
+            >
+              {saving ? t('saving') : expense ? t('saveChanges') : t('addExpense')}
+            </button>
+          </div>
         </form>
+      </div>
       </div>
     </div>
   );
@@ -847,13 +864,16 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ currentDog }) => {
         </div>
       )}
 
-      {/* FAB — mobile */}
-      <button
-        onClick={() => { setEditing(null); setModalOpen(true); }}
-        className="md:hidden fixed bottom-20 right-5 w-14 h-14 rounded-full bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] shadow-xl flex items-center justify-center z-30 hover:opacity-90 active:scale-95 transition-all"
-      >
-        <Plus size={24} />
-      </button>
+      {/* FAB — mobile, hidden while modal is open */}
+      {!modalOpen && (
+        <button
+          onClick={() => { setEditing(null); setModalOpen(true); }}
+          className="md:hidden fixed right-5 w-14 h-14 rounded-full bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] shadow-xl flex items-center justify-center z-40 hover:opacity-90 active:scale-95 transition-all"
+          style={{ bottom: 'calc(80px + env(safe-area-inset-bottom))' }}
+        >
+          <Plus size={24} />
+        </button>
+      )}
 
       {/* Add/Edit Modal */}
       {modalOpen && (

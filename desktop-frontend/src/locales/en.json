@@ -825,6 +825,7 @@
   "recurringExpense": "Recurring",
   "receiptPhoto": "Receipt photo",
   "addReceipt": "Add receipt",
+  "photoUploadError": "Failed to upload photo. Please try again.",
   "viewReceipt": "View receipt",
   "removePhoto": "Remove photo",
   "weeklyActivity": "Weekly Activity",
