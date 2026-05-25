@@ -20,7 +20,11 @@
   * {
     @apply border-border;
   }
-  
+
+  html {
+    font-size: 17px;
+  }
+
   body {
     @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900 transition-colors duration-300;
     font-feature-settings: "rlig" 1, "calt" 1;

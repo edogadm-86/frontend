@@ -160,7 +160,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    placeholder="name@example.com"
+                    placeholder={t('emailPlaceholder')}
                     className={`${inputClass} pl-11 pr-4`}
                   />
                 </div>
@@ -358,7 +358,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  placeholder="name@example.com"
+                  placeholder={t('emailPlaceholder')}
                   className={`${inputClass} pl-11 pr-4`}
                 />
               </div>

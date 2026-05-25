@@ -126,16 +126,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       'flex flex-col items-center justify-center',
                       'transition-all duration-200 active:scale-90',
                       active
-                        ? 'bg-[#005da7] dark:bg-[#a4c9ff]/15 text-white dark:text-[#a4c9ff]'
+                        ? 'bg-[#005da7] dark:bg-[#a4c9ff]/30 text-white dark:text-white'
                         : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d]'
                     )}
                     aria-current={active ? 'page' : undefined}
                   >
                     <Icon
-                      size={20}
-                      className={cn('mb-1', active ? 'text-white dark:text-[#a4c9ff]' : 'text-gray-500 dark:text-gray-400')}
+                      size={22}
+                      className={cn('mb-1', active ? 'text-white' : 'text-gray-500 dark:text-gray-400')}
                     />
-                    <span className="text-[10px] leading-none font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[52px]">
+                    <span className="text-[11px] leading-none font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[56px]">
                       {item.label}
                     </span>
                   </button>
@@ -153,15 +153,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   'flex flex-col items-center justify-center',
                   'transition-all duration-200',
                   (moreOpen || secondaryActive)
-                    ? 'bg-[#005da7] dark:bg-[#a4c9ff]/15 text-white dark:text-[#a4c9ff]'
+                    ? 'bg-[#005da7] dark:bg-[#a4c9ff]/30 text-white dark:text-white'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#282a2d]'
                 )}
               >
                 <MoreHorizontal
-                  size={20}
-                  className={cn('mb-1', (moreOpen || secondaryActive) ? 'text-white dark:text-[#a4c9ff]' : 'text-gray-500 dark:text-gray-400')}
+                  size={22}
+                  className={cn('mb-1', (moreOpen || secondaryActive) ? 'text-white' : 'text-gray-500 dark:text-gray-400')}
                 />
-                <span className="text-[10px] leading-none font-medium">
+                <span className="text-[11px] leading-none font-medium">
                   {t('more')}
                 </span>
               </button>

@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
       case 'settings': return t('settings');
       case 'passport': return t('petPassport');
       case 'expenses': return t('expenses');
-      case 'admin': return 'Admin Panel';
+      case 'admin': return t('adminPanel');
       default: return t('dashboard');
     }
   };

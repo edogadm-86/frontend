@@ -230,7 +230,7 @@ export const WeightHistory: React.FC<WeightHistoryProps> = ({ currentDog }) => {
             <input
               type="number" step="0.1" min="0.1"
               className={inputCls}
-              placeholder="e.g. 28.5"
+              placeholder={t('weightExPlaceholder')}
               value={newWeight}
               onChange={e => setNewWeight(e.target.value)}
             />

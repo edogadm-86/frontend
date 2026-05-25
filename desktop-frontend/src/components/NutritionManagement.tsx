@@ -895,7 +895,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             label={t('supplementsPlaceholder')}
             value={formData.supplements}
             onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
-            placeholder="Omega-3, Glucosamine, Multivitamin"
+            placeholder={t('supplementsExPlaceholder')}
           />
           <div>
             <label className={labelClass}>{t('notes')}</label>
@@ -950,7 +950,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             label={t('foodType')}
             value={mealFormData.food_type}
             onChange={(e) => setMealFormData({ ...mealFormData, food_type: e.target.value })}
-            placeholder="Dry Food, Wet Food, Treats, etc."
+            placeholder={t('foodTypePlaceholder')}
             required
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1223,7 +1223,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
             label={t('supplementsPlaceholder')}
             value={formData.supplements}
             onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
-            placeholder="Omega-3, Glucosamine, Multivitamin"
+            placeholder={t('supplementsExPlaceholder')}
           />
           <div>
             <label className={labelClass}>{t('notes')}</label>
