@@ -63,7 +63,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const [currentDog, setCurrentDog] = React.useState<Dog | null>(null);
 
-  // Set current dog to first dog when dogs are loaded
+  // Reset current dog when user changes, then select first dog when data loads
+  React.useEffect(() => {
+    setCurrentDog(null);
+  }, [user?.id]);
+
   React.useEffect(() => {
     if (dogs.length > 0 && !currentDog) {
       setCurrentDog(dogs[0]);

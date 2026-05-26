@@ -11,6 +11,7 @@ interface Dog {
   date_of_birth: string;
   weight: string;
   profile_picture?: string;
+  is_lost?: boolean;
 }
 
 interface Owner {
@@ -96,27 +97,6 @@ export const PublicDogProfile: React.FC = () => {
       <main className="mt-14 flex-grow flex justify-center px-4 md:px-0">
         <div className="w-full max-w-[720px] py-10 flex flex-col gap-8">
 
-          {/* Urgent banner */}
-          <div
-            className="py-4 px-6 rounded-xl flex items-center justify-between shadow-lg"
-            style={{ background: 'linear-gradient(90deg, #bb0017 0%, #e41d27 100%)' }}
-          >
-            <div className="flex items-center gap-3">
-              <span
-                className="material-symbols-outlined text-3xl text-white"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                error
-              </span>
-              <span className="text-white text-lg font-bold uppercase tracking-tight">
-                {t('foundDog')}: {dog.name.toUpperCase()}
-              </span>
-            </div>
-            <div className="hidden sm:block px-3 py-1 bg-white/20 rounded-full text-white text-xs font-bold">
-              {t('contactOwnerUrgently')}
-            </div>
-          </div>
-
           {/* Asymmetric desktop grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
 
@@ -155,14 +135,16 @@ export const PublicDogProfile: React.FC = () => {
                       {dog.weight} {t('kg')}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-400 dark:text-[#717783] uppercase tracking-wider mb-1">
-                      {t('status')}
-                    </p>
-                    <span className="inline-block mt-1 px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-full border border-red-200 dark:border-red-800/40">
-                      {t('missing')}
-                    </span>
-                  </div>
+                  {dog.is_lost && (
+                    <div>
+                      <p className="text-xs font-bold text-gray-400 dark:text-[#717783] uppercase tracking-wider mb-1">
+                        {t('status')}
+                      </p>
+                      <span className="inline-block mt-1 px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-full border border-red-200 dark:border-red-800/40">
+                        {t('missing')}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -220,7 +202,7 @@ export const PublicDogProfile: React.FC = () => {
               {/* eDog branding card */}
               <div className="p-5 rounded-xl border border-gray-200 dark:border-[#2D3748] bg-white dark:bg-[#000a14] text-center flex flex-col items-center gap-1">
                 <div className="w-10 h-10 bg-gradient-to-br from-[#005da7] to-[#0090e7] rounded-xl flex items-center justify-center shadow-sm mb-1">
-                  <img src="/logo.png" alt="eDog" className="w-6 h-6 object-contain" />
+                  <img src="/logo-header.png" alt="eDog" className="w-6 h-6 object-contain" />
                 </div>
                 <p className="text-base font-bold text-[#005da7]">eDog</p>
                 <p className="text-xs text-gray-400 dark:text-[#717783]">{t('criticalPetInfoHub')}</p>

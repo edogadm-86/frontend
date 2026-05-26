@@ -101,8 +101,20 @@ export const useApi = () => {
   };
 
   // Auth functions
+  const clearUserData = () => {
+    setDogs([]);
+    setVaccinations([]);
+    setHealthRecords([]);
+    setAppointments([]);
+    setTrainingSessions([]);
+    setEmergencyContacts([]);
+    setNutritionRecords([]);
+    setMealPlans({});
+  };
+
   const register = async (userData: { name: string; email: string; password: string; phone?: string }) => {
     try {
+      clearUserData();
       const response = await apiClient.register(userData);
       setUser(response.user);
       await loadAllData();
@@ -115,6 +127,7 @@ export const useApi = () => {
 
   const login = async (credentials: { email: string; password: string }) => {
     try {
+      clearUserData();
       const response = await apiClient.login(credentials);
       setUser(response.user);
       await loadAllData();
