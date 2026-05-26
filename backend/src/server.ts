@@ -44,13 +44,24 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.set('trust proxy', 1);
 
-// Rate limiting
-//const limiter = rateLimit({
-//  windowMs: 15 * 60 * 1000, // 15 minutes
-//  max: 100, // limit each IP to 100 requests per windowMs
-//  message: 'Too many requests from this IP, please try again later.',
-//});
-//app.use(limiter);
+// Rate limiting — general
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again later.',
+});
+app.use(limiter);
+
+// Stricter rate limit for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many authentication attempts, please try again later.',
+});
 
 // CORS configuration
 // Put this ABOVE your routes
@@ -120,7 +131,7 @@ app.use((req,res,next) => {
 
 
 // API routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/dogs', dogRoutes);
 app.use('/api/vaccinations', vaccinationRoutes);
 app.use('/api/health', healthRoutes);

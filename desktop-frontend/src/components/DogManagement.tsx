@@ -33,6 +33,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     name: '',
@@ -59,6 +60,7 @@ export const DogManagement: React.FC<DogManagementProps> = ({
   const handleCreateDog = () => {
     setEditingDog(null);
     setFormData({ name: '', breed: '', dateOfBirth: '', weight: '', profilePicture: '', microchipId: '', passportNumber: '', sex: '', colour: '', features: '' });
+    setFormErrors({});
     setIsModalOpen(true);
   };
 
@@ -77,11 +79,38 @@ export const DogManagement: React.FC<DogManagementProps> = ({
       colour: dog.colour || '',
       features: dog.features || '',
     });
+    setFormErrors({});
     setIsModalOpen(true);
+  };
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const validateDogForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    const name = formData.name.trim();
+    if (!name) {
+      errors.name = t('dogNameRequired');
+    } else if (!/^[\p{L}\s'-]+$/u.test(name)) {
+      errors.name = t('dogNameInvalidChars');
+    } else if (name.length < 2) {
+      errors.name = t('dogNameTooShort');
+    } else if (name.length > 50) {
+      errors.name = t('dogNameTooLong');
+    }
+    if (formData.dateOfBirth && formData.dateOfBirth > todayStr) {
+      errors.dateOfBirth = t('dobInFuture');
+    }
+    const w = parseFloat(formData.weight);
+    if (formData.weight && (isNaN(w) || w <= 0)) {
+      errors.weight = t('weightNegative');
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateDogForm()) return;
     setLoading(true);
     const dogData: Partial<Dog> = {
       name: formData.name,
@@ -315,7 +344,13 @@ export const DogManagement: React.FC<DogManagementProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>{t('name')} *</label>
-              <input className={inputCls} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+              <input
+                className={cn(inputCls, formErrors.name && 'border-red-400 dark:border-red-500 focus:ring-red-400/30')}
+                value={formData.name}
+                onChange={(e) => { setFormData({ ...formData, name: e.target.value }); setFormErrors(p => ({ ...p, name: '' })); }}
+                required
+              />
+              {formErrors.name && <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>}
             </div>
             <div>
               <label className={labelCls}>{t('breed')} *</label>
@@ -326,11 +361,28 @@ export const DogManagement: React.FC<DogManagementProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>{t('dateOfBirth')} *</label>
-              <input type="date" className={inputCls} value={formData.dateOfBirth} onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })} required />
+              <input
+                type="date"
+                max={todayStr}
+                className={cn(inputCls, formErrors.dateOfBirth && 'border-red-400 dark:border-red-500 focus:ring-red-400/30')}
+                value={formData.dateOfBirth}
+                onChange={(e) => { setFormData({ ...formData, dateOfBirth: e.target.value }); setFormErrors(p => ({ ...p, dateOfBirth: '' })); }}
+                required
+              />
+              {formErrors.dateOfBirth && <p className="mt-1 text-xs text-red-500">{formErrors.dateOfBirth}</p>}
             </div>
             <div>
               <label className={labelCls}>{t('weight')} (kg) *</label>
-              <input type="number" step="0.1" className={inputCls} value={formData.weight} onChange={(e) => setFormData({ ...formData, weight: e.target.value })} required />
+              <input
+                type="number"
+                step="0.1"
+                min="0.1"
+                className={cn(inputCls, formErrors.weight && 'border-red-400 dark:border-red-500 focus:ring-red-400/30')}
+                value={formData.weight}
+                onChange={(e) => { setFormData({ ...formData, weight: e.target.value }); setFormErrors(p => ({ ...p, weight: '' })); }}
+                required
+              />
+              {formErrors.weight && <p className="mt-1 text-xs text-red-500">{formErrors.weight}</p>}
             </div>
           </div>
 

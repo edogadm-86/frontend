@@ -956,5 +956,42 @@
   "joinCompetition": "Включи се в конкурса",
   "skipForNow": "Не сега",
   "competitionOn": "Конкурс: ВКЛ — натисни за изключване",
-  "competitionOff": "Конкурс: ИЗКЛ — натисни за включване"
+  "competitionOff": "Конкурс: ИЗКЛ — натисни за включване",
+
+  "select": "Избери",
+  "selected": "Избрано",
+
+  "daySun": "Нд",
+  "dayMon": "Пн",
+  "dayTue": "Вт",
+  "dayWed": "Ср",
+  "dayThu": "Чт",
+  "dayFri": "Пт",
+  "daySat": "Сб",
+
+  "minute_one": "{{count}} минута",
+  "minute_other": "{{count}} минути",
+
+  "confirmPassword": "Потвърди паролата",
+  "confirmPasswordPlaceholder": "Потвърди паролата си",
+  "passwordsDoNotMatch": "Паролите не съвпадат",
+  "invalidEmailFormat": "Моля въведи валиден имейл адрес",
+  "passwordTooShort": "Паролата трябва да е поне 6 символа",
+  "allFieldsRequired": "Моля попълни всички полета",
+  "loginFailed": "Невалиден имейл или парола",
+  "dogNameRequired": "Името на кучето е задължително",
+  "dogNameTooShort": "Името на кучето трябва да е поне 2 символа",
+  "dogNameTooLong": "Името на кучето трябва да е най-много 50 символа",
+  "dogNameInvalidChars": "Името на кучето може да съдържа само букви",
+  "dobInFuture": "Датата на раждане не може да е в бъдещето",
+  "weightNegative": "Теглото трябва да е положително число",
+  "forgotPassword": "Забравена парола?",
+  "forgotPasswordTitle": "Нулиране на парола",
+  "forgotPasswordSubtitle": "Въведи имейла си и ще ти изпратим линк за нулиране",
+  "sendResetLink": "Изпрати линк",
+  "resetLinkSent": "Линкът е изпратен! Провери имейла си.",
+  "backToLogin": "Обратно към вход",
+  "resetLinkError": "Неуспешно изпращане. Опитай отново.",
+  "expenseDescRequired": "Описанието е задължително",
+  "invalidAmount": "Сумата трябва да е положително число"
 }

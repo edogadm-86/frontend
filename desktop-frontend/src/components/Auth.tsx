@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PrivacyPolicyModal } from './PrivacyPolicyModal';
 import { TermsOfServiceModal } from './TermsOfServiceModal';
+import { apiClient } from '../lib/api';
 
 // Dog hero images — taken directly from the design files
 const IMG_LOGIN_LIGHT =
@@ -22,26 +23,66 @@ interface AuthProps {
 export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
   const { t, i18n } = useTranslation();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+
+  const loginDisabled = !formData.email.trim() || !formData.password.trim();
+  const registerDisabled = !formData.name.trim() || !formData.email.trim() || !formData.password.trim() || !formData.confirmPassword.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    if (isSignUp) {
+      if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
+        setError(t('allFieldsRequired'));
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError(t('passwordsDoNotMatch'));
+        return;
+      }
+      if (formData.password.length < 6) {
+        setError(t('passwordTooShort'));
+        return;
+      }
+    } else {
+      if (!formData.email.trim() || !formData.password.trim()) {
+        setError(t('allFieldsRequired'));
+        return;
+      }
+    }
+    setLoading(true);
     try {
       if (isSignUp) {
-        if (formData.password.length < 8) throw new Error(t('passwordTooShort'));
         await onRegister({ name: formData.name, email: formData.email, password: formData.password });
       } else {
         await onLogin({ email: formData.email, password: formData.password });
       }
     } catch (err: any) {
-      setError(err.message || t('error'));
+      setError(isSignUp ? (err.message || t('error')) : t('loginFailed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await apiClient.forgotPassword(forgotEmail.trim());
+      setForgotSuccess(true);
+    } catch {
+      setError(t('resetLinkError'));
     } finally {
       setLoading(false);
     }
@@ -49,9 +90,24 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
 
   const switchMode = () => {
     setIsSignUp(!isSignUp);
+    setForgotMode(false);
     setError(null);
-    setFormData({ name: '', email: '', password: '' });
+    setFormData({ name: '', email: '', password: '', confirmPassword: '' });
     setShowPassword(false);
+    setShowConfirmPassword(false);
+  };
+
+  const openForgot = () => {
+    setForgotMode(true);
+    setForgotSuccess(false);
+    setForgotEmail('');
+    setError(null);
+  };
+
+  const closeForgot = () => {
+    setForgotMode(false);
+    setForgotSuccess(false);
+    setError(null);
   };
 
   const inputClass =
@@ -124,116 +180,174 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
 
           <div className="w-full max-w-[440px] flex flex-col items-center">
 
-            {/* Brand */}
-            <div className="mb-10 w-full text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <img
-                  src="/logo.png"
-                  alt="eDog"
-                  className="w-12 h-12 object-contain rounded-xl"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-                <span className="text-3xl font-bold tracking-tight text-[#005da7] dark:text-[#a4c9ff]">
-                  eDog
-                </span>
-              </div>
-              <h2 className="text-2xl font-semibold text-[#1b1c1b] dark:text-[#e2e2e6] mb-2">
-                {t('welcomeBack')}
-              </h2>
-              <p className="text-base text-[#414751] dark:text-[#c1c7d3]">
-                {t('loginSubtitle')}
-              </p>
-            </div>
-
-            {errorBanner}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="w-full space-y-5">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-[#414751] dark:text-[#c1c7d3] ml-1">
-                  {t('email')}
-                </label>
-                <div className="relative flex items-center">
-                  <span className="material-symbols-outlined absolute left-4 text-[#717783] dark:text-[#8b919d] text-[20px] pointer-events-none select-none">mail</span>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                    placeholder={t('emailPlaceholder')}
-                    className={`${inputClass} pl-11 pr-4`}
-                  />
+            {forgotMode ? (
+              /* ── FORGOT PASSWORD ── */
+              <>
+                <div className="mb-8 w-full">
+                  <h2 className="text-2xl font-semibold text-[#1b1c1b] dark:text-[#e2e2e6] mb-2">
+                    {t('forgotPasswordTitle')}
+                  </h2>
+                  <p className="text-base text-[#414751] dark:text-[#c1c7d3]">
+                    {t('forgotPasswordSubtitle')}
+                  </p>
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-sm font-semibold text-[#414751] dark:text-[#c1c7d3]">
-                    {t('password')}
-                  </label>
-                  <button type="button" className="text-xs font-medium text-[#005da7] dark:text-[#a4c9ff] hover:underline">
-                    {t('forgotPassword')}
-                  </button>
-                </div>
-                <div className="relative flex items-center">
-                  <span className="material-symbols-outlined absolute left-4 text-[#717783] dark:text-[#8b919d] text-[20px] pointer-events-none select-none">lock</span>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required
-                    placeholder="••••••••"
-                    className={`${inputClass} pl-11 pr-12`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 text-[#717783] dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">
-                      {showPassword ? 'visibility_off' : 'visibility'}
+                {forgotSuccess ? (
+                  <div className="w-full px-4 py-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 mb-6">
+                    <p className="text-sm text-green-700 dark:text-green-400">{t('resetLinkSent')}</p>
+                  </div>
+                ) : (
+                  <>
+                    {errorBanner}
+                    <form onSubmit={handleForgotSubmit} className="w-full space-y-5">
+                      <div className="space-y-1.5">
+                        <label className="block text-sm font-semibold text-[#414751] dark:text-[#c1c7d3] ml-1">
+                          {t('email')}
+                        </label>
+                        <div className="relative flex items-center">
+                          <span className="material-symbols-outlined absolute left-4 text-[#717783] dark:text-[#8b919d] text-[20px] pointer-events-none select-none">mail</span>
+                          <input
+                            type="email"
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                            required
+                            placeholder={t('emailPlaceholder')}
+                            className={`${inputClass} pl-11 pr-4`}
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={loading || !forgotEmail.trim()}
+                        className="w-full py-4 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] text-sm font-bold rounded-xl shadow-[0_4px_20px_rgba(0,93,167,0.2)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {loading ? t('loading') : t('sendResetLink')}
+                      </button>
+                    </form>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  onClick={closeForgot}
+                  className="mt-6 text-sm font-medium text-[#005da7] dark:text-[#a4c9ff] hover:underline"
+                >
+                  {t('backToLogin')}
+                </button>
+              </>
+            ) : (
+              /* ── LOGIN FORM ── */
+              <>
+                {/* Brand */}
+                <div className="mb-10 w-full text-center">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <img
+                      src="/logo.png"
+                      alt="eDog"
+                      className="w-12 h-12 object-contain rounded-xl"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <span className="text-3xl font-bold tracking-tight text-[#005da7] dark:text-[#a4c9ff]">
+                      eDog
                     </span>
+                  </div>
+                  <h2 className="text-2xl font-semibold text-[#1b1c1b] dark:text-[#e2e2e6] mb-2">
+                    {t('welcomeBack')}
+                  </h2>
+                  <p className="text-base text-[#414751] dark:text-[#c1c7d3]">
+                    {t('loginSubtitle')}
+                  </p>
+                </div>
+
+                {errorBanner}
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="w-full space-y-5">
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-semibold text-[#414751] dark:text-[#c1c7d3] ml-1">
+                      {t('email')}
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="material-symbols-outlined absolute left-4 text-[#717783] dark:text-[#8b919d] text-[20px] pointer-events-none select-none">mail</span>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder={t('emailPlaceholder')}
+                        className={`${inputClass} pl-11 pr-4`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-sm font-semibold text-[#414751] dark:text-[#c1c7d3]">
+                        {t('password')}
+                      </label>
+                      <button type="button" onClick={openForgot} className="text-xs font-medium text-[#005da7] dark:text-[#a4c9ff] hover:underline">
+                        {t('forgotPassword')}
+                      </button>
+                    </div>
+                    <div className="relative flex items-center">
+                      <span className="material-symbols-outlined absolute left-4 text-[#717783] dark:text-[#8b919d] text-[20px] pointer-events-none select-none">lock</span>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder="••••••••"
+                        className={`${inputClass} pl-11 pr-12`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 text-[#717783] dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">
+                          {showPassword ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 px-1">
+                    <input
+                      type="checkbox"
+                      id="remember"
+                      className="w-5 h-5 rounded border-[#c1c7d3] dark:border-[#414751] bg-[#f5f3f2] dark:bg-[#1a1c1f] text-[#005da7] focus:ring-[#005da7] dark:focus:ring-[#a4c9ff] focus:ring-offset-2 cursor-pointer"
+                    />
+                    <label htmlFor="remember" className="text-sm text-[#414751] dark:text-[#c1c7d3] cursor-pointer">
+                      {t('keepMeSignedIn')}
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || loginDisabled}
+                    className="w-full py-4 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] text-sm font-bold rounded-xl shadow-[0_4px_20px_rgba(0,93,167,0.2)] dark:shadow-[0_4px_20px_rgba(164,201,255,0.12)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {loading ? t('loading') : t('signIn')}
+                  </button>
+                </form>
+
+                {/* Toggle */}
+                <p className="mt-8 text-sm text-[#414751] dark:text-[#c1c7d3]">
+                  {t('newToEdog')}{' '}
+                  <button type="button" onClick={switchMode} className="font-semibold text-[#005da7] dark:text-[#a4c9ff] hover:underline">
+                    {t('signUp')}
+                  </button>
+                </p>
+
+                {/* Footer */}
+                <div className="mt-8 flex gap-6">
+                  <button type="button" onClick={() => setShowPrivacy(true)} className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
+                    {t('privacyPolicy')}
+                  </button>
+                  <button type="button" onClick={() => setShowTerms(true)} className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
+                    {t('termsOfService')}
                   </button>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3 px-1">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="w-5 h-5 rounded border-[#c1c7d3] dark:border-[#414751] bg-[#f5f3f2] dark:bg-[#1a1c1f] text-[#005da7] focus:ring-[#005da7] dark:focus:ring-[#a4c9ff] focus:ring-offset-2 cursor-pointer"
-                />
-                <label htmlFor="remember" className="text-sm text-[#414751] dark:text-[#c1c7d3] cursor-pointer">
-                  {t('keepMeSignedIn')}
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] text-sm font-bold rounded-xl shadow-[0_4px_20px_rgba(0,93,167,0.2)] dark:shadow-[0_4px_20px_rgba(164,201,255,0.12)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {loading ? t('loading') : t('signIn')}
-              </button>
-            </form>
-
-            {/* Toggle */}
-            <p className="mt-8 text-sm text-[#414751] dark:text-[#c1c7d3]">
-              {t('newToEdog')}{' '}
-              <button type="button" onClick={switchMode} className="font-semibold text-[#005da7] dark:text-[#a4c9ff] hover:underline">
-                {t('signUp')}
-              </button>
-            </p>
-
-            {/* Footer */}
-            <div className="mt-8 flex gap-6">
-              <button type="button" onClick={() => setShowPrivacy(true)} className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
-                {t('privacyPolicy')}
-              </button>
-              <button type="button" onClick={() => setShowTerms(true)} className="text-xs text-[#717783] dark:text-[#8b919d] hover:text-[#1b1c1b] dark:hover:text-[#e2e2e6] transition-colors">
-                {t('termsOfService')}
-              </button>
-            </div>
+              </>
+            )}
           </div>
 
           {showPrivacy && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
@@ -340,7 +454,6 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
                   placeholder={t('fullNamePlaceholder')}
                   className={`${inputClass} pl-11 pr-4`}
                 />
@@ -357,7 +470,6 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
                   placeholder={t('emailPlaceholder')}
                   className={`${inputClass} pl-11 pr-4`}
                 />
@@ -374,7 +486,6 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
                   placeholder="••••••••"
                   className={`${inputClass} pl-11 pr-12`}
                 />
@@ -393,9 +504,34 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
               </p>
             </div>
 
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-[#414751] dark:text-[#c1c7d3] ml-1">
+                {t('confirmPassword')}
+              </label>
+              <div className="relative flex items-center">
+                <span className="material-symbols-outlined absolute left-4 text-[#717783] dark:text-[#8b919d] text-[20px] pointer-events-none select-none">lock</span>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder={t('confirmPasswordPlaceholder')}
+                  className={`${inputClass} pl-11 pr-12`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 text-[#717783] dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {showConfirmPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || registerDisabled}
               className="w-full py-4 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] text-sm font-bold rounded-xl shadow-[0_4px_20px_rgba(0,93,167,0.2)] dark:shadow-[0_4px_20px_rgba(164,201,255,0.12)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? t('loading') : t('createAccount')}

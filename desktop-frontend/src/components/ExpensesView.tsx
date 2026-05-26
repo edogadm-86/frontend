@@ -247,12 +247,12 @@ const ExpenseModal: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.description.trim() || !form.amount) {
-      setError(t('error'));
+    if (!form.description.trim()) {
+      setError(t('expenseDescRequired'));
       return;
     }
-    if (isNaN(parseFloat(form.amount)) || parseFloat(form.amount) <= 0) {
-      setError(t('error'));
+    if (!form.amount || isNaN(parseFloat(form.amount)) || parseFloat(form.amount) <= 0) {
+      setError(t('invalidAmount'));
       return;
     }
     setSaving(true);

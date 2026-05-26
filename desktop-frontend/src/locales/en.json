@@ -952,5 +952,42 @@
   "joinCompetition": "Join the Competition",
   "skipForNow": "Not now",
   "competitionOn": "Competition: ON — tap to opt out",
-  "competitionOff": "Competition: OFF — tap to join"
+  "competitionOff": "Competition: OFF — tap to join",
+
+  "select": "Select",
+  "selected": "Selected",
+
+  "daySun": "Sun",
+  "dayMon": "Mon",
+  "dayTue": "Tue",
+  "dayWed": "Wed",
+  "dayThu": "Thu",
+  "dayFri": "Fri",
+  "daySat": "Sat",
+
+  "minute_one": "{{count}} minute",
+  "minute_other": "{{count}} minutes",
+
+  "confirmPassword": "Confirm Password",
+  "confirmPasswordPlaceholder": "Confirm your password",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "invalidEmailFormat": "Please enter a valid email address",
+  "passwordTooShort": "Password must be at least 6 characters",
+  "allFieldsRequired": "Please fill in all fields",
+  "loginFailed": "Invalid email or password",
+  "dogNameRequired": "Dog name is required",
+  "dogNameTooShort": "Dog name must be at least 2 characters",
+  "dogNameTooLong": "Dog name must be at most 50 characters",
+  "dogNameInvalidChars": "Dog name can only contain letters",
+  "dobInFuture": "Date of birth cannot be in the future",
+  "weightNegative": "Weight must be a positive number",
+  "forgotPassword": "Forgot Password?",
+  "forgotPasswordTitle": "Reset Password",
+  "forgotPasswordSubtitle": "Enter your email and we'll send you a reset link",
+  "sendResetLink": "Send Reset Link",
+  "resetLinkSent": "Reset link sent! Check your email.",
+  "backToLogin": "Back to Login",
+  "resetLinkError": "Failed to send reset link. Please try again.",
+  "expenseDescRequired": "Description is required",
+  "invalidAmount": "Amount must be a positive number"
 }

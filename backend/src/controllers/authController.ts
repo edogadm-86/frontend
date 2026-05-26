@@ -224,7 +224,25 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
 
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, email, phone, currentPassword } = req.body;
+
+    // Fetch current user to check if email is changing
+    const currentUserResult = await pool.query('SELECT email, password_hash FROM users WHERE id = $1', [req.user!.id]);
+    if (currentUserResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const currentUser = currentUserResult.rows[0];
+
+    // If the email is being changed, require current password verification
+    if (email && email !== currentUser.email) {
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Current password is required to change email' });
+      }
+      const passwordMatch = await bcrypt.compare(currentPassword, currentUser.password_hash);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Current password is incorrect' });
+      }
+    }
 
     const result = await pool.query(
       'UPDATE users SET name = $1, email = $2, phone = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING id, name, email, phone, updated_at',

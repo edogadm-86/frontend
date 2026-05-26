@@ -81,6 +81,13 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   });
 }
 
+  async forgotPassword(email: string) {
+    return this.request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
   // Dog endpoints
   /*async getDogs() {
     return this.request<{ dogs: any[] }>('/dogs');

@@ -721,7 +721,7 @@ const MiniCalendar: React.FC<{ appointments: any[]; onNavigate: (view: string) =
 }) => {
   const { t } = useTranslation();
   const today = new Date();
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDays = [t('daySun'), t('dayMon'), t('dayTue'), t('dayWed'), t('dayThu'), t('dayFri'), t('daySat')];
 
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());

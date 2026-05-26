@@ -63,6 +63,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Mirror refs so stable callbacks can read latest values without stale closures
   const elapsedRef = useRef<number>(0);
   const distanceMRef = useRef<number>(0);
+  const maxSpeedRef = useRef<number>(0);
 
   const stopGps = useCallback(() => {
     if (watchIdRef.current !== null) {
@@ -109,7 +110,11 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
           }
           if (coords.speed !== null && coords.speed > 0) {
-            setMaxSpeedKmh(prev => Math.max(prev, coords.speed! * 3.6));
+            setMaxSpeedKmh(prev => {
+              const next = Math.max(prev, coords.speed! * 3.6);
+              maxSpeedRef.current = next;
+              return next;
+            });
           }
         }
         lastPositionRef.current = coords;
@@ -131,7 +136,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setDistanceM(0); setElapsed(0); setMaxSpeedKmh(0); setSaved(false); setCaloriesBurned(0);
     setPathPoints([]); pathRef.current = [];
     lastPositionRef.current = null;
-    pausedElapsedRef.current = 0; elapsedRef.current = 0; distanceMRef.current = 0;
+    pausedElapsedRef.current = 0; elapsedRef.current = 0; distanceMRef.current = 0; maxSpeedRef.current = 0;
     startTimeRef.current = Date.now();
     setPhase('walking');
     startGps();
@@ -162,7 +167,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setGpsError(null); setGpsStatus('waiting');
     setPathPoints([]); pathRef.current = [];
     lastPositionRef.current = null;
-    pausedElapsedRef.current = 0; elapsedRef.current = 0; distanceMRef.current = 0;
+    pausedElapsedRef.current = 0; elapsedRef.current = 0; distanceMRef.current = 0; maxSpeedRef.current = 0;
     setPhase('idle');
   }, [stopGps, stopTimer]);
 
@@ -171,13 +176,14 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSaving(true);
     const e = elapsedRef.current;
     const d = distanceMRef.current;
+    const maxSpd = maxSpeedRef.current;
     const durationMin = Math.max(1, Math.round(e / 60));
     const distKm = (d / 1000).toFixed(2);
     const avgKmh = e > 0 ? ((d / 1000) / (e / 3600)).toFixed(1) : '0.0';
     // 0.8 kcal per kg per km walked (standard dog walking estimate)
     const cal = dogWeightKg > 0 ? Math.round(dogWeightKg * (d / 1000) * 0.8) : 0;
     setCaloriesBurned(cal);
-    const notes = `${i18next.t('walkSummary')}: ${distKm} km ${i18next.t('in')} ${durationMin} ${i18next.t('minutes')}, ${i18next.t('avgSpeed')}: ${avgKmh} km/h${cal > 0 ? `, ~${cal} kcal` : ''}`;
+    const notes = `${i18next.t('walkSummary')}: ${distKm} km ${i18next.t('in')} ${i18next.t('minute', { count: durationMin })}, ${i18next.t('avgSpeed')}: ${avgKmh} km/h${cal > 0 ? `, ~${cal} kcal` : ''}`;
     try {
       await apiClient.createTrainingSession(dogId, {
         date: new Date().toISOString().split('T')[0],
@@ -188,6 +194,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         walk_path: pathRef.current.length > 1 ? pathRef.current : undefined,
         distance_meters: d > 0 ? d : undefined,
         calories_burned: cal > 0 ? cal : undefined,
+        max_speed_kmh: maxSpd > 0 ? parseFloat(maxSpd.toFixed(1)) : undefined,
       });
       setSaved(true);
       onSaved?.();
