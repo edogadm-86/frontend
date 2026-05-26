@@ -47,17 +47,17 @@ app.set('trust proxy', 1);
 // Rate limiting — general
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use(limiter);
 
-// Stricter rate limit for auth endpoints
+// Auth rate limit — relaxed because all traffic may arrive from a shared ingress IP
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many authentication attempts, please try again later.',
