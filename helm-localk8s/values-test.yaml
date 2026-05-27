@@ -1,0 +1,45 @@
+frontend:
+  image:
+    repository: nikolaypeshev/dogpass
+    tag: edog-frontend-test-27-05-26
+  service:
+    type: ClusterIP
+    port: 80
+  config: 
+    backend_url: "https://edog.dogpass.net"
+    vite_google_maps_api_key: "AIzaSyDWAla0Y50XI6fM4MNrOtFX9wBFF3yHOls"
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - "www.test.edog.bg"
+      - "test.edog.bg"
+    className: "nginx"
+    issuer: "letsencrypt-prod"  # Use the ClusterIssuer name
+
+backend:
+  image:
+    repository: nikolaypeshev/dogpass
+    tag: edog-backend-test-27-05-26
+  service:
+    type: ClusterIP
+    port: 3001
+  config:
+    jwt_secret: "edog-super-secret-jwt-key-2024"
+    jwt_expires_in: "7d"
+    smtp_host: "smtp.gmail.com"
+    smtp_port: "587"
+    smtp_user: "edog.adm@gmail.com"
+    smtp_pass: "synh zlub wmwq vadh"
+    vapid_public_key: "BGRpi32PGvu-X3lduos35uJNXkCKHR9b6PRQxF1c8owVmJO8Pqdl1-hFetLCarbzOGAANuKEIbrB3KLmGxJwpMg"
+    vapid_private_key: "Qn2B15-XBrHKjqqRhbmj0TKGq7m8yrAs0UbENujwVOY"
+    vapid_email: "admin@edog.app"
+  ingress:
+    enabled: true
+    host: "edog.dogpass.net"
+    className: nginx
+    issuer: "letsencrypt-prod" 
+    hosts:
+    - "test.edog.bg"
+    - "www.test.edog.bg"
