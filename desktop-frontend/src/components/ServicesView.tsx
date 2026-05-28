@@ -791,7 +791,7 @@ export const ServicesView: React.FC = () => {
               <h3 className="text-lg font-bold text-white">{t('partnerCTA')}</h3>
               <p className="text-blue-100 text-sm mt-0.5">{t('partnerCTASubtitle')}</p>
             </div>
-            <a href="mailto:partners@edog.dogpass.net"
+            <a href="mailto:edog.adm@gmail.com"
               className="flex-shrink-0 px-5 py-2.5 rounded-xl bg-white text-[#005da7] font-semibold text-sm hover:bg-blue-50 transition-colors whitespace-nowrap">
               {t('partnerWith')}
             </a>

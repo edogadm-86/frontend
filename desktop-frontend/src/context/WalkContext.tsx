@@ -95,8 +95,13 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setGpsStatus('ok');
         const coords = pos.coords;
         const point: WalkPoint = { lat: coords.latitude, lng: coords.longitude };
-        pathRef.current.push(point);
-        setPathPoints([...pathRef.current]);
+        const lastStored = pathRef.current[pathRef.current.length - 1];
+        const movedEnough = !lastStored ||
+          haversineMeters(lastStored.lat, lastStored.lng, point.lat, point.lng) >= 5;
+        if (movedEnough) {
+          pathRef.current.push(point);
+          setPathPoints([...pathRef.current]);
+        }
         if (lastPositionRef.current) {
           const d = haversineMeters(
             lastPositionRef.current.latitude, lastPositionRef.current.longitude,

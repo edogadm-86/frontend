@@ -13,6 +13,27 @@ import { WalkTracker } from './WalkTracker';
 
 interface WalkPoint { lat: number; lng: number; }
 
+function haversineM(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const f1 = (lat1 * Math.PI) / 180, f2 = (lat2 * Math.PI) / 180;
+  const df = ((lat2 - lat1) * Math.PI) / 180, dl = ((lon2 - lon1) * Math.PI) / 180;
+  const a = Math.sin(df / 2) ** 2 + Math.cos(f1) * Math.cos(f2) * Math.sin(dl / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function simplifyPath(points: WalkPoint[], minDistM = 5): WalkPoint[] {
+  if (points.length < 2) return points;
+  const out: WalkPoint[] = [points[0]];
+  for (let i = 1; i < points.length - 1; i++) {
+    const prev = out[out.length - 1];
+    if (haversineM(prev.lat, prev.lng, points[i].lat, points[i].lng) >= minDistM) {
+      out.push(points[i]);
+    }
+  }
+  out.push(points[points.length - 1]);
+  return out;
+}
+
 interface TrainingSession {
   id: string;
   date: string;
@@ -453,47 +474,50 @@ export const TrainingView: React.FC<TrainingViewProps> = ({ currentDog, onNaviga
         size="lg"
       >
         {routeSession?.walk_path ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-[#8b919d]">
-              <span className="flex items-center gap-1"><Calendar size={11} />{formatDate(routeSession.date)}</span>
-              <span className="flex items-center gap-1"><Clock size={11} />{routeSession.duration} {t('minutes')}</span>
-              <span className="text-[10px] font-semibold bg-gray-100 dark:bg-[#282a2d] px-2 py-0.5 rounded-full">
-                {routeSession.walk_path.length} {t('gpsPoints')}
-              </span>
-            </div>
-            <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/10" style={{ height: 360 }}>
-              <MapContainer
-                center={[routeSession.walk_path[0].lat, routeSession.walk_path[0].lng]}
-                zoom={15}
-                style={{ width: '100%', height: '100%' }}
-                zoomControl={true}
-                attributionControl={false}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                />
-                <FitBoundsController path={routeSession.walk_path} />
-                <Polyline
-                  positions={routeSession.walk_path.map(p => [p.lat, p.lng] as [number, number])}
-                  pathOptions={{ color: '#005da7', weight: 4, opacity: 0.85 }}
-                />
-                {/* Start marker */}
-                <CircleMarker
-                  center={[routeSession.walk_path[0].lat, routeSession.walk_path[0].lng]}
-                  radius={9}
-                  pathOptions={{ color: '#fff', fillColor: '#005da7', fillOpacity: 1, weight: 2 }}
-                />
-                {/* End marker */}
-                <CircleMarker
-                  center={[routeSession.walk_path[routeSession.walk_path.length - 1].lat, routeSession.walk_path[routeSession.walk_path.length - 1].lng]}
-                  radius={6}
-                  pathOptions={{ color: '#fff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 }}
-                />
-              </MapContainer>
-            </div>
-            <p className="text-[10px] text-gray-400 dark:text-[#8b919d] text-center">{t('walkRouteCaption')}</p>
-          </div>
+          (() => {
+            const displayPath = simplifyPath(routeSession.walk_path);
+            return (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-[#8b919d]">
+                  <span className="flex items-center gap-1"><Calendar size={11} />{formatDate(routeSession.date)}</span>
+                  <span className="flex items-center gap-1"><Clock size={11} />{routeSession.duration} {t('minutes')}</span>
+                  <span className="text-[10px] font-semibold bg-gray-100 dark:bg-[#282a2d] px-2 py-0.5 rounded-full">
+                    {displayPath.length} {t('gpsPoints')}
+                  </span>
+                </div>
+                <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-white/10" style={{ height: 360 }}>
+                  <MapContainer
+                    center={[displayPath[0].lat, displayPath[0].lng]}
+                    zoom={15}
+                    style={{ width: '100%', height: '100%' }}
+                    zoomControl={true}
+                    attributionControl={false}
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    />
+                    <FitBoundsController path={displayPath} />
+                    <Polyline
+                      positions={displayPath.map(p => [p.lat, p.lng] as [number, number])}
+                      pathOptions={{ color: '#005da7', weight: 4, opacity: 0.85 }}
+                    />
+                    <CircleMarker
+                      center={[displayPath[0].lat, displayPath[0].lng]}
+                      radius={9}
+                      pathOptions={{ color: '#fff', fillColor: '#005da7', fillOpacity: 1, weight: 2 }}
+                    />
+                    <CircleMarker
+                      center={[displayPath[displayPath.length - 1].lat, displayPath[displayPath.length - 1].lng]}
+                      radius={6}
+                      pathOptions={{ color: '#fff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 }}
+                    />
+                  </MapContainer>
+                </div>
+                <p className="text-[10px] text-gray-400 dark:text-[#8b919d] text-center">{t('walkRouteCaption')}</p>
+              </div>
+            );
+          })()}
         ) : (
           <div className="py-8 text-center text-sm text-gray-400 dark:text-[#8b919d]">{t('noRouteData')}</div>
         )}
