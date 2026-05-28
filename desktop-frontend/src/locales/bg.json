@@ -976,7 +976,7 @@
   "confirmPasswordPlaceholder": "Потвърди паролата си",
   "passwordsDoNotMatch": "Паролите не съвпадат",
   "invalidEmailFormat": "Моля въведи валиден имейл адрес",
-  "passwordTooShort": "Паролата трябва да е поне 6 символа",
+  "passwordTooShort": "Паролата трябва да е поне 8 символа",
   "allFieldsRequired": "Моля попълни всички полета",
   "loginFailed": "Невалиден имейл или парола",
   "dogNameRequired": "Името на кучето е задължително",

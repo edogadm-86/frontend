@@ -30,7 +30,7 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     }
     return (await response.json()) as T;
   } catch (error) {
-    console.error('API request failed:', error);
+    if (import.meta.env.DEV) console.error('API request failed:', error);
     throw error;
   }
 }
@@ -112,7 +112,6 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }*/
         async getDogs() {
         const response = await this.request<{ dogs: any[] }>('/dogs');
-        //console.log("🐶 Raw dogs from backend:", response.dogs); 
         return {
         dogs: response.dogs.map((d) => ({
           ...d, // keeps original snake_case keys (e.g. date_of_birth, profile_picture, etc.)

@@ -1,21 +1,23 @@
 import { Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest } from '../types';
-import { sendEmail } from '../config/email';
+import { sendEmail, wrapEmail } from '../config/email';
 
-const buildAdminEmailHtml = (recipientName: string, body: string) => `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <div style="background-color: #005da7; color: white; padding: 24px; text-align: center;">
-      <h1 style="margin: 0; font-size: 22px;">eDog</h1>
-    </div>
-    <div style="padding: 24px; background: #ffffff;">
-      <p style="color: #333; margin: 0 0 16px 0;">Hello ${recipientName},</p>
-      <div style="color: #333; line-height: 1.7;">${body.replace(/\n/g, '<br>')}</div>
-      <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-      <p style="color: #999; font-size: 12px; margin: 0;">You received this email as a registered eDog user.</p>
-    </div>
-  </div>
-`;
+const escapeHtml = (str: string) =>
+  str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+     .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+const buildAdminEmailHtml = (recipientName: string, body: string) =>
+  wrapEmail(
+    '#1B85F3', '📢',
+    'Message from eDog',
+    `<p style="margin:0 0 20px;font-size:15px;color:#374151;">
+      Hello <strong>${escapeHtml(recipientName)}</strong>,
+    </p>
+    <div style="color:#374151;line-height:1.75;white-space:pre-line;">
+      ${escapeHtml(body).replace(/\n/g, '<br>')}
+    </div>`
+  );
 
 export const getAdminStats = async (req: AuthRequest, res: Response) => {
   try {

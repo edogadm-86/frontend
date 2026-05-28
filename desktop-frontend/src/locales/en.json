@@ -972,7 +972,7 @@
   "confirmPasswordPlaceholder": "Confirm your password",
   "passwordsDoNotMatch": "Passwords do not match",
   "invalidEmailFormat": "Please enter a valid email address",
-  "passwordTooShort": "Password must be at least 6 characters",
+  "passwordTooShort": "Password must be at least 8 characters",
   "allFieldsRequired": "Please fill in all fields",
   "loginFailed": "Invalid email or password",
   "dogNameRequired": "Dog name is required",

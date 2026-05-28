@@ -10,7 +10,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET!, (err: any, user: any) => {
+  jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ['HS256'] }, (err: any, user: any) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
@@ -23,7 +23,7 @@ export const optionalAuth = (req: AuthRequest, _res: Response, next: NextFunctio
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) { next(); return; }
-  jwt.verify(token, process.env.JWT_SECRET!, (err: any, user: any) => {
+  jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ['HS256'] }, (err: any, user: any) => {
     if (!err) req.user = user;
     next();
   });

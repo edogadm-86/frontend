@@ -70,9 +70,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         documentType
       });
 
-      // Use the full URL returned by backend
       const fileUrl = response.fileUrl;
-      console.log('Upload response from backend:', response);
 
       onFileUploaded(fileUrl, file.name);
       setUploadSuccess(true);

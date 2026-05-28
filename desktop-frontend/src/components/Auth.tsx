@@ -54,7 +54,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
         setError(t('passwordsDoNotMatch'));
         return;
       }
-      if (formData.password.length < 6) {
+      if (formData.password.length < 8) {
         setError(t('passwordTooShort'));
         return;
       }
