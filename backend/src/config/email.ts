@@ -109,6 +109,40 @@ export const emailTemplates = {
     `
   }),
 
+  emailVerification: (verifyUrl: string, language: string = 'en') => ({
+    subject: language === 'bg' ? 'Потвърди имейла си - eDog' : 'Verify your email - eDog',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #1B85F3; color: white; padding: 20px; text-align: center;">
+          <h1>${language === 'bg' ? 'Потвърди имейла си' : 'Verify your email'}</h1>
+        </div>
+        <div style="padding: 20px;">
+          <p>${language === 'bg'
+            ? 'Благодарим ти, че се регистрира в eDog! Моля потвърди имейла си, за да активираш акаунта си.'
+            : 'Thanks for signing up for eDog! Please verify your email address to activate your account.'
+          }</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verifyUrl}" style="background-color: #1B85F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              ${language === 'bg' ? 'Потвърди имейл' : 'Verify Email'}
+            </a>
+          </div>
+          <p style="color: #666; font-size: 14px;">
+            ${language === 'bg'
+              ? 'Ако не си се регистрирал в eDog, моля игнорирай този имейл.'
+              : 'If you did not sign up for eDog, please ignore this email.'
+            }
+          </p>
+          <p style="color: #666; font-size: 14px;">
+            ${language === 'bg'
+              ? 'Линкът ще изтече след 24 часа.'
+              : 'This link will expire in 24 hours.'
+            }
+          </p>
+        </div>
+      </div>
+    `
+  }),
+
   vaccinationReminder: (dogName: string, vaccineName: string, dueDate: string, language: string = 'en') => ({
     subject: language === 'bg' ? `Ваксинация скоро - ${dogName}` : `Vaccination Due Soon - ${dogName}`,
     html: `

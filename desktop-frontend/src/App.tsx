@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
 import { WalkProvider } from './context/WalkContext';
@@ -22,6 +22,7 @@ import { ExpensesView } from './components/ExpensesView';
 import { ServicesView } from './components/ServicesView';
 import { WalkCompetitionOptIn } from './components/WalkCompetitionOptIn';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
+import { apiClient } from './lib/api';
 
 const AppContent: React.FC = () => {
   useTheme(); // Initialize theme
@@ -40,7 +41,11 @@ const AppContent: React.FC = () => {
     updateDog,
     deleteDog,
     currentDog,
-    setCurrentDog
+    setCurrentDog,
+    awaitingVerification,
+    pendingVerificationEmail,
+    completeEmailVerification,
+    cancelVerification,
   } = useApp();
 
   const [currentView, setCurrentView] = useState('dashboard');
@@ -167,7 +172,16 @@ const AppContent: React.FC = () => {
   }
 
   if (!user) {
-    return <Auth onLogin={login} onRegister={register} />;
+    return (
+      <Auth
+        onLogin={login}
+        onRegister={register}
+        awaitingVerification={awaitingVerification}
+        pendingVerificationEmail={pendingVerificationEmail}
+        onResendVerification={(email) => apiClient.resendVerification(email)}
+        onCancelVerification={cancelVerification}
+      />
+    );
   }
 
  return (
@@ -204,12 +218,55 @@ const AppContent: React.FC = () => {
 
 };
 
+const VerifyEmailPage: React.FC = () => {
+  const { completeEmailVerification } = useApp();
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState<'pending' | 'success' | 'error'>('pending');
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (!token) { setStatus('error'); return; }
+    completeEmailVerification(token)
+      .then(() => setStatus('success'))
+      .catch(() => setStatus('error'));
+  }, []);
+
+  if (status === 'pending') {
+    return (
+      <div className="min-h-screen bg-[#fbf9f8] dark:bg-[#111316] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#005da7] mx-auto mb-4" />
+          <p className="text-[#414751] dark:text-[#c1c7d3]">Verifying your email…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="min-h-screen bg-[#fbf9f8] dark:bg-[#111316] flex items-center justify-center px-6">
+        <div className="text-center max-w-sm">
+          <span className="material-symbols-outlined text-[56px] text-red-500 mb-4 block">error</span>
+          <h2 className="text-2xl font-bold text-[#1b1c1b] dark:text-[#e2e2e6] mb-2">Verification failed</h2>
+          <p className="text-[#414751] dark:text-[#c1c7d3] mb-6">The link is invalid or has expired. Please request a new verification email.</p>
+          <a href="/" className="inline-block px-6 py-3 bg-[#005da7] text-white rounded-xl font-semibold hover:brightness-110 transition">Back to login</a>
+        </div>
+      </div>
+    );
+  }
+
+  return null; // success → AppContent takes over once user is set
+};
+
 const App: React.FC = () => {
   return (
     <AppProvider>
       <WalkProvider>
       <Router>
         <Routes>
+          {/* Email verification deep-link */}
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+
           {/* Public route for QR scan */}
           <Route path="/public/dog/:id" element={<PublicDogProfile />} />
 

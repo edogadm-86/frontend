@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getProfile, updateProfile, forgotPassword, resetPassword, getNotifications, markNotificationRead, changePassword } from '../controllers/authController';
+import { register, login, getProfile, updateProfile, forgotPassword, resetPassword, getNotifications, markNotificationRead, changePassword, verifyEmail, resendVerification, deleteAccount } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
 import { validateUser, validateRequest } from '../middleware/validation';
 import { body } from 'express-validator';
@@ -12,6 +12,12 @@ router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], validateRequest, login);
+
+// Email verification routes
+router.get('/verify-email', verifyEmail);
+router.post('/resend-verification', [
+  body('email').isEmail().withMessage('Valid email is required')
+], validateRequest, resendVerification);
 
 // Password reset routes
 router.post('/forgot-password', [
@@ -31,6 +37,7 @@ router.put('/profile', authenticateToken, [
   body('phone').optional().isMobilePhone('any').withMessage('Valid phone number required')
 ], validateRequest, updateProfile);
 router.post('/change-password', authenticateToken, changePassword);
+router.delete('/account', authenticateToken, deleteAccount);
 
 // Notification routes
 router.get('/notifications', authenticateToken, getNotifications);

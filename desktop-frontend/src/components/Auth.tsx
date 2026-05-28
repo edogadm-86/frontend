@@ -3,25 +3,28 @@ import { useTranslation } from 'react-i18next';
 import { PrivacyPolicyModal } from './PrivacyPolicyModal';
 import { TermsOfServiceModal } from './TermsOfServiceModal';
 import { apiClient } from '../lib/api';
+import { useTheme } from '../hooks/useTheme';
 
 // Dog hero images — taken directly from the design files
-const IMG_LOGIN_LIGHT =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuAvMFDV927fBRHVj3bx94UJGZhUwa7rGVxHLv70DMcDFRNXfhZJCpwkytR4-5uO8npBnum21lzIRDHvQFMqMKO5wEu1M9j8syK2D04sUcyYbzmIVM5L0QisqXrXwtFjGldtchK3UmWtspSdQqffF3jFwUpP3MsaeeZfal8GnlDGDtZGwjyz-76BmuCj-agDpdbfciIuuBe98yvhraVfGuasisql1MBZfogvrJouxugdJYNpHGZmaW0yvrpCq8eD7GqdZorImliufANk';
-const IMG_LOGIN_DARK =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCCkdARRrxiLVPZAMZ1drqXh14osQznA_dzvRJf_JcFmK1XFAh7LuCuHBV-diJQA1ixYb0-8ZUbOwgLi0cqINwgB82ytkEbWLcZI8iqC4ksoSQVXtzRISOb5HNVguJMM4pvFRR_bg97E8PVTw0wAO6Jbofll2I3HV6oFRjvM161WNf048fa2gadbzNK2aj8xKgCY8moSJEA6lvVw4RJSVodsuNtfmFYuwhb-f3mO8qkbfRGaKWrGq_m9mSzV3LjRJknFcZUMFJwEjR6';
-const IMG_SIGNUP_LIGHT =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCEvlr_WGpPnL4fFbzYVtLP3L9ebcPtJMyhDuKoUkLP-WbkaEMMfyMdoeMrecezFzDPkwJRhJuIX6KOcwfxb0tSiCxGd2j2sXEG1BTT9VNvbdNee8J0zj8W79AN2_e7G3XlmiM4zihW95yiLJCr6cIVxgImLkQIVn0uOeagknP1XBxucxXZBPkAjeoN7ZBnbAu6FQG97e2GPV1rl2ndzhbD4bMXDfLxJyi7l5zA27_ZhFauF5veYcAo3uO9llcsC70oh43SmMunosVZ';
-const IMG_SIGNUP_DARK =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuAyjawrlHcuo2wFXALTTMQEZR9yeLB0KMlpkiKL6ISi2b8rEy8mRX4zeHz7He--zGBIIlth4cCAdpAWnz4tEYyweGaRrJ4gAhcWE0EIv3nD7E-j8d4671Km59tYGnFa0HVi6W-dwPkpmKhU8sTWvGdbgikOzt-Yt1F5zBEz6Hx2lYYNQsixEW53U81uVBviNhx2Y51GSqOnzFBch5h6S9ZMvGNS1Oqc5OE5bflgIJOmTBsABBKp7PzDSAT3Q0PXIB04ZiEIsuUv2h2y';
+const IMG_LOGIN_LIGHT  = '/auth-login-light.png';
+const IMG_LOGIN_DARK   = '/auth-login-dark.png';
+const IMG_SIGNUP_LIGHT = '/auth-signup-light.png';
+const IMG_SIGNUP_DARK  = '/auth-signup-dark.png';
 
 interface AuthProps {
   onLogin: (credentials: { email: string; password: string }) => Promise<void>;
   onRegister: (userData: { name: string; email: string; password: string }) => Promise<void>;
+  awaitingVerification?: boolean;
+  pendingVerificationEmail?: string | null;
+  onResendVerification?: (email: string) => Promise<void>;
+  onCancelVerification?: () => void;
 }
 
 
-export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
+export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerification, pendingVerificationEmail, onResendVerification, onCancelVerification }) => {
   const { t, i18n } = useTranslation();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const [isSignUp, setIsSignUp] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,6 +36,8 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
   const [showTerms, setShowTerms] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const loginDisabled = !formData.email.trim() || !formData.password.trim();
   const registerDisabled = !formData.name.trim() || !formData.email.trim() || !formData.password.trim() || !formData.confirmPassword.trim();
@@ -140,6 +145,67 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
     </>
   );
 
+  // ── VERIFICATION PENDING ────────────────────────────────────────────────
+  if (awaitingVerification) {
+    const handleResend = async () => {
+      if (!pendingVerificationEmail || !onResendVerification) return;
+      setResendLoading(true);
+      setResendSuccess(false);
+      try {
+        await onResendVerification(pendingVerificationEmail);
+        setResendSuccess(true);
+      } finally {
+        setResendLoading(false);
+      }
+    };
+
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#fbf9f8] dark:bg-[#111316] font-jakarta">
+        {langSelector}
+        {ambientGlow}
+        <div className="w-full max-w-[440px] flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-full bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 flex items-center justify-center mb-6">
+            <span className="material-symbols-outlined text-[40px] text-[#005da7] dark:text-[#a4c9ff]">mark_email_unread</span>
+          </div>
+          <h2 className="text-3xl font-bold text-[#1b1c1b] dark:text-[#e2e2e6] mb-3">
+            {t('verifyEmailTitle')}
+          </h2>
+          <p className="text-base text-[#414751] dark:text-[#c1c7d3] mb-2">
+            {t('verifyEmailSubtitle')}
+          </p>
+          {pendingVerificationEmail && (
+            <p className="text-sm font-semibold text-[#005da7] dark:text-[#a4c9ff] mb-6">
+              {pendingVerificationEmail}
+            </p>
+          )}
+          <p className="text-sm text-[#717783] dark:text-[#8b919d] mb-8">
+            {t('verifyEmailHint')}
+          </p>
+          {resendSuccess && (
+            <div className="w-full mb-5 px-4 py-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-700 dark:text-green-400">{t('verifyEmailResent')}</p>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={resendLoading || resendSuccess}
+            className="w-full py-4 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] text-sm font-bold rounded-xl hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed mb-4"
+          >
+            {resendLoading ? t('loading') : t('verifyEmailResend')}
+          </button>
+          <button
+            type="button"
+            onClick={() => { onCancelVerification?.(); switchMode(); }}
+            className="text-sm text-[#717783] dark:text-[#8b919d] hover:text-[#005da7] dark:hover:text-[#a4c9ff] transition-colors"
+          >
+            {t('backToLogin')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ── LOGIN ────────────────────────────────────────────────────────────────
   if (!isSignUp) {
     return (
@@ -147,17 +213,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
 
         {/* Left hero */}
         <aside className="hidden lg:flex lg:w-1/2 relative flex-col justify-end p-12 overflow-hidden">
-          {/* Dog photo — light mode */}
           <img
-            src={IMG_LOGIN_LIGHT}
-            alt="Golden retriever in a sunlit room"
-            className="absolute inset-0 w-full h-full object-cover block dark:hidden"
-          />
-          {/* Dog photo — dark mode */}
-          <img
-            src={IMG_LOGIN_DARK}
-            alt="Golden retriever cinematic portrait"
-            className="absolute inset-0 w-full h-full object-cover hidden dark:block opacity-80"
+            src={isDark ? IMG_LOGIN_DARK : IMG_LOGIN_LIGHT}
+            alt="Golden retriever"
+            className="absolute inset-0 w-full h-full object-cover"
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/80 via-[#001c39]/20 to-transparent dark:from-[#111316]/70 dark:via-[#111316]/10 dark:to-transparent" />
@@ -364,17 +423,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister }) => {
 
       {/* Left hero — signup variant */}
       <aside className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        {/* Dog photo — light mode */}
         <img
-          src={IMG_SIGNUP_LIGHT}
-          alt="Happy golden retriever in a bright interior"
-          className="absolute inset-0 w-full h-full object-cover block dark:hidden"
-        />
-        {/* Dog photo — dark mode */}
-        <img
-          src={IMG_SIGNUP_DARK}
-          alt="Majestic golden retriever in a misty forest"
-          className="absolute inset-0 w-full h-full object-cover hidden dark:block opacity-80"
+          src={isDark ? IMG_SIGNUP_DARK : IMG_SIGNUP_LIGHT}
+          alt="Golden retriever"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#005da7]/80 via-[#005da7]/30 to-transparent dark:from-[#001229]/90 dark:via-[#001229]/40 dark:to-transparent" />

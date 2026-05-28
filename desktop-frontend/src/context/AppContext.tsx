@@ -14,7 +14,9 @@ interface AppContextType {
   mealPlans: { [dogId: string]: any[] };
   loading: boolean;
   error: string | null;
-  register: (userData: { name: string; email: string; password: string; phone?: string }) => Promise<any>;
+  awaitingVerification: boolean;
+  pendingVerificationEmail: string | null;
+  register: (userData: { name: string; email: string; password: string; phone?: string; language?: string }) => Promise<any>;
   login: (credentials: { email: string; password: string }) => Promise<any>;
   logout: () => void;
   createDog: (dogData: Omit<Dog, 'id' | 'documents' | 'createdAt' | 'updatedAt'>) => Promise<Dog>;
@@ -23,6 +25,9 @@ interface AppContextType {
   currentDog: Dog | null;
   setCurrentDog: (dog: Dog | null) => void;
   setUserOptIn: (opted_in: boolean) => void;
+  completeEmailVerification: (token: string) => Promise<any>;
+  cancelVerification: () => void;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -52,6 +57,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     mealPlans,
     loading,
     error,
+    awaitingVerification,
+    pendingVerificationEmail,
     register,
     login,
     logout,
@@ -59,6 +66,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     updateDog,
     deleteDog,
     setUserOptIn,
+    completeEmailVerification,
+    cancelVerification,
+    deleteAccount,
   } = useApi();
 
   const [currentDog, setCurrentDog] = React.useState<Dog | null>(null);
@@ -86,6 +96,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     mealPlans,
     loading,
     error,
+    awaitingVerification,
+    pendingVerificationEmail,
     register,
     login,
     logout,
@@ -95,6 +107,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     currentDog,
     setCurrentDog,
     setUserOptIn,
+    completeEmailVerification,
+    cancelVerification,
+    deleteAccount,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

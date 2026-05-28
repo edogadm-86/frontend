@@ -46,13 +46,24 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   }
 
   // Auth endpoints
-  async register(userData: { name: string; email: string; password: string; phone?: string }) {
-    const response = await this.request<{ token: string; user: User }>('/auth/register', {
+  async register(userData: { name: string; email: string; password: string; phone?: string; language?: string }) {
+    return this.request<{ message: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
+  }
+
+  async verifyEmail(token: string) {
+    const response = await this.request<{ token: string; user: User }>(`/auth/verify-email?token=${encodeURIComponent(token)}`);
     this.setToken(response.token);
     return response;
+  }
+
+  async resendVerification(email: string, language?: string) {
+    return this.request('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email, language }),
+    });
   }
 
   async login(credentials: { email: string; password: string }) {
@@ -80,6 +91,13 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     body: JSON.stringify(data),
   });
 }
+
+  async deleteAccount(password: string) {
+    return this.request('/auth/account', {
+      method: 'DELETE',
+      body: JSON.stringify({ password }),
+    });
+  }
 
   async forgotPassword(email: string) {
     return this.request('/auth/forgot-password', {

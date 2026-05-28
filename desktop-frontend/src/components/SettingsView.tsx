@@ -46,7 +46,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
-  const { user } = useApp();
+  const { user, deleteAccount } = useApp();
   const push = usePushNotifications();
   const [activeTab, setActiveTab] = useState<Tab>('dogs');
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -56,6 +56,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [saving, setSaving] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [profileData, setProfileData] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
   const [preferences, setPreferences] = useState({ language: i18n.language, theme, dateFormat: 'MM/DD/YYYY', timeFormat: '12', timezone: 'Europe/Sofia' });
 
@@ -350,7 +354,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
           <p className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">{t('deleteAccount', 'Delete Account')}</p>
           <p className="text-xs text-red-600 dark:text-red-400 mb-3">{t('deleteAccountWarning', 'Permanently delete your account and all associated data. This cannot be undone.')}</p>
-          <button className="px-4 py-2 text-xs font-semibold rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
+          <button
+            onClick={() => { setDeletePassword(''); setDeleteError(null); setShowDeleteModal(true); }}
+            className="px-4 py-2 text-xs font-semibold rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
+          >
             {t('deleteAccount', 'Delete Account')}
           </button>
         </div>
@@ -480,6 +487,54 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Delete Account Modal */}
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title={t('deleteAccount', 'Delete Account')} size="md">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-[#8b919d]">
+            {t('deleteAccountWarning', 'Permanently delete your account and all associated data. This cannot be undone.')}
+          </p>
+          {deleteError && (
+            <div className="px-4 py-3 rounded-xl bg-red-50 dark:bg-[#93000a]/20 border border-red-200 dark:border-red-900">
+              <p className="text-sm text-red-600 dark:text-[#ffb4ab]">{deleteError}</p>
+            </div>
+          )}
+          <Input
+            label={t('confirmWithPassword', 'Confirm with your password')}
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(false)}
+              className="flex-1 px-4 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-colors"
+            >
+              {t('cancel', 'Cancel')}
+            </button>
+            <button
+              type="button"
+              disabled={!deletePassword || deleting}
+              onClick={async () => {
+                setDeleting(true);
+                setDeleteError(null);
+                try {
+                  await deleteAccount(deletePassword);
+                } catch (err: any) {
+                  setDeleteError(err.message || t('error', 'Something went wrong'));
+                  setDeleting(false);
+                }
+              }}
+              className="flex-1 px-4 py-2.5 text-sm font-semibold rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {deleting ? t('loading', 'Loading…') : t('deleteAccount', 'Delete Account')}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

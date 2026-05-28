@@ -988,6 +988,11 @@
   "resetLinkSent": "Reset link sent! Check your email.",
   "backToLogin": "Back to Login",
   "resetLinkError": "Failed to send reset link. Please try again.",
+  "verifyEmailTitle": "Check your inbox",
+  "verifyEmailSubtitle": "We sent a verification link to:",
+  "verifyEmailHint": "Click the link in the email to activate your account. The link expires in 24 hours.",
+  "verifyEmailResend": "Resend verification email",
+  "verifyEmailResent": "Verification email resent! Please check your inbox.",
   "expenseDescRequired": "Description is required",
   "invalidAmount": "Amount must be a positive number"
 }

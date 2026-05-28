@@ -16,6 +16,8 @@ export const useApi = () => {
   const [mealPlans, setMealPlans] = useState<{ [dogId: string]: any[] }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [awaitingVerification, setAwaitingVerification] = useState(false);
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
 
   // Load user data
   const loadUser = async () => {
@@ -112,10 +114,29 @@ export const useApi = () => {
     setMealPlans({});
   };
 
-  const register = async (userData: { name: string; email: string; password: string; phone?: string }) => {
+  const register = async (userData: { name: string; email: string; password: string; phone?: string; language?: string }) => {
     try {
       clearUserData();
       const response = await apiClient.register(userData);
+      setAwaitingVerification(true);
+      setPendingVerificationEmail(userData.email);
+      return response;
+    } catch (error: any) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
+  const cancelVerification = () => {
+    setAwaitingVerification(false);
+    setPendingVerificationEmail(null);
+  };
+
+  const completeEmailVerification = async (token: string) => {
+    try {
+      const response = await apiClient.verifyEmail(token);
+      setAwaitingVerification(false);
+      setPendingVerificationEmail(null);
       setUser(response.user);
       await loadAllData();
       return response;
@@ -136,6 +157,13 @@ export const useApi = () => {
       setError(error.message);
       throw error;
     }
+  };
+
+  const deleteAccount = async (password: string) => {
+    await apiClient.deleteAccount(password);
+    apiClient.clearToken();
+    setUser(null);
+    clearUserData();
   };
 
   const logout = () => {
@@ -214,6 +242,8 @@ export const useApi = () => {
     mealPlans,
     loading,
     error,
+    awaitingVerification,
+    pendingVerificationEmail,
     register,
     login,
     logout,
@@ -222,5 +252,8 @@ export const useApi = () => {
     deleteDog,
     loadUser,
     setUserOptIn,
+    completeEmailVerification,
+    cancelVerification,
+    deleteAccount,
   };
 };
