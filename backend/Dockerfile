@@ -28,6 +28,6 @@ EXPOSE 3001
 # Optional healthcheck (requires wget in alpine)
 RUN apk add --no-cache wget
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:3001/health || exit 1
+  CMD node -e "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "dist/server.js"]

@@ -540,6 +540,11 @@ const runMigrations = async () => {
 
       -- Walk competition opt-in per user (NULL = not yet asked, true = opted in, false = opted out)
       ALTER TABLE users ADD COLUMN IF NOT EXISTS walk_competition_opted_in BOOLEAN DEFAULT NULL;
+
+      -- Email verification: existing users default to TRUE (already verified)
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT TRUE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token_expiry TIMESTAMPTZ;
     `;
         await database_1.default.query(migrationSQL);
         console.log('Database migration completed successfully!');

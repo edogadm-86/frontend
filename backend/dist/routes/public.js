@@ -12,7 +12,13 @@ router.get('/dog/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const result = await database_1.default.query(`SELECT d.id, d.name, d.breed, d.date_of_birth, d.weight, d.profile_picture,
-              u.name as owner_name, u.phone as owner_phone
+              u.name as owner_name, u.phone as owner_phone,
+              EXISTS (
+                SELECT 1 FROM posts p
+                WHERE p.dog_id = d.id
+                  AND p.post_type = 'lost_dog'
+                  AND p.is_resolved = false
+              ) AS is_lost
        FROM dogs d
        JOIN users u ON d.user_id = u.id
        WHERE d.id = $1`, [id]);
@@ -28,10 +34,11 @@ router.get('/dog/:id', async (req, res) => {
                 date_of_birth: dog.date_of_birth,
                 weight: dog.weight,
                 profile_picture: dog.profile_picture,
+                is_lost: dog.is_lost,
             },
             owner: {
                 name: dog.owner_name,
-                phone: dog.owner_phone, // you may decide to hide this or show only partially
+                phone: dog.owner_phone,
             }
         });
     }

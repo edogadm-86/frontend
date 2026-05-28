@@ -1,12 +1,12 @@
 frontend:
   image:
     repository: nikolaypeshev/dogpass
-    tag: edog-frontend-26-05-26
+    tag: edog-frontend-28-05-26
   service:
     type: ClusterIP
     port: 80
   config: 
-    backend_url: "https://edog.dogpass.net"
+    backend_url: "https://edog.bg"
     vite_google_maps_api_key: "AIzaSyDWAla0Y50XI6fM4MNrOtFX9wBFF3yHOls"
   ingress:
     enabled: true
@@ -22,7 +22,7 @@ frontend:
 backend:
   image:
     repository: nikolaypeshev/dogpass
-    tag: edog-backend-26-05-26
+    tag: edog-backend-28-05-26
   service:
     type: ClusterIP
     port: 3001
@@ -38,7 +38,7 @@ backend:
     vapid_email: "admin@edog.app"
   ingress:
     enabled: true
-    host: "edog.dogpass.net"
+    host: "edog.bg"
     className: nginx
     issuer: "letsencrypt-prod" 
     hosts:

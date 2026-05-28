@@ -15,6 +15,11 @@ router.post('/login', [
     (0, express_validator_1.body)('email').isEmail().withMessage('Valid email is required'),
     (0, express_validator_1.body)('password').notEmpty().withMessage('Password is required')
 ], validation_1.validateRequest, authController_1.login);
+// Email verification routes
+router.get('/verify-email', authController_1.verifyEmail);
+router.post('/resend-verification', [
+    (0, express_validator_1.body)('email').isEmail().withMessage('Valid email is required')
+], validation_1.validateRequest, authController_1.resendVerification);
 // Password reset routes
 router.post('/forgot-password', [
     (0, express_validator_1.body)('email').isEmail().withMessage('Valid email is required')
@@ -31,6 +36,7 @@ router.put('/profile', auth_1.authenticateToken, [
     (0, express_validator_1.body)('phone').optional().isMobilePhone('any').withMessage('Valid phone number required')
 ], validation_1.validateRequest, authController_1.updateProfile);
 router.post('/change-password', auth_1.authenticateToken, authController_1.changePassword);
+router.delete('/account', auth_1.authenticateToken, authController_1.deleteAccount);
 // Notification routes
 router.get('/notifications', auth_1.authenticateToken, authController_1.getNotifications);
 router.put('/notifications/:id/read', auth_1.authenticateToken, authController_1.markNotificationRead);

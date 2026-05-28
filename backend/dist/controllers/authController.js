@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePassword = exports.markNotificationRead = exports.getNotifications = exports.updateProfile = exports.getProfile = exports.resetPassword = exports.forgotPassword = exports.login = exports.register = void 0;
+exports.changePassword = exports.deleteAccount = exports.markNotificationRead = exports.getNotifications = exports.updateProfile = exports.getProfile = exports.resetPassword = exports.forgotPassword = exports.login = exports.resendVerification = exports.verifyEmail = exports.register = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const uuid_1 = require("uuid");
@@ -25,33 +25,23 @@ const register = async (req, res) => {
         // Hash password
         const saltRounds = 12;
         const passwordHash = await bcryptjs_1.default.hash(password, saltRounds);
-        // Create user
+        // Generate email verification token (valid 24 hours)
+        const verificationToken = crypto_1.default.randomBytes(32).toString('hex');
+        const verificationExpiry = new Date(Date.now() + 86400000);
+        // Create user — unverified
         const userId = (0, uuid_1.v4)();
-        const result = await database_1.default.query('INSERT INTO users (id, name, email, password_hash, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, phone, is_admin, created_at', [userId, name, email, passwordHash, phone || null]);
-        const user = result.rows[0];
-        // Send welcome email
+        await database_1.default.query(`INSERT INTO users (id, name, email, password_hash, phone, email_verified, email_verification_token, email_verification_token_expiry)
+       VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7)`, [userId, name, email, passwordHash, phone || null, verificationToken, verificationExpiry]);
+        // Send verification email
         try {
-            const welcomeTemplate = email_1.emailTemplates.welcome(user.name, language);
-            await (0, email_1.sendEmail)(user.email, welcomeTemplate);
+            const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+            const verifyTemplate = email_1.emailTemplates.emailVerification(verifyUrl, language);
+            await (0, email_1.sendEmail)(email, verifyTemplate);
         }
         catch (emailError) {
-            console.error('Failed to send welcome email:', emailError);
-            // Don't fail registration if email fails
+            console.error('Failed to send verification email:', emailError);
         }
-        // Generate JWT token
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, is_admin: user.is_admin ?? false }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-        res.status(201).json({
-            message: 'User created successfully',
-            token,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                is_admin: user.is_admin ?? false,
-                createdAt: user.created_at
-            }
-        });
+        res.status(201).json({ message: 'Registration successful. Please check your email to verify your account.' });
     }
     catch (error) {
         console.error('Registration error:', error);
@@ -59,11 +49,79 @@ const register = async (req, res) => {
     }
 };
 exports.register = register;
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+        if (!token) {
+            return res.status(400).json({ error: 'Verification token is required' });
+        }
+        const result = await database_1.default.query(`SELECT id, name, email, phone, is_admin
+       FROM users
+       WHERE email_verification_token = $1
+         AND email_verification_token_expiry > NOW()
+         AND email_verified = FALSE`, [token]);
+        if (result.rows.length === 0) {
+            return res.status(400).json({ error: 'Invalid or expired verification token' });
+        }
+        const user = result.rows[0];
+        await database_1.default.query(`UPDATE users
+       SET email_verified = TRUE,
+           email_verification_token = NULL,
+           email_verification_token_expiry = NULL,
+           last_seen_at = NOW()
+       WHERE id = $1`, [user.id]);
+        const jwtToken = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, is_admin: user.is_admin ?? false }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        res.json({
+            message: 'Email verified successfully',
+            token: jwtToken,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                is_admin: user.is_admin ?? false,
+            }
+        });
+    }
+    catch (error) {
+        console.error('Email verification error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.verifyEmail = verifyEmail;
+const resendVerification = async (req, res) => {
+    try {
+        const { email, language = 'en' } = req.body;
+        const result = await database_1.default.query('SELECT id, name FROM users WHERE email = $1 AND email_verified = FALSE', [email]);
+        // Always respond the same way to avoid email enumeration
+        if (result.rows.length === 0) {
+            return res.json({ message: 'If the email exists and is unverified, a new link has been sent.' });
+        }
+        const user = result.rows[0];
+        const verificationToken = crypto_1.default.randomBytes(32).toString('hex');
+        const verificationExpiry = new Date(Date.now() + 86400000);
+        await database_1.default.query(`UPDATE users SET email_verification_token = $1, email_verification_token_expiry = $2 WHERE id = $3`, [verificationToken, verificationExpiry, user.id]);
+        try {
+            const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+            const verifyTemplate = email_1.emailTemplates.emailVerification(verifyUrl, language);
+            await (0, email_1.sendEmail)(email, verifyTemplate);
+        }
+        catch (emailError) {
+            console.error('Failed to resend verification email:', emailError);
+        }
+        res.json({ message: 'If the email exists and is unverified, a new link has been sent.' });
+    }
+    catch (error) {
+        console.error('Resend verification error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.resendVerification = resendVerification;
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         // Find user
-        const result = await database_1.default.query('SELECT id, name, email, phone, password_hash, is_admin, created_at FROM users WHERE email = $1', [email]);
+        const result = await database_1.default.query('SELECT id, name, email, phone, password_hash, is_admin, email_verified, created_at FROM users WHERE email = $1', [email]);
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -72,6 +130,10 @@ const login = async (req, res) => {
         const isValidPassword = await bcryptjs_1.default.compare(password, user.password_hash);
         if (!isValidPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        // Block login for unverified accounts
+        if (user.email_verified === false) {
+            return res.status(403).json({ error: 'Please verify your email before logging in.' });
         }
         // Update last_seen_at
         await database_1.default.query('UPDATE users SET last_seen_at = NOW() WHERE id = $1', [user.id]);
@@ -174,7 +236,23 @@ const getProfile = async (req, res) => {
 exports.getProfile = getProfile;
 const updateProfile = async (req, res) => {
     try {
-        const { name, email, phone } = req.body;
+        const { name, email, phone, currentPassword } = req.body;
+        // Fetch current user to check if email is changing
+        const currentUserResult = await database_1.default.query('SELECT email, password_hash FROM users WHERE id = $1', [req.user.id]);
+        if (currentUserResult.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const currentUser = currentUserResult.rows[0];
+        // If the email is being changed, require current password verification
+        if (email && email !== currentUser.email) {
+            if (!currentPassword) {
+                return res.status(400).json({ error: 'Current password is required to change email' });
+            }
+            const passwordMatch = await bcryptjs_1.default.compare(currentPassword, currentUser.password_hash);
+            if (!passwordMatch) {
+                return res.status(401).json({ error: 'Current password is incorrect' });
+            }
+        }
         const result = await database_1.default.query('UPDATE users SET name = $1, email = $2, phone = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING id, name, email, phone, updated_at', [name, email, phone || null, req.user.id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
@@ -330,6 +408,26 @@ const markNotificationRead = async (req, res) => {
     }
 };
 exports.markNotificationRead = markNotificationRead;
+const deleteAccount = async (req, res) => {
+    try {
+        const { password } = req.body;
+        const result = await database_1.default.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const isMatch = await bcryptjs_1.default.compare(password, result.rows[0].password_hash);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
+        await database_1.default.query('DELETE FROM users WHERE id = $1', [req.user.id]);
+        res.json({ message: 'Account deleted successfully' });
+    }
+    catch (error) {
+        console.error('Delete account error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.deleteAccount = deleteAccount;
 const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;

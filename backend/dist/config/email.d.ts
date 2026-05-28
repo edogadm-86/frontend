@@ -13,6 +13,10 @@ export declare const emailTemplates: {
         subject: string;
         html: string;
     };
+    emailVerification: (verifyUrl: string, language?: string) => {
+        subject: string;
+        html: string;
+    };
     vaccinationReminder: (dogName: string, vaccineName: string, dueDate: string, language?: string) => {
         subject: string;
         html: string;

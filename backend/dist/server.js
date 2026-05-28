@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 // Import email service
@@ -37,13 +38,23 @@ const PORT = process.env.PORT || 3001;
 // Security middleware
 app.use((0, helmet_1.default)());
 app.set('trust proxy', 1);
-// Rate limiting
-//const limiter = rateLimit({
-//  windowMs: 15 * 60 * 1000, // 15 minutes
-//  max: 100, // limit each IP to 100 requests per windowMs
-//  message: 'Too many requests from this IP, please try again later.',
-//});
-//app.use(limiter);
+// Rate limiting — general
+const limiter = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 500,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many requests from this IP, please try again later.',
+});
+app.use(limiter);
+// Auth rate limit — relaxed because all traffic may arrive from a shared ingress IP
+const authLimiter = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many authentication attempts, please try again later.',
+});
 // CORS configuration
 // Put this ABOVE your routes
 const allowedOrigins = [
@@ -97,7 +108,7 @@ app.use((req, res, next) => {
     next();
 });
 // API routes
-app.use('/api/auth', auth_1.default);
+app.use('/api/auth', authLimiter, auth_1.default);
 app.use('/api/dogs', dogs_1.default);
 app.use('/api/vaccinations', vaccinations_1.default);
 app.use('/api/health', health_1.default);

@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../types';
 export declare const register: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const verifyEmail: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const resendVerification: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const login: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const forgotPassword: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const resetPassword: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
@@ -8,5 +10,6 @@ export declare const getProfile: (req: AuthRequest, res: Response) => Promise<Re
 export declare const updateProfile: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const getNotifications: (req: AuthRequest, res: Response) => Promise<void>;
 export declare const markNotificationRead: (req: AuthRequest, res: Response) => Promise<void>;
+export declare const deleteAccount: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const changePassword: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 //# sourceMappingURL=authController.d.ts.map
