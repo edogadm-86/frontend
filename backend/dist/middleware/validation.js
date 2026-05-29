@@ -13,7 +13,7 @@ exports.validateRequest = validateRequest;
 exports.validateUser = [
     (0, express_validator_1.body)('name').trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
     (0, express_validator_1.body)('email').isEmail().withMessage('Valid email is required'),
-    (0, express_validator_1.body)('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    (0, express_validator_1.body)('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
     (0, express_validator_1.body)('phone').optional().isMobilePhone('any').withMessage('Valid phone number required'),
 ];
 exports.validateDog = [

@@ -23,20 +23,6 @@ const validateRequest = (req, res, next) => {
     }
     next();
 };
-// ── SELECT helper ──────────────────────────────────────────────────────────────
-// Builds the common SELECT fields for post listings.
-function postSelect(currentUserId) {
-    const likeJoin = currentUserId
-        ? `LEFT JOIN post_likes pl ON pl.post_id = p.id AND pl.user_id = '${currentUserId}'`
-        : '';
-    const bookmarkJoin = currentUserId
-        ? `LEFT JOIN post_bookmarks pb ON pb.post_id = p.id AND pb.user_id = '${currentUserId}'`
-        : '';
-    const userReaction = currentUserId ? 'pl.reaction_type' : 'NULL';
-    const likedBy = currentUserId ? '(pl.reaction_type IS NOT NULL)' : 'false';
-    const bookmarked = currentUserId ? '(pb.post_id IS NOT NULL)' : 'false';
-    return { likeJoin, bookmarkJoin, userReaction, likedBy, bookmarked };
-}
 // ── Trending tags ──────────────────────────────────────────────────────────────
 router.get('/trending-tags', async (_req, res) => {
     try {

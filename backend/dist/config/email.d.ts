@@ -1,6 +1,11 @@
 import nodemailer from 'nodemailer';
 declare const transporter: nodemailer.Transporter<import("nodemailer/lib/smtp-transport").SentMessageInfo, import("nodemailer/lib/smtp-transport").Options>;
+export declare const wrapEmail: (headerBg: string, icon: string, title: string, body: string, lang?: string) => string;
 export declare const emailTemplates: {
+    emailVerification: (verifyUrl: string, language?: string) => {
+        subject: string;
+        html: string;
+    };
     welcome: (name: string, language?: string) => {
         subject: string;
         html: string;
@@ -10,10 +15,6 @@ export declare const emailTemplates: {
         html: string;
     };
     appointmentReminder: (dogName: string, appointmentTitle: string, date: string, time: string, language?: string) => {
-        subject: string;
-        html: string;
-    };
-    emailVerification: (verifyUrl: string, language?: string) => {
         subject: string;
         html: string;
     };
