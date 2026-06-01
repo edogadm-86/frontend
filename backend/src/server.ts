@@ -44,22 +44,30 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.set('trust proxy', 1);
 
-// Rate limiting — general
+// Rate limiting — general backstop. High limit because all k8s traffic arrives from
+// the same ingress IP; actual per-user limits are enforced on specific routes below.
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: 5000,
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many requests from this IP, please try again later.',
+  message: 'Too many requests, please try again later.',
 });
 app.use(limiter);
 
-// Auth rate limit — relaxed because all traffic may arrive from a shared ingress IP
+// Auth rate limiter — keys by email so each account has its own bucket.
+// Prevents brute-force regardless of shared ingress IP.
+// Falls back to IP for routes without an email in the body.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => {
+    const email = req.body?.email?.toLowerCase?.().trim();
+    if (email) return `auth:${email}`;
+    return req.ip ?? 'unknown';
+  },
   message: 'Too many authentication attempts, please try again later.',
 });
 
@@ -90,9 +98,6 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 // IMPORTANT: tie preflight to the SAME options (don’t use bare cors())
 app.options('*', cors(corsOptions));
-
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

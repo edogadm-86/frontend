@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { authenticateToken, optionalAuth } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 import { AuthRequest } from '../types';
 import pool from '../config/database';
 
@@ -108,47 +108,23 @@ router.post('/image', authenticateToken, upload.single('file'), async (req: Auth
 const ALLOWED_FILE_ORIGINS = ['https://edog.bg', 'https://edog.dogpass.net'];
 
 // Serve uploaded files
-router.get('/file/:filename', optionalAuth, async (req: AuthRequest, res) => {
-  try {
-    const filename = path.basename(req.params.filename); // prevent path traversal
-    const filePath = path.join(uploadsDir, filename);
+// Files are named with UUIDs (unguessable). Document *listing* is auth-gated at /dog/:dogId.
+router.get('/file/:filename', (req, res) => {
+  const filename = path.basename(req.params.filename); // prevent path traversal
+  const filePath = path.join(uploadsDir, filename);
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'File not found' });
-    }
-
-    // Check if this is a private document with ownership
-    const docResult = await pool.query(
-      `SELECT d.uploaded_by, dog.user_id
-       FROM documents d
-       LEFT JOIN dogs dog ON d.dog_id = dog.id
-       WHERE d.filename = $1`,
-      [filename]
-    );
-
-    if (docResult.rows.length > 0) {
-      if (!req.user) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-      const doc = docResult.rows[0];
-      if (doc.uploaded_by !== req.user.id && doc.user_id !== req.user.id) {
-        return res.status(403).json({ error: 'Access denied' });
-      }
-    }
-    // Files not in the documents table are post/event images — publicly accessible
-
-    const requestOrigin = req.headers.origin;
-    if (requestOrigin && ALLOWED_FILE_ORIGINS.includes(requestOrigin)) {
-      res.setHeader('Access-Control-Allow-Origin', requestOrigin);
-      res.setHeader('Vary', 'Origin');
-    }
-    res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
-    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
-    res.sendFile(filePath);
-  } catch (error) {
-    console.error('File serve error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found' });
   }
+
+  const requestOrigin = req.headers.origin;
+  if (requestOrigin && ALLOWED_FILE_ORIGINS.includes(requestOrigin)) {
+    res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+    res.setHeader('Vary', 'Origin');
+  }
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+  res.sendFile(filePath);
 });
 
 // Get documents for a dog
