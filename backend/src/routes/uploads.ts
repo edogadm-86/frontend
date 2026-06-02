@@ -82,7 +82,7 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req: Aut
    res.json({
   message: 'File uploaded successfully',
   document: result.rows[0],
-  fileUrl: `${req.protocol}://${req.get('host')}/api/uploads/file/${req.file.filename}`
+  fileUrl: `/api/uploads/file/${req.file.filename}`
 });
   } catch (error) {
     console.error('Upload error:', error);
@@ -97,7 +97,7 @@ router.post('/image', authenticateToken, upload.single('file'), async (req: Auth
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const fileUrl = `${req.protocol}://${req.get('host')}/api/uploads/file/${req.file.filename}`;
+    const fileUrl = `/api/uploads/file/${req.file.filename}`;
     res.json({ fileUrl });
   } catch (error) {
     console.error('Image upload error:', error);
