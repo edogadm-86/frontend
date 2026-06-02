@@ -11,6 +11,7 @@ import { Modal } from './ui/Modal';
 import { apiClient } from '../lib/api';
 import { useApp } from '../context/AppContext';
 import type { Post, Comment, CommunityEvent, WalkLeaderboardResponse } from '../types';
+import { resolveUploadUrl } from '../lib/uploadUrl';
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -352,7 +353,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onReact, onDel
               className="w-full block relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-[#282a2d]"
             >
               <img
-                src={post.image_url}
+                src={resolveUploadUrl(post.image_url)}
                 alt=""
                 className="w-full object-contain max-h-96"
               />

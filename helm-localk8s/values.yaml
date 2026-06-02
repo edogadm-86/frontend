@@ -13,9 +13,9 @@ frontend:
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
     hosts:
-      - "edog.dogpass.net"
       - "edog.bg"
       - "www.edog.bg"
+      - "edog.dogpass.net"
     className: "nginx"
     issuer: "letsencrypt-prod"  # Use the ClusterIssuer name
 
@@ -42,6 +42,6 @@ backend:
     className: nginx
     issuer: "letsencrypt-prod" 
     hosts:
-    - "edog.dogpass.net"
     - "edog.bg"
     - "www.edog.bg"
+    - "edog.dogpass.net"

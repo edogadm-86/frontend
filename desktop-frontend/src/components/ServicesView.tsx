@@ -6,8 +6,10 @@ import { apiClient } from '../lib/api';
 import { geocodeCity, googleMapsUrl, type OsmPlace } from '../lib/osmService';
 import { LayoutList, Map, Star, ShieldCheck, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { ServicesMap } from './ServicesMap';
+import { resolveUploadUrl, toStablePlacePhotoUrl } from '../lib/uploadUrl';
 
 const GOOGLE_LIBRARIES: ('places')[] = ['places'];
+const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
 
 interface PartnerCategory {
   id: string;
@@ -102,7 +104,9 @@ function PartnerDetailModal({ partner, onClose, lang }: { partner: Partner; onCl
   };
   const hasHours = partner.working_hours && Object.keys(partner.working_hours).length > 0;
   const hasSocial = partner.social_links && Object.keys(partner.social_links).length > 0;
-  const photos = partner.photos || [];
+  const photos = (partner.photos || [])
+    .map(url => resolveUploadUrl(toStablePlacePhotoUrl(url ?? '', MAPS_API_KEY)))
+    .filter(Boolean) as string[];
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [placeRating, setPlaceRating] = useState<{ rating: number; count: number } | null>(null);
@@ -847,7 +851,7 @@ function PartnerCard({ partner, lang, getPartnerCategoryName, onClick }: {
             </span>
           </div>
           {partner.logo_url && (
-            <img src={partner.logo_url} alt="logo" className="w-8 h-8 rounded-lg object-contain flex-shrink-0 border border-gray-100 dark:border-white/5" />
+            <img src={resolveUploadUrl(toStablePlacePhotoUrl(partner.logo_url ?? '', MAPS_API_KEY))} alt="logo" className="w-8 h-8 rounded-lg object-contain flex-shrink-0 border border-gray-100 dark:border-white/5" />
           )}
         </div>
         {partner.description && (

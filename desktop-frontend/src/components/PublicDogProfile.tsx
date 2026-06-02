@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { User } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { resolveUploadUrl } from '../lib/uploadUrl';
 import { useTranslation } from 'react-i18next';
 
 interface Dog {
@@ -72,7 +73,7 @@ export const PublicDogProfile: React.FC = () => {
       ? 'w-full h-full bg-gradient-to-br from-[#005da7] to-[#0090e7] flex items-center justify-center text-white text-xs font-bold'
       : 'w-full h-full bg-gradient-to-br from-[#005da7] to-[#0090e7] flex items-center justify-center text-white text-7xl font-extrabold';
     if (dog.profile_picture) {
-      return <img src={dog.profile_picture} alt={dog.name} className="w-full h-full object-cover" />;
+      return <img src={resolveUploadUrl(dog.profile_picture)} alt={dog.name} className="w-full h-full object-cover" />;
     }
     return <div className={cls}>{dog.name.charAt(0).toUpperCase()}</div>;
   };

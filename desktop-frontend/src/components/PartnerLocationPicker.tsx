@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { GoogleMap, MarkerF, useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 import { MapPin, Search, X } from 'lucide-react';
+import { toStablePlacePhotoUrl } from '../lib/uploadUrl';
 
 const LIBRARIES: ('places')[] = ['places'];
 
@@ -107,9 +108,10 @@ export const PartnerLocationPicker: React.FC<PartnerLocationPickerProps> = ({
     const city = extractCity(place.address_components || []);
     const phone = extractPhone(place);
 
+    const mapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
     const photoUrls = (place.photos || [])
       .slice(0, 6)
-      .map(p => p.getUrl({ maxWidth: 1200, maxHeight: 900 }));
+      .map(p => toStablePlacePhotoUrl(p.getUrl({ maxWidth: 1200, maxHeight: 900 }), mapsApiKey));
 
     onPick({
       name: place.name || '',

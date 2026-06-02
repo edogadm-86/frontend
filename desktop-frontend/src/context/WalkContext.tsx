@@ -56,6 +56,8 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const gpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wakeLockRef = useRef<{ release(): Promise<void> } | null>(null);
   const lastPositionRef = useRef<GeolocationCoordinates | null>(null);
   const pathRef = useRef<WalkPoint[]>([]);
   const startTimeRef = useRef<number>(0);
@@ -70,6 +72,12 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
+    if (gpsIntervalRef.current) {
+      clearInterval(gpsIntervalRef.current);
+      gpsIntervalRef.current = null;
+    }
+    wakeLockRef.current?.release().catch(() => {});
+    wakeLockRef.current = null;
   }, []);
 
   const stopTimer = useCallback(() => {
@@ -81,6 +89,40 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => () => { stopGps(); stopTimer(); }, [stopGps, stopTimer]);
 
+  const handleGpsPosition = useCallback((pos: GeolocationPosition) => {
+    setGpsStatus('ok');
+    const coords = pos.coords;
+    const point: WalkPoint = { lat: coords.latitude, lng: coords.longitude };
+    const lastStored = pathRef.current[pathRef.current.length - 1];
+    const movedEnough = !lastStored ||
+      haversineMeters(lastStored.lat, lastStored.lng, point.lat, point.lng) >= 5;
+    if (movedEnough) {
+      pathRef.current.push(point);
+      setPathPoints([...pathRef.current]);
+    }
+    if (lastPositionRef.current) {
+      const d = haversineMeters(
+        lastPositionRef.current.latitude, lastPositionRef.current.longitude,
+        coords.latitude, coords.longitude,
+      );
+      if (d > 2 && d < 500) {
+        setDistanceM(prev => {
+          const next = prev + d;
+          distanceMRef.current = next;
+          return next;
+        });
+      }
+      if (coords.speed !== null && coords.speed > 0) {
+        setMaxSpeedKmh(prev => {
+          const next = Math.max(prev, coords.speed! * 3.6);
+          maxSpeedRef.current = next;
+          return next;
+        });
+      }
+    }
+    lastPositionRef.current = coords;
+  }, []);
+
   const startGps = useCallback(() => {
     if (!navigator.geolocation) {
       setGpsError(i18next.t('gpsNotSupported'));
@@ -90,44 +132,31 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setGpsStatus('waiting');
     setGpsError(null);
 
+    // Acquire screen wake lock to prevent browser suspension during walk
+    if ('wakeLock' in navigator) {
+      (navigator as Navigator & { wakeLock: { request(type: string): Promise<{ release(): Promise<void> }> } })
+        .wakeLock.request('screen')
+        .then(lock => { wakeLockRef.current = lock; })
+        .catch(() => {});
+    }
+
+    // maximumAge: 0 forces a fresh GPS fix every callback — never use cached position
     watchIdRef.current = navigator.geolocation.watchPosition(
-      pos => {
-        setGpsStatus('ok');
-        const coords = pos.coords;
-        const point: WalkPoint = { lat: coords.latitude, lng: coords.longitude };
-        const lastStored = pathRef.current[pathRef.current.length - 1];
-        const movedEnough = !lastStored ||
-          haversineMeters(lastStored.lat, lastStored.lng, point.lat, point.lng) >= 5;
-        if (movedEnough) {
-          pathRef.current.push(point);
-          setPathPoints([...pathRef.current]);
-        }
-        if (lastPositionRef.current) {
-          const d = haversineMeters(
-            lastPositionRef.current.latitude, lastPositionRef.current.longitude,
-            coords.latitude, coords.longitude,
-          );
-          if (d > 2 && d < 500) {
-            setDistanceM(prev => {
-              const next = prev + d;
-              distanceMRef.current = next;
-              return next;
-            });
-          }
-          if (coords.speed !== null && coords.speed > 0) {
-            setMaxSpeedKmh(prev => {
-              const next = Math.max(prev, coords.speed! * 3.6);
-              maxSpeedRef.current = next;
-              return next;
-            });
-          }
-        }
-        lastPositionRef.current = coords;
-      },
+      handleGpsPosition,
       err => { setGpsStatus('error'); setGpsError(err.message); },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 },
     );
-  }, []);
+
+    // Interval backup: poll getCurrentPosition every 10s in case watchPosition
+    // stops firing (e.g. screen lock, browser throttling on mobile)
+    gpsIntervalRef.current = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        handleGpsPosition,
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 },
+      );
+    }, 10000);
+  }, [handleGpsPosition]);
 
   const startTimer = useCallback(() => {
     timerRef.current = setInterval(() => {

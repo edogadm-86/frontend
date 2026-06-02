@@ -1,5 +1,6 @@
 import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, AdminStats, AdminUserSummary, AdminDog, AdminReportedPost, AdminFeedbackItem } from '../types';
 import { API_BASE_URL } from '../config';
+import { resolveUploadUrl } from './uploadUrl';
 
 class ApiClient {
   private token: string | null = null;
@@ -120,7 +121,7 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
           breed: d.breed,
           dateOfBirth: d.date_of_birth ? new Date(d.date_of_birth) : undefined,
           weight: d.weight,
-          profilePicture: d.profile_picture,
+          profilePicture: resolveUploadUrl(d.profile_picture),
           microchipId: d.microchip_id,
           passportNumber: d.passport_number,
           sex: d.sex,

@@ -23,9 +23,23 @@ const resendLimiter = rateLimit({
   message: 'Too many resend attempts, please try again in an hour.',
 });
 
+// Brute-force limiter for credential endpoints only.
+// Keyed by email so shared ingress IP doesn't affect other users.
+const credentialLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    const email = req.body?.email?.toLowerCase?.().trim();
+    return email ? `auth:${email}` : (req.ip ?? 'unknown');
+  },
+  message: 'Too many authentication attempts, please try again later.',
+});
+
 // Public routes
-router.post('/register', validateUser, validateRequest, register);
-router.post('/login', [
+router.post('/register', credentialLimiter, validateUser, validateRequest, register);
+router.post('/login', credentialLimiter, [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], validateRequest, login);
@@ -37,7 +51,7 @@ router.post('/resend-verification', resendLimiter, [
 ], validateRequest, resendVerification);
 
 // Password reset routes
-router.post('/forgot-password', [
+router.post('/forgot-password', credentialLimiter, [
   body('email').isEmail().withMessage('Valid email is required')
 ], validateRequest, forgotPassword);
 
