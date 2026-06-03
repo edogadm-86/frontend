@@ -21,7 +21,7 @@ interface Session {
   commands?: string[];
 }
 
-function isWalk(s: Session) { return (s.distance_meters ?? 0) > 0; }
+function isWalk(s: Session) { return (parseFloat(s.distance_meters as any) || 0) > 0; }
 
 function getMonday(d: Date) {
   const day = d.getDay();
@@ -37,7 +37,7 @@ function buildWeeklyData(sessions: Session[]) {
     const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
     const label = `${monday.getDate()}/${monday.getMonth() + 1}`;
     const weekSessions = sessions.filter(s => { const d = new Date(s.date); return d >= monday && d <= sunday && isWalk(s); });
-    weeks.push({ label, distance: weekSessions.reduce((a, s) => a + (s.distance_meters ?? 0), 0) / 1000, count: weekSessions.length, start: monday });
+    weeks.push({ label, distance: weekSessions.reduce((a, s) => a + (parseFloat(s.distance_meters as any) || 0), 0) / 1000, count: weekSessions.length, start: monday });
   }
   return weeks;
 }
@@ -113,9 +113,10 @@ export const ActivityAnalyticsView: React.FC<Props> = ({ currentDog, onNavigate 
 
   const walks = filtered.filter(isWalk);
   const trainings = filtered.filter(s => !isWalk(s));
-  const totalDistKm = walks.reduce((a, s) => a + (s.distance_meters ?? 0), 0) / 1000;
-  const totalCal = walks.reduce((a, s) => a + (s.calories_burned ?? 0), 0);
-  const totalDuration = filtered.reduce((a, s) => a + (s.duration ?? 0), 0);
+  // DB returns DECIMAL/INTEGER columns as strings — parse before arithmetic
+  const totalDistKm = walks.reduce((a, s) => a + (parseFloat(s.distance_meters) || 0), 0) / 1000;
+  const totalCal = walks.reduce((a, s) => a + (parseFloat(s.calories_burned) || 0), 0);
+  const totalDuration = filtered.reduce((a, s) => a + (parseInt(s.duration) || 0), 0);
   const streak = calcStreak(sessions);
   const weeklyData = buildWeeklyData(sessions);
   const bestWeek = [...weeklyData].sort((a, b) => b.distance - a.distance)[0];

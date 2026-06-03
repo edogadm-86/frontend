@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Scissors, Plus, Edit2, Trash2, Calendar, DollarSign, Star, ChevronDown, ChevronUp, Phone } from 'lucide-react';
 import { apiClient } from '../lib/api';
@@ -103,7 +104,7 @@ function GroomingModal({ session, onSave, onClose, serviceLabels, coatLabels }: 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4 pb-24 sm:pb-4">
       <div className="bg-white dark:bg-[#1e2023] rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
           <h2 className="font-semibold text-gray-900 dark:text-[#e2e2e6]">
@@ -269,17 +270,17 @@ export const GroomingTrackerView: React.FC<Props> = ({ currentDog, onNavigate })
 
   return (
     <div className="px-4 py-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-5 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-[#e2e2e6]">{t('grooming')}</h1>
-          <p className="text-sm text-gray-400 dark:text-[#8b919d]">{currentDog.name} — {t('groomingHistory')}</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-[#e2e2e6] truncate">{t('grooming')}</h1>
+          <p className="text-sm text-gray-400 dark:text-[#8b919d] truncate">{currentDog.name}</p>
         </div>
         <button
           onClick={() => { setEditing(null); setModalOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-semibold hover:opacity-90 transition active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-semibold hover:opacity-90 transition active:scale-95 flex-shrink-0"
         >
-          <Plus size={16} />
-          {t('logGroomingSession')}
+          <Plus size={15} className="flex-shrink-0" />
+          {t('add')}
         </button>
       </div>
 
@@ -309,7 +310,7 @@ export const GroomingTrackerView: React.FC<Props> = ({ currentDog, onNavigate })
         <div className="bg-white dark:bg-[#1e2023] rounded-xl border border-gray-100 dark:border-white/5 px-4 py-3 flex items-center gap-3">
           <DollarSign size={16} className="text-[#005da7] dark:text-[#a4c9ff]" />
           <span className="text-sm text-gray-600 dark:text-[#c1c7d3]">{t('totalGroomingSpend')}:</span>
-          <span className="ml-auto font-semibold text-gray-900 dark:text-[#e2e2e6]">{totalCost.toFixed(2)} лв.</span>
+          <span className="ml-auto font-semibold text-gray-900 dark:text-[#e2e2e6]">{totalCost.toFixed(2)} €</span>
         </div>
       )}
 
@@ -360,7 +361,7 @@ export const GroomingTrackerView: React.FC<Props> = ({ currentDog, onNavigate })
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {session.cost != null && (
-                      <span className="text-sm font-semibold text-gray-700 dark:text-[#c1c7d3]">{Number(session.cost).toFixed(2)} лв.</span>
+                      <span className="text-sm font-semibold text-gray-700 dark:text-[#c1c7d3]">{Number(session.cost).toFixed(2)} €</span>
                     )}
                     {isExpanded ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
                   </div>
@@ -399,14 +400,15 @@ export const GroomingTrackerView: React.FC<Props> = ({ currentDog, onNavigate })
         </div>
       )}
 
-      {modalOpen && (
+      {modalOpen && createPortal(
         <GroomingModal
           session={editing}
           onSave={handleSave}
           onClose={() => { setModalOpen(false); setEditing(null); }}
           serviceLabels={serviceLabels}
           coatLabels={coatLabels}
-        />
+        />,
+        document.body
       )}
     </div>
   );

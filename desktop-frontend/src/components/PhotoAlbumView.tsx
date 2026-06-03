@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Camera, Plus, Trash2, X, ChevronLeft, ChevronRight, Upload, Share2 } from 'lucide-react';
 import { apiClient } from '../lib/api';
@@ -116,7 +117,7 @@ function AddPhotoModal({ dogId, onAdded, onClose }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 pb-24 sm:pb-4">
       <div className="bg-white dark:bg-[#1e2023] rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
           <h2 className="font-semibold text-gray-900 dark:text-[#e2e2e6]">{t('addPhoto')}</h2>
@@ -228,7 +229,7 @@ function Lightbox({ photos, startIndex, onClose, onDelete, onShare, milestoneLab
   return (
     // The entire screen is the backdrop — clicking anywhere not intercepted below closes it
     <div
-      className="fixed inset-0 z-50 bg-black/95 flex flex-col"
+      className="fixed inset-0 z-[200] bg-black/95 flex flex-col"
       onClick={onClose}
     >
       {/* Toolbar — NO wrapper stopPropagation; each button handles its own */}
@@ -397,19 +398,19 @@ export const PhotoAlbumView: React.FC<Props> = ({ currentDog, onNavigate }) => {
   return (
     <div className="px-4 py-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-5 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-[#e2e2e6]">{t('photoAlbum')}</h1>
-          <p className="text-sm text-gray-400 dark:text-[#8b919d]">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-[#e2e2e6] truncate">{t('photoAlbum')}</h1>
+          <p className="text-sm text-gray-400 dark:text-[#8b919d] truncate">
             {currentDog.name} — {photos.length} {i18n.language === 'bg' ? 'снимки' : 'photos'}
           </p>
         </div>
         <button
           onClick={() => setAddOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-semibold hover:opacity-90 transition active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-2 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl text-sm font-semibold hover:opacity-90 transition active:scale-95 flex-shrink-0"
         >
-          <Plus size={16} />
-          {t('addPhoto')}
+          <Plus size={15} className="flex-shrink-0" />
+          {t('add')}
         </button>
       </div>
 
@@ -535,11 +536,12 @@ export const PhotoAlbumView: React.FC<Props> = ({ currentDog, onNavigate }) => {
         </div>
       )}
 
-      {addOpen && (
-        <AddPhotoModal dogId={currentDog.id} onAdded={handlePhotoAdded} onClose={() => setAddOpen(false)} />
+      {addOpen && createPortal(
+        <AddPhotoModal dogId={currentDog.id} onAdded={handlePhotoAdded} onClose={() => setAddOpen(false)} />,
+        document.body
       )}
 
-      {lightboxIdx !== null && (
+      {lightboxIdx !== null && createPortal(
         <Lightbox
           photos={filteredPhotos}
           startIndex={lightboxIdx}
@@ -547,7 +549,8 @@ export const PhotoAlbumView: React.FC<Props> = ({ currentDog, onNavigate }) => {
           onDelete={handleDelete}
           onShare={handleShare}
           milestoneLabels={milestoneLabels}
-        />
+        />,
+        document.body
       )}
     </div>
   );
