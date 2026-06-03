@@ -1,9 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import path from 'path';
 
 
@@ -33,8 +35,6 @@ import leaderboardRoutes from './routes/leaderboard';
 import groomingRoutes from './routes/grooming';
 import photoRoutes from './routes/photos';
 
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;

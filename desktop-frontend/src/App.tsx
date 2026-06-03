@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
 import { WalkProvider } from './context/WalkContext';
@@ -234,12 +234,16 @@ const VerifyEmailPage: React.FC = () => {
   const { completeEmailVerification } = useApp();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'pending' | 'success' | 'error'>('pending');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = searchParams.get('token');
     if (!token) { setStatus('error'); return; }
     completeEmailVerification(token)
-      .then(() => setStatus('success'))
+      .then(() => {
+        setStatus('success');
+        navigate('/', { replace: true });
+      })
       .catch(() => setStatus('error'));
   }, []);
 

@@ -41,6 +41,8 @@ spec:
           value: {{ .Values.backend.config.vapid_private_key | quote }}
         - name: VAPID_EMAIL
           value: {{ .Values.backend.config.vapid_email | quote }}
+        - name: FRONTEND_URL
+          value: {{ .Values.backend.config.frontend_url | quote }}
         ports:
         - containerPort: {{ .Values.backend.service.port }}
         volumeMounts:

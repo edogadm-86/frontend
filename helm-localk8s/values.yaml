@@ -36,6 +36,7 @@ backend:
     vapid_public_key: "BGRpi32PGvu-X3lduos35uJNXkCKHR9b6PRQxF1c8owVmJO8Pqdl1-hFetLCarbzOGAANuKEIbrB3KLmGxJwpMg"
     vapid_private_key: "Qn2B15-XBrHKjqqRhbmj0TKGq7m8yrAs0UbENujwVOY"
     vapid_email: "admin@edog.app"
+    frontend_url: "https://edog.bg"
   ingress:
     enabled: true
     host: "edog.bg"
