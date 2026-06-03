@@ -544,6 +544,50 @@ const runMigrations = async () => {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT TRUE;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token VARCHAR(255);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token_expiry TIMESTAMPTZ;
+
+      -- Grooming sessions per dog
+      CREATE TABLE IF NOT EXISTS grooming_sessions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        date DATE NOT NULL,
+        groomer_name VARCHAR(255),
+        groomer_contact VARCHAR(255),
+        services TEXT[] DEFAULT '{}',
+        cost DECIMAL(10,2),
+        coat_condition SMALLINT CHECK (coat_condition BETWEEN 1 AND 5),
+        notes TEXT,
+        next_grooming_date DATE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_grooming_sessions_dog_id ON grooming_sessions(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_grooming_sessions_date ON grooming_sessions(date);
+
+      DROP TRIGGER IF EXISTS update_grooming_sessions_updated_at ON grooming_sessions;
+      CREATE TRIGGER update_grooming_sessions_updated_at
+        BEFORE UPDATE ON grooming_sessions
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+      -- Dog photo album
+      CREATE TABLE IF NOT EXISTS dog_photos (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dog_id UUID NOT NULL REFERENCES dogs(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        photo_url TEXT NOT NULL,
+        caption TEXT,
+        milestone_tag VARCHAR(100),
+        taken_at DATE NOT NULL DEFAULT CURRENT_DATE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_dog_photos_dog_id ON dog_photos(dog_id);
+      CREATE INDEX IF NOT EXISTS idx_dog_photos_taken_at ON dog_photos(taken_at);
+
+      DROP TRIGGER IF EXISTS update_dog_photos_updated_at ON dog_photos;
+      CREATE TRIGGER update_dog_photos_updated_at
+        BEFORE UPDATE ON dog_photos
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `;
 
     await pool.query(migrationSQL);

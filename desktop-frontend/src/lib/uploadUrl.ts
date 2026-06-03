@@ -1,3 +1,5 @@
+import { API_BASE_URL } from '../config';
+
 // Uploaded files may have been saved with an absolute URL from whichever
 // domain was used at upload time. Strip the origin so the path is always
 // relative to the current host, making images work on any domain.
@@ -18,6 +20,31 @@ export function resolveUploadUrl(url: string | null | undefined): string | undef
     // already relative — use as-is
   }
   return url;
+}
+
+// Resolves a media URL so it always points to the actual file, regardless of
+// whether the frontend and backend run on different ports in development.
+//
+// Rule:
+//   • Absolute URL (http/https) → return as-is. The file lives on that server
+//     and is already accessible (uploads route sends Cross-Origin-Resource-Policy:
+//     cross-origin so <img> tags can load it from any origin).
+//   • Relative path ("/api/uploads/file/...") → prepend the backend origin so
+//     the browser requests it from the API server, not the Vite dev server.
+export function resolveMediaUrl(url: string | null | undefined): string {
+  if (!url) return '';
+
+  // Already absolute → use directly, regardless of which host it points to.
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+
+  // Relative path → anchor to the backend origin.
+  // API_BASE_URL e.g. "http://localhost:3001/api" → origin "http://localhost:3001"
+  try {
+    const backendOrigin = new URL(API_BASE_URL).origin;
+    return `${backendOrigin}${url}`;
+  } catch {
+    return url;
+  }
 }
 
 // Google Maps JS SDK saves photos as internal session URLs (js/PhotoService.GetPhoto)

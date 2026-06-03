@@ -32,27 +32,38 @@ const expenses_1 = __importDefault(require("./routes/expenses"));
 const partners_1 = __importDefault(require("./routes/partners"));
 const feedback_1 = __importDefault(require("./routes/feedback"));
 const leaderboard_1 = __importDefault(require("./routes/leaderboard"));
+const grooming_1 = __importDefault(require("./routes/grooming"));
+const photos_1 = __importDefault(require("./routes/photos"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 // Security middleware
 app.use((0, helmet_1.default)());
 app.set('trust proxy', 1);
-// Rate limiting — general
+// Rate limiting — general backstop. High limit because all k8s traffic arrives from
+// the same ingress IP; actual per-user limits are enforced on specific routes below.
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
-    max: 500,
+    max: 5000,
     standardHeaders: true,
     legacyHeaders: false,
-    message: 'Too many requests from this IP, please try again later.',
+    message: 'Too many requests, please try again later.',
 });
 app.use(limiter);
-// Auth rate limit — relaxed because all traffic may arrive from a shared ingress IP
+// Auth rate limiter — keys by email so each account has its own bucket.
+// Prevents brute-force regardless of shared ingress IP.
+// Falls back to IP for routes without an email in the body.
 const authLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
-    max: 200,
+    max: 20,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: (req) => {
+        const email = req.body?.email?.toLowerCase?.().trim();
+        if (email)
+            return `auth:${email}`;
+        return req.ip ?? 'unknown';
+    },
     message: 'Too many authentication attempts, please try again later.',
 });
 // CORS configuration
@@ -83,8 +94,6 @@ app.use((0, cors_1.default)(corsOptions));
 app.options('*', (0, cors_1.default)(corsOptions));
 // Serve static files from uploads directory
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
-// Serve static files from uploads directory
-app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 // Body parsing middleware
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
@@ -108,7 +117,7 @@ app.use((req, res, next) => {
     next();
 });
 // API routes
-app.use('/api/auth', authLimiter, auth_1.default);
+app.use('/api/auth', auth_1.default);
 app.use('/api/dogs', dogs_1.default);
 app.use('/api/vaccinations', vaccinations_1.default);
 app.use('/api/health', health_1.default);
@@ -126,6 +135,8 @@ app.use('/api/expenses', expenses_1.default);
 app.use('/api/partners', partners_1.default);
 app.use('/api/feedback', feedback_1.default);
 app.use('/api/leaderboard', leaderboard_1.default);
+app.use('/api/grooming', grooming_1.default);
+app.use('/api/photos', photos_1.default);
 // Email reminder endpoints (for testing)
 app.post('/api/test/appointment-reminders', emailService_1.triggerAppointmentReminders);
 app.post('/api/test/vaccination-reminders', emailService_1.triggerVaccinationReminders);

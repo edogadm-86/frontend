@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Heart, MessageCircle, Share2, Calendar, MapPin, Users,
@@ -11,7 +12,7 @@ import { Modal } from './ui/Modal';
 import { apiClient } from '../lib/api';
 import { useApp } from '../context/AppContext';
 import type { Post, Comment, CommunityEvent, WalkLeaderboardResponse } from '../types';
-import { resolveUploadUrl } from '../lib/uploadUrl';
+import { resolveMediaUrl } from '../lib/uploadUrl';
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -76,6 +77,42 @@ function formatEventDate(dateStr: string, lang = 'en') {
 }
 
 const initials = (name?: string) => (name ?? '?').split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+
+// ── LightboxOverlay (portal) ──────────────────────────────────────────────────
+// Rendered at document.body via createPortal so no ancestor CSS transform
+// or stacking context can trap the fixed positioning.
+
+const LightboxOverlay: React.FC<{ src: string; onClose: () => void }> = ({ src, onClose }) => {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/90 flex items-center justify-center p-4"
+      style={{ zIndex: 99999 }}
+      onClick={onClose}
+    >
+      {/* Close button — positioned below Dynamic Island using safe-area-inset-top */}
+      <button
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)', right: '16px' }}
+        className="absolute w-11 h-11 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-full flex items-center justify-center text-white transition-colors"
+        onClick={e => { e.stopPropagation(); onClose(); }}
+        aria-label="Close"
+      >
+        <X size={20} />
+      </button>
+      <img
+        src={src}
+        alt=""
+        className="max-w-[92vw] max-h-[88vh] object-contain rounded-lg shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      />
+    </div>
+  );
+};
 
 // ── PostCard ──────────────────────────────────────────────────────────────────
 
@@ -353,7 +390,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onReact, onDel
               className="w-full block relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-[#282a2d]"
             >
               <img
-                src={resolveUploadUrl(post.image_url)}
+                src={resolveMediaUrl(post.image_url)}
                 alt=""
                 className="w-full object-contain max-h-96"
               />
@@ -615,25 +652,14 @@ const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onReact, onDel
         )}
       </Modal>
 
-      {/* Image lightbox */}
-      {lightboxOpen && post.image_url && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightboxOpen(false)}
-        >
-          <button
-            className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
-            onClick={() => setLightboxOpen(false)}
-          >
-            <X size={18} />
-          </button>
-          <img
-            src={post.image_url}
-            alt=""
-            className="max-w-[92vw] max-h-[92vh] object-contain rounded-lg shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          />
-        </div>
+      {/* Image lightbox — rendered in a Portal at document.body so CSS
+          transforms/stacking-contexts on ancestor elements cannot trap it */}
+      {lightboxOpen && post.image_url && createPortal(
+        <LightboxOverlay
+          src={resolveMediaUrl(post.image_url)}
+          onClose={() => setLightboxOpen(false)}
+        />,
+        document.body
       )}
     </>
   );
@@ -1899,7 +1925,7 @@ export const CommunityView: React.FC<CommunityViewProps> = () => {
                         }
                       </div>
                       {entry.profile_picture ? (
-                        <img src={entry.profile_picture} alt={entry.dog_name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                        <img src={resolveMediaUrl(entry.profile_picture)} alt={entry.dog_name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                       ) : (
                         <div className="w-9 h-9 rounded-full bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 flex items-center justify-center flex-shrink-0">
                           <span className="text-sm font-bold text-[#005da7] dark:text-[#a4c9ff]">{entry.dog_name[0]}</span>

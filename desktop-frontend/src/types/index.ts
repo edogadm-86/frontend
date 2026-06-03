@@ -261,6 +261,38 @@ export interface ExpenseStats {
   weeklyData: { dow: number; total: number }[];
 }
 
+export type GroomingService = 'bath' | 'haircut' | 'nail_trim' | 'ear_cleaning' | 'teeth_brushing' | 'deshedding' | 'other';
+
+export interface GroomingSession {
+  id: string;
+  dog_id: string;
+  user_id: string;
+  date: string;
+  groomer_name?: string;
+  groomer_contact?: string;
+  services: GroomingService[];
+  cost?: number;
+  coat_condition?: number;
+  notes?: string;
+  next_grooming_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PhotoMilestone = 'first_day' | 'birthday' | 'first_walk' | 'first_bath' | 'first_vet' | 'first_training' | 'holiday' | 'achievement' | 'other';
+
+export interface DogPhoto {
+  id: string;
+  dog_id: string;
+  user_id: string;
+  photo_url: string;
+  caption?: string;
+  milestone_tag?: PhotoMilestone;
+  taken_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CommunityEvent {
   id: string;
   user_id: string;

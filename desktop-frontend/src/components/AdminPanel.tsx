@@ -11,7 +11,7 @@ import {
 import { apiClient } from '../lib/api';
 import { AdminStats, AdminUserSummary, AdminDog, AdminReportedPost, AdminFeedbackItem } from '../types';
 import { PartnerLocationPicker, type PickedLocation } from './PartnerLocationPicker';
-import { resolveUploadUrl } from '../lib/uploadUrl';
+import { resolveMediaUrl } from '../lib/uploadUrl';
 
 type Tab = 'overview' | 'users' | 'dogs' | 'reports' | 'email' | 'partners' | 'feedback';
 
@@ -1197,7 +1197,7 @@ export const AdminPanel: React.FC = () => {
                           onClick={() => openLightbox(item.image_url!, item.title)}
                           className="mb-2 rounded-lg overflow-hidden border border-gray-100 dark:border-white/10 inline-block"
                         >
-                          <img src={resolveUploadUrl(item.image_url)} alt="Attachment" className="h-24 object-cover" />
+                          <img src={resolveMediaUrl(item.image_url)} alt="Attachment" className="h-24 object-cover" />
                         </button>
                       )}
                       <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-[#414751]">
@@ -1470,7 +1470,7 @@ const PartnersTab: React.FC<{ inputCls: string }> = ({ inputCls }) => {
                         }}
                       >
                         <img
-                          src={resolveUploadUrl(url)}
+                          src={resolveMediaUrl(url)}
                           alt={`Photo ${i + 1}`}
                           className={`h-20 w-32 object-cover rounded-lg border-2 transition-all ${
                             i === 0
@@ -1584,7 +1584,7 @@ const PartnersTab: React.FC<{ inputCls: string }> = ({ inputCls }) => {
               <div className="flex items-center gap-3 p-4">
                 <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-[#282a2d] flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {partner.logo_url
-                    ? <img src={resolveUploadUrl(partner.logo_url)} alt={partner.name} className="w-full h-full object-contain" />
+                    ? <img src={resolveMediaUrl(partner.logo_url)} alt={partner.name} className="w-full h-full object-contain" />
                     : <span className="material-symbols-outlined text-gray-400 dark:text-[#8b919d] text-[20px]">{partner.category_icon || 'store'}</span>
                   }
                 </div>

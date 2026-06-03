@@ -24,9 +24,22 @@ const resendLimiter = (0, express_rate_limit_1.default)({
     legacyHeaders: false,
     message: 'Too many resend attempts, please try again in an hour.',
 });
+// Brute-force limiter for credential endpoints only.
+// Keyed by email so shared ingress IP doesn't affect other users.
+const credentialLimiter = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        const email = req.body?.email?.toLowerCase?.().trim();
+        return email ? `auth:${email}` : (req.ip ?? 'unknown');
+    },
+    message: 'Too many authentication attempts, please try again later.',
+});
 // Public routes
-router.post('/register', validation_1.validateUser, validation_1.validateRequest, authController_1.register);
-router.post('/login', [
+router.post('/register', credentialLimiter, validation_1.validateUser, validation_1.validateRequest, authController_1.register);
+router.post('/login', credentialLimiter, [
     (0, express_validator_1.body)('email').isEmail().withMessage('Valid email is required'),
     (0, express_validator_1.body)('password').notEmpty().withMessage('Password is required')
 ], validation_1.validateRequest, authController_1.login);
@@ -36,7 +49,7 @@ router.post('/resend-verification', resendLimiter, [
     (0, express_validator_1.body)('email').isEmail().withMessage('Valid email is required')
 ], validation_1.validateRequest, authController_1.resendVerification);
 // Password reset routes
-router.post('/forgot-password', [
+router.post('/forgot-password', credentialLimiter, [
     (0, express_validator_1.body)('email').isEmail().withMessage('Valid email is required')
 ], validation_1.validateRequest, authController_1.forgotPassword);
 router.post('/reset-password', [

@@ -73,7 +73,7 @@ router.post('/upload', auth_1.authenticateToken, upload.single('file'), async (r
         res.json({
             message: 'File uploaded successfully',
             document: result.rows[0],
-            fileUrl: `${req.protocol}://${req.get('host')}/api/uploads/file/${req.file.filename}`
+            fileUrl: `/api/uploads/file/${req.file.filename}`
         });
     }
     catch (error) {
@@ -88,7 +88,7 @@ router.post('/image', auth_1.authenticateToken, upload.single('file'), async (re
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
-        const fileUrl = `${req.protocol}://${req.get('host')}/api/uploads/file/${req.file.filename}`;
+        const fileUrl = `/api/uploads/file/${req.file.filename}`;
         res.json({ fileUrl });
     }
     catch (error) {
@@ -98,41 +98,21 @@ router.post('/image', auth_1.authenticateToken, upload.single('file'), async (re
 });
 const ALLOWED_FILE_ORIGINS = ['https://edog.bg', 'https://edog.dogpass.net'];
 // Serve uploaded files
-router.get('/file/:filename', auth_1.optionalAuth, async (req, res) => {
-    try {
-        const filename = path_1.default.basename(req.params.filename); // prevent path traversal
-        const filePath = path_1.default.join(uploadsDir, filename);
-        if (!fs_1.default.existsSync(filePath)) {
-            return res.status(404).json({ error: 'File not found' });
-        }
-        // Check if this is a private document with ownership
-        const docResult = await database_1.default.query(`SELECT d.uploaded_by, dog.user_id
-       FROM documents d
-       LEFT JOIN dogs dog ON d.dog_id = dog.id
-       WHERE d.filename = $1`, [filename]);
-        if (docResult.rows.length > 0) {
-            if (!req.user) {
-                return res.status(401).json({ error: 'Authentication required' });
-            }
-            const doc = docResult.rows[0];
-            if (doc.uploaded_by !== req.user.id && doc.user_id !== req.user.id) {
-                return res.status(403).json({ error: 'Access denied' });
-            }
-        }
-        // Files not in the documents table are post/event images — publicly accessible
-        const requestOrigin = req.headers.origin;
-        if (requestOrigin && ALLOWED_FILE_ORIGINS.includes(requestOrigin)) {
-            res.setHeader('Access-Control-Allow-Origin', requestOrigin);
-            res.setHeader('Vary', 'Origin');
-        }
-        res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
-        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
-        res.sendFile(filePath);
+// Files are named with UUIDs (unguessable). Document *listing* is auth-gated at /dog/:dogId.
+router.get('/file/:filename', (req, res) => {
+    const filename = path_1.default.basename(req.params.filename); // prevent path traversal
+    const filePath = path_1.default.join(uploadsDir, filename);
+    if (!fs_1.default.existsSync(filePath)) {
+        return res.status(404).json({ error: 'File not found' });
     }
-    catch (error) {
-        console.error('File serve error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+    const requestOrigin = req.headers.origin;
+    if (requestOrigin && ALLOWED_FILE_ORIGINS.includes(requestOrigin)) {
+        res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+        res.setHeader('Vary', 'Origin');
     }
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+    res.sendFile(filePath);
 });
 // Get documents for a dog
 router.get('/dog/:dogId', auth_1.authenticateToken, async (req, res) => {

@@ -26,14 +26,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [isHovered, setIsHovered] = React.useState(false);
 
   const mainNavItems = [
-    { id: 'dashboard', icon: 'dashboard', label: t('dashboard') },
-    { id: 'health', icon: 'monitor_heart', label: t('health') },
-    { id: 'passport', icon: 'badge', label: t('petPassport') },
-    { id: 'calendar', icon: 'calendar_month', label: t('calendar1') },
-    { id: 'training', icon: 'fitness_center', label: t('training') },
-    { id: 'community', icon: 'groups', label: t('community') },
-    { id: 'services', icon: 'store', label: t('services') },
-    { id: 'expenses', icon: 'receipt_long', label: t('expenses') },
+    { id: 'dashboard',  icon: 'dashboard',      label: t('dashboard') },
+    { id: 'health',     icon: 'monitor_heart',   label: t('health') },
+    { id: 'breed',      icon: 'pets',            label: t('breedIntelligence') },
+    { id: 'passport',   icon: 'badge',           label: t('petPassport') },
+    { id: 'calendar',   icon: 'calendar_month',  label: t('calendar1') },
+    { id: 'training',   icon: 'fitness_center',  label: t('training') },
+    { id: 'activity',   icon: 'bar_chart',       label: t('activityAnalytics') },
+    { id: 'grooming',   icon: 'content_cut',     label: t('grooming') },
+    { id: 'photos',     icon: 'photo_library',   label: t('photoAlbum') },
+    { id: 'community',  icon: 'groups',          label: t('community') },
+    { id: 'services',   icon: 'store',           label: t('services') },
+    { id: 'expenses',   icon: 'receipt_long',    label: t('expenses') },
   ];
 
   const bottomNavItems = [

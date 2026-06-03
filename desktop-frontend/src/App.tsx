@@ -20,6 +20,10 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { AdminApp } from './components/AdminApp';
 import { ExpensesView } from './components/ExpensesView';
 import { ServicesView } from './components/ServicesView';
+import { GroomingTrackerView } from './components/GroomingTrackerView';
+import { PhotoAlbumView } from './components/PhotoAlbumView';
+import { ActivityAnalyticsView } from './components/ActivityAnalyticsView';
+import { BreedIntelligenceView } from './components/BreedIntelligenceView';
 import { WalkCompetitionOptIn } from './components/WalkCompetitionOptIn';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 import { apiClient } from './lib/api';
@@ -133,6 +137,14 @@ const AppContent: React.FC = () => {
         );
       case 'services':
         return <ServicesView />;
+      case 'grooming':
+        return <GroomingTrackerView currentDog={currentDog} onNavigate={setCurrentView} />;
+      case 'photos':
+        return <PhotoAlbumView currentDog={currentDog} onNavigate={setCurrentView} />;
+      case 'activity':
+        return <ActivityAnalyticsView currentDog={currentDog} onNavigate={setCurrentView} />;
+      case 'breed':
+        return <BreedIntelligenceView currentDog={currentDog} onNavigate={setCurrentView} />;
       case 'settings':
         return (
           <SettingsView

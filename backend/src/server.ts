@@ -30,6 +30,8 @@ import expenseRoutes from './routes/expenses';
 import partnerRoutes from './routes/partners';
 import feedbackRoutes from './routes/feedback';
 import leaderboardRoutes from './routes/leaderboard';
+import groomingRoutes from './routes/grooming';
+import photoRoutes from './routes/photos';
 
 
 dotenv.config();
@@ -154,6 +156,8 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/grooming', groomingRoutes);
+app.use('/api/photos', photoRoutes);
 
 // Email reminder endpoints (for testing)
 app.post('/api/test/appointment-reminders', triggerAppointmentReminders);

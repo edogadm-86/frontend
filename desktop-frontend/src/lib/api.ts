@@ -1,6 +1,6 @@
-import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, AdminStats, AdminUserSummary, AdminDog, AdminReportedPost, AdminFeedbackItem } from '../types';
+import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact, AdminStats, AdminUserSummary, AdminDog, AdminReportedPost, AdminFeedbackItem, GroomingSession, DogPhoto } from '../types';
 import { API_BASE_URL } from '../config';
-import { resolveUploadUrl } from './uploadUrl';
+import { resolveMediaUrl } from './uploadUrl';
 
 class ApiClient {
   private token: string | null = null;
@@ -121,7 +121,7 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
           breed: d.breed,
           dateOfBirth: d.date_of_birth ? new Date(d.date_of_birth) : undefined,
           weight: d.weight,
-          profilePicture: resolveUploadUrl(d.profile_picture),
+          profilePicture: resolveMediaUrl(d.profile_picture),
           microchipId: d.microchip_id,
           passportNumber: d.passport_number,
           sex: d.sex,
@@ -815,6 +815,46 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
   // Walk leaderboard
   async getWalkLeaderboard() {
     return this.request<import('../types').WalkLeaderboardResponse>('/leaderboard/walks');
+  }
+
+  // Grooming endpoints
+  async getGroomingSessions(dogId: string) {
+    return this.request<{ groomingSessions: GroomingSession[] }>(`/grooming/dog/${dogId}`);
+  }
+  async createGroomingSession(dogId: string, data: Partial<GroomingSession>) {
+    return this.request<{ groomingSession: GroomingSession }>(`/grooming/dog/${dogId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+  async updateGroomingSession(dogId: string, sessionId: string, data: Partial<GroomingSession>) {
+    return this.request<{ groomingSession: GroomingSession }>(`/grooming/dog/${dogId}/${sessionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteGroomingSession(dogId: string, sessionId: string) {
+    return this.request(`/grooming/dog/${dogId}/${sessionId}`, { method: 'DELETE' });
+  }
+
+  // Dog photo endpoints
+  async getDogPhotos(dogId: string) {
+    return this.request<{ photos: DogPhoto[] }>(`/photos/dog/${dogId}`);
+  }
+  async createDogPhoto(dogId: string, data: { photo_url: string; caption?: string; milestone_tag?: string; taken_at: string }) {
+    return this.request<{ photo: DogPhoto }>(`/photos/dog/${dogId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+  async updateDogPhoto(dogId: string, photoId: string, data: { caption?: string; milestone_tag?: string; taken_at: string }) {
+    return this.request<{ photo: DogPhoto }>(`/photos/dog/${dogId}/${photoId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteDogPhoto(dogId: string, photoId: string) {
+    return this.request(`/photos/dog/${dogId}/${photoId}`, { method: 'DELETE' });
   }
 
   async updateWalkCompetitionOptIn(opted_in: boolean) {

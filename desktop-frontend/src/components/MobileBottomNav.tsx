@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Home, Heart, Wallet, Users, MoreHorizontal, Award, Calendar, Settings, X, ShieldCheck, Store } from 'lucide-react';
+import { Home, Heart, Wallet, Users, MoreHorizontal, Award, Calendar, Settings, X, ShieldCheck, Store, Scissors, Camera, BarChart2, BookOpen } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface MobileBottomNavProps {
@@ -30,6 +30,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'services',  icon: Store,    label: t('services') },
     { id: 'training',  icon: Award,    label: t('training') },
     { id: 'calendar',  icon: Calendar, label: t('calendar1') },
+    { id: 'grooming',  icon: Scissors, label: t('grooming') },
+    { id: 'photos',    icon: Camera,   label: t('photoAlbum') },
+    { id: 'activity',  icon: BarChart2,label: t('activityAnalytics') },
+    { id: 'breed',     icon: BookOpen, label: t('breedIntelligence') },
     { id: 'settings',  icon: Settings, label: t('settings') },
   ];
 

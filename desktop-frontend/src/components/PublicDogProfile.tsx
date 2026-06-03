@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { User } from 'lucide-react';
 import { API_BASE_URL } from '../config';
-import { resolveUploadUrl } from '../lib/uploadUrl';
+import { resolveMediaUrl } from '../lib/uploadUrl';
 import { useTranslation } from 'react-i18next';
 
 interface Dog {
@@ -29,11 +29,16 @@ export const PublicDogProfile: React.FC = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
+    if (!id) { setLoading(false); return; }
     fetch(`${API_BASE_URL}/public/dog/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setDog(data.dog);
-        setOwner(data.owner);
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+        setDog(data.dog ?? null);
+        setOwner(data.owner ?? null);
+      })
+      .catch((err) => {
+        console.error('[PublicDogProfile] fetch failed:', err);
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -73,7 +78,7 @@ export const PublicDogProfile: React.FC = () => {
       ? 'w-full h-full bg-gradient-to-br from-[#005da7] to-[#0090e7] flex items-center justify-center text-white text-xs font-bold'
       : 'w-full h-full bg-gradient-to-br from-[#005da7] to-[#0090e7] flex items-center justify-center text-white text-7xl font-extrabold';
     if (dog.profile_picture) {
-      return <img src={resolveUploadUrl(dog.profile_picture)} alt={dog.name} className="w-full h-full object-cover" />;
+      return <img src={resolveMediaUrl(dog.profile_picture)} alt={dog.name} className="w-full h-full object-cover" />;
     }
     return <div className={cls}>{dog.name.charAt(0).toUpperCase()}</div>;
   };
