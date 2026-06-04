@@ -26,6 +26,7 @@ interface WalkContextType {
   gpsError: string | null;
   saving: boolean;
   saved: boolean;
+  screenOffWarning: boolean;
   handleStart: () => void;
   handlePause: () => void;
   handleResume: () => void;
@@ -53,6 +54,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [gpsStatus, setGpsStatus] = useState<'waiting' | 'ok' | 'error'>('waiting');
   const [pathPoints, setPathPoints] = useState<WalkPoint[]>([]);
+  const [screenOffWarning, setScreenOffWarning] = useState(false);
 
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -78,6 +80,15 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
     wakeLockRef.current?.release().catch(() => {});
     wakeLockRef.current = null;
+  }, []);
+
+  const acquireWakeLock = useCallback(() => {
+    if ('wakeLock' in navigator) {
+      (navigator as Navigator & { wakeLock: { request(type: string): Promise<{ release(): Promise<void> }> } })
+        .wakeLock.request('screen')
+        .then(lock => { wakeLockRef.current = lock; })
+        .catch(() => {});
+    }
   }, []);
 
   const stopTimer = useCallback(() => {
@@ -132,13 +143,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setGpsStatus('waiting');
     setGpsError(null);
 
-    // Acquire screen wake lock to prevent browser suspension during walk
-    if ('wakeLock' in navigator) {
-      (navigator as Navigator & { wakeLock: { request(type: string): Promise<{ release(): Promise<void> }> } })
-        .wakeLock.request('screen')
-        .then(lock => { wakeLockRef.current = lock; })
-        .catch(() => {});
-    }
+    acquireWakeLock();
 
     // maximumAge: 0 forces a fresh GPS fix every callback — never use cached position
     watchIdRef.current = navigator.geolocation.watchPosition(
@@ -156,7 +161,29 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 },
       );
     }, 10000);
-  }, [handleGpsPosition]);
+  }, [handleGpsPosition, acquireWakeLock]);
+
+  // When the screen turns off or the user switches apps, the browser suspends
+  // watchPosition and setInterval. When the page becomes visible again we
+  // re-acquire the wake lock and fire an immediate GPS request so the path at
+  // least has a correct end-point rather than appearing stationary.
+  useEffect(() => {
+    if (phase !== 'walking') return;
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        setScreenOffWarning(true);
+      } else {
+        acquireWakeLock();
+        navigator.geolocation?.getCurrentPosition(
+          handleGpsPosition,
+          () => {},
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 },
+        );
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [phase, acquireWakeLock, handleGpsPosition]);
 
   const startTimer = useCallback(() => {
     timerRef.current = setInterval(() => {
@@ -168,7 +195,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const handleStart = useCallback(() => {
     setDistanceM(0); setElapsed(0); setMaxSpeedKmh(0); setSaved(false); setCaloriesBurned(0);
-    setPathPoints([]); pathRef.current = [];
+    setPathPoints([]); pathRef.current = []; setScreenOffWarning(false);
     lastPositionRef.current = null;
     pausedElapsedRef.current = 0; elapsedRef.current = 0; distanceMRef.current = 0; maxSpeedRef.current = 0;
     startTimeRef.current = Date.now();
@@ -239,7 +266,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <WalkContext.Provider value={{
       phase, elapsed, distanceM, caloriesBurned, maxSpeedKmh, pathPoints,
-      gpsStatus, gpsError, saving, saved,
+      gpsStatus, gpsError, saving, saved, screenOffWarning,
       handleStart, handlePause, handleResume, handleStop, handleReset, handleSave,
     }}>
       {children}

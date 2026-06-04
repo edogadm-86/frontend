@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Square, Pause, RotateCcw, MapPin, Clock, Zap, Save, Navigation, Trophy } from 'lucide-react';
+import { Play, Square, Pause, RotateCcw, MapPin, Clock, Zap, Save, Navigation, Trophy, Sun } from 'lucide-react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Dog } from '../types';
@@ -39,11 +39,12 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
   const { t } = useTranslation();
   const {
     phase, elapsed, distanceM, caloriesBurned, maxSpeedKmh, pathPoints,
-    gpsStatus, gpsError, saving, saved,
+    gpsStatus, gpsError, saving, saved, screenOffWarning,
     handleStart, handlePause, handleResume, handleStop, handleReset, handleSave,
   } = useWalk();
   const { user, setUserOptIn } = useApp();
   const [optInSaving, setOptInSaving] = useState(false);
+  const [showStartModal, setShowStartModal] = useState(false);
   // Track whether a walk has ever started in this session so MapContainer
   // stays permanently mounted (never remounts between walks — prevents
   // Leaflet losing state and showing straight lines on 2nd+ walks).
@@ -181,11 +182,19 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
           </div>
         )}
 
+        {/* Screen-off warning — shown if the page was hidden during a walk */}
+        {screenOffWarning && phase === 'walking' && (
+          <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl px-3 py-2">
+            <Navigation size={13} className="text-amber-500 flex-shrink-0" />
+            <p className="text-xs text-amber-700 dark:text-amber-400">{t('screenOffWarning')}</p>
+          </div>
+        )}
+
         {/* Controls */}
         {phase === 'idle' && (
           <div className="space-y-2">
             <button
-              onClick={handleStart}
+              onClick={() => currentDog && setShowStartModal(true)}
               disabled={!currentDog}
               className="w-full py-3 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
             >
@@ -267,6 +276,37 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
           <p className="text-xs text-center text-gray-400 dark:text-[#8b919d]">{t('selectDogToTrack')}</p>
         )}
       </div>
+
+      {/* Start walk info modal */}
+      {showStartModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#1e2023] rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 flex items-center justify-center">
+              <Sun size={28} className="text-[#005da7] dark:text-[#a4c9ff]" />
+            </div>
+            <div className="text-center space-y-1.5">
+              <h3 className="text-base font-bold text-gray-900 dark:text-[#e2e2e6]">{t('screenStaysOnTitle')}</h3>
+              <p className="text-sm text-gray-500 dark:text-[#8b919d] leading-relaxed">{t('screenStaysOnBody')}</p>
+              <p className="text-xs text-gray-400 dark:text-[#6b7280]">{t('screenStaysOnWarning')}</p>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+              <button
+                onClick={() => { setShowStartModal(false); handleStart(); }}
+                className="w-full py-3 bg-[#005da7] dark:bg-[#a4c9ff] text-white dark:text-[#00315d] rounded-xl font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2"
+              >
+                <Play size={15} fill="currentColor" />
+                {t('gotItStartWalk')}
+              </button>
+              <button
+                onClick={() => setShowStartModal(false)}
+                className="w-full py-2.5 text-sm font-semibold text-gray-500 dark:text-[#8b919d] hover:text-gray-700 dark:hover:text-[#e2e2e6] transition-colors"
+              >
+                {t('cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

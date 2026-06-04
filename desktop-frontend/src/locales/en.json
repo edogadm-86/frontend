@@ -899,6 +899,11 @@
   "walkCommand": "walk",
   "gpsNotSupported": "GPS is not supported by your browser.",
   "selectDogToTrack": "Select a dog to start tracking.",
+  "screenStaysOnTitle": "Screen stays on during the walk",
+  "screenStaysOnBody": "To track your route accurately, the app keeps your screen on while you walk. You can lower your brightness to save battery.",
+  "screenStaysOnWarning": "Do not press the power button — that stops GPS tracking.",
+  "gotItStartWalk": "Got it — Start Walk",
+  "screenOffWarning": "Screen was off — GPS tracking paused. Keep your screen on for accurate tracking.",
   "pause": "Pause",
   "resume": "Resume",
 
