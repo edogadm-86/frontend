@@ -62,6 +62,16 @@ const COPY = {
       { q: 'Какво става с данните ми?', a: 'Данните ти се пазят защитено и не се споделят с трети страни. Само публичният QR профил на кучето е видим за други — и то само ако го споделиш.' },
       { q: 'Мога ли да ползвам eDog за пътуване в чужбина?', a: 'Да — дигиталният паспорт събира ваксините и микрочипа на едно място и може да се изтегли като PDF.' },
     ],
+    guidesTitle: 'Полезно за стопани',
+    guidesSubtitle: 'Кратки и ясни статии и наръчник за породите — безплатно, на български.',
+    guidesBreedsTitle: 'Наръчник за 38 породи',
+    guidesBreedsText: 'Характер, тегло, здраве и грижа',
+    guidesAll: 'Всички статии →',
+    guides: [
+      { href: '/statii/vaksinacii-na-kuche-kalendar/', img: '/img/statii/vaksinacii-na-kuche-kalendar-sm.jpg', title: 'Ваксинационен календар', text: 'Кога и кои ваксини' },
+      { href: '/statii/obezparazityavane-na-kuche/', img: '/img/statii/obezparazityavane-na-kuche-sm.jpg', title: 'Обезпаразитяване', text: 'Колко често и с какво' },
+      { href: '/statii/patuvane-s-kuche-v-chuzhbina/', img: '/img/statii/patuvane-s-kuche-v-chuzhbina-sm.jpg', title: 'Пътуване в чужбина', text: 'Документи и изисквания' },
+    ],
     finalTitle: 'Започни да се грижиш по-лесно още днес',
     finalText: 'Безплатно е и отнема по-малко от минута.',
     privacy: 'Поверителност',
@@ -121,6 +131,16 @@ const COPY = {
       { q: 'What happens to my data?', a: "Your data is stored securely and never shared with third parties. Only your dog's public QR profile is visible to others — and only if you share it." },
       { q: 'Can I use eDog when travelling abroad?', a: 'Yes — the digital passport keeps vaccines and microchip in one place and can be downloaded as a PDF.' },
     ],
+    guidesTitle: 'Guides for dog owners',
+    guidesSubtitle: 'Short, practical articles and a breed guide (in Bulgarian).',
+    guidesBreedsTitle: 'Guide to 38 breeds',
+    guidesBreedsText: 'Temperament, weight, health and care',
+    guidesAll: 'All articles →',
+    guides: [
+      { href: '/statii/vaksinacii-na-kuche-kalendar/', img: '/img/statii/vaksinacii-na-kuche-kalendar-sm.jpg', title: 'Vaccination schedule', text: 'Which vaccines and when' },
+      { href: '/statii/obezparazityavane-na-kuche/', img: '/img/statii/obezparazityavane-na-kuche-sm.jpg', title: 'Deworming', text: 'How often and with what' },
+      { href: '/statii/patuvane-s-kuche-v-chuzhbina/', img: '/img/statii/patuvane-s-kuche-v-chuzhbina-sm.jpg', title: 'Travelling abroad', text: 'Documents and rules' },
+    ],
     finalTitle: 'Start caring the easy way today',
     finalText: 'It is free and takes less than a minute.',
     privacy: 'Privacy',
@@ -158,6 +178,8 @@ export const Landing: React.FC<LandingProps> = ({ onLogin, onRegister }) => {
             <span className="text-xl font-bold text-[#005da7] dark:text-[#a4c9ff]">eDog</span>
           </a>
           <div className="flex items-center gap-1 sm:gap-2">
+            <a href="/porodi/" className="hidden sm:inline-block px-3 py-2 text-sm font-semibold rounded-lg text-[#414751] dark:text-[#c1c7d3] hover:bg-[#f0eeed] dark:hover:bg-[#1e2023]">{c.breedsLink}</a>
+            <a href="/statii/" className="hidden sm:inline-block px-3 py-2 text-sm font-semibold rounded-lg text-[#414751] dark:text-[#c1c7d3] hover:bg-[#f0eeed] dark:hover:bg-[#1e2023]">{c.articlesLink}</a>
             <button
               type="button"
               onClick={() => i18n.changeLanguage(lang === 'bg' ? 'en' : 'bg')}
@@ -358,6 +380,38 @@ export const Landing: React.FC<LandingProps> = ({ onLogin, onRegister }) => {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        {/* ── Guides (links to the static SEO pages) ─────────── */}
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 md:pt-24">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">{c.guidesTitle}</h2>
+              <p className="text-lg text-[#414751] dark:text-[#c1c7d3]">{c.guidesSubtitle}</p>
+            </div>
+            <a href="/statii/" className="text-sm font-bold text-[#005da7] dark:text-[#a4c9ff] hover:underline shrink-0">{c.guidesAll}</a>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="/porodi/" className="group col-span-2 lg:col-span-1 rounded-2xl overflow-hidden relative min-h-[180px] bg-[#0b2340] text-white flex items-end">
+              <img src="/img/hero/porodi-sm.jpg" alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-[#001c39]/30 to-transparent" />
+              <div className="relative p-4">
+                <p className="font-bold text-lg leading-tight">🐾 {c.guidesBreedsTitle}</p>
+                <p className="text-sm text-white/80">{c.guidesBreedsText}</p>
+              </div>
+            </a>
+            {c.guides.map(g => (
+              <a key={g.href} href={g.href} className="group rounded-2xl overflow-hidden bg-white dark:bg-[#1a1c1f] border border-[#e4e2e1]/70 dark:border-[#2a2d31] hover:-translate-y-0.5 hover:shadow-lg transition-all">
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img src={g.img} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                </div>
+                <div className="p-4">
+                  <p className="font-bold leading-tight">{g.title}</p>
+                  <p className="text-sm text-[#717783] dark:text-[#8b919d]">{g.text}</p>
+                </div>
+              </a>
+            ))}
           </div>
         </section>
 
