@@ -2,10 +2,12 @@ import react from "@vitejs/plugin-react";
 import tailwind from "tailwindcss";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { seoPagesPlugin } from "./seo/plugin";
 
 export default defineConfig({
   plugins: [
     react(),
+    seoPagesPlugin(),
     VitePWA({
       strategies: "injectManifest",
       srcDir: "src",

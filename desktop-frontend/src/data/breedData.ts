@@ -1160,6 +1160,8 @@ const breeds: BreedInfo[] = [
   },
 ];
 
+export const ALL_BREEDS: readonly BreedInfo[] = breeds;
+
 export function findBreed(breedName: string): BreedInfo | null {
   if (!breedName) return null;
   const normalized = breedName.toLowerCase().trim();
@@ -1191,6 +1193,6 @@ export const GROOMING_LEVEL_LABELS: Record<BreedInfo['groomingFrequency'], { en:
   minimal:    { en: 'Minimal — once a month',              bg: 'Минимален — веднъж месечно' },
   occasional: { en: 'Occasional — every few weeks',        bg: 'Периодичен — веднъж на няколко седмици' },
   regular:    { en: 'Regular — weekly brushing',           bg: 'Редовен — седмично разресване' },
-  frequent:   { en: 'Frequent — several times/week',       bg: 'Честен — няколко пъти седмично' },
+  frequent:   { en: 'Frequent — several times/week',       bg: 'Чест — няколко пъти седмично' },
   intensive:  { en: 'Intensive — daily + professional grooming', bg: 'Интензивен — ежедневно + професионален груминг' },
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
@@ -8,27 +8,38 @@ import { Auth } from './components/Auth';
 import { Landing } from './components/Landing';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
-import { Dashboard } from './components/Dashboard';
 // import { DogManagement } from './components/DogManagement';
-import { HealthManagement } from './components/HealthManagement';
-import { CalendarManagement } from './components/CalendarManagement';
-import { TrainingView } from './components/TrainingView';
-import { SettingsView } from './components/SettingsView';
-import { CommunityView } from './components/CommunityView';
-import { PublicDogProfile } from './components/PublicDogProfile';
-import { PetPassport } from './components/PetPassport';
 import { MobileBottomNav } from './components/MobileBottomNav';
-import { AdminApp } from './components/AdminApp';
-import { ExpensesView } from './components/ExpensesView';
-import { ServicesView } from './components/ServicesView';
-import { GroomingTrackerView } from './components/GroomingTrackerView';
-import { PhotoAlbumView } from './components/PhotoAlbumView';
-import { ActivityAnalyticsView } from './components/ActivityAnalyticsView';
-import { BreedIntelligenceView } from './components/BreedIntelligenceView';
 import { WalkCompetitionOptIn } from './components/WalkCompetitionOptIn';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 import { apiClient } from './lib/api';
 import i18n from './lib/i18n';
+
+// Views are code-split so the landing page and login don't download the whole app.
+const lazyNamed = <K extends string>(load: () => Promise<Record<K, React.ComponentType<any>>>, name: K) =>
+  lazy(() => load().then(m => ({ default: m[name] })));
+
+const Dashboard = lazyNamed(() => import('./components/Dashboard'), 'Dashboard');
+const HealthManagement = lazyNamed(() => import('./components/HealthManagement'), 'HealthManagement');
+const CalendarManagement = lazyNamed(() => import('./components/CalendarManagement'), 'CalendarManagement');
+const TrainingView = lazyNamed(() => import('./components/TrainingView'), 'TrainingView');
+const SettingsView = lazyNamed(() => import('./components/SettingsView'), 'SettingsView');
+const CommunityView = lazyNamed(() => import('./components/CommunityView'), 'CommunityView');
+const PublicDogProfile = lazyNamed(() => import('./components/PublicDogProfile'), 'PublicDogProfile');
+const PetPassport = lazyNamed(() => import('./components/PetPassport'), 'PetPassport');
+const AdminApp = lazyNamed(() => import('./components/AdminApp'), 'AdminApp');
+const ExpensesView = lazyNamed(() => import('./components/ExpensesView'), 'ExpensesView');
+const ServicesView = lazyNamed(() => import('./components/ServicesView'), 'ServicesView');
+const GroomingTrackerView = lazyNamed(() => import('./components/GroomingTrackerView'), 'GroomingTrackerView');
+const PhotoAlbumView = lazyNamed(() => import('./components/PhotoAlbumView'), 'PhotoAlbumView');
+const ActivityAnalyticsView = lazyNamed(() => import('./components/ActivityAnalyticsView'), 'ActivityAnalyticsView');
+const BreedIntelligenceView = lazyNamed(() => import('./components/BreedIntelligenceView'), 'BreedIntelligenceView');
+
+const ViewFallback = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="w-8 h-8 border-2 border-[#005da7] dark:border-[#a4c9ff] border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const RETURNING_KEY = 'edog_returning_user';
 
@@ -251,7 +262,7 @@ const AppContent: React.FC = () => {
         />
       )}
       <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pb-20 md:pb-0">
-        {renderCurrentView()}
+        <Suspense fallback={<ViewFallback />}>{renderCurrentView()}</Suspense>
       </main>
     </div>
 
@@ -322,10 +333,10 @@ const App: React.FC = () => {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* Public route for QR scan */}
-          <Route path="/public/dog/:id" element={<PublicDogProfile />} />
+          <Route path="/public/dog/:id" element={<Suspense fallback={<ViewFallback />}><PublicDogProfile /></Suspense>} />
 
           {/* Admin panel — standalone, self-authenticated */}
-          <Route path="/adminpanel" element={<AdminApp />} />
+          <Route path="/adminpanel" element={<Suspense fallback={<ViewFallback />}><AdminApp /></Suspense>} />
 
           {/* Default app (protected area) */}
           <Route path="/*" element={<AppContent />} />

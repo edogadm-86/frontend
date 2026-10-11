@@ -67,6 +67,8 @@ const COPY = {
     privacy: 'Поверителност',
     terms: 'Условия за ползване',
     rights: 'Всички права запазени.',
+    breedsLink: 'Породи кучета',
+    articlesLink: 'Статии',
   },
   en: {
     login: 'Log in',
@@ -124,6 +126,8 @@ const COPY = {
     privacy: 'Privacy',
     terms: 'Terms of use',
     rights: 'All rights reserved.',
+    breedsLink: 'Dog breeds (BG)',
+    articlesLink: 'Articles (BG)',
   },
 };
 
@@ -371,7 +375,10 @@ export const Landing: React.FC<LandingProps> = ({ onLogin, onRegister }) => {
       <footer className="border-t border-[#e4e2e1] dark:border-[#2a2d31]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#717783] dark:text-[#8b919d]">
           <p>© {new Date().getFullYear()} eDog. {c.rights}</p>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+            {/* Plain links to the static SEO pages (also helps search engines discover them) */}
+            <a href="/porodi/" className="hover:text-[#005da7] dark:hover:text-[#a4c9ff]">{c.breedsLink}</a>
+            <a href="/statii/" className="hover:text-[#005da7] dark:hover:text-[#a4c9ff]">{c.articlesLink}</a>
             <button type="button" onClick={() => setShowPrivacy(true)} className="hover:text-[#005da7] dark:hover:text-[#a4c9ff]">{c.privacy}</button>
             <button type="button" onClick={() => setShowTerms(true)} className="hover:text-[#005da7] dark:hover:text-[#a4c9ff]">{c.terms}</button>
           </div>

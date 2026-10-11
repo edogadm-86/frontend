@@ -18,7 +18,7 @@ interface HealthManagementProps {
   onNavigate: (view: string) => void;
 }
 
-export const HEALTH_TAB_KEY = 'edog_health_tab';
+import { HEALTH_TAB_KEY } from '../utils/navigation';
 
 const cardClass = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5 sm:p-6';
 

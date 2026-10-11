@@ -19,7 +19,7 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
 import { recordTypeLabel } from '../utils/enumLabels';
-import { HEALTH_TAB_KEY } from './HealthManagement';
+import { HEALTH_TAB_KEY } from '../utils/navigation';
 import { apiClient } from '../lib/api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Modal } from './ui/Modal';
