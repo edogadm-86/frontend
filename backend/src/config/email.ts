@@ -235,6 +235,68 @@ export const emailTemplates = {
     ),
   }),
 
+  dogBirthday: (p: {
+    dogName: string;
+    ownerName: string;
+    age: number;
+    sex?: string | null;
+    photoUrl?: string | null;
+    hasVaccinations: boolean;
+    appUrl: string;
+    unsubscribeUrl: string;
+    language?: string;
+  }) => {
+    const language = p.language || 'bg';
+    const female = /^f|жен/i.test(p.sex || '');
+    const firstName = (p.ownerName || '').trim().split(/\s+/)[0] || '';
+    const ageBg = p.age === 1 ? '1 година' : `${p.age} години`;
+    const ageEn = p.age === 1 ? '1 year old' : `${p.age} years old`;
+    const pronounBg = female ? 'ѝ' : 'му';
+
+    const photo = p.photoUrl
+      ? `<div style="text-align:center;margin:0 0 24px;">
+           <img src="${p.photoUrl}" alt="${p.dogName}" width="180" height="180"
+                style="width:180px;height:180px;border-radius:50%;object-fit:cover;border:4px solid #fde68a;" />
+         </div>`
+      : '';
+
+    const tip = p.hasVaccinations
+      ? __(`A birthday is a good moment for the yearly check-up. Log it in eDog so ${p.dogName}'s health history stays complete.`,
+           `Рожденият ден е добър повод за годишния преглед при ветеринаря. Отбележи го в eDog, за да е пълна здравната история на ${p.dogName}.`,
+           language)
+      : __(`The best birthday gift is good health: add ${p.dogName}'s vaccinations in eDog and we'll remind you before the next one is due.`,
+           `Най-добрият подарък е здравето: добави ваксините на ${p.dogName} в eDog и ще ти напомним навреме за следващата.`,
+           language);
+
+    return {
+      subject: __(`🎂 Happy birthday, ${p.dogName}!`, `🎂 Честит рожден ден, ${p.dogName}!`, language),
+      headers: {
+        'List-Unsubscribe': `<${p.unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+      html: wrapEmail(
+        '#f59e0b', '🎂',
+        __(`Happy birthday, ${p.dogName}!`, `Честит рожден ден, ${p.dogName}!`, language),
+        `${photo}
+        <p style="margin:0 0 16px;font-size:16px;">
+          ${__(`Hi ${firstName},`, `Здравей${firstName ? ', ' + firstName : ''}!`, language)}
+        </p>
+        <p style="margin:0 0 16px;">
+          ${__(`Today <strong>${p.dogName}</strong> turns <strong>${ageEn}</strong> 🎉 We wish many happy, healthy years full of walks, games and treats!`,
+               `Днес <strong>${p.dogName}</strong> навършва <strong>${ageBg}</strong> 🎉 Пожелаваме ${pronounBg} още много здрави и щастливи години, пълни с разходки, игри и лакомства!`,
+               language)}
+        </p>
+        ${infoCard(`<p style="margin:0;font-size:14px;color:#374151;">💡 ${tip}</p>`, '#f59e0b')}
+        ${btn(p.appUrl, __(`Open ${p.dogName}'s profile`, `Отвори профила на ${p.dogName}`, language), '#d97706')}
+        <p style="font-size:12px;color:#9ca3af;margin-top:28px;line-height:1.6;text-align:center;">
+          ${__('Don\'t want birthday emails?', 'Не искаш поздравления за рожден ден?', language)}
+          <a href="${p.unsubscribeUrl}" style="color:#9ca3af;">${__('Unsubscribe', 'Отпиши се', language)}</a>
+        </p>`,
+        language
+      ),
+    };
+  },
+
   vaccinationOverdue: (dogName: string, vaccineName: string, dueDate: string, language = 'bg') => ({
     subject: __(`Vaccination overdue – ${dogName}`, `Изтекла ваксина – ${dogName}`, language),
     html: wrapEmail(
@@ -259,13 +321,17 @@ export const emailTemplates = {
 
 // ─── Send helper ───────────────────────────────────────────────────────────────
 
-export const sendEmail = async (to: string, template: { subject: string; html: string }) => {
+export const sendEmail = async (
+  to: string,
+  template: { subject: string; html: string; headers?: Record<string, string> }
+) => {
   try {
     const info = await transporter.sendMail({
       from: `"eDog" <${process.env.SMTP_USER}>`,
       to,
       subject: template.subject,
       html: template.html,
+      headers: template.headers,
     });
     if (process.env.NODE_ENV !== 'production') console.log('Email sent:', info.messageId);
     return { success: true, messageId: info.messageId };

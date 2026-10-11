@@ -545,6 +545,9 @@ const runMigrations = async () => {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token VARCHAR(255);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token_expiry TIMESTAMPTZ;
 
+      -- Dog birthday greeting emails (users can opt out via the link in the email)
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS birthday_emails BOOLEAN NOT NULL DEFAULT TRUE;
+
       -- Grooming sessions per dog
       CREATE TABLE IF NOT EXISTS grooming_sessions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

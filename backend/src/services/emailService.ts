@@ -3,6 +3,7 @@ import pool from '../config/database';
 import { sendEmail, emailTemplates } from '../config/email';
 import { format } from 'date-fns';
 import { sendPushToUser } from './pushService';
+import { sendDogBirthdayEmails } from './birthdayService';
 
 // Send appointment reminders
 export const sendAppointmentReminders = async () => {
@@ -258,6 +259,9 @@ export const startEmailScheduler = () => {
 
   // Check for medication recurring reminders daily at 8 AM
   cron.schedule('0 8 * * *', sendMedicationRecurringReminders);
+
+  // Dog birthday greetings at 09:00 Bulgarian time (the server runs in UTC)
+  cron.schedule('0 9 * * *', sendDogBirthdayEmails, { timezone: 'Europe/Sofia' });
 
   console.log('Email scheduler started');
 };
