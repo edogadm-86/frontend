@@ -530,7 +530,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                   </div>
                   <div className="text-right shrink-0">
                     <div className="font-semibold text-gray-900 dark:text-[#e2e2e6] text-sm">{meal.amount}g</div>
-                    <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.calories} cal</div>
+                    <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.calories} {t('calShort')}</div>
                   </div>
                   <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
@@ -739,7 +739,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                       </div>
                       <div className="text-right">
                         <div className="font-semibold text-gray-900 dark:text-[#e2e2e6] text-sm">{meal.amount}g</div>
-                        <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.calories} cal</div>
+                        <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.calories} {t('calShort')}</div>
                       </div>
                       <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
@@ -1246,7 +1246,7 @@ export const NutritionManagement: React.FC<NutritionManagementProps> = ({
                     <div className="font-medium text-gray-900 dark:text-[#e2e2e6] text-sm">{meal.food_type}</div>
                     <div className="text-xs text-gray-500 dark:text-[#8b919d]">{meal.meal_time}</div>
                   </div>
-                  <div className="text-sm text-gray-700 dark:text-[#c1c7d3]">{meal.amount}g · {meal.calories} cal</div>
+                  <div className="text-sm text-gray-700 dark:text-[#c1c7d3]">{meal.amount}g · {meal.calories} {t('calShort')}</div>
                   <button
                     type="button"
                     onClick={() => setCustomMeals(customMeals.filter((_, idx) => idx !== i))}

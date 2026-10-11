@@ -4,6 +4,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Download, Printer as Print, ArrowLeft, Heart } from 'lucide-react';
 import { formatDate } from '../lib/utils';
+import { recordTypeLabel } from '../utils/enumLabels';
 import { apiClient } from '../lib/api';
 import { useApp } from '../context/AppContext';
 
@@ -232,19 +233,17 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
                     </span>
                     {vaccinations.length > 0 && (
                       <span className="px-2.5 py-1 bg-gray-100 dark:bg-[#32353c] text-gray-600 dark:text-[#c1c7d3] rounded-full text-xs font-medium">
-                        Travel Ready
+                        {t('travelReady')}
                       </span>
                     )}
                   </div>
 
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-[#e1e2eb] mb-1">{t('healthSummary')}</h3>
                   <p className="text-sm text-gray-500 dark:text-[#8b919d] leading-relaxed mb-4">
-                    {dog.name} {vaccinations.length > 0
-                      ? `has ${vaccinations.length} vaccination${vaccinations.length !== 1 ? 's' : ''} on record.`
-                      : 'has no vaccinations recorded yet.'}{' '}
-                    {healthRecords.length > 0
-                      ? `${healthRecords.length} health record${healthRecords.length !== 1 ? 's' : ''} available.`
-                      : ''}
+                    {vaccinations.length > 0
+                      ? t('passportVaccinationsCount', { name: dog.name, count: vaccinations.length })
+                      : t('passportNoVaccinations', { name: dog.name })}{' '}
+                    {healthRecords.length > 0 ? t('passportRecordsCount', { count: healthRecords.length }) : ''}
                   </p>
 
                   {/* Quick stats row */}
@@ -298,8 +297,8 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
                             <p className="text-sm font-medium text-gray-900 dark:text-[#e1e2eb] truncate">{record.title}</p>
                             <span className="text-xs text-gray-400 dark:text-[#8b919d] flex-shrink-0">{formatDate(record.date)}</span>
                           </div>
-                          <p className="text-xs text-gray-500 dark:text-[#8b919d] mt-0.5 capitalize">
-                            {record.type?.replace('-', ' ')}
+                          <p className="text-xs text-gray-500 dark:text-[#8b919d] mt-0.5">
+                            {recordTypeLabel(t, record.type)}
                             {record.veterinarian ? ` • ${record.veterinarian}` : ''}
                           </p>
                         </div>
@@ -323,7 +322,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
                   { label: t('name'), value: dog.name },
-                  { label: t('species'), value: 'Dog' },
+                  { label: t('species'), value: t('speciesDog') },
                   { label: t('breed'), value: dog.breed },
                   { label: t('sex'), value: dog.sex },
                   { label: t('dateOfBirth'), value: dog.dateOfBirth ? formatDate(dog.dateOfBirth) : t('notSpecified') },
@@ -382,7 +381,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
                               isDueSoon ? 'text-amber-500' :
                               'text-[#005da7] dark:text-[#a4c9ff]'
                             }`}>
-                              {isExpired ? 'Expired' : isDueSoon ? 'Due soon' : t('validUntil')}
+                              {isExpired ? t('statusExpired') : isDueSoon ? t('statusDueSoon') : t('validUntil')}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-[#8b919d]">
                               {v.next_due_date ? formatDate(v.next_due_date) : '—'}
@@ -470,7 +469,7 @@ export const PetPassport: React.FC<PetPassportProps> = ({ dog, onNavigate }) => 
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-[#e1e2eb]">{v.vaccine_name}</p>
                     <p className={`text-xs ${isExpired ? 'text-red-500' : 'text-gray-500 dark:text-[#8b919d]'}`}>
-                      {isExpired ? 'Expired' : t('validUntil')}: {formatDate(v.next_due_date)}
+                      {isExpired ? t('statusExpired') : t('validUntil')}: {formatDate(v.next_due_date)}
                     </p>
                   </div>
                 </div>

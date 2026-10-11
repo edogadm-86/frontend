@@ -244,7 +244,7 @@ export const WalkProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // 0.8 kcal per kg per km walked (standard dog walking estimate)
     const cal = dogWeightKg > 0 ? Math.round(dogWeightKg * (d / 1000) * 0.8) : 0;
     setCaloriesBurned(cal);
-    const notes = `${i18next.t('walkSummary')}: ${distKm} km ${i18next.t('in')} ${i18next.t('minute', { count: durationMin })}, ${i18next.t('avgSpeed')}: ${avgKmh} km/h${cal > 0 ? `, ~${cal} kcal` : ''}`;
+    const notes = `${i18next.t('walkSummary')}: ${distKm} ${i18next.t('unitKm')} ${i18next.t('in')} ${i18next.t('minute', { count: durationMin })}, ${i18next.t('avgSpeed')}: ${avgKmh} ${i18next.t('unitKmh')}${cal > 0 ? `, ~${cal} ${i18next.t('unitKcal')}` : ''}`;
     try {
       await apiClient.createTrainingSession(dogId, {
         date: new Date().toISOString().split('T')[0],

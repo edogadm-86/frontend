@@ -5,6 +5,7 @@ import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
+import { vaccineTypeLabel } from '../utils/enumLabels';
 import { apiClient } from '../lib/api';
 import { API_BASE_URL } from '../config';
 
@@ -31,13 +32,13 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-[#c1c7d3] 
 const inputSelectClass = 'w-full px-3 py-2 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1c1f] text-gray-900 dark:text-[#e2e2e6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005da7] dark:focus:ring-[#a4c9ff] focus:border-transparent text-sm';
 
 const getVaccinationStatus = (nextDueDate?: string) => {
-  if (!nextDueDate) return { label: 'Valid', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' };
+  if (!nextDueDate) return { label: 'statusValid', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' };
   const due = new Date(nextDueDate);
   const now = new Date();
   const diffDays = Math.floor((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) return { label: 'Expired', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' };
-  if (diffDays <= 30) return { label: 'Due Soon', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' };
-  return { label: 'Valid', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' };
+  if (diffDays < 0) return { label: 'statusExpired', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' };
+  if (diffDays <= 30) return { label: 'statusDueSoon', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' };
+  return { label: 'statusValid', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' };
 };
 
 export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
@@ -80,7 +81,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
           documentsByVaccination[doc.vaccination_id].push({
             id: doc.id,
             url: `${API_BASE_URL}/uploads/file/${doc.filename}`,
-            name: doc.name || doc.originalName || "Attachment",
+            name: doc.name || doc.originalName || "",
           });
         }
       });
@@ -228,11 +229,11 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
                           {vaccination.vaccineName}
                         </h4>
                         <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${status.color}`}>
-                          {status.label}
+                          {t(status.label)}
                         </span>
                       </div>
                       <p className="text-sm text-gray-500 dark:text-[#8b919d] mb-3">
-                        {vaccination.vaccineType}
+                        {vaccineTypeLabel(t, vaccination.vaccineType)}
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                         <div className="flex items-center text-gray-500 dark:text-[#8b919d] gap-1.5">
@@ -275,7 +276,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
                                   rel="noopener noreferrer"
                                   className="text-[#005da7] dark:text-[#a4c9ff] hover:underline text-sm"
                                 >
-                                  {`Document ${i + 1}`}
+                                  {t('documentN', { n: i + 1 })}
                                 </a>
                                 <button
                                   onClick={async () => {
@@ -384,7 +385,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
 
           {editingVaccination && (
             <div>
-              <label className={labelClass}>Attach Documents (optional)</label>
+              <label className={labelClass}>{t('attachDocumentsOptional')}</label>
               <FileUpload
                 acceptedTypes="image/*,.pdf,.doc,.docx"
                 maxSize={10}

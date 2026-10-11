@@ -5,6 +5,7 @@ import { Dog } from '../types';
 import { findBreed, getWeightStatus, EXERCISE_LEVEL_COLORS, GROOMING_LEVEL_LABELS, BreedInfo } from '../data/breedData';
 import { apiClient } from '../lib/api';
 import { cn } from '../lib/utils';
+import { exerciseLevelLabel, trainabilityLabel } from '../utils/enumLabels';
 
 interface Props {
   currentDog: Dog | null;
@@ -102,6 +103,12 @@ export const BreedIntelligenceView: React.FC<Props> = ({ currentDog, onNavigate 
     () => (currentDog?.breed ? findBreed(currentDog.breed) : null),
     [currentDog?.breed]
   );
+
+  // names[] mixes English and Bulgarian aliases; prefer one in the UI language
+  const isCyrillic = (s: string) => /[а-яА-Я]/.test(s);
+  const localizedBreedName = breedInfo
+    ? breedInfo.names.find(n => isCyrillic(n) === (lang === 'bg')) ?? breedInfo.names[0]
+    : '';
 
   const currentWeightKg = useMemo(() => {
     const w = typeof currentDog?.weight === 'string' ? parseFloat(currentDog.weight) : (currentDog?.weight ?? 0);
@@ -220,7 +227,7 @@ export const BreedIntelligenceView: React.FC<Props> = ({ currentDog, onNavigate 
           <SectionCard title={t('exerciseNeeds')} icon={Activity}>
             <div className="flex items-center gap-2 mb-2">
               <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium capitalize', EXERCISE_LEVEL_COLORS[breedInfo.exerciseLevel])}>
-                {breedInfo.exerciseLevel.replace('-', ' ')}
+                {exerciseLevelLabel(t, breedInfo.exerciseLevel)}
               </span>
             </div>
             {recentSessions.length > 0 && (
@@ -237,7 +244,7 @@ export const BreedIntelligenceView: React.FC<Props> = ({ currentDog, onNavigate 
           </SectionCard>
 
           <SectionCard title={t('healthWatchList')} icon={Heart}>
-            <p className="text-xs text-gray-500 dark:text-[#8b919d] mb-2">{t('conditionsCommonIn', { breed: breedInfo.names[0] })}</p>
+            <p className="text-xs text-gray-500 dark:text-[#8b919d] mb-2">{t('conditionsCommonIn', { breed: localizedBreedName })}</p>
             <div className="space-y-1.5">
               {breedInfo.commonConditions[lang].map(condition => (
                 <div key={condition} className="flex items-start gap-2">
@@ -284,7 +291,7 @@ export const BreedIntelligenceView: React.FC<Props> = ({ currentDog, onNavigate 
                 <span className={cn('text-xs font-medium capitalize',
                   breedInfo.trainability === 'easy' ? 'text-green-600 dark:text-green-400' :
                   breedInfo.trainability === 'moderate' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-500')}>
-                  {breedInfo.trainability}
+                  {trainabilityLabel(t, breedInfo.trainability)}
                 </span>
                 <span className="text-xs text-gray-400 dark:text-[#8b919d]">{t('trainabilityLabel')}</span>
               </div>
@@ -301,10 +308,10 @@ export const BreedIntelligenceView: React.FC<Props> = ({ currentDog, onNavigate 
       {!breedInfo && (
         <div className="space-y-3">
           {[
-            { icon: Heart,    title: t('healthWatchList'),    tip: 'All dogs benefit from annual checkups, vaccinations, and parasite prevention.' },
-            { icon: Activity, title: t('exerciseNeeds'),       tip: 'Most dogs need 30–90 minutes of exercise per day depending on age and energy level.' },
-            { icon: Scissors, title: t('groomingRequirements'), tip: 'Brush regularly to reduce shedding and check skin, coat, ears, and nails.' },
-            { icon: Clock,    title: 'Dental Care',            tip: 'Dental disease affects 80% of dogs by age 3. Brush teeth or use dental chews regularly.' },
+            { icon: Heart,    title: t('healthWatchList'),    tip: t('breedTipHealth') },
+            { icon: Activity, title: t('exerciseNeeds'),       tip: t('breedTipExercise') },
+            { icon: Scissors, title: t('groomingRequirements'), tip: t('breedTipGrooming') },
+            { icon: Clock,    title: t('dentalCare'),           tip: t('breedTipDental') },
           ].map(item => (
             <div key={item.title} className="bg-white dark:bg-[#1e2023] rounded-xl border border-gray-100 dark:border-white/5 p-4 flex gap-3">
               <div className="w-8 h-8 rounded-xl bg-[#005da7]/10 dark:bg-[#a4c9ff]/10 flex items-center justify-center flex-shrink-0">

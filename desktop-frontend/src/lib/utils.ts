@@ -1,13 +1,19 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import i18n from "./i18n";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const isBg = () => (i18n.resolvedLanguage || i18n.language || 'bg').startsWith('bg');
+
+/** Locale tag matching the current UI language. */
+export const uiLocale = () => (isBg() ? 'bg-BG' : 'en-US');
+
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleDateString(uiLocale(), {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -15,10 +21,10 @@ export function formatDate(date: Date | string): string {
 }
 
 export function formatTime(time: string): string {
-  return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
+  return new Date(`2000-01-01T${time}`).toLocaleTimeString(uiLocale(), {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: !isBg()
   });
 }
 export const toYMD = (v: any) =>

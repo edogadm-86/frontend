@@ -26,7 +26,12 @@ const FACTOR_MAP: Record<string, string> = {
   'Maintain vaccination schedule': 'maintainVaccinationSchedule',
   'Track weight changes': 'trackWeightChanges',
   'Improve daily activity': 'improveDailyActivity',
+  'Vaccinations up to date': 'vaccinationsUpToDate',
   'Some vaccinations due': 'someVaccinationsDue',
+  'Vaccinations need attention': 'vaccinationsNeedAttention',
+  'Some health tracking': 'someHealthTracking',
+  'More health monitoring needed': 'moreHealthMonitoringNeeded',
+  'Appointments scheduled': 'appointmentsScheduled',
   'Regular health monitoring': 'regularHealthMonitoring',
   'Schedule regular checkups': 'scheduleRegularCheckups'
 };
@@ -54,7 +59,11 @@ export const statusKeyFromScore = (score?: number | null) => {
 };
 
 
+const LOWER_ACTION_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(ACTION_MAP).map(([k, v]) => [k.toLowerCase().trim(), v])
+);
+
 export const actionKeyFromBackend = (raw?: string) =>
-  ACTION_MAP[norm(raw)] ?? '';
+  LOWER_ACTION_MAP[norm(raw)] ?? '';
 
 

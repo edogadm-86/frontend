@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { AppProvider, useApp } from './context/AppContext';
 import { WalkProvider } from './context/WalkContext';
 import { WalkActiveBanner } from './components/WalkActiveBanner';
 import { Auth } from './components/Auth';
+import { Landing } from './components/Landing';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
@@ -27,6 +28,8 @@ import { BreedIntelligenceView } from './components/BreedIntelligenceView';
 import { WalkCompetitionOptIn } from './components/WalkCompetitionOptIn';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 import { apiClient } from './lib/api';
+
+const RETURNING_KEY = 'edog_returning_user';
 
 const AppContent: React.FC = () => {
   useTheme(); // Initialize theme
@@ -55,6 +58,18 @@ const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [showAddDogModal, setShowAddDogModal] = useState(false);
   const [showOptInModal, setShowOptInModal] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Once someone has signed in on this device, skip the landing page next time.
+  // After login, leave /login or /register so the URL matches the app.
+  useEffect(() => {
+    if (!user) return;
+    try { localStorage.setItem(RETURNING_KEY, '1'); } catch { /* storage unavailable */ }
+    if (location.pathname === '/login' || location.pathname === '/register') {
+      navigate('/', { replace: true });
+    }
+  }, [user, location.pathname, navigate]);
 
   // Show opt-in modal once when user is logged in and hasn't been asked yet
   useEffect(() => {
@@ -184,8 +199,19 @@ const AppContent: React.FC = () => {
   }
 
   if (!user) {
+    const path = location.pathname;
+    let returning = false;
+    try { returning = localStorage.getItem(RETURNING_KEY) === '1'; } catch { /* storage unavailable */ }
+
+    if (!awaitingVerification && path !== '/login' && path !== '/register' && !returning) {
+      const go = (to: string) => { navigate(to); window.scrollTo(0, 0); };
+      return <Landing onLogin={() => go('/login')} onRegister={() => go('/register')} />;
+    }
+
     return (
       <Auth
+        key={path}
+        initialMode={path === '/register' ? 'register' : 'login'}
         onLogin={login}
         onRegister={register}
         awaitingVerification={awaitingVerification}

@@ -22,7 +22,8 @@ export default defineConfig({
       manifest: {
         name: "eDog",
         short_name: "eDog",
-        description: "Digital pet passport",
+        description: "Дигитален паспорт и напомняния за ваксини на кучето",
+        lang: "bg",
         start_url: "/",
         scope: "/",
         display: "standalone",

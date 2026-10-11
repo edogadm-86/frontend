@@ -176,7 +176,7 @@ export const ActivityAnalyticsView: React.FC<Props> = ({ currentDog, onNavigate 
           <div className="grid grid-cols-2 gap-3">
             <StatCard icon={MapPin} label={t('distanceWalked')} value={`${totalDistKm.toFixed(1)} km`}
               sub={`${walks.length} ${t('walksLabel').toLowerCase()}`} accent />
-            <StatCard icon={Flame} label={t('caloriesBurned')} value={totalCal > 0 ? `${Math.round(totalCal)} kcal` : '—'}
+            <StatCard icon={Flame} label={t('caloriesBurned')} value={totalCal > 0 ? `${Math.round(totalCal)} ${t('unitKcal')}` : '—'}
               sub={t('fromWalks')} />
             <StatCard icon={Activity} label={t('activeTime')}
               value={`${Math.floor(totalDuration / 60)}ч ${totalDuration % 60}мин`}

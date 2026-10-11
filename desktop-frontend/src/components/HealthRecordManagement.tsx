@@ -5,6 +5,7 @@ import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
+import { recordTypeLabel } from '../utils/enumLabels';
 import { apiClient } from '../lib/api';
 import { API_BASE_URL } from '../config';
 import { HealthRecord } from '../types';
@@ -58,7 +59,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
           documentsByRecord[doc.health_record_id].push({
             id: doc.id,
             url: `${API_BASE_URL}/uploads/file/${doc.filename}`,
-            name: doc.name || doc.originalName || "Attachment",
+            name: doc.name || doc.originalName || "",
           });
         }
       });
@@ -202,7 +203,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                           {record.title}
                         </h4>
                         <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${typeConfig.badge}`}>
-                          {record.type}
+                          {recordTypeLabel(t, record.type)}
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-[#8b919d] mb-3 line-clamp-3 sm:line-clamp-none">
@@ -241,7 +242,7 @@ export const HealthRecordManagement: React.FC<HealthRecordManagementProps> = ({
                                     rel="noopener noreferrer"
                                     className="text-[#005da7] dark:text-[#a4c9ff] hover:underline text-sm"
                                   >
-                                    {doc.name || `Document ${i + 1}`}
+                                    {doc.name || t('documentN', { n: i + 1 })}
                                   </a>
                                   <button
                                     onClick={async (e) => {

@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Pencil, Trash2, X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { format, startOfMonth, subMonths } from 'date-fns';
+import { bg as bgLocale } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../lib/api';
 import { Expense, ExpenseCategory, ExpenseStats } from '../types';
-import { cn } from '../lib/utils';
+import { cn, uiLocale } from '../lib/utils';
+
+const dfLocale = () => (uiLocale() === 'bg-BG' ? { locale: bgLocale } : undefined);
 
 interface ExpensesViewProps {
   currentDog: any;
@@ -13,7 +16,8 @@ interface ExpensesViewProps {
 const fmt = (n: number) =>
   n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
 
-const DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// 2023-01-01 was a Sunday → index 0 = Sunday, matching Date.getDay()
+const dowLabel = (dow: number) => new Date(2023, 0, 1 + dow).toLocaleDateString(uiLocale(), { weekday: 'short' });
 
 // ── SVG Bar Chart ──────────────────────────────────────────────────────────
 const WeeklyBarChart: React.FC<{ weeklyData: { dow: number; total: number }[] }> = ({
@@ -57,7 +61,7 @@ const WeeklyBarChart: React.FC<{ weeklyData: { dow: number; total: number }[] }>
               fontSize={9}
               className={`fill-gray-400 dark:fill-[#8b919d] font-medium ${isToday ? 'font-bold fill-[#005da7] dark:fill-[#a4c9ff]' : ''}`}
             >
-              {DOW_LABELS[b.dow]}
+              {dowLabel(b.dow)}
             </text>
           </g>
         );
@@ -67,7 +71,7 @@ const WeeklyBarChart: React.FC<{ weeklyData: { dow: number; total: number }[] }>
 };
 
 // ── Yearly Bar Chart ──────────────────────────────────────────────────────
-const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const monthShort = (m: number) => new Date(2023, m, 1).toLocaleDateString(uiLocale(), { month: 'short' });
 
 const YearlyBarChart: React.FC<{
   monthlyData: { month: number; total: number }[];
@@ -122,7 +126,7 @@ const YearlyBarChart: React.FC<{
               }
               fontWeight={isSelected || isToday ? 'bold' : 'normal'}
             >
-              {MONTH_SHORT[i]}
+              {monthShort(i)}
             </text>
             {isSelected && (
               <circle cx={x + barW / 2} cy={H + 26} r={2.5} className="fill-[#005da7] dark:fill-[#a4c9ff]" />
@@ -601,7 +605,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ currentDog }) => {
           <ChevronLeft size={18} className="text-gray-500 dark:text-[#8b919d]" />
         </button>
         <span className="text-sm font-semibold text-gray-700 dark:text-[#c1c7d3] min-w-[120px] text-center">
-          {format(currentMonth, 'MMMM yyyy')}
+          {format(currentMonth, 'LLLL yyyy', dfLocale())}
         </span>
         <button
           onClick={nextMonth}
@@ -774,14 +778,14 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ currentDog }) => {
           <div className="bg-white dark:bg-[#1e2023] rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
               <h2 className="font-bold text-gray-900 dark:text-[#e2e2e6]">{t('transactions')}</h2>
-              <span className="text-xs text-gray-400 dark:text-[#8b919d]">{expenses.length} total</span>
+              <span className="text-xs text-gray-400 dark:text-[#8b919d]">{t('totalCount', { count: expenses.length })}</span>
             </div>
 
             {expenses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-14 text-gray-300 dark:text-[#414751]">
                 <span className="material-symbols-outlined text-4xl mb-3">receipt_long</span>
                 <p className="text-sm font-medium text-gray-400 dark:text-[#8b919d]">
-                  {t('noExpensesMonth', { month: format(currentMonth, 'MMMM yyyy') })}
+                  {t('noExpensesMonth', { month: format(currentMonth, 'LLLL yyyy', dfLocale()) })}
                 </p>
                 <button
                   onClick={() => { setEditing(null); setModalOpen(true); }}
@@ -814,7 +818,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({ currentDog }) => {
                           )}
                         </div>
                         <p className="text-xs text-gray-400 dark:text-[#8b919d]">
-                          {format(new Date(exp.date), 'MMM d')}
+                          {format(new Date(exp.date), 'd MMM', dfLocale())}
                           {exp.vendor && ` · ${exp.vendor}`}
                         </p>
                       </div>

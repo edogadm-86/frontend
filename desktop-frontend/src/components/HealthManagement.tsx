@@ -303,7 +303,7 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
                         className="w-full mt-1 py-2 text-xs font-semibold text-[#005da7] dark:text-[#a4c9ff] hover:underline"
                       >
                         {showAllTimeline ? t('showLessTimeline') : t('showMoreTimeline')}
-                        {!showAllTimeline && ` (${allEvents.length - 6} more)`}
+                        {!showAllTimeline && ` (${t('moreCount', { count: allEvents.length - 6 })})`}
                       </button>
                     )}
                   </div>

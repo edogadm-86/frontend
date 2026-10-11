@@ -83,6 +83,11 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, currentView }) =
       case 'calendar': return t('calendar1');
       case 'training': return t('training');
       case 'community': return t('community');
+      case 'breed': return t('breedIntelligence');
+      case 'activity': return t('activityAnalytics');
+      case 'grooming': return t('grooming');
+      case 'photos': return t('photoAlbum');
+      case 'services': return t('services');
       case 'shop': return t('shopServices');
       case 'settings': return t('settings');
       case 'passport': return t('petPassport');

@@ -20,7 +20,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'en',
+    fallbackLng: 'bg',
+    supportedLngs: ['bg', 'en'],
+    nonExplicitSupportedLngs: true, // bg-BG → bg, en-US → en
+    load: 'languageOnly',
     debug: false,
     
     interpolation: {
@@ -30,7 +33,14 @@ i18n
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
+      // Components compare i18n.language === 'bg', so never expose 'bg-BG'
+      convertDetectedLanguage: (lng: string) => lng.split('-')[0],
     }
   });
 
 export default i18n;
+const syncHtmlLang = (lng?: string) => {
+  if (typeof document !== 'undefined') document.documentElement.lang = (lng || 'bg').slice(0, 2);
+};
+syncHtmlLang(i18n.resolvedLanguage);
+i18n.on('languageChanged', syncHtmlLang);

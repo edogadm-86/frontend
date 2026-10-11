@@ -18,6 +18,7 @@ import {
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
+import { recordTypeLabel } from '../utils/enumLabels';
 import { apiClient } from '../lib/api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Modal } from './ui/Modal';
@@ -284,7 +285,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {currentDog.profilePicture && (
             <button
               onClick={e => { e.stopPropagation(); setRepoMode(m => !m); if (repoMode) saveImgPos(imgPosY); }}
-              title={repoMode ? 'Done repositioning' : 'Drag to reposition photo'}
+              title={repoMode ? t('doneRepositioning') : t('repositionPhotoHint')}
               className={`hidden lg:flex absolute top-3 right-3 z-20 items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg backdrop-blur-md border transition-all ${
                 repoMode
                   ? 'bg-[#005da7] border-[#005da7] text-white'
@@ -292,7 +293,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               }`}
             >
               <Move size={12} />
-              {repoMode ? 'Done' : 'Reposition'}
+              {repoMode ? t('doneShort') : t('reposition')}
             </button>
           )}
 
@@ -498,7 +499,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       <p className="text-xs text-gray-500 dark:text-[#8b919d]">{formatDate(record.date)}</p>
                     </div>
                     <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-[#333538] text-gray-500 dark:text-[#c1c7d3] rounded-full flex-shrink-0">
-                      {record.type}
+                      {recordTypeLabel(t, record.type)}
                     </span>
                   </div>
                 ))}

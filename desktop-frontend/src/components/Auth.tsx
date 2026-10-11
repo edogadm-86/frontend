@@ -18,14 +18,15 @@ interface AuthProps {
   pendingVerificationEmail?: string | null;
   onResendVerification?: (email: string) => Promise<void>;
   onCancelVerification?: () => void;
+  initialMode?: 'login' | 'register';
 }
 
 
-export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerification, pendingVerificationEmail, onResendVerification, onCancelVerification }) => {
+export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerification, pendingVerificationEmail, onResendVerification, onCancelVerification, initialMode = 'login' }) => {
   const { t, i18n } = useTranslation();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'register');
   const [forgotMode, setForgotMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +122,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
   const langSelector = (
     <div className="absolute top-6 right-6">
       <select
-        value={i18n.language}
+        value={i18n.resolvedLanguage}
         onChange={(e) => i18n.changeLanguage(e.target.value)}
         className="text-sm bg-[#f5f3f2] dark:bg-[#1e2023] text-[#414751] dark:text-[#c1c7d3] border-0 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#005da7] dark:focus:ring-[#a4c9ff] outline-none cursor-pointer"
       >
@@ -216,7 +217,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
           <img
             src={isDark ? IMG_LOGIN_DARK : IMG_LOGIN_LIGHT}
             alt="Golden retriever"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-bottom scale-[1.15] origin-bottom"
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/80 via-[#001c39]/20 to-transparent dark:from-[#111316]/70 dark:via-[#111316]/10 dark:to-transparent" />
@@ -299,7 +300,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
               <>
                 {/* Brand */}
                 <div className="mb-10 w-full text-center">
-                  <div className="flex items-center justify-center gap-3 mb-4">
+                  <a href="/" className="flex items-center justify-center gap-3 mb-4">
                     <img
                       src="/logo.png"
                       alt="eDog"
@@ -309,7 +310,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
                     <span className="text-3xl font-bold tracking-tight text-[#005da7] dark:text-[#a4c9ff]">
                       eDog
                     </span>
-                  </div>
+                  </a>
                   <h2 className="text-2xl font-semibold text-[#1b1c1b] dark:text-[#e2e2e6] mb-2">
                     {t('welcomeBack')}
                   </h2>
@@ -435,7 +436,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2">
             <img
               src="/logo.png"
               alt="eDog"
@@ -443,7 +444,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
             <span className="text-xl font-bold text-white tracking-tight">eDog</span>
-          </div>
+          </a>
 
           {/* Bottom text + stats */}
           <div className="max-w-md">

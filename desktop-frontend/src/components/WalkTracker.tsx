@@ -246,11 +246,11 @@ export const WalkTracker: React.FC<WalkTrackerProps> = ({ currentDog, onSaved })
             <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-3 text-center space-y-1">
               <p className="text-sm font-bold text-green-700 dark:text-green-400">{t('walkComplete')}</p>
               <p className="text-xs text-gray-600 dark:text-[#8b919d]">
-                {formatDistance(distanceM)} · {formatDuration(elapsed)} · {t('max')} {maxSpeedKmh.toFixed(1)} km/h
+                {formatDistance(distanceM)} · {formatDuration(elapsed)} · {t('max')} {maxSpeedKmh.toFixed(1)} {t('unitKmh')}
               </p>
               {caloriesBurned > 0 && (
                 <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-                  ~{caloriesBurned} kcal {t('burned')}
+                  ~{caloriesBurned} {t('unitKcal')} {t('burned')}
                 </p>
               )}
             </div>
