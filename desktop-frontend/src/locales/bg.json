@@ -1155,5 +1155,7 @@
   "addVaccinesPromptCta": "Добави ваксина",
   "signupPerkFree": "Безплатно, без кредитна карта",
   "signupPerkReminders": "Напомняния за ваксини и обезпаразитяване",
-  "signupPerkQr": "QR профил, ако кучето се изгуби"
+  "signupPerkQr": "QR профил, ако кучето се изгуби",
+  "paperPassportPreview": "Хартиен вид на паспорта",
+  "paperPassportHint": "Така изглежда при принт и PDF — плъзнете хоризонтално"
 }

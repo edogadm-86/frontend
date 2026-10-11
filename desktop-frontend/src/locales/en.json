@@ -1150,5 +1150,7 @@
   "addVaccinesPromptCta": "Add vaccination",
   "signupPerkFree": "Free, no credit card",
   "signupPerkReminders": "Reminders for vaccines and deworming",
-  "signupPerkQr": "QR profile in case your dog gets lost"
+  "signupPerkQr": "QR profile in case your dog gets lost",
+  "paperPassportPreview": "Paper passport view",
+  "paperPassportHint": "This is how it prints and downloads — scroll sideways"
 }
