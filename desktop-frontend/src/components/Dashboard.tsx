@@ -19,6 +19,7 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate } from '../lib/utils';
 import { recordTypeLabel } from '../utils/enumLabels';
+import { HEALTH_TAB_KEY } from './HealthManagement';
 import { apiClient } from '../lib/api';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Modal } from './ui/Modal';
@@ -178,6 +179,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }
 
   const dogVaccinations = vaccinations.filter(v => v.dog_id === currentDog.id);
+
+  const goToVaccinations = () => {
+    try { sessionStorage.setItem(HEALTH_TAB_KEY, 'vaccinations'); } catch { /* storage unavailable */ }
+    onNavigate('health');
+  };
   const dogHealthRecords = healthRecords.filter(r => r.dog_id === currentDog.id);
   const dogAppointments = appointments.filter(a => a.dog_id === currentDog.id);
   const dogTrainingSessions = trainingSessions.filter(s => s.dog_id === currentDog.id);
@@ -193,7 +199,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       label: t('vaccinations'),
       value: dogVaccinations.length,
       color: 'from-blue-500 to-cyan-500',
-      onClick: () => onNavigate('health'),
+      onClick: goToVaccinations,
     },
     {
       icon: Heart,
@@ -433,6 +439,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </section>
 
+        {/* No vaccinations yet → reminders can't work; ask for them prominently */}
+        {dogVaccinations.length === 0 && (
+          <section className="col-span-12 rounded-2xl p-5 lg:p-6 bg-gradient-to-r from-[#005da7] to-[#0a7bd1] dark:from-[#1e3a5f] dark:to-[#244a73] text-white flex flex-col sm:flex-row sm:items-center gap-4 animate-fade-in-up">
+            <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+              <Shield size={24} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-lg leading-tight">{t('addVaccinesPromptTitle', { name: currentDog.name })}</h3>
+              <p className="text-sm text-white/80 mt-1">{t('addVaccinesPromptText')}</p>
+            </div>
+            <button
+              onClick={goToVaccinations}
+              className="px-5 py-2.5 rounded-xl bg-[#ffffff] text-[#005da7] font-bold text-sm hover:brightness-95 active:scale-[0.98] transition-all flex-shrink-0"
+            >
+              {t('addVaccinesPromptCta')}
+            </button>
+          </section>
+        )}
+
         {/* Stats row */}
         {stats.map((stat, index) => (
           <div
@@ -514,7 +539,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {/* Quick Actions */}
             <div className="lg:w-5/12 grid grid-cols-2 gap-2 content-start">
               <button
-                onClick={() => onNavigate('health')}
+                onClick={goToVaccinations}
                 className="p-3 text-left border border-gray-200 dark:border-white/5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#282a2d] transition-all group"
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">

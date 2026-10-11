@@ -67,7 +67,7 @@ export const wrapEmail = (headerBg: string, icon: string, title: string, body: s
         <tr>
           <td style="background-color:#f9fafb;border-top:1px solid #e5e7eb;border-radius:0 0 12px 12px;padding:22px 48px;text-align:center;">
             <p style="color:#9ca3af;font-size:12px;margin:0 0 4px;">
-              &copy; 2025 eDog &bull; ${__('All rights reserved', 'Всички права запазени', lang)}
+              &copy; ${new Date().getFullYear()} eDog &bull; ${__('All rights reserved', 'Всички права запазени', lang)}
             </p>
             <p style="color:#9ca3af;font-size:12px;margin:0;">
               ${__('You received this email as a registered eDog user.',
@@ -205,14 +205,18 @@ export const emailTemplates = {
     ),
   }),
 
-  vaccinationReminder: (dogName: string, vaccineName: string, dueDate: string, language = 'en') => ({
-    subject: __(`Vaccination due soon – ${dogName}`, `Ваксинация скоро – ${dogName}`, language),
+  vaccinationReminder: (dogName: string, vaccineName: string, dueDate: string, language = 'bg', daysUntilDue?: number) => ({
+    subject: daysUntilDue === 1
+      ? __(`Vaccination due tomorrow – ${dogName}`, `Ваксинацията е утре – ${dogName}`, language)
+      : daysUntilDue
+        ? __(`Vaccination due in ${daysUntilDue} days – ${dogName}`, `Ваксинация след ${daysUntilDue} дни – ${dogName}`, language)
+        : __(`Vaccination due soon – ${dogName}`, `Ваксинация скоро – ${dogName}`, language),
     html: wrapEmail(
       '#f59e0b', '💉',
       __('Vaccination reminder', 'Напомняне за ваксинация', language),
       `<p style="margin:0 0 16px;">
         ${__(`${dogName}'s vaccination is coming up soon. Please contact your veterinarian to schedule an appointment in time.`,
-             `Ваксинацията на ${dogName} предстои скоро. Моля свържи се с ветеринаря си, за да насрочиш среща навреме.`,
+             `Ваксинацията на ${dogName} предстои скоро. Свържи се с ветеринаря си, за да насрочиш среща навреме.`,
              language)}
       </p>
       ${infoCard(
@@ -221,11 +225,33 @@ export const emailTemplates = {
         infoRow(__('Due date:', 'Дата:', language), dueDate),
         '#f59e0b'
       )}
+      ${btn(`${process.env.FRONTEND_URL || 'https://edog.bg'}/`, __('Open eDog', 'Отвори eDog', language), '#d97706')}
       ${smallNote(
         __('You can manage all vaccination records directly in the eDog app.',
            'Можеш да управляваш всички ваксинационни записи директно в приложението eDog.',
            language)
       )}`,
+      language
+    ),
+  }),
+
+  vaccinationOverdue: (dogName: string, vaccineName: string, dueDate: string, language = 'bg') => ({
+    subject: __(`Vaccination overdue – ${dogName}`, `Изтекла ваксина – ${dogName}`, language),
+    html: wrapEmail(
+      '#dc2626', '⚠️',
+      __('Vaccination overdue', 'Изтекла ваксинация', language),
+      `<p style="margin:0 0 16px;">
+        ${__(`${dogName}'s vaccination has expired. Book a vet visit soon — and if it is already done, update the record in eDog so we can remind you next time.`,
+             `Ваксинацията на ${dogName} е изтекла. Запиши час при ветеринар — а ако вече е направена, обнови записа в eDog, за да ти напомним следващия път.`,
+             language)}
+      </p>
+      ${infoCard(
+        `<p style="margin:0 0 14px;font-size:16px;font-weight:700;color:#dc2626;">${vaccineName}</p>` +
+        infoRow(__('Dog:', 'Куче:', language), dogName) +
+        infoRow(__('Was due:', 'Изтекла на:', language), dueDate),
+        '#dc2626'
+      )}
+      ${btn(`${process.env.FRONTEND_URL || 'https://edog.bg'}/`, __('Update in eDog', 'Обнови в eDog', language), '#dc2626')}`,
       language
     ),
   }),

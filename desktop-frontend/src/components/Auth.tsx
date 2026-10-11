@@ -85,7 +85,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
     setLoading(true);
     setError(null);
     try {
-      await apiClient.forgotPassword(forgotEmail.trim());
+      await apiClient.forgotPassword(forgotEmail.trim(), i18n.resolvedLanguage);
       setForgotSuccess(true);
     } catch {
       setError(t('resetLinkError'));
@@ -455,21 +455,14 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, onRegister, awaitingVerific
             <p className="text-lg text-white/75 leading-relaxed mb-10">
               {t('heroSignupSubtitle')}
             </p>
-            <div className="flex items-center gap-8">
-              <div className="flex flex-col">
-                <span className="text-2xl font-bold text-[#a4c9ff]">15k+</span>
-                <span className="text-xs font-medium text-white/55 uppercase tracking-widest mt-0.5">
-                  {t('activePets')}
-                </span>
-              </div>
-              <div className="w-px h-10 bg-white/20" />
-              <div className="flex flex-col">
-                <span className="text-2xl font-bold text-[#a4c9ff]">4.9/5</span>
-                <span className="text-xs font-medium text-white/55 uppercase tracking-widest mt-0.5">
-                  {t('userRating')}
-                </span>
-              </div>
-            </div>
+            <ul className="space-y-3">
+              {['signupPerkFree', 'signupPerkReminders', 'signupPerkQr'].map(key => (
+                <li key={key} className="flex items-center gap-3 text-white/90">
+                  <span className="material-symbols-outlined text-[20px] text-[#a4c9ff]">check_circle</span>
+                  <span className="text-sm font-medium">{t(key)}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </aside>

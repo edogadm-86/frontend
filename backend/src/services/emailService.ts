@@ -24,7 +24,7 @@ export const sendAppointmentReminders = async () => {
     `);
 
     for (const appointment of result.rows) {
-      const lang = appointment.language || 'en';
+      const lang = appointment.language || 'bg';
 
       // Email reminder
       const reminderTemplate = emailTemplates.appointmentReminder(
@@ -56,61 +56,76 @@ export const sendAppointmentReminders = async () => {
   }
 };
 
-// Send vaccination reminders
+// Reminder milestones (days relative to next_due_date). Sending only on these exact days
+// means each vaccine produces at most 3 "upcoming" and 3 "overdue" messages — no daily spam.
+const VACCINE_UPCOMING_DAYS = [30, 7, 1];
+const VACCINE_OVERDUE_DAYS = [1, 14, 30];
+
+const formatDueDate = (d: Date | string, lang: string) =>
+  new Date(d).toLocaleDateString(lang === 'bg' ? 'bg-BG' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+// Send vaccination reminders (upcoming + overdue)
 export const sendVaccinationReminders = async () => {
   try {
     console.log('Checking for vaccination reminders...');
 
+    // Only the latest record per dog + vaccine counts: an older "Rabies" entry whose
+    // due date passed must not trigger an overdue email once a newer one was added.
     const result = await pool.query(`
-      SELECT
-        v.id, v.vaccine_name, v.next_due_date,
-        d.name as dog_name,
-        u.id as user_id, u.email, u.name as user_name, u.language
-      FROM vaccinations v
-      JOIN dogs d ON v.dog_id = d.id
-      JOIN users u ON d.user_id = u.id
-      WHERE v.next_due_date IS NOT NULL
-        AND v.next_due_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
-        AND v.next_due_date >= CURRENT_DATE
-    `);
+      SELECT * FROM (
+        SELECT DISTINCT ON (v.dog_id, LOWER(TRIM(v.vaccine_name)))
+          v.id, v.vaccine_name, v.next_due_date,
+          (v.next_due_date - CURRENT_DATE) AS days_until_due,
+          d.name AS dog_name,
+          u.id AS user_id, u.email, u.language
+        FROM vaccinations v
+        JOIN dogs d ON v.dog_id = d.id
+        JOIN users u ON d.user_id = u.id
+        WHERE v.next_due_date IS NOT NULL
+        ORDER BY v.dog_id, LOWER(TRIM(v.vaccine_name)), v.next_due_date DESC
+      ) latest
+      WHERE days_until_due = ANY($1::int[]) OR -days_until_due = ANY($2::int[])
+    `, [VACCINE_UPCOMING_DAYS, VACCINE_OVERDUE_DAYS]);
 
-    for (const vaccination of result.rows) {
-      const lang = vaccination.language || 'en';
-      const daysUntilDue = Math.ceil(
-        (new Date(vaccination.next_due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      );
+    let sent = 0;
+    for (const v of result.rows) {
+      const lang = v.language || 'bg';
+      const days = Number(v.days_until_due);
+      const dueDate = formatDueDate(v.next_due_date, lang);
+      const overdue = days < 0;
 
-      // Email reminder (existing behaviour — sent every day if within 30 days)
-      const reminderTemplate = emailTemplates.vaccinationReminder(
-        vaccination.dog_name,
-        vaccination.vaccine_name,
-        format(new Date(vaccination.next_due_date), 'MMM dd, yyyy'),
-        lang
-      );
-      await sendEmail(vaccination.email, reminderTemplate);
-      console.log(`Sent vaccination reminder to ${vaccination.email} for ${vaccination.dog_name}`);
-
-      // Push only on meaningful milestones: 30, 7, or 1 day(s) before
-      if ([30, 7, 1].includes(daysUntilDue)) {
-        const dayLabel =
-          daysUntilDue === 1
-            ? (lang === 'bg' ? 'утре' : 'tomorrow')
-            : (lang === 'bg' ? `след ${daysUntilDue} дни` : `in ${daysUntilDue} days`);
-
-        await sendPushToUser(vaccination.user_id, 'vaccinations', {
-          title: lang === 'bg'
-            ? `Ваксинация скоро - ${vaccination.dog_name}`
-            : `Vaccination Due Soon - ${vaccination.dog_name}`,
-          body: lang === 'bg'
-            ? `${vaccination.vaccine_name} е дължима ${dayLabel}.`
-            : `${vaccination.vaccine_name} is due ${dayLabel}.`,
-          icon: '/pwa-192x192.png',
-          badge: '/pwa-192x192.png',
-          tag: `vaccination-${vaccination.id}`,
-          url: '/vaccinations',
-        });
+      try {
+        await sendEmail(
+          v.email,
+          overdue
+            ? emailTemplates.vaccinationOverdue(v.dog_name, v.vaccine_name, dueDate, lang)
+            : emailTemplates.vaccinationReminder(v.dog_name, v.vaccine_name, dueDate, lang, days)
+        );
+        sent++;
+      } catch {
+        // sendEmail already logged; still try push
       }
+
+      const dayLabel = overdue
+        ? (lang === 'bg' ? `изтекла преди ${-days} дни` : `overdue by ${-days} days`)
+        : days === 1
+          ? (lang === 'bg' ? 'утре' : 'tomorrow')
+          : (lang === 'bg' ? `след ${days} дни` : `in ${days} days`);
+
+      await sendPushToUser(v.user_id, 'vaccinations', {
+        title: overdue
+          ? (lang === 'bg' ? `Изтекла ваксина - ${v.dog_name}` : `Vaccination Overdue - ${v.dog_name}`)
+          : (lang === 'bg' ? `Ваксинация скоро - ${v.dog_name}` : `Vaccination Due Soon - ${v.dog_name}`),
+        body: overdue
+          ? `${v.vaccine_name}: ${dayLabel}.`
+          : (lang === 'bg' ? `${v.vaccine_name} е дължима ${dayLabel}.` : `${v.vaccine_name} is due ${dayLabel}.`),
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-192x192.png',
+        tag: `vaccination-${v.id}`,
+        url: '/vaccinations',
+      });
     }
+    console.log(`Vaccination reminders: ${result.rows.length} due, ${sent} emails sent`);
   } catch (error) {
     console.error('Error sending vaccination reminders:', error);
   }
@@ -122,7 +137,7 @@ export const sendMedicationPush = async (
   dogName: string,
   medication: string,
   dosage: string,
-  language: string = 'en'
+  language: string = 'bg'
 ): Promise<void> => {
   const lang = language;
   await sendPushToUser(userId, 'medications', {
@@ -146,15 +161,18 @@ export const sendEventReminders = async () => {
 
     // 24 h window: events starting 23–25 h from now
     const result24h = await pool.query(`
-      SELECT e.id, e.title, e.location, ep.user_id
+      SELECT e.id, e.title, e.location, ep.user_id, u.language
       FROM events e
       JOIN event_participants ep ON ep.event_id = e.id AND ep.status = 'attending'
+      JOIN users u ON u.id = ep.user_id
       WHERE e.start_date BETWEEN NOW() + INTERVAL '23 hours' AND NOW() + INTERVAL '25 hours'
     `);
     for (const row of result24h.rows) {
       await sendPushToUser(row.user_id, 'appointments', {
-        title: 'Event tomorrow!',
-        body: `"${row.title}" starts tomorrow${row.location ? ` at ${row.location}` : ''}.`,
+        title: row.language === 'en' ? 'Event tomorrow!' : 'Събитие утре!',
+        body: row.language === 'en'
+          ? `"${row.title}" starts tomorrow${row.location ? ` at ${row.location}` : ''}.`
+          : `"${row.title}" започва утре${row.location ? ` в ${row.location}` : ''}.`,
         icon: '/pwa-192x192.png',
         tag: `event-24h-${row.id}`,
         url: '/community',
@@ -163,15 +181,18 @@ export const sendEventReminders = async () => {
 
     // 1 h window: events starting 55–65 min from now
     const result1h = await pool.query(`
-      SELECT e.id, e.title, e.location, ep.user_id
+      SELECT e.id, e.title, e.location, ep.user_id, u.language
       FROM events e
       JOIN event_participants ep ON ep.event_id = e.id AND ep.status = 'attending'
+      JOIN users u ON u.id = ep.user_id
       WHERE e.start_date BETWEEN NOW() + INTERVAL '55 minutes' AND NOW() + INTERVAL '65 minutes'
     `);
     for (const row of result1h.rows) {
       await sendPushToUser(row.user_id, 'appointments', {
-        title: 'Event in 1 hour!',
-        body: `"${row.title}" starts in about 1 hour${row.location ? ` at ${row.location}` : ''}.`,
+        title: row.language === 'en' ? 'Event in 1 hour!' : 'Събитие след 1 час!',
+        body: row.language === 'en'
+          ? `"${row.title}" starts in about 1 hour${row.location ? ` at ${row.location}` : ''}.`
+          : `"${row.title}" започва след около 1 час${row.location ? ` в ${row.location}` : ''}.`,
         icon: '/pwa-192x192.png',
         tag: `event-1h-${row.id}`,
         url: '/community',
@@ -199,7 +220,7 @@ export const sendMedicationRecurringReminders = async () => {
     `);
 
     for (const row of result.rows) {
-      const lang = row.language || 'en';
+      const lang = row.language || 'bg';
       const isToday = new Date(row.next_due_date).toDateString() === new Date().toDateString();
       const dayLabel = isToday
         ? (lang === 'bg' ? 'днес' : 'today')

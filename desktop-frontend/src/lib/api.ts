@@ -100,10 +100,17 @@ private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T
     });
   }
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string, language?: string) {
     return this.request('/auth/forgot-password', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, language }),
+    });
+  }
+
+  async updateLanguage(language: string) {
+    return this.request<{ language: string }>('/auth/language', {
+      method: 'PUT',
+      body: JSON.stringify({ language }),
     });
   }
 

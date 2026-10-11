@@ -18,6 +18,8 @@ interface HealthManagementProps {
   onNavigate: (view: string) => void;
 }
 
+export const HEALTH_TAB_KEY = 'edog_health_tab';
+
 const cardClass = 'bg-white dark:bg-[#1e2023] border border-gray-100 dark:border-white/5 rounded-xl p-5 sm:p-6';
 
 export const HealthManagement: React.FC<HealthManagementProps> = ({
@@ -27,7 +29,15 @@ export const HealthManagement: React.FC<HealthManagementProps> = ({
 }) => {
   const { t } = useTranslation();
   const { vaccinations, healthRecords, nutritionRecords } = useApp();
-  const [activeTab, setActiveTab] = useState<'overview' | 'vaccinations' | 'health-records' | 'nutrition'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'vaccinations' | 'health-records' | 'nutrition'>(() => {
+    // Other views can deep-link to a tab (e.g. the dashboard's "add vaccination" prompt)
+    try {
+      const requested = sessionStorage.getItem(HEALTH_TAB_KEY);
+      sessionStorage.removeItem(HEALTH_TAB_KEY);
+      if (requested === 'vaccinations' || requested === 'health-records' || requested === 'nutrition') return requested;
+    } catch { /* storage unavailable */ }
+    return 'overview';
+  });
   const [healthStatus, setHealthStatus] = useState<any>(null);
   const [nutritionStats, setNutritionStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);

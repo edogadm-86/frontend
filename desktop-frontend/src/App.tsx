@@ -28,6 +28,7 @@ import { BreedIntelligenceView } from './components/BreedIntelligenceView';
 import { WalkCompetitionOptIn } from './components/WalkCompetitionOptIn';
 import { useIsCoarsePointer, useIsTouchDevice, useMediaQuery } from './hooks/useIsTouchDevice';
 import { apiClient } from './lib/api';
+import i18n from './lib/i18n';
 
 const RETURNING_KEY = 'edog_returning_user';
 
@@ -70,6 +71,17 @@ const AppContent: React.FC = () => {
       navigate('/', { replace: true });
     }
   }, [user, location.pathname, navigate]);
+
+  // Keep the account language in sync with the UI so reminder emails arrive in it.
+  // Older accounts were all saved as 'en' because registration never sent a language.
+  const userId = user?.id;
+  useEffect(() => {
+    if (!userId) return;
+    const sync = (lng?: string) => { apiClient.updateLanguage((lng || 'bg').slice(0, 2)).catch(() => {}); };
+    sync(i18n.resolvedLanguage);
+    i18n.on('languageChanged', sync);
+    return () => { i18n.off('languageChanged', sync); };
+  }, [userId]);
 
   // Show opt-in modal once when user is logged in and hasn't been asked yet
   useEffect(() => {
@@ -216,7 +228,7 @@ const AppContent: React.FC = () => {
         onRegister={register}
         awaitingVerification={awaitingVerification}
         pendingVerificationEmail={pendingVerificationEmail}
-        onResendVerification={(email) => apiClient.resendVerification(email)}
+        onResendVerification={(email) => apiClient.resendVerification(email, i18n.resolvedLanguage)}
         onCancelVerification={cancelVerification}
       />
     );

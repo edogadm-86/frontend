@@ -6,6 +6,7 @@ import { Modal } from './ui/Modal';
 import { FileUpload } from './ui/FileUpload';
 import { formatDate } from '../lib/utils';
 import { vaccineTypeLabel } from '../utils/enumLabels';
+import { COMMON_VACCINES, type VaccineSchedule, findVaccineSchedule, suggestedNextDue } from '../utils/vaccineSchedule';
 import { apiClient } from '../lib/api';
 import { API_BASE_URL } from '../config';
 
@@ -60,6 +61,26 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
     batchNumber: '',
     notes: '',
   });
+
+  // Updates name/date and pre-fills the next due date for known vaccines, unless the
+  // owner already typed their own date (i.e. it differs from the previous suggestion).
+  const updateScheduleFields = (patch: Partial<typeof formData>) =>
+    setFormData(prev => {
+      const next = { ...prev, ...patch };
+      const prevSuggestion = suggestedNextDue(prev.vaccineName, prev.dateGiven);
+      const suggestion = suggestedNextDue(next.vaccineName, next.dateGiven);
+      if (suggestion && (!prev.nextDueDate || prev.nextDueDate === prevSuggestion)) {
+        next.nextDueDate = suggestion;
+      }
+      return next;
+    });
+
+  const pickCommonVaccine = (v: VaccineSchedule) =>
+    updateScheduleFields({ vaccineName: v.name, ...(v.type && !formData.vaccineType ? { vaccineType: v.type } : {}) });
+
+  const autoSchedule = findVaccineSchedule(formData.vaccineName);
+  const nextDueIsSuggested =
+    !!formData.nextDueDate && formData.nextDueDate === suggestedNextDue(formData.vaccineName, formData.dateGiven);
 
   useEffect(() => {
     loadVaccinations();
@@ -328,10 +349,31 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
         className="w-[95vw] sm:w-auto sm:max-w-lg max-h-[90vh] overflow-y-auto"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!editingVaccination && (
+            <div>
+              <p className="text-xs font-medium text-gray-500 dark:text-[#8b919d] mb-2">{t('quickAddVaccine')}</p>
+              <div className="flex flex-wrap gap-2">
+                {COMMON_VACCINES.map(v => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => pickCommonVaccine(v)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                      autoSchedule?.id === v.id
+                        ? 'bg-[#005da7] text-white border-[#005da7] dark:bg-[#a4c9ff] dark:text-[#00315d] dark:border-[#a4c9ff]'
+                        : 'border-gray-200 dark:border-white/10 text-gray-700 dark:text-[#c1c7d3] hover:border-[#005da7] dark:hover:border-[#a4c9ff]'
+                    }`}
+                  >
+                    {t(v.labelKey)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <Input
             label={t('vaccineName')}
             value={formData.vaccineName}
-            onChange={(e) => setFormData({ ...formData, vaccineName: e.target.value })}
+            onChange={(e) => updateScheduleFields({ vaccineName: e.target.value })}
             required
           />
           <div>
@@ -352,7 +394,7 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
               label={t('dateGiven')}
               type="date"
               value={formData.dateGiven}
-              onChange={(e) => setFormData({ ...formData, dateGiven: e.target.value })}
+              onChange={(e) => updateScheduleFields({ dateGiven: e.target.value })}
               required
             />
             <Input
@@ -362,6 +404,12 @@ export const VaccinationManagement: React.FC<VaccinationManagementProps> = ({
               onChange={(e) => setFormData({ ...formData, nextDueDate: e.target.value })}
             />
           </div>
+          {nextDueIsSuggested && autoSchedule && (
+            <p className="-mt-2 text-xs text-[#005da7] dark:text-[#a4c9ff] flex items-start gap-1.5">
+              <Calendar size={13} className="mt-0.5 flex-shrink-0" />
+              {t('nextDueAutoHint', { months: autoSchedule.months })}
+            </p>
+          )}
           <Input
             label={t('veterinarian')}
             value={formData.veterinarian}

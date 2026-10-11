@@ -8,6 +8,10 @@ import { sendEmail, emailTemplates } from '../config/email';
 import { AuthRequest, Notification  } from '../types';
 import { createHash } from 'crypto';
 
+// Only 'bg' and 'en' are supported; the product is Bulgarian-first.
+export const normalizeLanguage = (lng?: unknown): 'bg' | 'en' =>
+  typeof lng === 'string' && lng.toLowerCase().startsWith('en') ? 'en' : 'bg';
+
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const makeKey = (...parts: string[]) =>
@@ -16,7 +20,8 @@ const JWT_EXPIRES_IN: SignOptions['expiresIn'] =
   (process.env.JWT_EXPIRES_IN ?? '1d') as SignOptions['expiresIn'];
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, phone, language = 'en' } = req.body;
+    const { name, email, password, phone } = req.body;
+    const language = normalizeLanguage(req.body.language);
 
     // Check if user already exists
     const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
@@ -35,9 +40,9 @@ export const register = async (req: Request, res: Response) => {
     // Create user — unverified
     const userId = uuidv4();
     await pool.query(
-      `INSERT INTO users (id, name, email, password_hash, phone, email_verified, email_verification_token, email_verification_token_expiry)
-       VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7)`,
-      [userId, name, email, passwordHash, phone || null, verificationToken, verificationExpiry]
+      `INSERT INTO users (id, name, email, password_hash, phone, email_verified, email_verification_token, email_verification_token_expiry, language)
+       VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8)`,
+      [userId, name, email, passwordHash, phone || null, verificationToken, verificationExpiry, language]
     );
 
     // Send verification email
@@ -114,7 +119,8 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
 export const resendVerification = async (req: Request, res: Response) => {
   try {
-    const { email, language = 'en' } = req.body;
+    const { email } = req.body;
+    const language = normalizeLanguage(req.body.language);
 
     const result = await pool.query(
       'SELECT id, name FROM users WHERE email = $1 AND email_verified = FALSE',
@@ -207,7 +213,8 @@ export const login = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
-    const { email, language = 'en' } = req.body;
+    const { email } = req.body;
+    const language = normalizeLanguage(req.body.language);
 
     // Check if user exists
     const userResult = await pool.query('SELECT id, name FROM users WHERE email = $1', [email]);
@@ -567,6 +574,21 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     res.json({ message: 'Password updated successfully' });
   } catch (error) {
     console.error('Change password error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Keeps users.language in sync with the UI language so reminder emails match it
+export const updateLanguage = async (req: AuthRequest, res: Response) => {
+  try {
+    const language = normalizeLanguage(req.body.language);
+    await pool.query(
+      'UPDATE users SET language = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 AND language IS DISTINCT FROM $1',
+      [language, req.user!.id]
+    );
+    res.json({ language });
+  } catch (error) {
+    console.error('Update language error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

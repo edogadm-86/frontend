@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../lib/api';
+import i18n from '../lib/i18n';
 import { User, Dog, Vaccination, HealthRecord, Appointment, TrainingSession, EmergencyContact } from '../types';
 import { mapDogResponse } from '../utils/mapDog';
 
@@ -117,7 +118,7 @@ export const useApi = () => {
   const register = async (userData: { name: string; email: string; password: string; phone?: string; language?: string }) => {
     try {
       clearUserData();
-      const response = await apiClient.register(userData);
+      const response = await apiClient.register({ ...userData, language: userData.language ?? i18n.resolvedLanguage });
       setAwaitingVerification(true);
       setPendingVerificationEmail(userData.email);
       return response;

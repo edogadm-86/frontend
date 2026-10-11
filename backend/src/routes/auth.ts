@@ -1,6 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { register, login, getProfile, updateProfile, forgotPassword, resetPassword, getNotifications, markNotificationRead, changePassword, verifyEmail, resendVerification, deleteAccount } from '../controllers/authController';
+import { register, login, getProfile, updateProfile, forgotPassword, resetPassword, getNotifications, markNotificationRead, changePassword, verifyEmail, resendVerification, deleteAccount, updateLanguage } from '../controllers/authController';
 import { authenticateToken } from '../middleware/auth';
 import { validateUser, validateRequest } from '../middleware/validation';
 import { body } from 'express-validator';
@@ -67,6 +67,7 @@ router.put('/profile', authenticateToken, [
   body('email').isEmail().withMessage('Valid email is required'),
   body('phone').optional().isMobilePhone('any').withMessage('Valid phone number required')
 ], validateRequest, updateProfile);
+router.put('/language', authenticateToken, updateLanguage);
 router.post('/change-password', authenticateToken, changePassword);
 router.delete('/account', authenticateToken, deleteAccount);
 
